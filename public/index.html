@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Triathlon Trainer v1</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Triathlon Trainer v1</h1>
+      <p>Einfacher Einstieg: Planen, Verstehen, Prognostizieren.</p>
+    </header>
+
+    <main>
+      <section class="card">
+        <h2>Onboarding</h2>
+        <form id="onboarding-form">
+          <label>Trainingstage pro Woche <input type="number" id="sessions" value="5" min="3" max="6" /></label>
+          <label>Max. Minuten pro Einheit <input type="number" id="maxMinutes" value="60" min="30" max="180" /></label>
+          <label>5-km Zeit (Sekunden) <input type="number" id="fiveKm" value="1800" min="900" max="3600" /></label>
+          <label>FTP (Watt) <input type="number" id="ftp" value="170" min="80" max="450" /></label>
+          <label>Renn-Distanz
+            <select id="distance">
+              <option value="volkstriathlon">Volkstriathlon</option>
+              <option value="sprint">Sprint</option>
+              <option value="olympic">Olympisch</option>
+              <option value="middle">Mitteldistanz</option>
+            </select>
+          </label>
+          <button type="submit">v1 Plan + Prognose erzeugen</button>
+        </form>
+      </section>
+
+      <section class="grid">
+        <article class="card">
+          <h2>Forecast (realistisch)</h2>
+          <div id="forecast"></div>
+        </article>
+
+        <article class="card">
+          <h2>Rennsimulation</h2>
+          <div id="simulation"></div>
+          <div id="simulation-scenarios"></div>
+          <div id="simulation-conditions"></div>
+        </article>
+
+        <article class="card">
+          <h2>Forecast Korridor (v2)</h2>
+          <div id="forecast-band"></div>
+        </article>
+      </section>
+
+
+      <section class="card">
+        <h2>Dashboard Snapshot</h2>
+        <div id="dashboard"></div>
+      </section>
+
+      <section class="card">
+        <h2>Plananpassung Impact (v2)</h2>
+        <div id="adjustment-impact"></div>
+      </section>
+
+
+      <section class="card">
+        <h2>Rule Engine Hinweise</h2>
+        <div id="rules"></div>
+      </section>
+
+      <section class="card">
+        <h2>Anpassungs-Historie</h2>
+        <div id="adjustment-history"></div>
+      </section>
+
+      <section class="card">
+        <h2>Load & Fatigue (v2)</h2>
+        <div id="load-metrics"></div>
+      </section>
+
+      <section class="card">
+        <h2>Nächste 14 Tage Trainingsplan</h2>
+        <table>
+          <thead>
+            <tr><th>Datum</th><th>Sport</th><th>Dauer</th><th>Zone</th><th>Ziel</th><th>Warum</th></tr>
+          </thead>
+          <tbody id="plan-table"></tbody>
+        </table>
+      </section>
+
+      <section class="card">
+        <h2>Technikübungen (Tooltip-Style)</h2>
+        <ul id="drills"></ul>
+      </section>
+
+      <section class="card">
+        <h2>Gear Tracking</h2>
+        <button id="gear-check">Gear-Zustand prüfen</button>
+        <div id="gear-report"></div>
+      </section>
+
+      <section class="card">
+        <h2>Strava Import (v2)</h2>
+        <button id="strava-import">Demo-Import ausführen</button>
+        <div id="strava-report"></div>
+      </section>
+
+    </main>
+
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>
