@@ -1,68 +1,165 @@
-const WORKFLOW_STEPS = [
-  {
-    title: "1 · Daten sammeln",
-    body: "Trainingsdaten manuell oder aus Intervals.icu importieren.",
-  },
-  {
-    title: "2 · CoachSummary exportieren",
-    body: "Modulare coach_summary (JSON) erzeugen und kopieren.",
-  },
-  {
-    title: "3 · LLM befragen",
-    body: "Summary extern ins LLM (ChatGPT/Claude) einfügen.",
-  },
-  {
-    title: "4 · Plan importieren",
-    body: "localhub_plan (JSON) zurück in LocalHub importieren.",
-  },
-  {
-    title: "5 · Validieren & ersetzen",
-    body: "Harte Validierung; nur offene Workouts werden ersetzt.",
-  },
-  {
-    title: "6 · Intervals.icu Sync",
-    body: "Offene geplante Workouts idempotent synchronisieren.",
-  },
-];
+import { prisma } from "@/lib/db";
+import { addDays, formatIsoDate } from "@/domain/training/dates";
+import { buildPlanVsActual } from "@/domain/training/planVsActual";
+import { CurrentPlan } from "@/components/dashboard/CurrentPlan";
+import { PlanVsActual } from "@/components/dashboard/PlanVsActual";
+import { RecentActivities } from "@/components/dashboard/RecentActivities";
+import { ReadinessPain } from "@/components/dashboard/ReadinessPain";
+import { IntervalsSyncStatus } from "@/components/dashboard/IntervalsSyncStatus";
+import { ChatGptExchange } from "@/components/dashboard/ChatGptExchange";
 
-export default function DashboardPage() {
+// Immer frische Daten – das Dashboard spiegelt den aktuellen DB-Zustand.
+export const dynamic = "force-dynamic";
+
+export default async function DashboardPage() {
+  const now = new Date();
+  const windowStart = addDays(now, -14);
+  const windowEnd = addDays(now, 21);
+
+  const [
+    upcoming,
+    rangePlanned,
+    rangeActuals,
+    recentActuals,
+    readiness,
+    pain,
+    syncCounts,
+  ] = await Promise.all([
+    prisma.plannedWorkout.findMany({
+      where: {
+        date: { gte: addDays(now, -1), lte: windowEnd },
+        status: { in: ["planned", "synced"] },
+      },
+      orderBy: { date: "asc" },
+      take: 12,
+    }),
+    prisma.plannedWorkout.findMany({
+      where: { date: { gte: windowStart, lte: windowEnd } },
+      orderBy: { date: "asc" },
+    }),
+    prisma.actualActivity.findMany({
+      where: { date: { gte: windowStart, lte: windowEnd } },
+    }),
+    prisma.actualActivity.findMany({
+      orderBy: { date: "desc" },
+      take: 8,
+    }),
+    prisma.readinessSnapshot.findFirst({ orderBy: { date: "desc" } }),
+    prisma.painSnapshot.findFirst({ orderBy: { date: "desc" } }),
+    Promise.all([
+      prisma.syncQueue.count({ where: { status: "pending" } }),
+      prisma.syncQueue.count({ where: { status: "processing" } }),
+      prisma.syncQueue.count({ where: { status: "failed" } }),
+      prisma.syncQueue.count({ where: { status: "success" } }),
+      prisma.intervalsWorkoutSync.count({ where: { syncStatus: "synced" } }),
+    ]),
+  ]);
+
+  const planVsActualRows = buildPlanVsActual(
+    rangePlanned.map((w) => ({
+      id: w.id,
+      date: w.date,
+      sport: w.sport,
+      title: w.title,
+      plannedDurationMin: w.plannedDurationMin,
+      status: w.status,
+    })),
+    rangeActuals.map((a) => ({
+      id: a.id,
+      date: a.date,
+      sport: a.sport,
+      durationMin: a.durationMin,
+      distanceKm: a.distanceKm,
+    })),
+    now,
+  );
+
+  const [pending, processing, failed, success, synced] = syncCounts;
+
+  const intervalsConfigured = Boolean(
+    process.env.INTERVALS_ATHLETE_ID && process.env.INTERVALS_API_KEY,
+  );
+
   return (
-    <main className="mx-auto max-w-5xl px-6 py-12">
-      <header className="mb-10">
+    <main className="mx-auto max-w-6xl px-6 py-10">
+      <header className="mb-8">
         <p className="text-sm font-medium uppercase tracking-widest text-sky-400">
           LocalHub
         </p>
         <h1 className="mt-2 text-3xl font-bold text-white">Dashboard</h1>
-        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-slate-300">
-          LocalHub ist die Datendrehscheibe für dein Training – nicht der Coach.
-          Du bist der Coach, unterstützt durch ein externes LLM. LocalHub sammelt
-          Daten, exportiert strukturierte Zusammenfassungen, importiert Pläne,
-          validiert sie hart und synchronisiert mit Intervals.icu.
+        <p className="mt-2 max-w-2xl text-sm text-slate-400">
+          Workflow: CoachSummary exportieren → extern im LLM einen{" "}
+          <code>localhub_plan</code> erzeugen → importieren → nach Intervals.icu
+          synchronisieren → Plan vs. Ist auswerten.
         </p>
       </header>
 
-      <section
-        aria-label="Workflow"
-        className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
-      >
-        {WORKFLOW_STEPS.map((step) => (
-          <article
-            key={step.title}
-            className="rounded-xl border border-slate-800 bg-slate-900/40 p-5"
-          >
-            <h2 className="text-sm font-semibold text-sky-300">{step.title}</h2>
-            <p className="mt-2 text-sm leading-relaxed text-slate-400">
-              {step.body}
-            </p>
-          </article>
-        ))}
-      </section>
+      <div className="space-y-5">
+        <ChatGptExchange />
 
-      <p className="mt-10 text-xs text-slate-500">
-        Grundgerüst (Schritt 1). Die Dashboard-Komponenten – CoachSummary-Export,
-        Planimport, Plan-vs-Ist und Sync-Status – folgen in den weiteren
-        Schritten.
-      </p>
+        <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+          <CurrentPlan
+            items={upcoming.map((w) => ({
+              id: w.id,
+              date: formatIsoDate(w.date),
+              sport: w.sport,
+              title: w.title,
+              plannedDurationMin: w.plannedDurationMin,
+              status: w.status,
+            }))}
+          />
+          <RecentActivities
+            items={recentActuals.map((a) => ({
+              id: a.id,
+              date: formatIsoDate(a.date),
+              sport: a.sport,
+              durationMin: a.durationMin,
+              distanceKm: a.distanceKm,
+              load: a.load,
+              source: a.source,
+            }))}
+          />
+        </div>
+
+        <PlanVsActual rows={planVsActualRows} />
+
+        <IntervalsSyncStatus
+          initial={{
+            configured: intervalsConfigured,
+            queue: { pending, processing, failed, success },
+            syncedWorkouts: synced,
+          }}
+        />
+
+        <ReadinessPain
+          readiness={
+            readiness
+              ? {
+                  date: formatIsoDate(readiness.date),
+                  status: readiness.status,
+                  sleepTrend: readiness.sleepTrend,
+                  hrvTrend: readiness.hrvTrend,
+                  restingHrTrend: readiness.restingHrTrend,
+                  subjectiveFatigue: readiness.subjectiveFatigue,
+                  notes: readiness.notes,
+                }
+              : null
+          }
+          pain={
+            pain
+              ? {
+                  date: formatIsoDate(pain.date),
+                  overall: pain.overall,
+                  knee: pain.knee,
+                  achilles: pain.achilles,
+                  calf: pain.calf,
+                  back: pain.back,
+                  notes: pain.notes,
+                }
+              : null
+          }
+        />
+      </div>
     </main>
   );
 }
