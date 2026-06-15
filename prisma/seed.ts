@@ -35,6 +35,7 @@ async function main() {
       name: "Sven",
       heightCm: 182,
       weightKg: 76,
+      ftpWatts: 240,
       trainingLevel: "intermediate",
       primarySports: JSON.stringify(["run", "bike", "swim"]),
       knownLimiters: JSON.stringify(["achilles", "swim_technique"]),
