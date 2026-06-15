@@ -73,6 +73,45 @@ npm run build          # Produktionsbuild
 npm run test           # Vitest
 ```
 
+## Docker
+
+LocalHub lässt sich vollständig als Container betreiben (Next.js + Prisma +
+SQLite in einem Image). Die Datenbank liegt in einem benannten Volume und bleibt
+über Neustarts erhalten; Migrationen werden beim Start automatisch angewandt.
+
+```bash
+# Bauen und starten
+docker compose up --build        # http://localhost:3000  →  /dashboard
+
+# im Hintergrund
+docker compose up -d --build
+
+# Stoppen (Daten bleiben im Volume erhalten)
+docker compose down
+```
+
+Alternativ ohne Compose:
+
+```bash
+docker build -t localhub .
+docker run -p 3000:3000 -v localhub-data:/app/data \
+  -e SEED_ON_START=true localhub
+```
+
+**Konfiguration** (in `docker-compose.yml` oder via `-e`):
+
+- `DATABASE_URL` – Standard `file:/app/data/localhub.db` (persistentes Volume).
+- `SEED_ON_START` – `true` legt beim ersten Start Demodaten an.
+- `INTERVALS_ATHLETE_ID` / `INTERVALS_API_KEY` – optionale Intervals.icu-Anbindung.
+
+Der Container startet über `docker-entrypoint.sh`, der `prisma migrate deploy`
+ausführt und danach die App startet.
+
+> **Radrolle im Container:** Die Bluetooth-Steuerung läuft im Browser (nicht im
+> Container). Über `http://localhost:3000` ist der Kontext sicher genug für Web
+> Bluetooth – einfach Chrome/Edge auf dem Host verwenden. Hinter einem Reverse
+> Proxy wird HTTPS benötigt.
+
 ## Projektstruktur
 
 ```
@@ -80,17 +119,34 @@ src/
   app/
     dashboard/page.tsx        Dashboard (Einstieg)
     api/                      coach-summary | plan-import | intervals-sync
-  components/dashboard/       UI-Komponenten
+                              activities | races | gear
+  components/
+    dashboard/                UI-Komponenten (Plan, Form, Races, Gear, Trainer …)
+    charts/                   abhängigkeitsfreie SVG-Charts
   domain/
     plan-import/              validateLocalhubPlan, importLocalhubPlan
     coach-summary/            buildCoachSummary
-    training/                 Plan-/Ist-Hilfsfunktionen
-  integrations/intervals/     client, syncPlannedWorkout, syncQueue, hashWorkout
+    training/                 Plan-vs-Ist, trainingLoad (CTL/ATL/TSB), races, gear
+  integrations/
+    intervals/                client, syncPlannedWorkout, syncQueue, hashWorkout
+    trainer/                  FTMS, Watt-Auflösung, Player, Recording, Kickr-Client
   lib/db.ts                   Prisma-Client
 prisma/schema.prisma          Datenmodell
 docs/CHATGPT_LOCALHUB_PROMPT.md  System-Prompt für das externe LLM
 tests/                        Vitest-Tests
 ```
+
+## Module im Dashboard
+
+- **Form & Belastung** – Performance-Management-Chart (Fitness/Ermüdung/Form =
+  CTL/ATL/TSB) und Wochenvolumen je Disziplin.
+- **Wettkämpfe & Saison** – Wettkampf-Verwaltung mit Countdown, Priorität und
+  Saison-Timeline.
+- **Plan vs. Ist** – Wochen-Compliance plus Detailabgleich.
+- **Radrolle (Kickr Core v2)** – ERG-Steuerung & Aufzeichnung (siehe unten).
+- **Sportgeräte** – Schuhe, Räder und Komponenten (z.B. Kette) mit automatischem
+  Verschleiß-Tracking aus den Aktivitäten und Wartungs-/Austausch-Hinweisen.
+- **ChatGPT-Austausch / Intervals.icu-Sync / Readiness & Schmerz**.
 
 ## Datenbank: SQLite jetzt, PostgreSQL später
 
