@@ -209,8 +209,7 @@ describe("validateLocalhubPlan", () => {
 
   it("toleriert Legacy-snake_case-Segmente", () => {
     const plan = validPlan();
-    // @ts-expect-error Legacy-Format absichtlich
-    plan.entries[0].segments = [
+    const legacySegments = [
       {
         type: "warmup",
         duration_sec: 600,
@@ -231,7 +230,14 @@ describe("validateLocalhubPlan", () => {
         description: "Hauptteil",
       },
     ];
-    const result = validateLocalhubPlan(plan);
+    // Plan mit Legacy-Segmenten als rohes JSON (snake_case) übergeben.
+    const rawPlan = {
+      ...plan,
+      entries: plan.entries.map((e, i) =>
+        i === 0 ? { ...e, segments: legacySegments } : e,
+      ),
+    };
+    const result = validateLocalhubPlan(rawPlan);
     expect(result.valid).toBe(true);
   });
 
