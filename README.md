@@ -122,17 +122,58 @@ möglichst reibungslos bleibt.
 - Kein autonomer Coach, keine Intent-/Adaptation-/Strategy-Logik.
 - RacePrep / Fueling sind bewusst **nicht** Teil von V1.
 
-## Build-Status / Roadmap
+## Funktionsumfang (V1)
 
-Umsetzung erfolgt in kleinen Schritten:
+Der komplette Workflow ist umgesetzt:
 
 1. ✅ Projekt-Grundgerüst (Next.js + TS + Tailwind + Prisma + Vitest)
-2. ⏳ Prisma-Schema (vollständig) + erste Migration
-3. ⏳ JSON-Typen/Schemas (`coach_summary`, `localhub_plan`)
-4. ⏳ `validateLocalhubPlan` + Tests
-5. ⏳ `importLocalhubPlan` + Tests
-6. ⏳ `buildCoachSummary` + Presets + Tests
-7. ⏳ Intervals.icu Client + Sync + `hashWorkout` + Tests
-8. ⏳ Dashboard-UI
-9. ⏳ `docs/CHATGPT_LOCALHUB_PROMPT.md`
-10. ⏳ Finaler Durchgang
+2. ✅ Prisma-Schema (vollständig) + erste Migration + Seed
+3. ✅ JSON-Typen/Schemas (`coach_summary`, `localhub_plan`, Segmente)
+4. ✅ `validateLocalhubPlan` + Tests
+5. ✅ `importLocalhubPlan` (transaktional) + Tests
+6. ✅ `buildCoachSummary` + Presets + Kontext-Sammler + Tests
+7. ✅ Intervals.icu Client + `syncPlannedWorkout` + `syncQueue` + `hashWorkout` + Tests
+8. ✅ Dashboard-UI (Export, Import, Plan-vs-Ist, Sync-Status, Readiness/Pain) + API-Routes
+9. ✅ `docs/CHATGPT_LOCALHUB_PROMPT.md`
+10. ✅ Finaler Durchgang (README, Aufräumen)
+
+### Tests & Build
+
+```bash
+npm run test    # Vitest – Validierung, Import, CoachSummary, Hash/Sync, Plan-vs-Ist
+npm run build   # Next.js Produktionsbuild (inkl. Typecheck/Lint)
+```
+
+Tests, die die Datenbank brauchen (Import, Sync), legen pro Lauf eine frische
+temporäre SQLite-Datei an (`tests/helpers/testDb.ts`) – die Entwicklungs-DB wird
+nicht berührt.
+
+## Architektur-Schichten
+
+- `src/domain/schemas/` – Zod-Schemas + Typen der aktiven JSON-Formate.
+- `src/domain/plan-import/` – `validateLocalhubPlan` (rein) und
+  `importLocalhubPlan` (transaktional).
+- `src/domain/coach-summary/` – `buildCoachSummary` (rein), Presets,
+  DB-Kontext-Sammler.
+- `src/domain/training/` – Datumshilfen, `buildPlanVsActual`.
+- `src/integrations/intervals/` – Client (injizierbar), Hash, Sync, Queue.
+- `src/app/api/` – dünne Routen, die Domain-/Integrationscode aufrufen.
+- `src/components/dashboard/` – UI; serverseitig geladene Daten, Client-
+  Komponenten nur für Interaktion (Export/Import/Sync).
+
+Die Domain-Logik ist bewusst **rein und ohne direkten DB-Zugriff** gehalten
+(Daten werden als Parameter übergeben), damit sie einfach testbar bleibt. Die
+DB-Anbindung erfolgt in Importer, Sync und API-Routen.
+
+## Offene Punkte / Bewusst nicht in V1
+
+- **Import von Ist-Aktivitäten aus Intervals.icu** (Client-Methoden `listActivities`
+  existieren, ein Scheduler/Import-Job fehlt noch) – aktuell via Seed/manuell.
+- **Readiness/Pain-Erfassung** über die UI (Anzeige ist vorhanden, Eingabe-Formulare
+  fehlen noch).
+- **Hintergrund-Verarbeitung der SyncQueue** (aktuell manuell per Button/POST);
+  ein Cron/Worker wäre der nächste Schritt.
+- **RacePrep / Fueling** – bewusst ausgeklammert (separates späteres Thema).
+- **Auth/Mehrbenutzer** – Single-User-Setup für lokale Nutzung.
+- Hinweis: Prisma warnt, dass der `prisma`-Block in `package.json` (Seed) künftig
+  in eine `prisma.config.ts` wandern soll – unkritisch, bei Bedarf später migrieren.
