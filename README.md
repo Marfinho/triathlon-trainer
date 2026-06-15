@@ -148,6 +148,42 @@ Tests, die die Datenbank brauchen (Import, Sync), legen pro Lauf eine frische
 temporäre SQLite-Datei an (`tests/helpers/testDb.ts`) – die Entwicklungs-DB wird
 nicht berührt.
 
+## Radrolle steuern (Wahoo Kickr Core v2)
+
+Das Dashboard kann einen Smarttrainer per **Web Bluetooth** und dem
+**FTMS-Standard** (Fitness Machine Service) im **ERG-Modus** steuern: ein
+geplantes Rad-Workout wird Segment für Segment abgespielt und die Ziel-Watt
+direkt an die Rolle gesendet. Live-Werte (Leistung, Trittfrequenz, Herzfrequenz)
+werden aus den Indoor-Bike-Data des Trainers gelesen.
+
+**Voraussetzungen**
+
+- Browser mit Web Bluetooth: **Chrome oder Edge** (Desktop). Firefox/Safari
+  werden nicht unterstützt.
+- Sicherer Kontext: `http://localhost` (Entwicklung) oder **HTTPS** in
+  Produktion – sonst blockiert der Browser den Bluetooth-Zugriff.
+- Trainer eingeschaltet und nicht parallel mit einer anderen App (Wahoo,
+  Zwift …) verbunden.
+
+**Bedienung** (Dashboard → „Radrolle (Kickr Core v2)")
+
+1. **FTP** prüfen/setzen (Default aus dem Athleten-Profil, lokal gespeichert).
+2. **Verbinden** → Gerät im Bluetooth-Dialog wählen.
+3. **Rad-Workout** auswählen und **Start** – die Segmente werden zeitgesteuert
+   abgespielt, Ziel-Watt automatisch gesetzt.
+4. **Korrektur ±5 W**, **Pause**, **Schritt überspringen**, **Stop** sowie eine
+   **freie Watt-Vorgabe** (manueller ERG bei pausiertem Workout) stehen bereit.
+
+**Watt-Ableitung:** Segmente mit explizitem Power-Target (`targetType: "power"`)
+steuern direkt in Watt. Andernfalls wird aus Zone/Intensität bzw. RPE ein
+Prozentsatz der FTP berechnet (`src/integrations/trainer/watts.ts`). Die reine
+Protokoll-/Ableitungslogik ist unit-getestet; der Bluetooth-Zugriff selbst
+(`kickrClient.ts`) ist browserseitig und nicht testbar.
+
+> Hinweis: Die Steuerung läuft vollständig **lokal im Browser** – es werden keine
+> Trainer-Daten an einen Server gesendet. Das Aufzeichnen/Hochladen der Einheit
+> ist bewusst noch nicht Teil dieses Schritts (siehe offene Punkte).
+
 ## Architektur-Schichten
 
 - `src/domain/schemas/` – Zod-Schemas + Typen der aktiven JSON-Formate.
@@ -157,6 +193,8 @@ nicht berührt.
   DB-Kontext-Sammler.
 - `src/domain/training/` – Datumshilfen, `buildPlanVsActual`.
 - `src/integrations/intervals/` – Client (injizierbar), Hash, Sync, Queue.
+- `src/integrations/trainer/` – FTMS-Protokoll, Watt-Ableitung, Workout-Player
+  (rein/getestet) und Web-Bluetooth-Client für die Radrolle (browserseitig).
 - `src/app/api/` – dünne Routen, die Domain-/Integrationscode aufrufen.
 - `src/components/dashboard/` – UI; serverseitig geladene Daten, Client-
   Komponenten nur für Interaktion (Export/Import/Sync).
@@ -173,6 +211,9 @@ DB-Anbindung erfolgt in Importer, Sync und API-Routen.
   fehlen noch).
 - **Hintergrund-Verarbeitung der SyncQueue** (aktuell manuell per Button/POST);
   ein Cron/Worker wäre der nächste Schritt.
+- **Aufzeichnung der Rollen-Einheit** (Leistung/Trittfrequenz mitschreiben und
+  als Aktivität speichern/hochladen) – die ERG-Steuerung ist vorhanden, das
+  Recording fehlt noch.
 - **RacePrep / Fueling** – bewusst ausgeklammert (separates späteres Thema).
 - **Auth/Mehrbenutzer** – Single-User-Setup für lokale Nutzung.
 - Hinweis: Prisma warnt, dass der `prisma`-Block in `package.json` (Seed) künftig

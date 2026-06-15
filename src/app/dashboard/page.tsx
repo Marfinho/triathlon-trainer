@@ -7,6 +7,11 @@ import { RecentActivities } from "@/components/dashboard/RecentActivities";
 import { ReadinessPain } from "@/components/dashboard/ReadinessPain";
 import { IntervalsSyncStatus } from "@/components/dashboard/IntervalsSyncStatus";
 import { ChatGptExchange } from "@/components/dashboard/ChatGptExchange";
+import {
+  TrainerControl,
+  type TrainerWorkout,
+} from "@/components/dashboard/TrainerControl";
+import type { TimelineSegmentInput } from "@/integrations/trainer/workoutPlayer";
 
 // Immer frische Daten – das Dashboard spiegelt den aktuellen DB-Zustand.
 export const dynamic = "force-dynamic";
@@ -24,6 +29,8 @@ export default async function DashboardPage() {
     readiness,
     pain,
     syncCounts,
+    bikeWorkouts,
+    athlete,
   ] = await Promise.all([
     prisma.plannedWorkout.findMany({
       where: {
@@ -53,7 +60,33 @@ export default async function DashboardPage() {
       prisma.syncQueue.count({ where: { status: "success" } }),
       prisma.intervalsWorkoutSync.count({ where: { syncStatus: "synced" } }),
     ]),
+    prisma.plannedWorkout.findMany({
+      where: {
+        sport: { in: ["bike", "brick"] },
+        status: { in: ["planned", "synced"] },
+        date: { gte: addDays(now, -1), lte: windowEnd },
+      },
+      orderBy: { date: "asc" },
+      take: 10,
+    }),
+    prisma.athleteProfile.findFirst({ orderBy: { createdAt: "asc" } }),
   ]);
+
+  const trainerWorkouts: TrainerWorkout[] = bikeWorkouts.map((w) => {
+    let segments: TimelineSegmentInput[] = [];
+    try {
+      segments = JSON.parse(w.segmentsJson) as TimelineSegmentInput[];
+    } catch {
+      segments = [];
+    }
+    return {
+      id: w.id,
+      date: formatIsoDate(w.date),
+      title: w.title,
+      plannedDurationMin: w.plannedDurationMin,
+      segments,
+    };
+  });
 
   const planVsActualRows = buildPlanVsActual(
     rangePlanned.map((w) => ({
@@ -120,6 +153,11 @@ export default async function DashboardPage() {
             }))}
           />
         </div>
+
+        <TrainerControl
+          workouts={trainerWorkouts}
+          defaultFtp={athlete?.ftpWatts ?? 200}
+        />
 
         <PlanVsActual rows={planVsActualRows} />
 
