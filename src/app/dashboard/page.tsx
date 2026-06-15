@@ -8,6 +8,7 @@ import {
   buildLoadSeries,
   buildWeeklyVolume,
   interpretForm,
+  interpretAcwr,
 } from "@/domain/training/trainingLoad";
 import { CurrentPlan } from "@/components/dashboard/CurrentPlan";
 import { PlanVsActual } from "@/components/dashboard/PlanVsActual";
@@ -16,6 +17,7 @@ import { ReadinessPain } from "@/components/dashboard/ReadinessPain";
 import { IntervalsSyncStatus } from "@/components/dashboard/IntervalsSyncStatus";
 import { ChatGptExchange } from "@/components/dashboard/ChatGptExchange";
 import { FormFitness } from "@/components/dashboard/FormFitness";
+import { TrainingZones } from "@/components/dashboard/TrainingZones";
 import { RacePlanner, type Race } from "@/components/dashboard/RacePlanner";
 import {
   TrainerControl,
@@ -129,6 +131,7 @@ export default async function DashboardPage() {
   const loadSeries = buildLoadSeries(loadInput, { days: 90, today: now });
   const weeklyVolume = buildWeeklyVolume(loadInput, { weeks: 12, today: now });
   const form = interpretForm(loadSeries.current.tsb);
+  const acwrInfo = interpretAcwr(loadSeries.current.acwr);
   const presentSports = new Set<string>();
   weeklyVolume.forEach((w) =>
     Object.keys(w.bySport).forEach((s) => presentSports.add(s)),
@@ -198,6 +201,7 @@ export default async function DashboardPage() {
           }}
           current={loadSeries.current}
           form={form}
+          acwr={acwrInfo}
           weeks={weeklyVolume}
           sports={sports.length ? sports : ["bike", "run", "swim"]}
         />
@@ -233,6 +237,11 @@ export default async function DashboardPage() {
         <TrainerControl
           workouts={trainerWorkouts}
           defaultFtp={athlete?.ftpWatts ?? 200}
+        />
+        <TrainingZones
+          ftp={athlete?.ftpWatts ?? null}
+          thresholdHr={athlete?.thresholdHr ?? null}
+          thresholdPaceSecPerKm={athlete?.thresholdPaceSecPerKm ?? null}
         />
         <GearTracker initialGear={gearTree} />
       </div>

@@ -7,6 +7,7 @@ import {
   daysUntilRace,
   describeCountdown,
   racePosition,
+  trainingPhase,
 } from "@/domain/training/races";
 
 export interface Race {
@@ -125,6 +126,14 @@ export function RacePlanner({ initialRaces }: { initialRaces: Race[] }) {
                 Tage · {Math.round(nextA.days / 7)} Wo
               </p>
             </div>
+          </div>
+          <div className="mt-3 flex items-center gap-2 border-t border-neutral-200 pt-2">
+            <span className="text-[11px] uppercase tracking-wide text-neutral-400">
+              Phase
+            </span>
+            <span className="rounded-full bg-blue-50 px-2 py-0.5 text-[11px] font-medium text-blue-700">
+              {trainingPhase(nextA.days).label}
+            </span>
           </div>
         </div>
       ) : null}

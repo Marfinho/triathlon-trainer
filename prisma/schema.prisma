@@ -29,7 +29,9 @@ model AthleteProfile {
   name          String
   heightCm      Int?
   weightKg      Float?
-  ftpWatts      Int? // Functional Threshold Power (für ERG-Steuerung der Radrolle)
+  ftpWatts      Int? // Functional Threshold Power (für ERG-Steuerung & Power-Zonen)
+  thresholdHr   Int? // Schwellen-Herzfrequenz (LTHR) für HF-Zonen
+  thresholdPaceSecPerKm Int? // Schwellen-Lauf-Pace in Sekunden/km für Pace-Zonen
   trainingLevel String? // z.B. "beginner" | "intermediate" | "advanced"
   primarySports String? // JSON-Array, z.B. ["run","bike","swim"]
   knownLimiters String? // JSON-Array bekannter Limitierungen

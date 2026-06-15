@@ -50,7 +50,15 @@ export interface LoadSeries {
   ctl: number[];
   atl: number[];
   tsb: number[];
-  current: { ctl: number; atl: number; tsb: number };
+  current: {
+    ctl: number;
+    atl: number;
+    tsb: number;
+    /** Acute:Chronic Workload Ratio (ATL/CTL) – Verletzungsrisiko-Indikator. */
+    acwr: number | null;
+    /** CTL-Veränderung der letzten 7 Tage (Aufbaurate pro Woche). */
+    rampRate: number;
+  };
 }
 
 /**
@@ -97,6 +105,10 @@ export function buildLoadSeries(
     prevAtl = a;
   }
 
+  const lastCtl = ctl[ctl.length - 1] ?? 0;
+  const lastAtl = atl[atl.length - 1] ?? 0;
+  const ctl7ago = ctl[ctl.length - 8] ?? ctl[0] ?? 0;
+
   return {
     dates,
     dailyLoad,
@@ -104,9 +116,11 @@ export function buildLoadSeries(
     atl,
     tsb,
     current: {
-      ctl: ctl[ctl.length - 1] ?? 0,
-      atl: atl[atl.length - 1] ?? 0,
+      ctl: lastCtl,
+      atl: lastAtl,
       tsb: tsb[tsb.length - 1] ?? 0,
+      acwr: lastCtl > 0 ? Math.round((lastAtl / lastCtl) * 100) / 100 : null,
+      rampRate: Math.round((lastCtl - ctl7ago) * 10) / 10,
     },
   };
 }
@@ -165,4 +179,18 @@ export function interpretForm(tsb: number): {
   if (tsb >= -10) return { state: "neutral", label: "Neutral / produktiv" };
   if (tsb >= -25) return { state: "tired", label: "Ermüdet" };
   return { state: "overload", label: "Überlastet – Vorsicht" };
+}
+
+export type RiskLevel = "low" | "ok" | "high";
+
+/** Bewertet die ACWR (Sweet Spot ~0.8–1.3). */
+export function interpretAcwr(acwr: number | null): {
+  level: RiskLevel;
+  label: string;
+} {
+  if (acwr == null) return { level: "ok", label: "—" };
+  if (acwr < 0.8) return { level: "low", label: "Detraining-Risiko" };
+  if (acwr <= 1.3) return { level: "ok", label: "Sweet Spot" };
+  if (acwr <= 1.5) return { level: "high", label: "Erhöhtes Risiko" };
+  return { level: "high", label: "Hohes Risiko" };
 }

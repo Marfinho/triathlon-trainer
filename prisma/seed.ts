@@ -37,6 +37,8 @@ async function main() {
       heightCm: 182,
       weightKg: 76,
       ftpWatts: 240,
+      thresholdHr: 168,
+      thresholdPaceSecPerKm: 255,
       trainingLevel: "intermediate",
       primarySports: JSON.stringify(["run", "bike", "swim"]),
       knownLimiters: JSON.stringify(["achilles", "swim_technique"]),
