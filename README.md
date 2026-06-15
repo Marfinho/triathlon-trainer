@@ -1,325 +1,276 @@
-# Triathlon Trainer
-
-Eine anfängerfreundliche, datengetriebene Triathlon-/Multisport-Webapp mit automatischer 6-Monats-Trainingsplanung, Strava-Integration, Explainability-Layer sowie Forecasting- und Rennsimulationsmodul.
-
-## Produktkern
-
-Die App kombiniert fünf Funktionen in einem Produkt:
-
-1. **Trainingsplaner** mit periodisierter 6-Monats-Planung.
-2. **Trainingslogbuch** mit Plan-vs-Ist-Abgleich.
-3. **Analyseplattform** mit Dashboards und Fortschrittsgrafiken.
-4. **Explainability-System** („Warum wurde das so geplant?“).
-5. **Forecast-Engine** inkl. Race-Pace- und Split-Simulationen.
-
-## Zielgruppe
-
-- **Primär:** Anfänger:innen im Triathlon (Volkstriathlon bis Olympisch).
-- **Sekundär:** Ambitionierte Hobbyathlet:innen mit Multi-Race-Kalender.
-
-## MVP Scope
-
-### Must-have Funktionen
-
-- Onboarding mit Leistungsstand, Verfügbarkeit, Einschränkungen und Wettkampfkalender.
-- Automatische, rollierende **6-Monats-Planung**.
-- Mehrfach-Rennen-Planung (A/B/C-Priorität, Mini-Taper pro Event).
-- Strava OAuth + Aktivitätsimport + automatischer Planabgleich.
-- Dashboard (Volumen, Zonenverteilung, Konsistenz, Plan-vs-Ist).
-- Regelbasierte Plananpassung bei Ausfällen/Überlastung/Abweichungen.
-- Drill-Library mit Hover/Tooltip-Erklärungen.
-- Explainability-Texte pro Einheit, Planänderung und Prognose.
-- Basis-Prognosen für Swim/Bike/Run + Gesamtzeitkorridor.
-
-### Nicht im MVP (ab V2/V3)
-
-- Vollständige Wetter-/Streckenmodellierung.
-- Erweiterte Injury-Prevention-Modelle.
-- KI-Dialogcoach als eigener Assistent.
-- Tiefe Videoanalyse von Technikdrills.
-
-## Feature-Architektur
-
-### 1) Onboarding & Profil
-
-**Eingaben:**
-
-- Alter, Geschlecht, Erfahrungslevel.
-- 5-km-Zeit (optional), FTP (optional), Schwimmniveau.
-- Verfügbare Trainingstage/Woche und Zeitbudget pro Einheit.
-- Verletzungen/Einschränkungen.
-- Wettkämpfe: Datum, Distanz, Priorität (A/B/C), Ziel (Finish/PB/Test).
-
-### 2) Trainingsplan-Generator (Core Engine)
-
-- Erzeugt immer einen rollierenden **6-Monats-Korridor**.
-- Periodisierung: **Base → Build → Peak → Taper**.
-- Mehrfachrennen: Wellenperiodisierung mit Mini-Tapern.
-- Laststeuerung:
-  - 70 % locker / 20 % moderat / 10 % intensiv.
-  - Max. +10 % Volumensteigerung pro Woche.
-- Tagesoutput:
-  - Disziplin, Dauer, Intensität (Z1–Z5), Inhalte, Ziel, Begründung.
-
-### 3) Automatische Plananpassung
-
-**Trigger:**
-
-- Verpasste Einheiten.
-- Zu hohe/zu niedrige Intensität.
-- Neue Rennen.
-- Überlastungsindikatoren.
-- Subjektive Müdigkeit.
-
-**Aktionen:**
-
-- Verschieben/verkürzen/vereinfachen von Einheiten.
-- Deload früher einplanen.
-- Taper ändern.
-- Fokusblock verlagern.
-- Prognose sofort neu berechnen.
-
-Alle Anpassungen werden als **Changelog** erklärt: *Was geändert wurde, warum, und mit welcher erwarteten Auswirkung.*
-
-### 4) Forecast & Simulation (Kernmodul)
-
-#### Forecast-Typen
-
-1. **Current Fitness Projection** (Leistung, wenn heute Wettkampf wäre).
-2. **Planned Training Projection** (Leistung bei Plan-Compliance).
-3. **Scenario Projection** (optimistisch/realistisch/konservativ).
-4. **What-if Simulation** (z. B. Ausfallwochen, zusätzlicher Radtag, weniger Laufeinheiten).
-
-#### Disziplinspezifische Outputs
-
-- **Run:** 5k/10k-Potenzial, Schwellenpace, Tri-Run-Pace nach Vorermüdung.
-- **Bike:** modellierte FTP, Race Power je Distanz, IF-Empfehlung, Split-Prognose.
-- **Swim:** CSS-nahe Pace, Freiwasser-Korrektur, Split je Distanz.
-- **Gesamt:** Split-Zeiten inkl. T1/T2, Zielzeitkorridor, Unsicherheit.
-
-#### Rennsimulation
-
-Szenarien pro Rennen:
-
-- konservativ
-- realistisch
-- aggressiv
-- negative split-orientiert
-- finish-orientiert
-
-Outputs:
-
-- empfohlene Pace/Watt/HF je Disziplin
-- Splits und Gesamtzeit
-- Warnhinweise (z. B. „Bike zu aggressiv → Laufabfall wahrscheinlich“)
-
-### 5) Explainability Layer
-
-Jede Entscheidung ist nachvollziehbar:
-
-- Warum heute diese Einheit?
-- Warum diese Intensität?
-- Warum nicht härter/länger?
-- Warum wurde der Plan geändert?
-- Warum hat sich die Prognose verändert?
-
-Anzeige in drei Ebenen:
-
-1. **Kurz** (1 Satz)
-2. **Mehr erfahren** (3–5 Sätze)
-3. **Fundierte Begründung** (tiefer Trainingskontext)
-
-### 6) Drill-Library (Tooltip System)
-
-Jeder Drill enthält:
-
-- Name, Disziplin, Kurzbeschreibung
-- Ziel
-- Häufige Fehler
-- Körpersensationen („was man spüren soll“)
-- Anfänger-Eignung
-
-## Daten- und Systemarchitektur
-
-### Frontend
-
-- Next.js (React)
-- Tailwind CSS
-- Recharts für Visualisierungen
-
-### Backend
-
-- Node.js + TypeScript
-- REST oder GraphQL
-- Rule Engine + Explainability Layer
-
-### Datenbank
-
-- PostgreSQL
-
-### Integrationen
-
-- OAuth (inkl. Strava)
-- Aktivitätsimport (Distanz, Pace, Watt, HF etc.)
-
-## Datenmodell (MVP + Forecast-Erweiterung)
-
-### Kernentitäten
-
-- `users`
-- `races`
-- `workouts` (planned/actual)
-- `gear_items`
-
-### Forecast-/Explainability-Entitäten
-
-- `performance_snapshots`
-  - disziplinspezifische Leistungsschätzer + Confidence + Model-Version
-- `race_predictions`
-  - Szenario-Splits + Gesamtzeit + Erklärung
-- `plan_adjustments`
-  - alte/neue Einheit + Grund + Prognose-Delta
-- `exercise_explanations`
-  - Drill-Wissensdatenbank
-
-## Regelwerk (versioniert)
-
-Beispielregeln:
-
-- Wenn 3 harte Tage in 5 Tagen: Belastung reduzieren.
-- Wenn Rennen in 14 Tagen: keine neue Spitzenbelastung.
-- Wenn GA1 regelmäßig zu hart: Pacing-Empfehlung senken.
-- Wenn Rad steigt, Lauf stagniert: Laufökonomie priorisieren.
-
-Jede Regel liefert:
-
-- Entscheidung
-- maschinenlesbaren Grund
-- nutzerlesbare Erklärung
-
-## Dashboard & Visualisierung
-
-- Fitness/Fatigue/Form-Linien über Zeit
-- Wochenvolumen (stacked pro Disziplin)
-- Intensitätsverteilung (Donut + Trend)
-- Plan-vs-Ist (Heatmap + Wochenvergleich)
-- Race Prediction Graph (3 Szenariokurven + Unsicherheitsband)
-- Projection-after-change (alte vs. neue Prognose)
-- Race Readiness Gauge
-- Consistency Heatmap
-
-## Delivery Roadmap
-
-### V1 (MVP)
-
-- 6-Monats-Generator
-- Mehrfachrennen-Planung
-- Strava-Import
-- Basale Forecasts
-- Plananpassung auf Regelbasis
-- Drill-Tooltips
-- Dashboard-Basischarts
-
-### V2
-
-- Split-Simulation pro Rennen
-- Szenariomodellierung mit Unsicherheit
-- Gear-Warnungen
-- Erweitertes Fatigue-/Load-Modell
-
-### V3
-
-- Wetter- und Streckenmodellierung
-- Open-Water-Feinkorrekturen
-- Coach-/Admin-Ansicht
-- KI-Coach-Dialog
-
-## Qualität & UX-Prinzipien
-
-- Sehr einfache Sprache für Anfänger:innen.
-- Kein Fachbegriff ohne direkte Erklärung.
-- Jede Kennzahl mit Tooltip, jede Grafik mit Kontexttext.
-- Farbklare Intensitätsdarstellung.
-- Transparenz vor „Black Box“-Vorhersagen.
-
-## Implementierungsziel für Codex
-
-Das System soll so modular umgesetzt werden, dass Codex direkt implementieren kann:
-
-- Full-Stack Webapp (Next.js + Node + PostgreSQL)
-- Trainingsengine (6 Monate, Multi-Race)
-- Strava OAuth + Import-Pipeline
-- Forecast- und Simulationsmodule
-- Explainability Layer
-- Drill-Wissensdatenbank
-- Dashboard mit Forecast-Visualisierung
-- Gear Tracking + Wartungslogik
-
-## Aktueller Implementierungsstand (Code)
-
-Dieses Repository enthält jetzt einen ersten MVP-Code-Backbone für die Trainingslogik:
-
-- `src/engine/planGenerator.js`: Generiert einen rollierenden 26-Wochen-Plan mit Periodisierung und Explainability-Texten.
-- `src/engine/forecastEngine.js`: Liefert aktuelle Fitnessprojektion, geplante Projektion, Unsicherheitskorridor und Projektion-Delta.
-- `src/engine/adjustmentEngine.js`: Regelbasierte Plananpassung inkl. Changelog, Impact-Summary und Prognose-Delta.
-- `src/engine/adjustmentHistoryStore.js`: In-Memory-Historie für nachvollziehbare automatische Plananpassungen.
-- `src/engine/raceSimulationEngine.js`: Rennsplit-Simulation, Multi-Szenario-Bundle und What-if-Impact.
-- `src/engine/ruleEngine.js`: Versionierte Rule-Engine mit transparenten Coaching-Empfehlungen, Evidenzfeldern und Priorisierung nach A/B/C-Rennen.
-- `src/engine/loadModelEngine.js`: V2-Load/Fatigue-Modell mit CTL/ATL/Form, Ramp-Rate und Risikoindikator.
-- `src/engine/stravaImportEngine.js`: Strava-Import-Normalisierung und Plan-vs-Ist-Abgleich mit Compliance-Quote.
-- `src/engine/dashboardAssembler.js`: Kombiniert Summary, Load, Rules und Anpassungs-Historie in einer Dashboard-Gesamtantwort.
-- `src/engine/weatherCourseEngine.js`: V3-Wetter-/Streckenkorrektur für Rennsimulation (Hitze, Wind, Höhenmeter, Freiwasser, Regen).
-- `test/*.test.js`: Node-Test-Suite für Plan, Forecast, Simulation, Rules und Anpassungslogik.
-
-### Lokales Ausführen
+# LocalHub
+
+**LocalHub ist die Datendrehscheibe für dein Triathlon-/Ausdauertraining – nicht der Coach.**
+Du bist der Coach, unterstützt durch ein externes LLM (ChatGPT/Claude). LocalHub
+sammelt Daten, exportiert strukturierte Zusammenfassungen, importiert Pläne,
+validiert sie hart und hält Intervals.icu synchron.
+
+> Dieses Repository wurde von Grund auf neu aufgebaut. Die frühere Architektur
+> mit autonomer Coach-Logik (`TrainingIntent`, `AdaptationEngine`,
+> `StrategyAdjustmentEngine` …) wurde vollständig entfernt und wird **nicht**
+> wieder aufgenommen.
+
+## Grundidee
+
+LocalHub übernimmt **Datenhaltung und Workflow**, das LLM übernimmt die
+**sportwissenschaftliche Entscheidung**. Der Austausch läuft bewusst manuell per
+Copy & Paste – es gibt keine direkte LLM-API-Anbindung.
+
+**LocalHub:**
+
+- Import & Sammlung von Trainingsdaten (manuell + Intervals.icu)
+- Anzeige/Verwaltung geplanter Workouts
+- Export modularer `coach_summary` (JSON, kopierbar)
+- Import konkreter `localhub_plan` (JSON) aus dem LLM
+- Harte Validierung dieser Pläne
+- Schutz erledigter/Ist-Aktivitäten (werden **nie** überschrieben)
+- Idempotenter Sync geplanter Workouts mit Intervals.icu (keine Duplikate)
+- Plan-vs-Ist-Auswertung
+- Dashboard für Training, Readiness, Schmerzstatus, Sync-Zustand
+
+**Externes LLM:** Bewertung, Periodisierung, Trainingsentscheidung,
+Plan­erstellung im `localhub_plan`-Format.
+
+## Ziel-Workflow
+
+1. LocalHub sammelt Daten (Intervals.icu / manuell).
+2. LocalHub erzeugt eine modulare `coach_summary` (JSON, kopierbar).
+3. Nutzer kopiert die Summary in einen LLM-Chat.
+4. Das LLM erstellt einen `localhub_plan` (JSON).
+5. Nutzer importiert den Plan in LocalHub.
+6. LocalHub validiert den Plan hart.
+7. LocalHub ersetzt **nur offene** geplante Workouts im Importzeitraum.
+8. LocalHub schützt abgeschlossene/Ist-Aktivitäten vollständig.
+9. LocalHub synchronisiert die offenen geplanten Workouts nach Intervals.icu.
+
+## Tech-Stack
+
+- **TypeScript** durchgehend
+- **Next.js** (App Router) – Frontend + Backend (API Routes / Server Actions)
+- **Tailwind CSS** (v4) für Styling
+- **Prisma ORM** mit **SQLite** lokal (Wechsel auf PostgreSQL später einfach)
+- **Vitest** für Tests
+- **Intervals.icu REST API** als externe Integration
+- **Kein** ChatGPT-API-Call – Austausch ist Copy & Paste über die UI
+
+## Setup
 
 ```bash
-npm test
+# 1. Abhängigkeiten installieren (führt auch `prisma generate` aus)
+npm install
+
+# 2. Umgebungsvariablen anlegen
+cp .env.example .env   # Werte anpassen (Intervals.icu Key etc.)
+
+# 3. Datenbank/Schema vorbereiten (ab Schritt 2 mit Migrationen)
+npm run db:push
+
+# 4. Entwicklung starten
+npm run dev            # http://localhost:3000  →  /dashboard
+
+# Weitere Skripte
+npm run build          # Produktionsbuild
+npm run test           # Vitest
 ```
 
-## API-Backbone (neu)
+## Docker
 
-Ein minimaler HTTP-Server ist vorhanden (`src/server.js`) mit JSON-Endpunkten und Basis-Validierung für Array-Payloads:
-
-- `GET /health`
-- `POST /api/plan/generate`
-- `POST /api/plan/adjust`
-- `POST /api/plan/adjust-with-impact`
-- `GET /api/plan/adjustments`
-- `POST /api/forecast/current`
-- `POST /api/forecast/planned`
-- `POST /api/forecast/scenario`
-- `POST /api/forecast/uncertainty`
-- `POST /api/forecast/delta`
-- `POST /api/forecast/zones`
-- `POST /api/simulate/race`
-- `POST /api/simulate/race-scenarios`
-- `POST /api/simulate/race-conditions`
-- `POST /api/simulate/what-if`
-- `POST /api/gear/analyze`
-- `POST /api/dashboard/summary`
-- `POST /api/dashboard/full`
-- `POST /api/load/metrics`
-- `POST /api/rules/evaluate`
-- `POST /api/strava/import`
-
-Server starten:
+LocalHub lässt sich vollständig als Container betreiben (Next.js + Prisma +
+SQLite in einem Image). Die Datenbank liegt in einem benannten Volume und bleibt
+über Neustarts erhalten; Migrationen werden beim Start automatisch angewandt.
 
 ```bash
-npm run start
+# Bauen und starten
+docker compose up --build        # http://localhost:3000  →  /dashboard
+
+# im Hintergrund
+docker compose up -d --build
+
+# Stoppen (Daten bleiben im Volume erhalten)
+docker compose down
 ```
 
-## V1 Web App (fertig)
-
-Die V1 ist als lauffähige Web-App in `public/` umgesetzt:
-
-- `public/index.html`: Onboarding, Forecast-Panel, Forecast-Korridor (v2), Dashboard-Snapshot, Plananpassung-Impact (v2), Anpassungs-Historie, Rule-Hinweise, Load-&-Fatigue-Block (v2), Rennsimulation, 14-Tage-Plan, Drill-Tooltip-Liste, Gear-Tracking und Strava-Import-Block (v2).
-- `public/app.js`: Verknüpft UI mit den API-Endpunkten und rendert Daten.
-- `public/styles.css`: Einfache, anfängerfreundliche Darstellung.
-
-Start lokal:
+Alternativ ohne Compose:
 
 ```bash
-npm run start
-# dann http://localhost:3000 öffnen
+docker build -t localhub .
+docker run -p 3000:3000 -v localhub-data:/app/data \
+  -e SEED_ON_START=true localhub
 ```
+
+**Konfiguration** (in `docker-compose.yml` oder via `-e`):
+
+- `DATABASE_URL` – Standard `file:/app/data/localhub.db` (persistentes Volume).
+- `SEED_ON_START` – `true` legt beim ersten Start Demodaten an.
+- `INTERVALS_ATHLETE_ID` / `INTERVALS_API_KEY` – optionale Intervals.icu-Anbindung.
+
+Der Container startet über `docker-entrypoint.sh`, der `prisma migrate deploy`
+ausführt und danach die App startet.
+
+> **Radrolle im Container:** Die Bluetooth-Steuerung läuft im Browser (nicht im
+> Container). Über `http://localhost:3000` ist der Kontext sicher genug für Web
+> Bluetooth – einfach Chrome/Edge auf dem Host verwenden. Hinter einem Reverse
+> Proxy wird HTTPS benötigt.
+
+## Projektstruktur
+
+```
+src/
+  app/
+    dashboard/page.tsx        Dashboard (Einstieg)
+    api/                      coach-summary | plan-import | intervals-sync
+                              activities | races | gear
+  components/
+    dashboard/                UI-Komponenten (Plan, Form, Races, Gear, Trainer …)
+    charts/                   abhängigkeitsfreie SVG-Charts
+  domain/
+    plan-import/              validateLocalhubPlan, importLocalhubPlan
+    coach-summary/            buildCoachSummary
+    training/                 Plan-vs-Ist, trainingLoad (CTL/ATL/TSB), races, gear
+  integrations/
+    intervals/                client, syncPlannedWorkout, syncQueue, hashWorkout
+    trainer/                  FTMS, Watt-Auflösung, Player, Recording, Kickr-Client
+  lib/db.ts                   Prisma-Client
+prisma/schema.prisma          Datenmodell
+docs/CHATGPT_LOCALHUB_PROMPT.md  System-Prompt für das externe LLM
+tests/                        Vitest-Tests
+```
+
+## Module im Dashboard
+
+- **Form & Belastung** – Performance-Management-Chart (Fitness/Ermüdung/Form =
+  CTL/ATL/TSB) und Wochenvolumen je Disziplin.
+- **Wettkämpfe & Saison** – Wettkampf-Verwaltung mit Countdown, Priorität und
+  Saison-Timeline.
+- **Plan vs. Ist** – Wochen-Compliance plus Detailabgleich.
+- **Radrolle (Kickr Core v2)** – ERG-Steuerung & Aufzeichnung (siehe unten).
+- **Sportgeräte** – Schuhe, Räder und Komponenten (z.B. Kette) mit automatischem
+  Verschleiß-Tracking aus den Aktivitäten und Wartungs-/Austausch-Hinweisen.
+- **ChatGPT-Austausch / Intervals.icu-Sync / Readiness & Schmerz**.
+
+## Datenbank: SQLite jetzt, PostgreSQL später
+
+Für die lokale Entwicklung nutzt LocalHub SQLite (`DATABASE_URL="file:./dev.db"`).
+Für einen Wechsel auf PostgreSQL:
+
+1. In `prisma/schema.prisma` `provider = "postgresql"` setzen.
+2. In `.env` eine Postgres-`DATABASE_URL` hinterlegen.
+3. Migrationen neu erzeugen (`npm run db:migrate`).
+
+Das Schema vermeidet bewusst SQLite-spezifische Konstrukte, damit dieser Wechsel
+möglichst reibungslos bleibt.
+
+## Wichtige Invarianten
+
+- `ActualActivity` und `completed` Workouts sind **unantastbar** – kein Import
+  und kein Sync verändert oder löscht sie.
+- Planimport ersetzt ausschließlich **offene** Workouts (`planned`/`synced`) im
+  Importzeitraum (Markierung als `replaced`).
+- Intervals.icu ist **Spiegel** geplanter Workouts; Ist-Aktivitäten fließen nur
+  **von** Intervals.icu **nach** LocalHub.
+- Sync ist **idempotent**: wiederholtes Ausführen erzeugt keine Duplikate.
+
+## Bewusste Entscheidungen (V1)
+
+- **Tailwind v4** mit `@tailwindcss/postcss` (kein klassisches `tailwind.config.js`).
+- **Next.js App Router** statt Pages Router.
+- **SQLite** lokal, PostgreSQL-kompatibles Schema.
+- Kein autonomer Coach, keine Intent-/Adaptation-/Strategy-Logik.
+- RacePrep / Fueling sind bewusst **nicht** Teil von V1.
+
+## Funktionsumfang (V1)
+
+Der komplette Workflow ist umgesetzt:
+
+1. ✅ Projekt-Grundgerüst (Next.js + TS + Tailwind + Prisma + Vitest)
+2. ✅ Prisma-Schema (vollständig) + erste Migration + Seed
+3. ✅ JSON-Typen/Schemas (`coach_summary`, `localhub_plan`, Segmente)
+4. ✅ `validateLocalhubPlan` + Tests
+5. ✅ `importLocalhubPlan` (transaktional) + Tests
+6. ✅ `buildCoachSummary` + Presets + Kontext-Sammler + Tests
+7. ✅ Intervals.icu Client + `syncPlannedWorkout` + `syncQueue` + `hashWorkout` + Tests
+8. ✅ Dashboard-UI (Export, Import, Plan-vs-Ist, Sync-Status, Readiness/Pain) + API-Routes
+9. ✅ `docs/CHATGPT_LOCALHUB_PROMPT.md`
+10. ✅ Finaler Durchgang (README, Aufräumen)
+
+### Tests & Build
+
+```bash
+npm run test    # Vitest – Validierung, Import, CoachSummary, Hash/Sync, Plan-vs-Ist
+npm run build   # Next.js Produktionsbuild (inkl. Typecheck/Lint)
+```
+
+Tests, die die Datenbank brauchen (Import, Sync), legen pro Lauf eine frische
+temporäre SQLite-Datei an (`tests/helpers/testDb.ts`) – die Entwicklungs-DB wird
+nicht berührt.
+
+## Radrolle steuern (Wahoo Kickr Core v2)
+
+Das Dashboard kann einen Smarttrainer per **Web Bluetooth** und dem
+**FTMS-Standard** (Fitness Machine Service) im **ERG-Modus** steuern: ein
+geplantes Rad-Workout wird Segment für Segment abgespielt und die Ziel-Watt
+direkt an die Rolle gesendet. Live-Werte (Leistung, Trittfrequenz, Herzfrequenz)
+werden aus den Indoor-Bike-Data des Trainers gelesen.
+
+**Voraussetzungen**
+
+- Browser mit Web Bluetooth: **Chrome oder Edge** (Desktop). Firefox/Safari
+  werden nicht unterstützt.
+- Sicherer Kontext: `http://localhost` (Entwicklung) oder **HTTPS** in
+  Produktion – sonst blockiert der Browser den Bluetooth-Zugriff.
+- Trainer eingeschaltet und nicht parallel mit einer anderen App (Wahoo,
+  Zwift …) verbunden.
+
+**Bedienung** (Dashboard → „Radrolle (Kickr Core v2)")
+
+1. **FTP** prüfen/setzen (Default aus dem Athleten-Profil, lokal gespeichert).
+2. **Verbinden** → Gerät im Bluetooth-Dialog wählen.
+3. **Rad-Workout** auswählen und **Start** – die Segmente werden zeitgesteuert
+   abgespielt, Ziel-Watt automatisch gesetzt.
+4. **Korrektur ±5 W**, **Pause**, **Schritt überspringen**, **Stop** sowie eine
+   **freie Watt-Vorgabe** (manueller ERG bei pausiertem Workout) stehen bereit.
+
+**Watt-Ableitung:** Segmente mit explizitem Power-Target (`targetType: "power"`)
+steuern direkt in Watt. Andernfalls wird aus Zone/Intensität bzw. RPE ein
+Prozentsatz der FTP berechnet (`src/integrations/trainer/watts.ts`). Die reine
+Protokoll-/Ableitungslogik ist unit-getestet; der Bluetooth-Zugriff selbst
+(`kickrClient.ts`) ist browserseitig und nicht testbar.
+
+> Hinweis: Die Steuerung läuft vollständig **lokal im Browser** – es werden keine
+> Trainer-Daten an einen Server gesendet. Das Aufzeichnen/Hochladen der Einheit
+> ist bewusst noch nicht Teil dieses Schritts (siehe offene Punkte).
+
+## Architektur-Schichten
+
+- `src/domain/schemas/` – Zod-Schemas + Typen der aktiven JSON-Formate.
+- `src/domain/plan-import/` – `validateLocalhubPlan` (rein) und
+  `importLocalhubPlan` (transaktional).
+- `src/domain/coach-summary/` – `buildCoachSummary` (rein), Presets,
+  DB-Kontext-Sammler.
+- `src/domain/training/` – Datumshilfen, `buildPlanVsActual`.
+- `src/integrations/intervals/` – Client (injizierbar), Hash, Sync, Queue.
+- `src/integrations/trainer/` – FTMS-Protokoll, Watt-Ableitung, Workout-Player
+  (rein/getestet) und Web-Bluetooth-Client für die Radrolle (browserseitig).
+- `src/app/api/` – dünne Routen, die Domain-/Integrationscode aufrufen.
+- `src/components/dashboard/` – UI; serverseitig geladene Daten, Client-
+  Komponenten nur für Interaktion (Export/Import/Sync).
+
+Die Domain-Logik ist bewusst **rein und ohne direkten DB-Zugriff** gehalten
+(Daten werden als Parameter übergeben), damit sie einfach testbar bleibt. Die
+DB-Anbindung erfolgt in Importer, Sync und API-Routen.
+
+## Offene Punkte / Bewusst nicht in V1
+
+- **Import von Ist-Aktivitäten aus Intervals.icu** (Client-Methoden `listActivities`
+  existieren, ein Scheduler/Import-Job fehlt noch) – aktuell via Seed/manuell.
+- **Readiness/Pain-Erfassung** über die UI (Anzeige ist vorhanden, Eingabe-Formulare
+  fehlen noch).
+- **Hintergrund-Verarbeitung der SyncQueue** (aktuell manuell per Button/POST);
+  ein Cron/Worker wäre der nächste Schritt.
+- **Aufzeichnung der Rollen-Einheit** (Leistung/Trittfrequenz mitschreiben und
+  als Aktivität speichern/hochladen) – die ERG-Steuerung ist vorhanden, das
+  Recording fehlt noch.
+- **RacePrep / Fueling** – bewusst ausgeklammert (separates späteres Thema).
+- **Auth/Mehrbenutzer** – Single-User-Setup für lokale Nutzung.
+- Hinweis: Prisma warnt, dass der `prisma`-Block in `package.json` (Seed) künftig
+  in eine `prisma.config.ts` wandern soll – unkritisch, bei Bedarf später migrieren.

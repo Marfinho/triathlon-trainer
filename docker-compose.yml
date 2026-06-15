@@ -1,0 +1,22 @@
+services:
+  localhub:
+    build: .
+    image: localhub:latest
+    container_name: localhub
+    ports:
+      - "3000:3000"
+    environment:
+      # Persistente SQLite-DB im Volume.
+      DATABASE_URL: "file:/app/data/localhub.db"
+      # Beim ersten Start Demodaten anlegen (auf "false" setzen, wenn nicht gewünscht).
+      SEED_ON_START: "true"
+      # Optional: Intervals.icu-Anbindung.
+      # INTERVALS_ATHLETE_ID: "i12345"
+      # INTERVALS_API_KEY: "dein-api-key"
+      INTERVALS_API_BASE_URL: "https://intervals.icu/api/v1"
+    volumes:
+      - localhub-data:/app/data
+    restart: unless-stopped
+
+volumes:
+  localhub-data:
