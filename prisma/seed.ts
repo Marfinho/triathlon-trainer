@@ -151,6 +151,56 @@ async function main() {
     },
   });
 
+  // ~10 Wochen Trainingshistorie für Form-/Volumen-Graphen.
+  const plan: { sport: string; dur: number; dist: number; load: number; offset: number }[] =
+    [];
+  for (let week = 0; week < 10; week++) {
+    const base = -(week * 7);
+    plan.push({ sport: "swim", dur: 50, dist: 2.4, load: 45, offset: base - 0 });
+    plan.push({ sport: "bike", dur: 110, dist: 48, load: 95, offset: base - 2 });
+    plan.push({ sport: "run", dur: 55, dist: 10.5, load: 62, offset: base - 3 });
+    plan.push({ sport: "bike", dur: 75, dist: 32, load: 58, offset: base - 4 });
+    plan.push({ sport: "run", dur: 80, dist: 15, load: 88, offset: base - 6 });
+  }
+  let actSeq = 0;
+  for (const p of plan) {
+    if (p.offset >= 0) continue; // nur Vergangenheit
+    await prisma.actualActivity.create({
+      data: {
+        externalId: `seed-${actSeq++}`,
+        source: "intervals",
+        date: daysFromNow(p.offset),
+        sport: p.sport,
+        durationMin: p.dur,
+        distanceKm: p.dist,
+        distanceM: Math.round(p.dist * 1000),
+        load: p.load,
+        avgHr: 138 + Math.round(p.load / 6),
+      },
+    });
+  }
+
+  // Wettkämpfe (Saisonziele).
+  await prisma.raceEvent.create({
+    data: {
+      name: "Sprint-Triathlon Saisonstart",
+      date: daysFromNow(35),
+      type: "triathlon",
+      distance: "sprint",
+      priority: "C",
+      notes: "Formtest",
+    },
+  });
+  await prisma.raceEvent.create({
+    data: {
+      name: "Olympische Distanz Cup",
+      date: daysFromNow(70),
+      type: "triathlon",
+      distance: "olympic",
+      priority: "B",
+    },
+  });
+
   console.log("Seed abgeschlossen.");
 }
 

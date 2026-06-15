@@ -115,16 +115,16 @@ export function ChatGptExchange() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Export */}
         <div>
-          <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
+          <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-neutral-500">
             1 · CoachSummary exportieren
           </h3>
           <div className="flex flex-wrap items-end gap-2">
-            <label className="text-xs text-slate-400">
+            <label className="text-xs text-neutral-500">
               Zweck
               <select
                 value={purpose}
                 onChange={(e) => setPurpose(e.target.value)}
-                className="mt-1 block rounded-md border border-slate-700 bg-slate-950 px-2 py-1.5 text-sm text-slate-100"
+                className="mt-1 block rounded-lg border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900"
               >
                 {PURPOSES.map((p) => (
                   <option key={p.value} value={p.value}>
@@ -133,16 +133,16 @@ export function ChatGptExchange() {
                 ))}
               </select>
             </label>
-            <label className="text-xs text-slate-400">
+            <label className="text-xs text-neutral-500">
               Start
               <input
                 type="date"
                 value={planStart}
                 onChange={(e) => setPlanStart(e.target.value)}
-                className="mt-1 block rounded-md border border-slate-700 bg-slate-950 px-2 py-1.5 text-sm text-slate-100"
+                className="mt-1 block rounded-lg border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900"
               />
             </label>
-            <label className="text-xs text-slate-400">
+            <label className="text-xs text-neutral-500">
               Tage
               <input
                 type="number"
@@ -150,13 +150,13 @@ export function ChatGptExchange() {
                 max={28}
                 value={planDays}
                 onChange={(e) => setPlanDays(Number(e.target.value))}
-                className="mt-1 block w-20 rounded-md border border-slate-700 bg-slate-950 px-2 py-1.5 text-sm text-slate-100"
+                className="mt-1 block w-20 rounded-lg border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900"
               />
             </label>
             <button
               onClick={generateSummary}
               disabled={exporting}
-              className="rounded-md bg-sky-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-sky-500 disabled:opacity-40"
+              className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-500 disabled:opacity-40"
             >
               {exporting ? "Erzeuge…" : "Erzeugen"}
             </button>
@@ -167,7 +167,7 @@ export function ChatGptExchange() {
               <div className="mb-1 flex justify-end">
                 <button
                   onClick={copySummary}
-                  className="rounded-md border border-slate-700 px-2 py-1 text-[11px] text-slate-300 hover:bg-slate-800"
+                  className="rounded-lg border border-neutral-300 px-2 py-1 text-[11px] text-neutral-700 hover:bg-neutral-100"
                 >
                   {copyLabel}
                 </button>
@@ -175,7 +175,7 @@ export function ChatGptExchange() {
               <textarea
                 readOnly
                 value={summaryJson}
-                className="h-56 w-full rounded-md border border-slate-800 bg-slate-950 p-2 font-mono text-[11px] text-slate-300"
+                className="h-56 w-full rounded-lg border border-neutral-200 bg-white p-2 font-mono text-[11px] text-neutral-700"
               />
             </div>
           ) : null}
@@ -183,42 +183,42 @@ export function ChatGptExchange() {
 
         {/* Import */}
         <div>
-          <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
+          <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-neutral-500">
             2 · localhub_plan importieren
           </h3>
           <textarea
             value={planInput}
             onChange={(e) => setPlanInput(e.target.value)}
             placeholder='localhub_plan JSON hier einfügen…'
-            className="h-56 w-full rounded-md border border-slate-800 bg-slate-950 p-2 font-mono text-[11px] text-slate-300"
+            className="h-56 w-full rounded-lg border border-neutral-200 bg-white p-2 font-mono text-[11px] text-neutral-700"
           />
           <div className="mt-2 flex gap-2">
             <button
               onClick={() => submitPlan("validate")}
               disabled={importing || !planInput.trim()}
-              className="rounded-md border border-slate-700 px-3 py-1.5 text-xs font-medium text-slate-200 hover:bg-slate-800 disabled:opacity-40"
+              className="rounded-lg border border-neutral-300 px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-100 disabled:opacity-40"
             >
               Validieren
             </button>
             <button
               onClick={() => submitPlan("import")}
               disabled={importing || !planInput.trim()}
-              className="rounded-md bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-500 disabled:opacity-40"
+              className="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-500 disabled:opacity-40"
             >
               {importing ? "…" : "Importieren"}
             </button>
           </div>
 
           {info ? (
-            <p className="mt-2 rounded-md bg-emerald-950/60 px-3 py-2 text-xs text-emerald-200">
+            <p className="mt-2 rounded-lg bg-emerald-50 px-3 py-2 text-xs text-emerald-700">
               {info}
             </p>
           ) : null}
           {errors.length > 0 ? (
-            <ul className="mt-2 space-y-1 rounded-md bg-rose-950/50 px-3 py-2 text-xs text-rose-200">
+            <ul className="mt-2 space-y-1 rounded-lg bg-rose-50 px-3 py-2 text-xs text-rose-700">
               {errors.map((e, i) => (
                 <li key={i}>
-                  <span className="font-mono text-[10px] text-rose-400">
+                  <span className="font-mono text-[10px] text-rose-500">
                     {e.code}
                     {e.path ? `@${e.path}` : ""}
                   </span>{" "}

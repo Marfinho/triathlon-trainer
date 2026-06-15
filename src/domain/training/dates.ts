@@ -40,3 +40,11 @@ export function diffInDays(a: Date, b: Date): number {
   const MS_PER_DAY = 24 * 60 * 60 * 1000;
   return Math.round((b.getTime() - a.getTime()) / MS_PER_DAY);
 }
+
+/** Montag (UTC) der Woche, in der `date` liegt – als `YYYY-MM-DD`. */
+export function mondayOfIso(date: Date | string): string {
+  const d = typeof date === "string" ? parseIsoDate(date) : new Date(date.getTime());
+  const day = d.getUTCDay(); // 0 = Sonntag
+  const delta = day === 0 ? -6 : 1 - day;
+  return formatIsoDate(addDays(d, delta));
+}

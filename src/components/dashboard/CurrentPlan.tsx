@@ -1,4 +1,4 @@
-import { Card, sportLabel } from "./Card";
+import { Card, sportLabel, sportColor } from "./Card";
 
 export interface PlannedItem {
   id: string;
@@ -10,42 +10,43 @@ export interface PlannedItem {
 }
 
 const STATUS_STYLES: Record<string, string> = {
-  planned: "bg-slate-700 text-slate-200",
-  synced: "bg-emerald-800 text-emerald-100",
-  completed: "bg-sky-800 text-sky-100",
+  planned: "bg-neutral-100 text-neutral-600",
+  synced: "bg-emerald-50 text-emerald-700",
+  completed: "bg-blue-50 text-blue-700",
 };
 
 export function CurrentPlan({ items }: { items: PlannedItem[] }) {
   return (
     <Card
       title="Aktueller Plan"
-      subtitle="Nächste geplante Einheiten (offen/synchronisiert)"
+      subtitle="Nächste geplante Einheiten"
     >
       {items.length === 0 ? (
-        <p className="text-sm text-slate-500">
+        <p className="text-sm text-neutral-400">
           Keine offenen geplanten Workouts. Importiere einen Plan, um zu starten.
         </p>
       ) : (
-        <ul className="divide-y divide-slate-800">
+        <ul className="divide-y divide-neutral-100">
           {items.map((w) => (
-            <li
-              key={w.id}
-              className="flex items-center justify-between gap-3 py-2.5"
-            >
-              <div className="min-w-0">
-                <p className="truncate text-sm font-medium text-slate-100">
-                  {w.title}
-                </p>
-                <p className="text-xs text-slate-500">
-                  {w.date} · {sportLabel(w.sport)} ·{" "}
-                  {w.sport === "rest"
-                    ? "Ruhetag"
-                    : `${w.plannedDurationMin} min`}
-                </p>
+            <li key={w.id} className="flex items-center justify-between gap-3 py-3">
+              <div className="flex min-w-0 items-center gap-3">
+                <span
+                  className="h-8 w-1 shrink-0 rounded-full"
+                  style={{ backgroundColor: sportColor(w.sport) }}
+                />
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-medium text-neutral-900">
+                    {w.title}
+                  </p>
+                  <p className="text-xs text-neutral-500">
+                    {w.date} · {sportLabel(w.sport)} ·{" "}
+                    {w.sport === "rest" ? "Ruhetag" : `${w.plannedDurationMin} min`}
+                  </p>
+                </div>
               </div>
               <span
                 className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-medium ${
-                  STATUS_STYLES[w.status] ?? "bg-slate-700 text-slate-200"
+                  STATUS_STYLES[w.status] ?? "bg-neutral-100 text-neutral-600"
                 }`}
               >
                 {w.status}

@@ -1,4 +1,4 @@
-import { formatIsoDate } from "./dates";
+import { formatIsoDate, mondayOfIso } from "./dates";
 
 /**
  * Plan-vs-Ist-Auswertung. Vergleicht geplante Workouts mit Ist-Aktivitäten je
@@ -131,3 +131,65 @@ export function buildPlanVsActual(
   rows.sort((x, y) => (x.date < y.date ? -1 : x.date > y.date ? 1 : 0));
   return rows;
 }
+
+export interface WeekCompliance {
+  weekStart: string; // Montag, YYYY-MM-DD
+  planned: number;
+  completed: number;
+  missed: number;
+  upcoming: number;
+  plannedMin: number;
+  actualMin: number;
+  compliancePct: number;
+}
+
+/**
+ * Verdichtet Plan-vs-Ist-Zeilen zu einer Wochen-Compliance (Montag-basiert).
+ * Compliance = abgeschlossene / geplante Einheiten (ohne ungeplante).
+ */
+export function summarizeWeeklyCompliance(
+  rows: PlanVsActualRow[],
+): WeekCompliance[] {
+  const byWeek = new Map<string, WeekCompliance>();
+  const get = (date: string): WeekCompliance => {
+    const key = mondayOfIso(date);
+    let w = byWeek.get(key);
+    if (!w) {
+      w = {
+        weekStart: key,
+        planned: 0,
+        completed: 0,
+        missed: 0,
+        upcoming: 0,
+        plannedMin: 0,
+        actualMin: 0,
+        compliancePct: 0,
+      };
+      byWeek.set(key, w);
+    }
+    return w;
+  };
+
+  for (const row of rows) {
+    const w = get(row.date);
+    if (row.planned) {
+      w.planned += 1;
+      w.plannedMin += row.planned.plannedDurationMin;
+      if (row.status === "completed") w.completed += 1;
+      else if (row.status === "missed") w.missed += 1;
+      else if (row.status === "upcoming") w.upcoming += 1;
+    }
+    if (row.actual?.durationMin) w.actualMin += row.actual.durationMin;
+  }
+
+  const weeks = [...byWeek.values()].sort((a, b) =>
+    a.weekStart < b.weekStart ? -1 : 1,
+  );
+  for (const w of weeks) {
+    w.actualMin = Math.round(w.actualMin);
+    w.compliancePct =
+      w.planned > 0 ? Math.round((w.completed / w.planned) * 100) : 0;
+  }
+  return weeks;
+}
+

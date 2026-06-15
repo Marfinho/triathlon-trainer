@@ -48,14 +48,14 @@ export function IntervalsSyncStatus({ initial }: { initial: SyncState }) {
         <button
           onClick={runSync}
           disabled={busy || !state.configured}
-          className="rounded-md bg-sky-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-sky-500 disabled:cursor-not-allowed disabled:opacity-40"
+          className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-40"
         >
           {busy ? "Synchronisiere…" : "Jetzt synchronisieren"}
         </button>
       }
     >
       {!state.configured ? (
-        <p className="mb-3 rounded-md bg-amber-950/60 px-3 py-2 text-xs text-amber-200">
+        <p className="mb-3 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-700">
           Intervals.icu ist nicht konfiguriert. Setze INTERVALS_ATHLETE_ID und
           INTERVALS_API_KEY in <code>.env</code>.
         </p>
@@ -70,7 +70,7 @@ export function IntervalsSyncStatus({ initial }: { initial: SyncState }) {
       </dl>
 
       {message ? (
-        <p className="mt-3 text-xs text-slate-400">{message}</p>
+        <p className="mt-3 text-xs text-neutral-500">{message}</p>
       ) : null}
     </Card>
   );
@@ -88,14 +88,14 @@ function Stat({
   const color =
     tone === "error"
       ? value > 0
-        ? "text-rose-300"
-        : "text-slate-200"
+        ? "text-rose-600"
+        : "text-neutral-800"
       : tone === "ok"
-        ? "text-emerald-300"
-        : "text-slate-200";
+        ? "text-emerald-600"
+        : "text-neutral-800";
   return (
-    <div className="rounded-md border border-slate-800 bg-slate-950/40 px-3 py-2">
-      <dt className="text-[11px] uppercase tracking-wide text-slate-500">
+    <div className="rounded-xl border border-neutral-200 bg-neutral-50 px-3 py-2">
+      <dt className="text-[11px] uppercase tracking-wide text-neutral-400">
         {label}
       </dt>
       <dd className={`mt-0.5 text-lg font-semibold ${color}`}>{value}</dd>
