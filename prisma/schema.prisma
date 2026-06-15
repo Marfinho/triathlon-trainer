@@ -1,12 +1,15 @@
 // LocalHub Prisma Schema
 //
-// SQLite für die lokale Entwicklung. Der Datenmodell-Aufbau ist so gehalten,
-// dass ein späterer Wechsel auf PostgreSQL einfach ist: Provider auf
-// "postgresql" stellen, DATABASE_URL anpassen, neu migrieren.
+// SQLite für die lokale Entwicklung. Der Aufbau ist bewusst
+// PostgreSQL-kompatibel gehalten: für den Wechsel genügt es, `provider` auf
+// "postgresql" zu setzen, DATABASE_URL anzupassen und neu zu migrieren.
 //
-// HINWEIS: Dies ist das Grundgerüst-Schema (Schritt 1). Das vollständige
-// Datenmodell (AthleteProfile, PlannedWorkout, ActualActivity, Sync-Modelle …)
-// folgt in Schritt 2.
+// Designentscheidungen für maximale Portabilität:
+//   * Enums werden NICHT als Prisma-Enums modelliert (SQLite unterstützt sie
+//     nicht). Stattdessen `String`-Felder mit dokumentierten erlaubten Werten;
+//     die Durchsetzung erfolgt in der Domain-Schicht via Zod/TypeScript.
+//   * JSON wird als serialisierter `String` gespeichert (Feldsuffix `Json`),
+//     was auf jedem Provider funktioniert.
 
 generator client {
   provider = "prisma-client-js"
@@ -17,11 +20,214 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-/// Platzhalter-Modell für das Grundgerüst. Wird in Schritt 2 durch das
-/// vollständige Datenmodell ersetzt.
+// ---------------------------------------------------------------------------
+// Stammdaten
+// ---------------------------------------------------------------------------
+
 model AthleteProfile {
+  id            String   @id @default(cuid())
+  name          String
+  heightCm      Int?
+  weightKg      Float?
+  trainingLevel String? // z.B. "beginner" | "intermediate" | "advanced"
+  primarySports String? // JSON-Array, z.B. ["run","bike","swim"]
+  knownLimiters String? // JSON-Array bekannter Limitierungen
+  equipment     String? // JSON-Objekt/Array vorhandener Ausrüstung
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model RaceEvent {
   id        String   @id @default(cuid())
   name      String
+  date      DateTime
+  type      String // z.B. "triathlon" | "run" | "bike" | "swim"
+  distance  String? // z.B. "olympic" | "70.3" | "marathon"
+  priority  String? // "A" | "B" | "C"
+  notes     String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+// ---------------------------------------------------------------------------
+// Geplante Workouts (LocalHub ist hier führend)
+// ---------------------------------------------------------------------------
+
+model PlannedWorkout {
+  id                 String   @id @default(cuid())
+  date               DateTime
+  sport              String // "run" | "bike" | "swim" | "strength" | "rest" | ...
+  title              String
+  plannedDurationMin Int      @default(0)
+  plannedDistanceM   Int?
+  rpe                Int?
+  description        String?
+  segmentsJson       String   @default("[]") // JSON-Array von Segmenten
+  // status: planned | synced | completed | skipped | cancelled | replaced
+  // Regel: nur planned/synced dürfen per Import zu `replaced` werden;
+  // `completed` wird niemals verändert.
+  status             String   @default("planned")
+  source             String   @default("plan_import") // "plan_import" | "manual" | "intervals"
+  planImportId       String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  planImport     TrainingPlanImport?   @relation(fields: [planImportId], references: [id])
+  intervalsSync  IntervalsWorkoutSync?
+  syncQueueJobs  SyncQueue[]
+
+  @@index([date])
+  @@index([status])
+  @@index([planImportId])
+}
+
+// ---------------------------------------------------------------------------
+// Ist-Aktivitäten – UNANTASTBAR. Nur Import von Intervals.icu -> LocalHub.
+// Werden niemals durch Planimport überschrieben oder gelöscht.
+// ---------------------------------------------------------------------------
+
+model ActualActivity {
+  id          String   @id @default(cuid())
+  externalId  String? // z.B. Intervals.icu Activity-ID
+  source      String   @default("intervals") // "intervals" | "manual" | ...
+  date        DateTime
+  sport       String
+  durationMin Float?
+  distanceKm  Float?
+  distanceM   Float?
+  load        Float?
+  rpe         Float?
+  avgHr       Int?
+  notes       String?
+  rawJson     String? // Rohdaten der Quelle
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([source, externalId])
+  @@index([date])
+}
+
+// ---------------------------------------------------------------------------
+// Planimport & CoachSummary-Export
+// ---------------------------------------------------------------------------
+
+model TrainingPlanImport {
+  id                   String   @id @default(cuid())
+  schemaVersion        String
+  type                 String // erwartet "localhub_plan"
+  planName             String?
+  generatedAt          DateTime?
+  planStart            DateTime
+  planDays             Int
+  planEnd              DateTime
+  rawJson              String
+  validationStatus     String // "valid" | "invalid" | "imported"
+  validationErrorsJson String? // JSON-Array von Fehlern
+  createdAt            DateTime @default(now())
+
+  plannedWorkouts PlannedWorkout[]
+}
+
+model CoachSummaryExport {
+  id                     String   @id @default(cuid())
+  schemaVersion          String
+  exportPurpose          String // "training_plan" | "plan_review" | ...
+  requestedFormat        String // "localhub_plan_json"
+  planStart              DateTime?
+  planDays               Int?
+  includedModulesJson    String // JSON-Array enthaltener Module
+  modulesJson            String // JSON-Objekt der Modul-Inhalte
+  chatGptInstructionJson String // JSON-Objekt der Output-Regeln
+  createdAt              DateTime @default(now())
+}
+
+// ---------------------------------------------------------------------------
+// Intervals.icu Synchronisation
+// ---------------------------------------------------------------------------
+
+model IntervalsWorkoutSync {
+  id                          String   @id @default(cuid())
+  localWorkoutId              String   @unique
+  intervalsEventId            String?
+  intervalsActivityId         String?
+  lastSyncedAt                DateTime?
+  lastSyncedHash              String?
+  syncStatus                  String   @default("pending") // pending|synced|failed|superseded
+  syncConflictState           String?
+  deletedOrSupersededAt       DateTime?
+  supersededByLocalWorkoutId  String?
+  createdAt                   DateTime @default(now())
+  updatedAt                   DateTime @updatedAt
+
+  localWorkout PlannedWorkout @relation(fields: [localWorkoutId], references: [id])
+
+  @@index([intervalsEventId])
+}
+
+model SyncQueue {
+  id               String   @id @default(cuid())
+  localWorkoutId   String
+  intervalsEventId String?
+  action           String // create|update|move|delete|replace
+  payloadJson      String?
+  status           String   @default("pending") // pending|processing|success|failed
+  attempts         Int      @default(0)
+  lastAttemptAt    DateTime?
+  errorMessage     String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  localWorkout PlannedWorkout @relation(fields: [localWorkoutId], references: [id])
+
+  @@index([status])
+  @@index([localWorkoutId])
+}
+
+model SyncLog {
+  id                String   @id @default(cuid())
+  localWorkoutId    String?
+  intervalsEventId  String?
+  action            String
+  previousStateJson String?
+  newStateJson      String?
+  reason            String?
+  triggeredBy       String? // "import" | "manual_sync" | "queue" | ...
+  success           Boolean  @default(true)
+  errorMessage      String?
+  createdAt         DateTime @default(now())
+
+  @@index([localWorkoutId])
+  @@index([createdAt])
+}
+
+// ---------------------------------------------------------------------------
+// Optionale Snapshots (Readiness & Schmerz)
+// ---------------------------------------------------------------------------
+
+model ReadinessSnapshot {
+  id                String   @id @default(cuid())
+  date              DateTime
+  status            String? // "green" | "amber" | "red"
+  sleepTrend        String?
+  hrvTrend          String?
+  restingHrTrend    String?
+  subjectiveFatigue Int?
+  notes             String?
+  createdAt         DateTime @default(now())
+
+  @@index([date])
+}
+
+model PainSnapshot {
+  id        String   @id @default(cuid())
+  date      DateTime
+  overall   Int?
+  knee      Int?
+  achilles  Int?
+  calf      Int?
+  back      Int?
+  notes     String?
+  createdAt DateTime @default(now())
+
+  @@index([date])
 }
