@@ -1,0 +1,27 @@
+// LocalHub Prisma Schema
+//
+// SQLite für die lokale Entwicklung. Der Datenmodell-Aufbau ist so gehalten,
+// dass ein späterer Wechsel auf PostgreSQL einfach ist: Provider auf
+// "postgresql" stellen, DATABASE_URL anpassen, neu migrieren.
+//
+// HINWEIS: Dies ist das Grundgerüst-Schema (Schritt 1). Das vollständige
+// Datenmodell (AthleteProfile, PlannedWorkout, ActualActivity, Sync-Modelle …)
+// folgt in Schritt 2.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+/// Platzhalter-Modell für das Grundgerüst. Wird in Schritt 2 durch das
+/// vollständige Datenmodell ersetzt.
+model AthleteProfile {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
