@@ -21,6 +21,8 @@ import {
   TrainerControl,
   type TrainerWorkout,
 } from "@/components/dashboard/TrainerControl";
+import { GearTracker, type Gear } from "@/components/dashboard/GearTracker";
+import { buildGearTree } from "@/domain/training/gear";
 import type { TimelineSegmentInput } from "@/integrations/trainer/workoutPlayer";
 
 export const dynamic = "force-dynamic";
@@ -45,6 +47,8 @@ export default async function DashboardPage() {
     athlete,
     loadActivities,
     races,
+    gearItems,
+    gearActivities,
   ] = await Promise.all([
     prisma.plannedWorkout.findMany({
       where: {
@@ -87,6 +91,10 @@ export default async function DashboardPage() {
       select: { date: true, sport: true, durationMin: true, load: true, rpe: true },
     }),
     prisma.raceEvent.findMany({ orderBy: { date: "asc" } }),
+    prisma.gearItem.findMany({ orderBy: { createdAt: "asc" } }),
+    prisma.actualActivity.findMany({
+      select: { date: true, sport: true, distanceKm: true, durationMin: true },
+    }),
   ]);
 
   // --- Plan vs. Ist ---
@@ -145,6 +153,8 @@ export default async function DashboardPage() {
       segments,
     };
   });
+
+  const gearTree = buildGearTree(gearItems, gearActivities) as unknown as Gear[];
 
   const racesData: Race[] = races.map((r) => ({
     id: r.id,
@@ -218,12 +228,13 @@ export default async function DashboardPage() {
         <PlanVsActual rows={planVsActualRows} weeks={weeklyCompliance} />
       </div>
 
-      <SectionLabel className="mt-10">Training</SectionLabel>
+      <SectionLabel className="mt-10">Training & Material</SectionLabel>
       <div className="space-y-5">
         <TrainerControl
           workouts={trainerWorkouts}
           defaultFtp={athlete?.ftpWatts ?? 200}
         />
+        <GearTracker initialGear={gearTree} />
       </div>
 
       <SectionLabel className="mt-10">Austausch & Sync</SectionLabel>

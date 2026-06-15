@@ -27,6 +27,7 @@ async function main() {
   await prisma.coachSummaryExport.deleteMany();
   await prisma.readinessSnapshot.deleteMany();
   await prisma.painSnapshot.deleteMany();
+  await prisma.gearItem.deleteMany();
   await prisma.raceEvent.deleteMany();
   await prisma.athleteProfile.deleteMany();
 
@@ -198,6 +199,41 @@ async function main() {
       type: "triathlon",
       distance: "olympic",
       priority: "B",
+    },
+  });
+
+  // Sportgeräte: Laufschuh + Rad mit Komponente (Kette).
+  await prisma.gearItem.create({
+    data: {
+      name: "Nike Vaporfly 3",
+      type: "shoe",
+      sport: "run",
+      brand: "Nike",
+      purchaseDate: daysFromNow(-80),
+      autoTrack: true,
+      alertKm: 600,
+    },
+  });
+  const bike = await prisma.gearItem.create({
+    data: {
+      name: "Canyon Speedmax",
+      type: "bike",
+      sport: "bike",
+      brand: "Canyon",
+      purchaseDate: daysFromNow(-400),
+      autoTrack: true,
+    },
+  });
+  await prisma.gearItem.create({
+    data: {
+      name: "Kette KMC X11",
+      type: "component",
+      sport: "bike",
+      brand: "KMC",
+      parentId: bike.id,
+      purchaseDate: daysFromNow(-45),
+      autoTrack: true,
+      alertKm: 4000,
     },
   });
 

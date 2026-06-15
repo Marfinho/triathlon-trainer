@@ -219,6 +219,39 @@ model ReadinessSnapshot {
   @@index([date])
 }
 
+// ---------------------------------------------------------------------------
+// Sportgeräte-Tracking (Schuhe, Räder, Komponenten wie Kette …)
+// ---------------------------------------------------------------------------
+
+model GearItem {
+  id           String   @id @default(cuid())
+  name         String
+  type         String // "shoe" | "bike" | "component" | "wetsuit" | "other"
+  sport        String? // "run" | "bike" | "swim" … (für Auto-Akkumulation)
+  parentId     String? // z.B. Kette -> Rad
+  brand        String?
+  model        String?
+  purchaseDate DateTime? // bei Komponenten = Einbaudatum (Tracking-Start)
+  retired      Boolean  @default(false)
+  // Auto-Akkumulation: zählt passende Aktivitäten (sport, ab purchaseDate).
+  autoTrack    Boolean  @default(true)
+  // Manuelle Zusatzwerte (z.B. Einheiten außerhalb von LocalHub).
+  manualKm     Float    @default(0)
+  manualHours  Float    @default(0)
+  // Verschleißgrenzen für Wartungs-/Austausch-Hinweise.
+  alertKm      Float?
+  alertHours   Float?
+  notes        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  parent     GearItem?  @relation("GearComponents", fields: [parentId], references: [id], onDelete: Cascade)
+  components GearItem[] @relation("GearComponents")
+
+  @@index([type])
+  @@index([parentId])
+}
+
 model PainSnapshot {
   id        String   @id @default(cuid())
   date      DateTime

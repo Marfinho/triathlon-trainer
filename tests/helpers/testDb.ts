@@ -44,6 +44,7 @@ export async function resetDb(db: PrismaClient): Promise<void> {
   await db.coachSummaryExport.deleteMany();
   await db.readinessSnapshot.deleteMany();
   await db.painSnapshot.deleteMany();
+  await db.gearItem.deleteMany();
   await db.raceEvent.deleteMany();
   await db.athleteProfile.deleteMany();
 }
