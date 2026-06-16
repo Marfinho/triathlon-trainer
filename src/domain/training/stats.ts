@@ -32,6 +32,10 @@ export interface SeasonStats {
   totalKm: number;
   biggestWeekLoad: number;
   currentStreakDays: number;
+  /** Wochen mit mindestens einer Einheit. */
+  activeWeeks: number;
+  /** Durchschnittliche Trainingsstunden über die aktiven Wochen. */
+  avgWeeklyHours: number;
 }
 
 function iso(value: Date | string): string {
@@ -92,6 +96,13 @@ export function buildSeasonStats(
     else break;
   }
 
+  const weeksWithActivity = new Set<string>();
+  for (const a of activities) weeksWithActivity.add(mondayOfIso(a.date));
+  const activeWeeks = weeksWithActivity.size;
+  const totalHours = Math.round((totalMin / 60) * 10) / 10;
+  const avgWeeklyHours =
+    activeWeeks > 0 ? Math.round((totalHours / activeWeeks) * 10) / 10 : 0;
+
   const bySport = [...bySportMap.values()]
     .map((s) => ({
       ...s,
@@ -106,9 +117,11 @@ export function buildSeasonStats(
   return {
     bySport,
     totalSessions: activities.length,
-    totalHours: Math.round((totalMin / 60) * 10) / 10,
+    totalHours,
     totalKm: Math.round(totalKm),
     biggestWeekLoad: Math.round(Math.max(0, ...loadByWeek.values())),
     currentStreakDays: streak,
+    activeWeeks,
+    avgWeeklyHours,
   };
 }

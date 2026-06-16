@@ -99,6 +99,36 @@ export function WeeklyGoals({ initial }: { initial: GoalProgress[] }) {
         </div>
       ) : null}
 
+      {goals.length > 0
+        ? (() => {
+            const targetMin = goals.reduce((s, g) => s + g.targetMin, 0);
+            const actualMin = goals.reduce((s, g) => s + g.actualMin, 0);
+            const pct = targetMin ? Math.round((actualMin / targetMin) * 100) : 0;
+            return (
+              <div className="mb-4 rounded-xl border border-neutral-200 bg-neutral-50 p-3">
+                <div className="flex items-baseline justify-between text-sm">
+                  <span className="font-medium text-neutral-800">Gesamt diese Woche</span>
+                  <span className="text-neutral-500">
+                    {(actualMin / 60).toFixed(1)} / {(targetMin / 60).toFixed(1)} h ·{" "}
+                    <span className={pct >= 100 ? "font-semibold text-emerald-600" : ""}>
+                      {pct}%
+                    </span>
+                  </span>
+                </div>
+                <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-neutral-200">
+                  <div
+                    className="h-full rounded-full"
+                    style={{
+                      width: `${Math.min(100, pct)}%`,
+                      backgroundColor: pct >= 100 ? "#34c759" : "#0a84ff",
+                    }}
+                  />
+                </div>
+              </div>
+            );
+          })()
+        : null}
+
       {goals.length === 0 ? (
         <p className="text-sm text-neutral-400">
           Noch keine Ziele gesetzt. Lege z.B. Schwimm-, Rad- und Laufstunden fest.

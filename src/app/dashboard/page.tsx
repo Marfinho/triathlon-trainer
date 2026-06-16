@@ -25,6 +25,8 @@ import { buildSeasonStats } from "@/domain/training/stats";
 import { WeeklyGoals } from "@/components/dashboard/WeeklyGoals";
 import { buildGoalProgress } from "@/domain/training/goals";
 import { DashboardTabs } from "@/components/dashboard/DashboardTabs";
+import { BodyMetrics } from "@/components/dashboard/BodyMetrics";
+import { summarizeBody } from "@/domain/training/body";
 import { RacePlanner, type Race } from "@/components/dashboard/RacePlanner";
 import {
   TrainerControl,
@@ -60,6 +62,7 @@ export default async function DashboardPage() {
     gearActivities,
     syncLogs,
     goals,
+    bodyMetrics,
   ] = await Promise.all([
     prisma.plannedWorkout.findMany({
       where: {
@@ -108,7 +111,16 @@ export default async function DashboardPage() {
     }),
     prisma.syncLog.findMany({ orderBy: { createdAt: "desc" }, take: 5 }),
     prisma.trainingGoal.findMany({ orderBy: { sport: "asc" } }),
+    prisma.bodyMetric.findMany({ orderBy: { date: "desc" }, take: 30 }),
   ]);
+
+  const bodySummary = summarizeBody(
+    bodyMetrics.map((b) => ({
+      date: b.date,
+      weightKg: b.weightKg,
+      restingHr: b.restingHr,
+    })),
+  );
 
   // --- Plan vs. Ist ---
   const planVsActualRows = buildPlanVsActual(
@@ -392,6 +404,7 @@ export default async function DashboardPage() {
                     painTrend={painTrend}
                   />
                 </div>
+                <BodyMetrics summary={bodySummary} />
               </>
             ),
           },

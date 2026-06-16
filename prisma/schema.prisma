@@ -255,6 +255,17 @@ model GearItem {
   @@index([parentId])
 }
 
+model BodyMetric {
+  id        String   @id @default(cuid())
+  date      DateTime
+  weightKg  Float?
+  restingHr Int?
+  notes     String?
+  createdAt DateTime @default(now())
+
+  @@index([date])
+}
+
 model TrainingGoal {
   id              String   @id @default(cuid())
   sport           String   @unique // ein Ziel je Disziplin

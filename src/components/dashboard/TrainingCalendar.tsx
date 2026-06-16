@@ -34,8 +34,14 @@ export function TrainingCalendar({ grid }: { grid: CalendarDay[][] }) {
             );
           const actualMin = sumKind("actual");
           const plannedMin = sumKind("planned");
+          const isCurrentWeek = week.some((d) => d.isToday);
           return (
-            <div key={wi} className="flex items-stretch gap-1">
+            <div
+              key={wi}
+              className={`flex items-stretch gap-1 rounded-lg ${
+                isCurrentWeek ? "ring-1 ring-blue-200" : ""
+              }`}
+            >
               <div className="grid flex-1 grid-cols-7 gap-1">
                 {week.map((day) => (
                   <DayCell key={day.date} day={day} />

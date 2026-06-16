@@ -28,6 +28,7 @@ async function main() {
   await prisma.readinessSnapshot.deleteMany();
   await prisma.painSnapshot.deleteMany();
   await prisma.gearItem.deleteMany();
+  await prisma.bodyMetric.deleteMany();
   await prisma.trainingGoal.deleteMany();
   await prisma.raceEvent.deleteMany();
   await prisma.athleteProfile.deleteMany();
@@ -240,6 +241,17 @@ async function main() {
       alertKm: 4000,
     },
   });
+
+  // Körpermetriken (Gewicht + Ruhepuls) der letzten zwei Wochen.
+  for (let i = 14; i >= 0; i -= 2) {
+    await prisma.bodyMetric.create({
+      data: {
+        date: daysFromNow(-i),
+        weightKg: Math.round((76 - i * 0.05) * 10) / 10,
+        restingHr: 48 + (i % 3),
+      },
+    });
+  }
 
   // Wochenziele je Disziplin (Minuten).
   await prisma.trainingGoal.createMany({

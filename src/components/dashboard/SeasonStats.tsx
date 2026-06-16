@@ -7,9 +7,10 @@ export function SeasonStatsCard({ stats }: { stats: SeasonStats }) {
       title="Saison-Statistik & Bestwerte"
       subtitle="Gesamtvolumen, Bestwerte je Disziplin und Trainings-Streak"
     >
-      <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-5">
+      <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-6">
         <Kpi label="Einheiten" value={String(stats.totalSessions)} />
         <Kpi label="Stunden" value={stats.totalHours.toFixed(1)} />
+        <Kpi label="Ø / Woche" value={`${stats.avgWeeklyHours} h`} />
         <Kpi label="Distanz" value={`${stats.totalKm} km`} />
         <Kpi label="Streak" value={`${stats.currentStreakDays} d`} />
         <Kpi label="Top-Woche" value={`${stats.biggestWeekLoad}`} sub="Load" />
