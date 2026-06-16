@@ -1,14 +1,27 @@
 import { Card, sportLabel, sportColor } from "./Card";
 import { LineChart, StackedBarChart, ChartLegend } from "@/components/charts/Charts";
-import type { WeeklyVolume, FormState } from "@/domain/training/trainingLoad";
+import type {
+  WeeklyVolume,
+  FormState,
+  RiskLevel,
+} from "@/domain/training/trainingLoad";
 
 export interface FormFitnessProps {
   series: { dates: string[]; ctl: number[]; atl: number[]; tsb: number[] };
-  current: { ctl: number; atl: number; tsb: number };
+  current: { ctl: number; atl: number; tsb: number; acwr: number | null; rampRate: number };
   form: { state: FormState; label: string };
+  acwr: { level: RiskLevel; label: string };
+  load7d: number;
+  load28d: number;
   weeks: WeeklyVolume[];
   sports: string[];
 }
+
+const RISK_COLOR: Record<RiskLevel, string> = {
+  low: "#0a84ff",
+  ok: "#34c759",
+  high: "#ff3b30",
+};
 
 const FORM_COLOR: Record<FormState, string> = {
   fresh: "#34c759",
@@ -27,6 +40,9 @@ export function FormFitness({
   series,
   current,
   form,
+  acwr,
+  load7d,
+  load28d,
   weeks,
   sports,
 }: FormFitnessProps) {
@@ -51,7 +67,7 @@ export function FormFitness({
       title="Form & Belastung"
       subtitle="Fitness, Ermüdung und Form (CTL / ATL / TSB) sowie Wochenvolumen"
     >
-      <div className="mb-5 grid grid-cols-3 gap-3">
+      <div className="mb-5 grid grid-cols-3 gap-3 sm:grid-cols-5">
         <Stat label="Fitness" sub="CTL" value={Math.round(current.ctl)} color="#0a84ff" />
         <Stat label="Ermüdung" sub="ATL" value={Math.round(current.atl)} color="#ff9f0a" />
         <Stat
@@ -60,6 +76,41 @@ export function FormFitness({
           value={Math.round(current.tsb)}
           color={FORM_COLOR[form.state]}
         />
+        <Stat
+          label="Belastung"
+          sub={`ACWR · ${acwr.label}`}
+          value={current.acwr ?? "—"}
+          color={RISK_COLOR[acwr.level]}
+        />
+        <Stat
+          label="Aufbaurate"
+          sub="CTL / Woche"
+          value={current.rampRate > 0 ? `+${current.rampRate}` : current.rampRate}
+          color={current.rampRate > 8 ? "#ff9f0a" : "#0a84ff"}
+        />
+      </div>
+      <div className="mb-5 flex flex-wrap gap-3 text-xs text-neutral-500">
+        <span className="rounded-lg bg-neutral-50 px-2.5 py-1">
+          Load 7 Tage: <span className="font-semibold text-neutral-800">{load7d}</span>
+        </span>
+        <span className="rounded-lg bg-neutral-50 px-2.5 py-1">
+          Load 28 Tage: <span className="font-semibold text-neutral-800">{load28d}</span>
+        </span>
+        {(() => {
+          const prev = series.tsb[series.tsb.length - 8];
+          if (prev == null) return null;
+          const delta = Math.round((current.tsb - prev) * 10) / 10;
+          const up = delta >= 0;
+          return (
+            <span className="rounded-lg bg-neutral-50 px-2.5 py-1">
+              Form-Trend (7 d):{" "}
+              <span className={`font-semibold ${up ? "text-emerald-600" : "text-amber-600"}`}>
+                {up ? "▲" : "▼"} {up ? "+" : ""}
+                {delta}
+              </span>
+            </span>
+          );
+        })()}
       </div>
       <div className="mb-2 flex items-center justify-between">
         <ChartLegend items={lineSeries.map((s) => ({ name: s.name, color: s.color }))} />
@@ -106,7 +157,7 @@ function Stat({
 }: {
   label: string;
   sub: string;
-  value: number;
+  value: number | string;
   color: string;
 }) {
   return (

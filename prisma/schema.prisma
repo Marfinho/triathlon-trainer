@@ -29,7 +29,10 @@ model AthleteProfile {
   name          String
   heightCm      Int?
   weightKg      Float?
-  ftpWatts      Int? // Functional Threshold Power (für ERG-Steuerung der Radrolle)
+  ftpWatts      Int? // Functional Threshold Power (für ERG-Steuerung & Power-Zonen)
+  thresholdHr   Int? // Schwellen-Herzfrequenz (LTHR) für HF-Zonen
+  thresholdPaceSecPerKm Int? // Schwellen-Lauf-Pace in Sekunden/km für Pace-Zonen
+  thresholdSwimPer100m  Int? // CSS-Pace (Schwimmen) in Sekunden je 100 m
   trainingLevel String? // z.B. "beginner" | "intermediate" | "advanced"
   primarySports String? // JSON-Array, z.B. ["run","bike","swim"]
   knownLimiters String? // JSON-Array bekannter Limitierungen
@@ -46,6 +49,10 @@ model RaceEvent {
   distance  String? // z.B. "olympic" | "70.3" | "marathon"
   priority  String? // "A" | "B" | "C"
   notes     String?
+  completed Boolean  @default(false)
+  resultSeconds Int? // Zielzeit in Sekunden
+  resultPlacement Int? // Platzierung (optional)
+  resultNote String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -250,6 +257,35 @@ model GearItem {
 
   @@index([type])
   @@index([parentId])
+}
+
+model JournalEntry {
+  id        String   @id @default(cuid())
+  date      DateTime
+  mood      Int? // 1 (schlecht) … 5 (top)
+  text      String
+  createdAt DateTime @default(now())
+
+  @@index([date])
+}
+
+model BodyMetric {
+  id        String   @id @default(cuid())
+  date      DateTime
+  weightKg  Float?
+  restingHr Int?
+  notes     String?
+  createdAt DateTime @default(now())
+
+  @@index([date])
+}
+
+model TrainingGoal {
+  id              String   @id @default(cuid())
+  sport           String   @unique // ein Ziel je Disziplin
+  weeklyTargetMin Int
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
 
 model PainSnapshot {

@@ -28,6 +28,9 @@ async function main() {
   await prisma.readinessSnapshot.deleteMany();
   await prisma.painSnapshot.deleteMany();
   await prisma.gearItem.deleteMany();
+  await prisma.bodyMetric.deleteMany();
+  await prisma.journalEntry.deleteMany();
+  await prisma.trainingGoal.deleteMany();
   await prisma.raceEvent.deleteMany();
   await prisma.athleteProfile.deleteMany();
 
@@ -37,6 +40,9 @@ async function main() {
       heightCm: 182,
       weightKg: 76,
       ftpWatts: 240,
+      thresholdHr: 168,
+      thresholdPaceSecPerKm: 255,
+      thresholdSwimPer100m: 95,
       trainingLevel: "intermediate",
       primarySports: JSON.stringify(["run", "bike", "swim"]),
       knownLimiters: JSON.stringify(["achilles", "swim_technique"]),
@@ -235,6 +241,34 @@ async function main() {
       autoTrack: true,
       alertKm: 4000,
     },
+  });
+
+  await prisma.journalEntry.create({
+    data: {
+      date: daysFromNow(-1),
+      mood: 4,
+      text: "Lockerer Lauf, Achillessehne unauffällig. Beine fühlten sich frisch an.",
+    },
+  });
+
+  // Körpermetriken (Gewicht + Ruhepuls) der letzten zwei Wochen.
+  for (let i = 14; i >= 0; i -= 2) {
+    await prisma.bodyMetric.create({
+      data: {
+        date: daysFromNow(-i),
+        weightKg: Math.round((76 - i * 0.05) * 10) / 10,
+        restingHr: 48 + (i % 3),
+      },
+    });
+  }
+
+  // Wochenziele je Disziplin (Minuten).
+  await prisma.trainingGoal.createMany({
+    data: [
+      { sport: "swim", weeklyTargetMin: 120 },
+      { sport: "bike", weeklyTargetMin: 300 },
+      { sport: "run", weeklyTargetMin: 180 },
+    ],
   });
 
   console.log("Seed abgeschlossen.");

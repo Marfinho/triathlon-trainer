@@ -1,4 +1,9 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Card } from "./Card";
+import { Sparkline } from "@/components/charts/Charts";
 
 export interface ReadinessData {
   date: string;
@@ -36,14 +41,113 @@ function painColor(v: number | null): string {
 export function ReadinessPain({
   readiness,
   pain,
+  fatigueTrend,
+  painTrend,
 }: {
   readiness: ReadinessData | null;
   pain: PainData | null;
+  fatigueTrend: (number | null)[];
+  painTrend: (number | null)[];
 }) {
+  const router = useRouter();
+  const [open, setOpen] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [f, setF] = useState({
+    status: "green",
+    subjectiveFatigue: 3,
+    overall: 1,
+    achilles: 0,
+    knee: 0,
+  });
+
+  async function save() {
+    setSaving(true);
+    try {
+      await fetch("/api/checkin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          readiness: {
+            status: f.status,
+            subjectiveFatigue: f.subjectiveFatigue,
+          },
+          pain: {
+            overall: f.overall,
+            achilles: f.achilles,
+            knee: f.knee,
+          },
+        }),
+      });
+      setOpen(false);
+      router.refresh();
+    } finally {
+      setSaving(false);
+    }
+  }
+
   return (
-    <Card title="Readiness & Schmerz" subtitle="Letzter erfasster Stand">
+    <Card
+      title="Readiness & Schmerz"
+      subtitle="Tages-Check-in mit Verlauf"
+      actions={
+        <button
+          onClick={() => setOpen((o) => !o)}
+          className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-500"
+        >
+          {open ? "Schließen" : "Check-in"}
+        </button>
+      }
+    >
+      {open ? (
+        <div className="mb-4 grid grid-cols-2 gap-3 rounded-xl border border-neutral-200 bg-neutral-50 p-3 sm:grid-cols-3">
+          <label className="text-xs text-neutral-500">
+            Readiness
+            <select
+              value={f.status}
+              onChange={(e) => setF({ ...f, status: e.target.value })}
+              className="mt-1 block w-full rounded-lg border border-neutral-300 bg-white px-2 py-1.5 text-sm"
+            >
+              <option value="green">grün</option>
+              <option value="amber">gelb</option>
+              <option value="red">rot</option>
+            </select>
+          </label>
+          <RangeField
+            label={`Müdigkeit (${f.subjectiveFatigue})`}
+            value={f.subjectiveFatigue}
+            onChange={(v) => setF({ ...f, subjectiveFatigue: v })}
+          />
+          <RangeField
+            label={`Schmerz gesamt (${f.overall})`}
+            value={f.overall}
+            onChange={(v) => setF({ ...f, overall: v })}
+          />
+          <RangeField
+            label={`Achilles (${f.achilles})`}
+            value={f.achilles}
+            onChange={(v) => setF({ ...f, achilles: v })}
+          />
+          <RangeField
+            label={`Knie (${f.knee})`}
+            value={f.knee}
+            onChange={(v) => setF({ ...f, knee: v })}
+          />
+          <div className="flex items-end">
+            <button
+              onClick={save}
+              disabled={saving}
+              className="rounded-lg bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-emerald-500 disabled:opacity-40"
+            >
+              {saving ? "Speichere…" : "Speichern"}
+            </button>
+          </div>
+        </div>
+      ) : null}
+
       {!readiness && !pain ? (
-        <p className="text-sm text-neutral-400">Keine Daten erfasst.</p>
+        <p className="text-sm text-neutral-400">
+          Noch kein Check-in erfasst. Lege über den Button deinen ersten an.
+        </p>
       ) : (
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
           <div>
@@ -62,15 +166,16 @@ export function ReadinessPain({
                 <Row label="Status" value={readiness.status ?? "—"} />
                 <Row label="Schlaf" value={readiness.sleepTrend ?? "—"} />
                 <Row label="HRV" value={readiness.hrvTrend ?? "—"} />
-                <Row label="Ruhe-HF" value={readiness.restingHrTrend ?? "—"} />
                 <Row
                   label="Subj. Müdigkeit"
                   value={String(readiness.subjectiveFatigue ?? "—")}
                 />
               </dl>
-            ) : (
-              <p className="text-sm text-neutral-400">—</p>
-            )}
+            ) : null}
+            <div className="mt-2 text-blue-500">
+              <p className="mb-0.5 text-[11px] text-neutral-400">Müdigkeit (Verlauf)</p>
+              <Sparkline values={fatigueTrend} color="#0a84ff" height={32} />
+            </div>
           </div>
           <div>
             <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-neutral-400">
@@ -102,9 +207,11 @@ export function ReadinessPain({
                   </div>
                 ))}
               </div>
-            ) : (
-              <p className="text-sm text-neutral-400">—</p>
-            )}
+            ) : null}
+            <div className="mt-2">
+              <p className="mb-0.5 text-[11px] text-neutral-400">Schmerz gesamt (Verlauf)</p>
+              <Sparkline values={painTrend} color="#ff3b30" height={32} />
+            </div>
           </div>
         </div>
       )}
@@ -118,5 +225,29 @@ function Row({ label, value }: { label: string; value: string }) {
       <dt className="text-neutral-500">{label}</dt>
       <dd className="font-medium text-neutral-800">{value}</dd>
     </div>
+  );
+}
+
+function RangeField({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: number;
+  onChange: (v: number) => void;
+}) {
+  return (
+    <label className="text-xs text-neutral-500">
+      {label}
+      <input
+        type="range"
+        min={0}
+        max={10}
+        value={value}
+        onChange={(e) => onChange(Number(e.target.value))}
+        className="mt-2 block w-full accent-blue-600"
+      />
+    </label>
   );
 }

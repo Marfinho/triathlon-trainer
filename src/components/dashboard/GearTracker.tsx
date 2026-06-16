@@ -112,8 +112,28 @@ export function GearTracker({ initialGear }: { initialGear: Gear[] }) {
     if (!Number.isNaN(km) && km !== 0) await patch(id, { addKm: km });
   }
 
+  async function setLimit(id: string, currentLimit: number | null) {
+    const v = window.prompt(
+      "Verschleißgrenze in km (leer = keine):",
+      currentLimit ? String(currentLimit) : "",
+    );
+    if (v === null) return;
+    await patch(id, { alertKm: v.trim() === "" ? null : Number(v) });
+  }
+
   const active = gear.filter((g) => !g.retired);
   const retired = gear.filter((g) => g.retired);
+
+  // Wartungsstatus über alle Geräte (inkl. Komponenten) zusammenfassen.
+  const flat: Gear[] = [];
+  const walk = (list: Gear[]) =>
+    list.forEach((g) => {
+      flat.push(g);
+      walk(g.components);
+    });
+  walk(active);
+  const due = flat.filter((g) => g.usage.status === "due").length;
+  const over = flat.filter((g) => g.usage.status === "over").length;
 
   return (
     <Card
@@ -131,6 +151,18 @@ export function GearTracker({ initialGear }: { initialGear: Gear[] }) {
         </button>
       }
     >
+      {over + due > 0 ? (
+        <div
+          className={`mb-4 rounded-xl px-3 py-2 text-xs font-medium ${
+            over > 0 ? "bg-rose-50 text-rose-700" : "bg-amber-50 text-amber-700"
+          }`}
+        >
+          {over > 0 ? `${over} Gerät(e) Austausch fällig` : null}
+          {over > 0 && due > 0 ? " · " : null}
+          {due > 0 ? `${due} Gerät(e) bald zu warten` : null}
+        </div>
+      ) : null}
+
       {addingRoot ? (
         <GearForm
           form={form}
@@ -152,6 +184,7 @@ export function GearTracker({ initialGear }: { initialGear: Gear[] }) {
             key={g.id}
             gear={g}
             onAddKm={addKm}
+            onSetLimit={setLimit}
             onRetire={(id) => patch(id, { retired: true })}
             onReset={(id) => patch(id, { resetUsage: true })}
             onDelete={remove}
@@ -221,6 +254,7 @@ export function GearTracker({ initialGear }: { initialGear: Gear[] }) {
 function GearRow({
   gear,
   onAddKm,
+  onSetLimit,
   onRetire,
   onReset,
   onDelete,
@@ -228,6 +262,7 @@ function GearRow({
 }: {
   gear: Gear;
   onAddKm: (id: string) => void;
+  onSetLimit: (id: string, current: number | null) => void;
   onRetire: (id: string) => void;
   onReset: (id: string) => void;
   onDelete: (id: string) => void;
@@ -269,6 +304,12 @@ function GearRow({
           <button onClick={() => onAddKm(gear.id)} className="text-neutral-500 hover:text-blue-600">
             + km
           </button>
+          <button
+            onClick={() => onSetLimit(gear.id, gear.alertKm)}
+            className="text-neutral-500 hover:text-blue-600"
+          >
+            Grenze
+          </button>
           {isComponent ? (
             <button onClick={() => onReset(gear.id)} className="text-neutral-500 hover:text-blue-600">
               gewechselt
@@ -305,6 +346,7 @@ function GearRow({
               key={c.id}
               gear={c}
               onAddKm={onAddKm}
+              onSetLimit={onSetLimit}
               onRetire={onRetire}
               onReset={onReset}
               onDelete={onDelete}
@@ -327,7 +369,11 @@ function UsageBar({ gear }: { gear: Gear }) {
           {gear.usage.hours ? ` · ${Math.round(gear.usage.hours)} h` : ""}
         </span>
         {gear.alertKm ? (
-          <span className="text-neutral-400">Ziel {gear.alertKm} km</span>
+          <span className="text-neutral-400">
+            {gear.usage.km < gear.alertKm
+              ? `noch ${Math.round(gear.alertKm - gear.usage.km)} km`
+              : `${Math.round(gear.usage.km - gear.alertKm)} km über Grenze`}
+          </span>
         ) : null}
       </div>
       {pct != null ? (
@@ -336,6 +382,22 @@ function UsageBar({ gear }: { gear: Gear }) {
             className="h-full rounded-full"
             style={{ width: `${Math.min(100, pct * 100)}%`, backgroundColor: color }}
           />
+        </div>
+      ) : null}
+      {gear.alertHours ? (
+        <div className="mt-1.5">
+          <div className="flex justify-between text-[11px] text-neutral-400">
+            <span>{Math.round(gear.usage.hours)} h</span>
+            <span>Ziel {gear.alertHours} h</span>
+          </div>
+          <div className="mt-0.5 h-1.5 w-full overflow-hidden rounded-full bg-neutral-100">
+            <div
+              className="h-full rounded-full bg-neutral-400"
+              style={{
+                width: `${Math.min(100, (gear.usage.hours / gear.alertHours) * 100)}%`,
+              }}
+            />
+          </div>
         </div>
       ) : null}
     </div>

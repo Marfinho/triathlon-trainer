@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/db";
-import { addDays, formatIsoDate } from "@/domain/training/dates";
+import { addDays, formatIsoDate, mondayOfIso } from "@/domain/training/dates";
 import {
   buildPlanVsActual,
   summarizeWeeklyCompliance,
@@ -8,6 +8,7 @@ import {
   buildLoadSeries,
   buildWeeklyVolume,
   interpretForm,
+  interpretAcwr,
 } from "@/domain/training/trainingLoad";
 import { CurrentPlan } from "@/components/dashboard/CurrentPlan";
 import { PlanVsActual } from "@/components/dashboard/PlanVsActual";
@@ -16,6 +17,19 @@ import { ReadinessPain } from "@/components/dashboard/ReadinessPain";
 import { IntervalsSyncStatus } from "@/components/dashboard/IntervalsSyncStatus";
 import { ChatGptExchange } from "@/components/dashboard/ChatGptExchange";
 import { FormFitness } from "@/components/dashboard/FormFitness";
+import { TrainingZones } from "@/components/dashboard/TrainingZones";
+import { TrainingCalendar } from "@/components/dashboard/TrainingCalendar";
+import { buildCalendar } from "@/domain/training/calendar";
+import { SeasonStatsCard } from "@/components/dashboard/SeasonStats";
+import { buildSeasonStats } from "@/domain/training/stats";
+import { WeeklyGoals } from "@/components/dashboard/WeeklyGoals";
+import { buildGoalProgress } from "@/domain/training/goals";
+import { DashboardTabs } from "@/components/dashboard/DashboardTabs";
+import { BodyMetrics } from "@/components/dashboard/BodyMetrics";
+import { summarizeBody } from "@/domain/training/body";
+import { TrainingJournal } from "@/components/dashboard/TrainingJournal";
+import { DataExport } from "@/components/dashboard/DataExport";
+import { TrainingCalculators } from "@/components/dashboard/TrainingCalculators";
 import { RacePlanner, type Race } from "@/components/dashboard/RacePlanner";
 import {
   TrainerControl,
@@ -49,6 +63,10 @@ export default async function DashboardPage() {
     races,
     gearItems,
     gearActivities,
+    syncLogs,
+    goals,
+    bodyMetrics,
+    journalEntries,
   ] = await Promise.all([
     prisma.plannedWorkout.findMany({
       where: {
@@ -66,8 +84,8 @@ export default async function DashboardPage() {
       where: { date: { gte: windowStart, lte: windowEnd } },
     }),
     prisma.actualActivity.findMany({ orderBy: { date: "desc" }, take: 8 }),
-    prisma.readinessSnapshot.findFirst({ orderBy: { date: "desc" } }),
-    prisma.painSnapshot.findFirst({ orderBy: { date: "desc" } }),
+    prisma.readinessSnapshot.findMany({ orderBy: { date: "desc" }, take: 21 }),
+    prisma.painSnapshot.findMany({ orderBy: { date: "desc" }, take: 21 }),
     Promise.all([
       prisma.syncQueue.count({ where: { status: "pending" } }),
       prisma.syncQueue.count({ where: { status: "processing" } }),
@@ -88,14 +106,26 @@ export default async function DashboardPage() {
     prisma.actualActivity.findMany({
       where: { date: { gte: loadWindowStart } },
       orderBy: { date: "asc" },
-      select: { date: true, sport: true, durationMin: true, load: true, rpe: true },
+      select: { date: true, sport: true, durationMin: true, distanceKm: true, load: true, rpe: true },
     }),
     prisma.raceEvent.findMany({ orderBy: { date: "asc" } }),
     prisma.gearItem.findMany({ orderBy: { createdAt: "asc" } }),
     prisma.actualActivity.findMany({
       select: { date: true, sport: true, distanceKm: true, durationMin: true },
     }),
+    prisma.syncLog.findMany({ orderBy: { createdAt: "desc" }, take: 5 }),
+    prisma.trainingGoal.findMany({ orderBy: { sport: "asc" } }),
+    prisma.bodyMetric.findMany({ orderBy: { date: "desc" }, take: 30 }),
+    prisma.journalEntry.findMany({ orderBy: { date: "desc" }, take: 12 }),
   ]);
+
+  const bodySummary = summarizeBody(
+    bodyMetrics.map((b) => ({
+      date: b.date,
+      weightKg: b.weightKg,
+      restingHr: b.restingHr,
+    })),
+  );
 
   // --- Plan vs. Ist ---
   const planVsActualRows = buildPlanVsActual(
@@ -128,7 +158,18 @@ export default async function DashboardPage() {
   }));
   const loadSeries = buildLoadSeries(loadInput, { days: 90, today: now });
   const weeklyVolume = buildWeeklyVolume(loadInput, { weeks: 12, today: now });
+  const seasonStats = buildSeasonStats(
+    loadActivities.map((a) => ({
+      date: a.date,
+      sport: a.sport,
+      durationMin: a.durationMin,
+      distanceKm: a.distanceKm,
+      load: a.load,
+    })),
+    { today: now },
+  );
   const form = interpretForm(loadSeries.current.tsb);
+  const acwrInfo = interpretAcwr(loadSeries.current.acwr);
   const presentSports = new Set<string>();
   weeklyVolume.forEach((w) =>
     Object.keys(w.bySport).forEach((s) => presentSports.add(s)),
@@ -156,6 +197,46 @@ export default async function DashboardPage() {
 
   const gearTree = buildGearTree(gearItems, gearActivities) as unknown as Gear[];
 
+  // --- Readiness/Pain (neueste + Verlauf) ---
+  const readinessLatest = readiness[0] ?? null;
+  const painLatest = pain[0] ?? null;
+  const fatigueTrend = [...readiness]
+    .reverse()
+    .map((r) => r.subjectiveFatigue ?? null);
+  const painTrend = [...pain].reverse().map((p) => p.overall ?? null);
+
+  // --- Trainingskalender (Vorwoche + 3 Wochen) ---
+  const calendarGrid = buildCalendar(
+    rangePlanned.map((w) => ({
+      date: w.date,
+      sport: w.sport,
+      title: w.title,
+      plannedDurationMin: w.plannedDurationMin,
+      status: w.status,
+    })),
+    rangeActuals.map((a) => ({
+      date: a.date,
+      sport: a.sport,
+      durationMin: a.durationMin,
+    })),
+    { weeks: 4, weeksBefore: 1, today: now },
+  );
+
+  // --- Wochen-Summary (laufende Woche) ---
+  const weekMonday = mondayOfIso(now);
+  const thisWeek = loadActivities.filter(
+    (a) => formatIsoDate(a.date) >= weekMonday,
+  );
+  const weekSummary = {
+    sessions: thisWeek.length,
+    hours:
+      Math.round(
+        (thisWeek.reduce((s, a) => s + (a.durationMin ?? 0), 0) / 60) * 10,
+      ) / 10,
+    distanceKm: thisWeek.reduce((s, a) => s + (a.distanceKm ?? 0), 0),
+    load: thisWeek.reduce((s, a) => s + (a.load ?? 0), 0),
+  };
+
   const racesData: Race[] = races.map((r) => ({
     id: r.id,
     name: r.name,
@@ -164,12 +245,31 @@ export default async function DashboardPage() {
     distance: r.distance,
     priority: r.priority,
     notes: r.notes,
+    completed: r.completed,
+    resultSeconds: r.resultSeconds,
+    resultPlacement: r.resultPlacement,
+    resultNote: r.resultNote,
   }));
 
   const [pending, processing, failed, success, synced] = syncCounts;
   const intervalsConfigured = Boolean(
     process.env.INTERVALS_ATHLETE_ID && process.env.INTERVALS_API_KEY,
   );
+
+  // --- Wochenziele & Kurzfrist-Load ---
+  const goalProgress = buildGoalProgress(
+    goals.map((g) => ({ sport: g.sport, weeklyTargetMin: g.weeklyTargetMin })),
+    loadActivities.map((a) => ({
+      date: a.date,
+      sport: a.sport,
+      durationMin: a.durationMin,
+    })),
+    now,
+  );
+  const sumLast = (arr: number[], n: number) =>
+    Math.round(arr.slice(-n).reduce((s, v) => s + v, 0));
+  const load7d = sumLast(loadSeries.dailyLoad, 7);
+  const load28d = sumLast(loadSeries.dailyLoad, 28);
 
   return (
     <main className="mx-auto max-w-6xl px-6 py-10">
@@ -187,113 +287,148 @@ export default async function DashboardPage() {
         </p>
       </header>
 
-      <SectionLabel>Form & Planung</SectionLabel>
-      <div className="space-y-5">
-        <FormFitness
-          series={{
-            dates: loadSeries.dates,
-            ctl: loadSeries.ctl,
-            atl: loadSeries.atl,
-            tsb: loadSeries.tsb,
-          }}
-          current={loadSeries.current}
-          form={form}
-          weeks={weeklyVolume}
-          sports={sports.length ? sports : ["bike", "run", "swim"]}
-        />
-        <RacePlanner initialRaces={racesData} />
-        <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-          <CurrentPlan
-            items={upcoming.map((w) => ({
-              id: w.id,
-              date: formatIsoDate(w.date),
-              sport: w.sport,
-              title: w.title,
-              plannedDurationMin: w.plannedDurationMin,
-              status: w.status,
-            }))}
-          />
-          <RecentActivities
-            items={recentActuals.map((a) => ({
-              id: a.id,
-              date: formatIsoDate(a.date),
-              sport: a.sport,
-              durationMin: a.durationMin,
-              distanceKm: a.distanceKm,
-              load: a.load,
-              source: a.source,
-            }))}
-          />
-        </div>
-        <PlanVsActual rows={planVsActualRows} weeks={weeklyCompliance} />
-      </div>
-
-      <SectionLabel className="mt-10">Training & Material</SectionLabel>
-      <div className="space-y-5">
-        <TrainerControl
-          workouts={trainerWorkouts}
-          defaultFtp={athlete?.ftpWatts ?? 200}
-        />
-        <GearTracker initialGear={gearTree} />
-      </div>
-
-      <SectionLabel className="mt-10">Austausch & Sync</SectionLabel>
-      <div className="space-y-5">
-        <ChatGptExchange />
-        <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-          <IntervalsSyncStatus
-            initial={{
-              configured: intervalsConfigured,
-              queue: { pending, processing, failed, success },
-              syncedWorkouts: synced,
-            }}
-          />
-          <ReadinessPain
-            readiness={
-              readiness
-                ? {
-                    date: formatIsoDate(readiness.date),
-                    status: readiness.status,
-                    sleepTrend: readiness.sleepTrend,
-                    hrvTrend: readiness.hrvTrend,
-                    restingHrTrend: readiness.restingHrTrend,
-                    subjectiveFatigue: readiness.subjectiveFatigue,
-                    notes: readiness.notes,
-                  }
-                : null
-            }
-            pain={
-              pain
-                ? {
-                    date: formatIsoDate(pain.date),
-                    overall: pain.overall,
-                    knee: pain.knee,
-                    achilles: pain.achilles,
-                    calf: pain.calf,
-                    back: pain.back,
-                    notes: pain.notes,
-                  }
-                : null
-            }
-          />
-        </div>
-      </div>
+      <DashboardTabs
+        tabs={[
+          {
+            id: "form",
+            label: "Form & Planung",
+            content: (
+              <>
+                <FormFitness
+                  series={{
+                    dates: loadSeries.dates,
+                    ctl: loadSeries.ctl,
+                    atl: loadSeries.atl,
+                    tsb: loadSeries.tsb,
+                  }}
+                  current={loadSeries.current}
+                  form={form}
+                  acwr={acwrInfo}
+                  load7d={load7d}
+                  load28d={load28d}
+                  weeks={weeklyVolume}
+                  sports={sports.length ? sports : ["bike", "run", "swim"]}
+                />
+                <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+                  <WeeklyGoals initial={goalProgress} />
+                  <RacePlanner initialRaces={racesData} />
+                </div>
+                <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+                  <CurrentPlan
+                    items={upcoming.map((w) => ({
+                      id: w.id,
+                      date: formatIsoDate(w.date),
+                      sport: w.sport,
+                      title: w.title,
+                      plannedDurationMin: w.plannedDurationMin,
+                      status: w.status,
+                    }))}
+                  />
+                  <RecentActivities
+                    items={recentActuals.map((a) => ({
+                      id: a.id,
+                      date: formatIsoDate(a.date),
+                      sport: a.sport,
+                      durationMin: a.durationMin,
+                      distanceKm: a.distanceKm,
+                      load: a.load,
+                      source: a.source,
+                    }))}
+                    summary={weekSummary}
+                  />
+                </div>
+                <TrainingCalendar grid={calendarGrid} />
+                <SeasonStatsCard stats={seasonStats} />
+                <PlanVsActual rows={planVsActualRows} weeks={weeklyCompliance} />
+                <TrainingJournal
+                  initial={journalEntries.map((e) => ({
+                    id: e.id,
+                    date: e.date.toISOString(),
+                    mood: e.mood,
+                    text: e.text,
+                  }))}
+                />
+              </>
+            ),
+          },
+          {
+            id: "training",
+            label: "Training & Material",
+            content: (
+              <>
+                <TrainerControl
+                  workouts={trainerWorkouts}
+                  defaultFtp={athlete?.ftpWatts ?? 200}
+                />
+                <TrainingZones
+                  ftp={athlete?.ftpWatts ?? null}
+                  thresholdHr={athlete?.thresholdHr ?? null}
+                  thresholdPaceSecPerKm={athlete?.thresholdPaceSecPerKm ?? null}
+                  thresholdSwimPer100m={athlete?.thresholdSwimPer100m ?? null}
+                />
+                <TrainingCalculators />
+                <GearTracker initialGear={gearTree} />
+              </>
+            ),
+          },
+          {
+            id: "exchange",
+            label: "Austausch & Sync",
+            content: (
+              <>
+                <ChatGptExchange />
+                <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+                  <IntervalsSyncStatus
+                    initial={{
+                      configured: intervalsConfigured,
+                      queue: { pending, processing, failed, success },
+                      syncedWorkouts: synced,
+                      recentLogs: syncLogs.map((l) => ({
+                        action: l.action,
+                        success: l.success,
+                        reason: l.reason,
+                        at: l.createdAt.toISOString(),
+                      })),
+                    }}
+                  />
+                  <ReadinessPain
+                    readiness={
+                      readinessLatest
+                        ? {
+                            date: formatIsoDate(readinessLatest.date),
+                            status: readinessLatest.status,
+                            sleepTrend: readinessLatest.sleepTrend,
+                            hrvTrend: readinessLatest.hrvTrend,
+                            restingHrTrend: readinessLatest.restingHrTrend,
+                            subjectiveFatigue: readinessLatest.subjectiveFatigue,
+                            notes: readinessLatest.notes,
+                          }
+                        : null
+                    }
+                    pain={
+                      painLatest
+                        ? {
+                            date: formatIsoDate(painLatest.date),
+                            overall: painLatest.overall,
+                            knee: painLatest.knee,
+                            achilles: painLatest.achilles,
+                            calf: painLatest.calf,
+                            back: painLatest.back,
+                            notes: painLatest.notes,
+                          }
+                        : null
+                    }
+                    fatigueTrend={fatigueTrend}
+                    painTrend={painTrend}
+                  />
+                </div>
+                <BodyMetrics summary={bodySummary} heightCm={athlete?.heightCm ?? null} />
+                <DataExport />
+              </>
+            ),
+          },
+        ]}
+      />
     </main>
-  );
-}
-
-function SectionLabel({
-  children,
-  className = "",
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) {
-  return (
-    <h2
-      className={`mb-3 text-xs font-semibold uppercase tracking-[0.16em] text-neutral-400 ${className}`}
-    >
-      {children}
-    </h2>
   );
 }

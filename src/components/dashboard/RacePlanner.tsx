@@ -7,6 +7,7 @@ import {
   daysUntilRace,
   describeCountdown,
   racePosition,
+  trainingPhase,
 } from "@/domain/training/races";
 
 export interface Race {
@@ -17,6 +18,27 @@ export interface Race {
   distance: string | null;
   priority: string | null;
   notes: string | null;
+  completed: boolean;
+  resultSeconds: number | null;
+  resultPlacement: number | null;
+  resultNote: string | null;
+}
+
+function fmtTime(sec: number): string {
+  const h = Math.floor(sec / 3600);
+  const m = Math.floor((sec % 3600) / 60);
+  const s = sec % 60;
+  return h > 0
+    ? `${h}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`
+    : `${m}:${String(s).padStart(2, "0")}`;
+}
+
+function parseTime(str: string): number | null {
+  const parts = str.split(":").map((p) => Number(p.trim()));
+  if (parts.some((n) => Number.isNaN(n))) return null;
+  if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
+  if (parts.length === 2) return parts[0] * 60 + parts[1];
+  return parts[0];
 }
 
 const HORIZON_DAYS = 182;
@@ -61,6 +83,8 @@ export function RacePlanner({ initialRaces }: { initialRaces: Race[] }) {
   );
   const upcoming = enriched.filter((e) => e.days >= 0);
   const nextA = upcoming.find((e) => e.race.priority === "A") ?? upcoming[0];
+  const counts = { A: 0, B: 0, C: 0 } as Record<string, number>;
+  for (const e of upcoming) counts[e.race.priority ?? "C"] = (counts[e.race.priority ?? "C"] ?? 0) + 1;
 
   async function addRace() {
     if (!form.name.trim() || !form.date) return;
@@ -89,17 +113,48 @@ export function RacePlanner({ initialRaces }: { initialRaces: Race[] }) {
     router.refresh();
   }
 
+  async function enterResult(id: string, currentSec: number | null) {
+    const v = window.prompt(
+      "Zielzeit (h:mm:ss oder mm:ss):",
+      currentSec != null ? fmtTime(currentSec) : "",
+    );
+    if (v === null) return;
+    const secs = v.trim() === "" ? null : parseTime(v);
+    await fetch(`/api/races/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ completed: true, resultSeconds: secs }),
+    }).catch(() => {});
+    setRaces((rs) =>
+      rs.map((r) => (r.id === id ? { ...r, completed: true, resultSeconds: secs } : r)),
+    );
+    router.refresh();
+  }
+
   return (
     <Card
       title="Wettkämpfe & Saison"
       subtitle="Countdown, Priorität und Saison-Timeline"
       actions={
-        <button
-          onClick={() => setOpen((o) => !o)}
-          className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-500"
-        >
-          {open ? "Schließen" : "Rennen hinzufügen"}
-        </button>
+        <div className="flex items-center gap-2">
+          {(["A", "B", "C"] as const).map((p) =>
+            counts[p] ? (
+              <span
+                key={p}
+                className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${PRIORITY_CLS[p]}`}
+                title={`${counts[p]} kommende ${p}-Rennen`}
+              >
+                {p} {counts[p]}
+              </span>
+            ) : null,
+          )}
+          <button
+            onClick={() => setOpen((o) => !o)}
+            className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-500"
+          >
+            {open ? "Schließen" : "Rennen hinzufügen"}
+          </button>
+        </div>
       }
     >
       {nextA ? (
@@ -125,6 +180,14 @@ export function RacePlanner({ initialRaces }: { initialRaces: Race[] }) {
                 Tage · {Math.round(nextA.days / 7)} Wo
               </p>
             </div>
+          </div>
+          <div className="mt-3 flex items-center gap-2 border-t border-neutral-200 pt-2">
+            <span className="text-[11px] uppercase tracking-wide text-neutral-400">
+              Phase
+            </span>
+            <span className="rounded-full bg-blue-50 px-2 py-0.5 text-[11px] font-medium text-blue-700">
+              {trainingPhase(nextA.days).label}
+            </span>
           </div>
         </div>
       ) : null}
@@ -230,13 +293,25 @@ export function RacePlanner({ initialRaces }: { initialRaces: Race[] }) {
                   <p className="text-xs text-neutral-500">
                     {fmtDate(race.date)}
                     {race.distance ? ` · ${race.distance}` : ""}
+                    {race.resultSeconds != null
+                      ? ` · 🏁 ${fmtTime(race.resultSeconds)}`
+                      : ""}
                   </p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <span className="text-xs text-neutral-500">
-                  {describeCountdown(days)}
-                </span>
+                {days < 0 ? (
+                  <button
+                    onClick={() => enterResult(race.id, race.resultSeconds)}
+                    className="text-xs font-medium text-blue-600 hover:underline"
+                  >
+                    {race.resultSeconds != null ? "Ergebnis" : "+ Ergebnis"}
+                  </button>
+                ) : (
+                  <span className="text-xs text-neutral-500">
+                    {describeCountdown(days)}
+                  </span>
+                )}
                 <button
                   onClick={() => removeRace(race.id)}
                   className="text-neutral-300 hover:text-rose-500"

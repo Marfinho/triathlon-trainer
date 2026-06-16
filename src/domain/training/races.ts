@@ -22,6 +22,21 @@ export function describeCountdown(days: number): string {
   return `in ${weeks} Wochen`;
 }
 
+export type TrainingPhase = "base" | "build" | "specific" | "taper" | "race" | "off";
+
+/** Grobe Periodisierungsphase abhängig von den Tagen bis zum Rennen. */
+export function trainingPhase(days: number): {
+  phase: TrainingPhase;
+  label: string;
+} {
+  if (days < 0) return { phase: "off", label: "Nachbereitung" };
+  if (days === 0) return { phase: "race", label: "Wettkampftag" };
+  if (days <= 10) return { phase: "taper", label: "Taper" };
+  if (days <= 28) return { phase: "specific", label: "Wettkampfspezifisch" };
+  if (days <= 84) return { phase: "build", label: "Aufbau" };
+  return { phase: "base", label: "Grundlage" };
+}
+
 export interface RacePosition {
   /** Anteil 0..1 auf der Saison-Achse (heute .. Horizont). */
   fraction: number;

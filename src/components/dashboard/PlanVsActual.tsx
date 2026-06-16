@@ -35,6 +35,37 @@ export function PlanVsActual({
       subtitle="Wochen-Compliance und Abgleich mit Ist-Aktivitäten"
     >
       {weeks.length > 0 ? (
+        (() => {
+          const recent = weeks.slice(-4);
+          const planned = recent.reduce((s, w) => s + w.planned, 0);
+          const completed = recent.reduce((s, w) => s + w.completed, 0);
+          const overall = planned ? Math.round((completed / planned) * 100) : 0;
+          return (
+            <div
+              className="mb-4 flex items-center justify-between rounded-xl border px-3 py-2"
+              style={{
+                borderColor: `${complianceColor(overall)}44`,
+                backgroundColor: `${complianceColor(overall)}11`,
+              }}
+            >
+              <span className="text-sm font-medium text-neutral-800">
+                Compliance (4 Wochen)
+              </span>
+              <span
+                className="text-lg font-semibold"
+                style={{ color: complianceColor(overall) }}
+              >
+                {overall}%{" "}
+                <span className="text-xs font-normal text-neutral-400">
+                  {completed}/{planned}
+                </span>
+              </span>
+            </div>
+          );
+        })()
+      ) : null}
+
+      {weeks.length > 0 ? (
         <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
           {weeks.slice(-4).map((w) => (
             <div

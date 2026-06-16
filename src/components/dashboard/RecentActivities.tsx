@@ -10,12 +10,33 @@ export interface ActivityItem {
   source: string;
 }
 
-export function RecentActivities({ items }: { items: ActivityItem[] }) {
+export interface WeekSummary {
+  sessions: number;
+  hours: number;
+  distanceKm: number;
+  load: number;
+}
+
+export function RecentActivities({
+  items,
+  summary,
+}: {
+  items: ActivityItem[];
+  summary?: WeekSummary;
+}) {
   return (
     <Card
       title="Letzte Aktivitäten"
       subtitle="Ist-Daten aus Intervals.icu / Radrolle / manuell"
     >
+      {summary ? (
+        <div className="mb-4 grid grid-cols-4 gap-2">
+          <SummaryTile label="Einheiten" value={String(summary.sessions)} />
+          <SummaryTile label="Stunden" value={summary.hours.toFixed(1)} />
+          <SummaryTile label="km" value={Math.round(summary.distanceKm).toString()} />
+          <SummaryTile label="Load" value={Math.round(summary.load).toString()} />
+        </div>
+      ) : null}
       {items.length === 0 ? (
         <p className="text-sm text-neutral-400">Keine Ist-Aktivitäten erfasst.</p>
       ) : (
@@ -46,5 +67,14 @@ export function RecentActivities({ items }: { items: ActivityItem[] }) {
         </ul>
       )}
     </Card>
+  );
+}
+
+function SummaryTile({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-xl border border-neutral-200 bg-neutral-50 px-2 py-2 text-center">
+      <p className="text-[10px] uppercase tracking-wide text-neutral-400">{label}</p>
+      <p className="mt-0.5 text-base font-semibold text-neutral-900">{value}</p>
+    </div>
   );
 }

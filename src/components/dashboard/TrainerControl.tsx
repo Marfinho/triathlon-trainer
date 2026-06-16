@@ -365,6 +365,15 @@ export function TrainerControl({
         </label>
       </div>
 
+      {timeline.totalDurationSec > 0 ? (
+        <WorkoutProfile
+          steps={timeline.steps}
+          total={timeline.totalDurationSec}
+          ftp={ftp}
+          activeIndex={active.stepIndex}
+        />
+      ) : null}
+
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <Metric label="Ziel" value={`${currentTarget} W`} accent="blue" big />
         <Metric
@@ -537,6 +546,57 @@ export function TrainerControl({
         <p className="mt-3 text-xs text-emerald-600">{savedMsg}</p>
       ) : null}
     </Card>
+  );
+}
+
+function zoneColor(ratio: number): string {
+  if (ratio < 0.6) return "#0a84ff";
+  if (ratio < 0.9) return "#30b0c7";
+  if (ratio < 1.05) return "#34c759";
+  if (ratio < 1.2) return "#ff9f0a";
+  return "#ff3b30";
+}
+
+function WorkoutProfile({
+  steps,
+  total,
+  ftp,
+  activeIndex,
+}: {
+  steps: { index: number; durationSec: number; targetWatts: number }[];
+  total: number;
+  ftp: number;
+  activeIndex: number;
+}) {
+  const maxW = Math.max(ftp * 1.2, ...steps.map((s) => s.targetWatts), 1);
+  return (
+    <div className="mb-4">
+      <div className="flex h-16 items-end gap-px overflow-hidden rounded-lg bg-neutral-50 p-1">
+        {steps.map((s) => {
+          const ratio = ftp > 0 ? s.targetWatts / ftp : 0;
+          return (
+            <div
+              key={s.index}
+              title={`${s.targetWatts} W · ${Math.round(s.durationSec / 60)}′`}
+              className="flex h-full shrink-0 items-end"
+              style={{ width: `${(s.durationSec / total) * 100}%` }}
+            >
+              <div
+                className="w-full rounded-sm"
+                style={{
+                  height: `${Math.max(4, (s.targetWatts / maxW) * 100)}%`,
+                  backgroundColor: zoneColor(ratio),
+                  opacity: s.index === activeIndex ? 1 : 0.55,
+                }}
+              />
+            </div>
+          );
+        })}
+      </div>
+      <p className="mt-1 text-[11px] text-neutral-400">
+        Workout-Profil · Ziel-Watt je Segment
+      </p>
+    </div>
   );
 }
 
