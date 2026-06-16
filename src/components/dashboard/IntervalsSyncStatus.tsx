@@ -1,7 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Card } from "./Card";
+
+const AUTO_PULL_MIN_INTERVAL_MS = 10 * 60 * 1000;
 
 interface SyncLogEntry {
   action: string;
@@ -18,6 +21,7 @@ interface SyncState {
 }
 
 export function IntervalsSyncStatus({ initial }: { initial: SyncState }) {
+  const router = useRouter();
   const [state, setState] = useState<SyncState>(initial);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -25,6 +29,33 @@ export function IntervalsSyncStatus({ initial }: { initial: SyncState }) {
   async function refresh() {
     const res = await fetch("/api/intervals-sync");
     if (res.ok) setState(await res.json());
+  }
+
+  // Aktivitäten automatisch aus Intervals.icu holen (gedrosselt pro Browser).
+  useEffect(() => {
+    if (!initial.configured) return;
+    const key = "localhub_last_activity_pull";
+    const last = Number(window.localStorage.getItem(key) ?? 0);
+    if (Date.now() - last < AUTO_PULL_MIN_INTERVAL_MS) return;
+    window.localStorage.setItem(key, String(Date.now()));
+    fetch("/api/intervals-activities", { method: "POST" })
+      .then((r) => r.json())
+      .then((d) => {
+        if (d?.ok && (d.created > 0 || d.updated > 0)) {
+          setMessage(
+            `Intervals.icu: ${d.created} neue, ${d.updated} aktualisierte Aktivitäten geholt.`,
+          );
+          router.refresh();
+        }
+      })
+      .catch(() => {});
+  }, [initial.configured, router]);
+
+  function activitiesNote(a: unknown): string {
+    if (!a || typeof a !== "object") return "";
+    const act = a as { created?: number; updated?: number; error?: string };
+    if (act.error) return ` Aktivitäten-Import: ${act.error}.`;
+    return ` Aktivitäten geholt: ${act.created ?? 0} neu, ${act.updated ?? 0} aktualisiert.`;
   }
 
   async function runSync() {
@@ -37,9 +68,10 @@ export function IntervalsSyncStatus({ initial }: { initial: SyncState }) {
         setMessage(data.error ?? "Sync fehlgeschlagen.");
       } else {
         setMessage(
-          `Verarbeitet: ${data.processed}, erfolgreich: ${data.succeeded}, fehlgeschlagen: ${data.failed}.`,
+          `Verarbeitet: ${data.processed}, erfolgreich: ${data.succeeded}, fehlgeschlagen: ${data.failed}.${activitiesNote(data.activities)}`,
         );
         await refresh();
+        router.refresh();
       }
     } catch (e) {
       setMessage(e instanceof Error ? e.message : "Unbekannter Fehler.");
@@ -51,7 +83,7 @@ export function IntervalsSyncStatus({ initial }: { initial: SyncState }) {
   return (
     <Card
       title="Intervals.icu Sync"
-      subtitle="Geplante Workouts -> Intervals.icu (idempotent)"
+      subtitle="Plan → Intervals.icu, Aktivitäten ← Intervals.icu (automatisch)"
       actions={
         <button
           onClick={runSync}

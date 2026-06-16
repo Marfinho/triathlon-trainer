@@ -90,9 +90,17 @@ export function ChatGptExchange() {
         );
       } else {
         const p = data.preview;
-        setInfo(
-          `Importiert: ${p.createdCount} neu, ${p.replacedCount} ersetzt, ${p.protectedCount} geschützt.`,
-        );
+        let msg = `Importiert: ${p.createdCount} neu, ${p.replacedCount} ersetzt, ${p.protectedCount} geschützt.`;
+        const s = data.sync;
+        if (s) {
+          if (s.skipped) msg += ` Intervals.icu-Sync übersprungen (${s.reason}).`;
+          else if (s.error) msg += ` Intervals.icu-Sync-Fehler: ${s.error}`;
+          else
+            msg += ` Intervals.icu: ${s.succeeded} synchronisiert${
+              s.failed ? `, ${s.failed} fehlgeschlagen` : ""
+            }.`;
+        }
+        setInfo(msg);
         if (data.warnings?.length) {
           setErrors(data.warnings);
         }

@@ -1,11 +1,14 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { processSyncQueue } from "@/integrations/intervals/syncQueue";
+import { importActivitiesFromIntervals } from "@/integrations/intervals/importActivities";
 import { createIntervalsClientFromEnv } from "@/integrations/intervals/client";
 
 /**
  * POST /api/intervals-sync
- * Verarbeitet ausstehende SyncQueue-Jobs (geplante Workouts -> Intervals.icu).
+ * Vollständiger Abgleich mit Intervals.icu in beide Richtungen:
+ *   1. geplante Workouts -> Intervals.icu (SyncQueue abarbeiten)
+ *   2. Ist-Aktivitäten   <- Intervals.icu (Apple/Withings/Strava-Aggregat)
  * Benötigt INTERVALS_ATHLETE_ID und INTERVALS_API_KEY in der Umgebung.
  */
 export async function POST() {
@@ -26,7 +29,15 @@ export async function POST() {
     client,
     triggeredBy: "ui_sync",
   });
-  return NextResponse.json({ ok: true, ...result });
+
+  let activities = null;
+  try {
+    activities = await importActivitiesFromIntervals({ db: prisma, client });
+  } catch (e) {
+    activities = { error: e instanceof Error ? e.message : "Import fehlgeschlagen." };
+  }
+
+  return NextResponse.json({ ok: true, ...result, activities });
 }
 
 /**

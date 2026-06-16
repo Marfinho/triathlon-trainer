@@ -11,6 +11,8 @@ export class MockIntervalsClient implements IntervalsClient {
   calls = { create: 0, update: 0, delete: 0, find: 0 };
   /** Vorab gesetztes Event, das `findEvent` zurückgibt (Duplikat-Simulation). */
   preset: IntervalsEvent | null = null;
+  /** Aktivitäten, die `listActivities` zurückgibt. */
+  activitiesList: IntervalsActivity[] = [];
   private nextId = 1;
 
   async createEvent(input: IntervalsEventInput): Promise<IntervalsEvent> {
@@ -44,6 +46,6 @@ export class MockIntervalsClient implements IntervalsClient {
   }
 
   async listActivities(): Promise<IntervalsActivity[]> {
-    return [];
+    return this.activitiesList;
   }
 }
