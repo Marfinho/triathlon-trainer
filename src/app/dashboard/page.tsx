@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/db";
-import { addDays, formatIsoDate } from "@/domain/training/dates";
+import { addDays, formatIsoDate, mondayOfIso } from "@/domain/training/dates";
 import {
   buildPlanVsActual,
   summarizeWeeklyCompliance,
@@ -18,6 +18,8 @@ import { IntervalsSyncStatus } from "@/components/dashboard/IntervalsSyncStatus"
 import { ChatGptExchange } from "@/components/dashboard/ChatGptExchange";
 import { FormFitness } from "@/components/dashboard/FormFitness";
 import { TrainingZones } from "@/components/dashboard/TrainingZones";
+import { TrainingCalendar } from "@/components/dashboard/TrainingCalendar";
+import { buildCalendar } from "@/domain/training/calendar";
 import { RacePlanner, type Race } from "@/components/dashboard/RacePlanner";
 import {
   TrainerControl,
@@ -68,8 +70,8 @@ export default async function DashboardPage() {
       where: { date: { gte: windowStart, lte: windowEnd } },
     }),
     prisma.actualActivity.findMany({ orderBy: { date: "desc" }, take: 8 }),
-    prisma.readinessSnapshot.findFirst({ orderBy: { date: "desc" } }),
-    prisma.painSnapshot.findFirst({ orderBy: { date: "desc" } }),
+    prisma.readinessSnapshot.findMany({ orderBy: { date: "desc" }, take: 21 }),
+    prisma.painSnapshot.findMany({ orderBy: { date: "desc" }, take: 21 }),
     Promise.all([
       prisma.syncQueue.count({ where: { status: "pending" } }),
       prisma.syncQueue.count({ where: { status: "processing" } }),
@@ -90,7 +92,7 @@ export default async function DashboardPage() {
     prisma.actualActivity.findMany({
       where: { date: { gte: loadWindowStart } },
       orderBy: { date: "asc" },
-      select: { date: true, sport: true, durationMin: true, load: true, rpe: true },
+      select: { date: true, sport: true, durationMin: true, distanceKm: true, load: true, rpe: true },
     }),
     prisma.raceEvent.findMany({ orderBy: { date: "asc" } }),
     prisma.gearItem.findMany({ orderBy: { createdAt: "asc" } }),
@@ -158,6 +160,46 @@ export default async function DashboardPage() {
   });
 
   const gearTree = buildGearTree(gearItems, gearActivities) as unknown as Gear[];
+
+  // --- Readiness/Pain (neueste + Verlauf) ---
+  const readinessLatest = readiness[0] ?? null;
+  const painLatest = pain[0] ?? null;
+  const fatigueTrend = [...readiness]
+    .reverse()
+    .map((r) => r.subjectiveFatigue ?? null);
+  const painTrend = [...pain].reverse().map((p) => p.overall ?? null);
+
+  // --- Trainingskalender (Vorwoche + 3 Wochen) ---
+  const calendarGrid = buildCalendar(
+    rangePlanned.map((w) => ({
+      date: w.date,
+      sport: w.sport,
+      title: w.title,
+      plannedDurationMin: w.plannedDurationMin,
+      status: w.status,
+    })),
+    rangeActuals.map((a) => ({
+      date: a.date,
+      sport: a.sport,
+      durationMin: a.durationMin,
+    })),
+    { weeks: 4, weeksBefore: 1, today: now },
+  );
+
+  // --- Wochen-Summary (laufende Woche) ---
+  const weekMonday = mondayOfIso(now);
+  const thisWeek = loadActivities.filter(
+    (a) => formatIsoDate(a.date) >= weekMonday,
+  );
+  const weekSummary = {
+    sessions: thisWeek.length,
+    hours:
+      Math.round(
+        (thisWeek.reduce((s, a) => s + (a.durationMin ?? 0), 0) / 60) * 10,
+      ) / 10,
+    distanceKm: thisWeek.reduce((s, a) => s + (a.distanceKm ?? 0), 0),
+    load: thisWeek.reduce((s, a) => s + (a.load ?? 0), 0),
+  };
 
   const racesData: Race[] = races.map((r) => ({
     id: r.id,
@@ -227,8 +269,10 @@ export default async function DashboardPage() {
               load: a.load,
               source: a.source,
             }))}
+            summary={weekSummary}
           />
         </div>
+        <TrainingCalendar grid={calendarGrid} />
         <PlanVsActual rows={planVsActualRows} weeks={weeklyCompliance} />
       </div>
 
@@ -259,31 +303,33 @@ export default async function DashboardPage() {
           />
           <ReadinessPain
             readiness={
-              readiness
+              readinessLatest
                 ? {
-                    date: formatIsoDate(readiness.date),
-                    status: readiness.status,
-                    sleepTrend: readiness.sleepTrend,
-                    hrvTrend: readiness.hrvTrend,
-                    restingHrTrend: readiness.restingHrTrend,
-                    subjectiveFatigue: readiness.subjectiveFatigue,
-                    notes: readiness.notes,
+                    date: formatIsoDate(readinessLatest.date),
+                    status: readinessLatest.status,
+                    sleepTrend: readinessLatest.sleepTrend,
+                    hrvTrend: readinessLatest.hrvTrend,
+                    restingHrTrend: readinessLatest.restingHrTrend,
+                    subjectiveFatigue: readinessLatest.subjectiveFatigue,
+                    notes: readinessLatest.notes,
                   }
                 : null
             }
             pain={
-              pain
+              painLatest
                 ? {
-                    date: formatIsoDate(pain.date),
-                    overall: pain.overall,
-                    knee: pain.knee,
-                    achilles: pain.achilles,
-                    calf: pain.calf,
-                    back: pain.back,
-                    notes: pain.notes,
+                    date: formatIsoDate(painLatest.date),
+                    overall: painLatest.overall,
+                    knee: painLatest.knee,
+                    achilles: painLatest.achilles,
+                    calf: painLatest.calf,
+                    back: painLatest.back,
+                    notes: painLatest.notes,
                   }
                 : null
             }
+            fatigueTrend={fatigueTrend}
+            painTrend={painTrend}
           />
         </div>
       </div>
