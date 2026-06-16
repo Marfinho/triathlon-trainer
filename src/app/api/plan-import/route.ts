@@ -4,12 +4,16 @@ import { validateLocalhubPlan } from "@/domain/plan-import/validateLocalhubPlan"
 import { importLocalhubPlan } from "@/domain/plan-import/importLocalhubPlan";
 import { parseIsoDate, addDays } from "@/domain/training/dates";
 import type { ExistingWorkoutRef } from "@/domain/plan-import/validateLocalhubPlan";
+import { processSyncQueue } from "@/integrations/intervals/syncQueue";
+import { createIntervalsClientFromEnv } from "@/integrations/intervals/client";
 
 /**
  * POST /api/plan-import
  *   - mode "validate" (Default): nur prüfen, keine DB-Änderung; Vorschau zurück.
  *   - mode "import": validieren und importieren (offene Workouts ersetzen,
- *     completed/Ist unangetastet, SyncQueue-Jobs anlegen).
+ *     completed/Ist unangetastet). Anschließend werden die erzeugten
+ *     SyncQueue-Jobs SOFORT nach Intervals.icu gepusht (sofern konfiguriert) –
+ *     neue Workouts werden angelegt, ersetzte Events entfernt.
  *
  * Body: { plan: <localhub_plan JSON | string>, mode?: "validate" | "import" }
  */
@@ -46,7 +50,31 @@ export async function POST(request: Request) {
 
   if (mode === "import") {
     const result = await importLocalhubPlan(plan, { triggeredBy: "ui_import" });
-    return NextResponse.json({ ok: result.success, ...result });
+
+    // Instant-Sync: erzeugte/ersetzte Workouts sofort nach Intervals.icu pushen.
+    let sync: Record<string, unknown> | null = null;
+    if (result.success) {
+      const client = createIntervalsClientFromEnv();
+      if (!client) {
+        sync = {
+          skipped: true,
+          reason: "Intervals.icu nicht konfiguriert",
+        };
+      } else {
+        try {
+          const res = await processSyncQueue({
+            db: prisma,
+            client,
+            triggeredBy: "import_autosync",
+          });
+          sync = { ...res };
+        } catch (e) {
+          sync = { error: e instanceof Error ? e.message : "Sync fehlgeschlagen" };
+        }
+      }
+    }
+
+    return NextResponse.json({ ok: result.success, ...result, sync });
   }
 
   // mode === "validate": Vorschau ohne DB-Änderung.
