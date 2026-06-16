@@ -6,7 +6,17 @@ import { Card } from "./Card";
 import { Sparkline } from "@/components/charts/Charts";
 import type { BodySummary } from "@/domain/training/body";
 
-export function BodyMetrics({ summary }: { summary: BodySummary }) {
+export function BodyMetrics({
+  summary,
+  heightCm,
+}: {
+  summary: BodySummary;
+  heightCm: number | null;
+}) {
+  const bmi =
+    summary.latestWeight != null && heightCm
+      ? Math.round((summary.latestWeight / (heightCm / 100) ** 2) * 10) / 10
+      : null;
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -98,6 +108,11 @@ export function BodyMetrics({ summary }: { summary: BodySummary }) {
           </div>
           <p className="mt-0.5 text-2xl font-semibold text-neutral-900">
             {summary.latestWeight != null ? `${summary.latestWeight} kg` : "—"}
+            {bmi != null ? (
+              <span className="ml-2 text-xs font-normal text-neutral-400">
+                BMI {bmi}
+              </span>
+            ) : null}
           </p>
           <div className="mt-1 text-blue-500">
             <Sparkline values={summary.weights} color="#0a84ff" height={32} />

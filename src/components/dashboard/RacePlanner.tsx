@@ -62,6 +62,8 @@ export function RacePlanner({ initialRaces }: { initialRaces: Race[] }) {
   );
   const upcoming = enriched.filter((e) => e.days >= 0);
   const nextA = upcoming.find((e) => e.race.priority === "A") ?? upcoming[0];
+  const counts = { A: 0, B: 0, C: 0 } as Record<string, number>;
+  for (const e of upcoming) counts[e.race.priority ?? "C"] = (counts[e.race.priority ?? "C"] ?? 0) + 1;
 
   async function addRace() {
     if (!form.name.trim() || !form.date) return;
@@ -95,12 +97,25 @@ export function RacePlanner({ initialRaces }: { initialRaces: Race[] }) {
       title="Wettkämpfe & Saison"
       subtitle="Countdown, Priorität und Saison-Timeline"
       actions={
-        <button
-          onClick={() => setOpen((o) => !o)}
-          className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-500"
-        >
-          {open ? "Schließen" : "Rennen hinzufügen"}
-        </button>
+        <div className="flex items-center gap-2">
+          {(["A", "B", "C"] as const).map((p) =>
+            counts[p] ? (
+              <span
+                key={p}
+                className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${PRIORITY_CLS[p]}`}
+                title={`${counts[p]} kommende ${p}-Rennen`}
+              >
+                {p} {counts[p]}
+              </span>
+            ) : null,
+          )}
+          <button
+            onClick={() => setOpen((o) => !o)}
+            className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-500"
+          >
+            {open ? "Schließen" : "Rennen hinzufügen"}
+          </button>
+        </div>
       }
     >
       {nextA ? (

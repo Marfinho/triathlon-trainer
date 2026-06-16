@@ -255,6 +255,16 @@ model GearItem {
   @@index([parentId])
 }
 
+model JournalEntry {
+  id        String   @id @default(cuid())
+  date      DateTime
+  mood      Int? // 1 (schlecht) … 5 (top)
+  text      String
+  createdAt DateTime @default(now())
+
+  @@index([date])
+}
+
 model BodyMetric {
   id        String   @id @default(cuid())
   date      DateTime

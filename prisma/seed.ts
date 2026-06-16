@@ -29,6 +29,7 @@ async function main() {
   await prisma.painSnapshot.deleteMany();
   await prisma.gearItem.deleteMany();
   await prisma.bodyMetric.deleteMany();
+  await prisma.journalEntry.deleteMany();
   await prisma.trainingGoal.deleteMany();
   await prisma.raceEvent.deleteMany();
   await prisma.athleteProfile.deleteMany();
@@ -239,6 +240,14 @@ async function main() {
       purchaseDate: daysFromNow(-45),
       autoTrack: true,
       alertKm: 4000,
+    },
+  });
+
+  await prisma.journalEntry.create({
+    data: {
+      date: daysFromNow(-1),
+      mood: 4,
+      text: "Lockerer Lauf, Achillessehne unauffällig. Beine fühlten sich frisch an.",
     },
   });
 

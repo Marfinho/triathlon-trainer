@@ -27,6 +27,7 @@ import { buildGoalProgress } from "@/domain/training/goals";
 import { DashboardTabs } from "@/components/dashboard/DashboardTabs";
 import { BodyMetrics } from "@/components/dashboard/BodyMetrics";
 import { summarizeBody } from "@/domain/training/body";
+import { TrainingJournal } from "@/components/dashboard/TrainingJournal";
 import { RacePlanner, type Race } from "@/components/dashboard/RacePlanner";
 import {
   TrainerControl,
@@ -63,6 +64,7 @@ export default async function DashboardPage() {
     syncLogs,
     goals,
     bodyMetrics,
+    journalEntries,
   ] = await Promise.all([
     prisma.plannedWorkout.findMany({
       where: {
@@ -112,6 +114,7 @@ export default async function DashboardPage() {
     prisma.syncLog.findMany({ orderBy: { createdAt: "desc" }, take: 5 }),
     prisma.trainingGoal.findMany({ orderBy: { sport: "asc" } }),
     prisma.bodyMetric.findMany({ orderBy: { date: "desc" }, take: 30 }),
+    prisma.journalEntry.findMany({ orderBy: { date: "desc" }, take: 12 }),
   ]);
 
   const bodySummary = summarizeBody(
@@ -331,6 +334,14 @@ export default async function DashboardPage() {
                 <TrainingCalendar grid={calendarGrid} />
                 <SeasonStatsCard stats={seasonStats} />
                 <PlanVsActual rows={planVsActualRows} weeks={weeklyCompliance} />
+                <TrainingJournal
+                  initial={journalEntries.map((e) => ({
+                    id: e.id,
+                    date: e.date.toISOString(),
+                    mood: e.mood,
+                    text: e.text,
+                  }))}
+                />
               </>
             ),
           },
@@ -404,7 +415,7 @@ export default async function DashboardPage() {
                     painTrend={painTrend}
                   />
                 </div>
-                <BodyMetrics summary={bodySummary} />
+                <BodyMetrics summary={bodySummary} heightCm={athlete?.heightCm ?? null} />
               </>
             ),
           },
