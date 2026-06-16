@@ -69,6 +69,21 @@ export function computePaceZones(thresholdSecPerKm: number): Zone[] {
   ];
 }
 
+/**
+ * Schwimm-Zonen relativ zur CSS-Pace (Critical Swim Speed, Sekunden je 100 m).
+ * `lo` ist die schnellere (kleinere) Sekundenzahl, `hi` die langsamere.
+ */
+export function computeSwimZones(cssSecPer100m: number): Zone[] {
+  const p = (factor: number) => Math.round(cssSecPer100m * factor);
+  return [
+    { id: "z1", name: "Z1 · Locker", lo: p(1.12), hi: null, color: PALETTE[0] },
+    { id: "z2", name: "Z2 · Grundlage", lo: p(1.06), hi: p(1.12), color: PALETTE[1] },
+    { id: "z3", name: "Z3 · Schwelle (CSS)", lo: p(0.99), hi: p(1.06), color: PALETTE[3] },
+    { id: "z4", name: "Z4 · VO2max", lo: p(0.93), hi: p(0.99), color: PALETTE[4] },
+    { id: "z5", name: "Z5 · Sprint", lo: 0, hi: p(0.93), color: PALETTE[6] },
+  ];
+}
+
 /** Formatiert Sekunden/km als m:ss. */
 export function formatPace(secPerKm: number | null): string {
   if (secPerKm == null) return "—";

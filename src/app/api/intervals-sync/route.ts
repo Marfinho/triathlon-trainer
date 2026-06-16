@@ -34,17 +34,24 @@ export async function POST() {
  * Liefert den aktuellen Sync-Zustand (Queue + Verknüpfungen).
  */
 export async function GET() {
-  const [pending, processing, failed, success, syncs] = await Promise.all([
+  const [pending, processing, failed, success, syncs, logs] = await Promise.all([
     prisma.syncQueue.count({ where: { status: "pending" } }),
     prisma.syncQueue.count({ where: { status: "processing" } }),
     prisma.syncQueue.count({ where: { status: "failed" } }),
     prisma.syncQueue.count({ where: { status: "success" } }),
     prisma.intervalsWorkoutSync.count({ where: { syncStatus: "synced" } }),
+    prisma.syncLog.findMany({ orderBy: { createdAt: "desc" }, take: 5 }),
   ]);
 
   return NextResponse.json({
     configured: Boolean(createIntervalsClientFromEnv()),
     queue: { pending, processing, failed, success },
     syncedWorkouts: syncs,
+    recentLogs: logs.map((l) => ({
+      action: l.action,
+      success: l.success,
+      reason: l.reason,
+      at: l.createdAt.toISOString(),
+    })),
   });
 }

@@ -9,21 +9,43 @@ export function TrainingCalendar({ grid }: { grid: CalendarDay[][] }) {
       title="Trainingskalender"
       subtitle="Geplante Einheiten (Umriss) und Ist-Aktivitäten (gefüllt)"
     >
-      <div className="grid grid-cols-7 gap-1 text-center text-[11px] font-medium text-neutral-400">
-        {WEEKDAYS.map((d) => (
-          <div key={d} className="pb-1">
-            {d}
-          </div>
-        ))}
+      <div className="flex gap-1">
+        <div className="grid flex-1 grid-cols-7 gap-1 text-center text-[11px] font-medium text-neutral-400">
+          {WEEKDAYS.map((d) => (
+            <div key={d} className="pb-1">
+              {d}
+            </div>
+          ))}
+        </div>
+        <div className="w-14 pb-1 text-center text-[11px] font-medium text-neutral-400">
+          Σ Std
+        </div>
       </div>
       <div className="space-y-1">
-        {grid.map((week, wi) => (
-          <div key={wi} className="grid grid-cols-7 gap-1">
-            {week.map((day) => (
-              <DayCell key={day.date} day={day} />
-            ))}
-          </div>
-        ))}
+        {grid.map((week, wi) => {
+          const actualMin = week.reduce(
+            (sum, d) =>
+              sum +
+              d.items
+                .filter((it) => it.kind === "actual")
+                .reduce((s, it) => s + it.durationMin, 0),
+            0,
+          );
+          return (
+            <div key={wi} className="flex items-stretch gap-1">
+              <div className="grid flex-1 grid-cols-7 gap-1">
+                {week.map((day) => (
+                  <DayCell key={day.date} day={day} />
+                ))}
+              </div>
+              <div className="flex w-14 flex-col items-center justify-center rounded-lg border border-neutral-100 bg-neutral-50 text-center">
+                <span className="text-sm font-semibold text-neutral-700">
+                  {(actualMin / 60).toFixed(1)}
+                </span>
+              </div>
+            </div>
+          );
+        })}
       </div>
       <Legend />
     </Card>

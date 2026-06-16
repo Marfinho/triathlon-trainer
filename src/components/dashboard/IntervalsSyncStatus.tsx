@@ -3,10 +3,18 @@
 import { useState } from "react";
 import { Card } from "./Card";
 
+interface SyncLogEntry {
+  action: string;
+  success: boolean;
+  reason: string | null;
+  at: string;
+}
+
 interface SyncState {
   configured: boolean;
   queue: { pending: number; processing: number; failed: number; success: number };
   syncedWorkouts: number;
+  recentLogs?: SyncLogEntry[];
 }
 
 export function IntervalsSyncStatus({ initial }: { initial: SyncState }) {
@@ -71,6 +79,37 @@ export function IntervalsSyncStatus({ initial }: { initial: SyncState }) {
 
       {message ? (
         <p className="mt-3 text-xs text-neutral-500">{message}</p>
+      ) : null}
+
+      {state.recentLogs && state.recentLogs.length > 0 ? (
+        <div className="mt-4 border-t border-neutral-100 pt-3">
+          <p className="mb-1.5 text-[11px] uppercase tracking-wide text-neutral-400">
+            Letzte Sync-Ereignisse
+          </p>
+          <ul className="space-y-1">
+            {state.recentLogs.map((l, i) => (
+              <li key={i} className="flex items-center justify-between text-xs">
+                <span className="flex items-center gap-1.5 text-neutral-600">
+                  <span
+                    className={`h-1.5 w-1.5 rounded-full ${
+                      l.success ? "bg-emerald-500" : "bg-rose-500"
+                    }`}
+                  />
+                  {l.action}
+                  {l.reason ? ` · ${l.reason}` : ""}
+                </span>
+                <span className="text-neutral-400">
+                  {new Date(l.at).toLocaleString("de-DE", {
+                    day: "2-digit",
+                    month: "2-digit",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
       ) : null}
     </Card>
   );

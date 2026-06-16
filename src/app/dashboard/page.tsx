@@ -20,6 +20,8 @@ import { FormFitness } from "@/components/dashboard/FormFitness";
 import { TrainingZones } from "@/components/dashboard/TrainingZones";
 import { TrainingCalendar } from "@/components/dashboard/TrainingCalendar";
 import { buildCalendar } from "@/domain/training/calendar";
+import { SeasonStatsCard } from "@/components/dashboard/SeasonStats";
+import { buildSeasonStats } from "@/domain/training/stats";
 import { RacePlanner, type Race } from "@/components/dashboard/RacePlanner";
 import {
   TrainerControl,
@@ -53,6 +55,7 @@ export default async function DashboardPage() {
     races,
     gearItems,
     gearActivities,
+    syncLogs,
   ] = await Promise.all([
     prisma.plannedWorkout.findMany({
       where: {
@@ -99,6 +102,7 @@ export default async function DashboardPage() {
     prisma.actualActivity.findMany({
       select: { date: true, sport: true, distanceKm: true, durationMin: true },
     }),
+    prisma.syncLog.findMany({ orderBy: { createdAt: "desc" }, take: 5 }),
   ]);
 
   // --- Plan vs. Ist ---
@@ -132,6 +136,16 @@ export default async function DashboardPage() {
   }));
   const loadSeries = buildLoadSeries(loadInput, { days: 90, today: now });
   const weeklyVolume = buildWeeklyVolume(loadInput, { weeks: 12, today: now });
+  const seasonStats = buildSeasonStats(
+    loadActivities.map((a) => ({
+      date: a.date,
+      sport: a.sport,
+      durationMin: a.durationMin,
+      distanceKm: a.distanceKm,
+      load: a.load,
+    })),
+    { today: now },
+  );
   const form = interpretForm(loadSeries.current.tsb);
   const acwrInfo = interpretAcwr(loadSeries.current.acwr);
   const presentSports = new Set<string>();
@@ -273,6 +287,7 @@ export default async function DashboardPage() {
           />
         </div>
         <TrainingCalendar grid={calendarGrid} />
+        <SeasonStatsCard stats={seasonStats} />
         <PlanVsActual rows={planVsActualRows} weeks={weeklyCompliance} />
       </div>
 
@@ -286,6 +301,7 @@ export default async function DashboardPage() {
           ftp={athlete?.ftpWatts ?? null}
           thresholdHr={athlete?.thresholdHr ?? null}
           thresholdPaceSecPerKm={athlete?.thresholdPaceSecPerKm ?? null}
+          thresholdSwimPer100m={athlete?.thresholdSwimPer100m ?? null}
         />
         <GearTracker initialGear={gearTree} />
       </div>
@@ -299,6 +315,12 @@ export default async function DashboardPage() {
               configured: intervalsConfigured,
               queue: { pending, processing, failed, success },
               syncedWorkouts: synced,
+              recentLogs: syncLogs.map((l) => ({
+                action: l.action,
+                success: l.success,
+                reason: l.reason,
+                at: l.createdAt.toISOString(),
+              })),
             }}
           />
           <ReadinessPain

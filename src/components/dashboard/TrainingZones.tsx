@@ -6,26 +6,30 @@ import {
   computePowerZones,
   computeHrZones,
   computePaceZones,
+  computeSwimZones,
   formatPace,
   type Zone,
 } from "@/domain/training/zones";
 
-type Tab = "power" | "hr" | "pace";
+type Tab = "power" | "hr" | "pace" | "swim";
 
 export function TrainingZones({
   ftp,
   thresholdHr,
   thresholdPaceSecPerKm,
+  thresholdSwimPer100m,
 }: {
   ftp: number | null;
   thresholdHr: number | null;
   thresholdPaceSecPerKm: number | null;
+  thresholdSwimPer100m: number | null;
 }) {
   const [tab, setTab] = useState<Tab>("power");
   const [values, setValues] = useState({
     ftp: ftp ?? 240,
     thresholdHr: thresholdHr ?? 168,
     thresholdPaceSecPerKm: thresholdPaceSecPerKm ?? 255,
+    thresholdSwimPer100m: thresholdSwimPer100m ?? 95,
   });
   const [editing, setEditing] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -33,11 +37,12 @@ export function TrainingZones({
   const zones = useMemo<Zone[]>(() => {
     if (tab === "power") return computePowerZones(values.ftp);
     if (tab === "hr") return computeHrZones(values.thresholdHr);
+    if (tab === "swim") return computeSwimZones(values.thresholdSwimPer100m);
     return computePaceZones(values.thresholdPaceSecPerKm);
   }, [tab, values]);
 
-  const isPace = tab === "pace";
-  const unit = tab === "power" ? "W" : tab === "hr" ? "bpm" : "/km";
+  const isPace = tab === "pace" || tab === "swim";
+  const unit = tab === "power" ? "W" : tab === "hr" ? "bpm" : tab === "swim" ? "/100m" : "/km";
 
   function fmt(v: number | null): string {
     if (v == null) return "∞";
@@ -59,6 +64,7 @@ export function TrainingZones({
     { id: "power", label: "Power (Rad)" },
     { id: "hr", label: "Herzfrequenz" },
     { id: "pace", label: "Pace (Lauf)" },
+    { id: "swim", label: "Pace (Schwimm)" },
   ];
 
   const thresholdLabel =
@@ -66,7 +72,9 @@ export function TrainingZones({
       ? `FTP ${values.ftp} W`
       : tab === "hr"
         ? `LTHR ${values.thresholdHr} bpm`
-        : `Schwelle ${formatPace(values.thresholdPaceSecPerKm)} /km`;
+        : tab === "swim"
+          ? `CSS ${formatPace(values.thresholdSwimPer100m)} /100m`
+          : `Schwelle ${formatPace(values.thresholdPaceSecPerKm)} /km`;
 
   return (
     <Card
@@ -98,6 +106,12 @@ export function TrainingZones({
             value={values.thresholdPaceSecPerKm}
             onChange={(v) => setValues({ ...values, thresholdPaceSecPerKm: v })}
             hint={formatPace(values.thresholdPaceSecPerKm)}
+          />
+          <Field
+            label="CSS Schwimm (s/100m)"
+            value={values.thresholdSwimPer100m}
+            onChange={(v) => setValues({ ...values, thresholdSwimPer100m: v })}
+            hint={formatPace(values.thresholdSwimPer100m)}
           />
           <button
             onClick={saveThresholds}

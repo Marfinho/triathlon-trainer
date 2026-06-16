@@ -20,7 +20,12 @@ export async function PATCH(request: Request) {
   };
 
   const data: Record<string, number | null> = {};
-  for (const key of ["ftpWatts", "thresholdHr", "thresholdPaceSecPerKm"]) {
+  for (const key of [
+    "ftpWatts",
+    "thresholdHr",
+    "thresholdPaceSecPerKm",
+    "thresholdSwimPer100m",
+  ]) {
     const val = intOrNull(body[key]);
     if (val !== undefined) data[key] = val;
   }
@@ -42,6 +47,7 @@ export async function PATCH(request: Request) {
       ftpWatts: updated.ftpWatts,
       thresholdHr: updated.thresholdHr,
       thresholdPaceSecPerKm: updated.thresholdPaceSecPerKm,
+      thresholdSwimPer100m: updated.thresholdSwimPer100m,
     },
   });
 }
