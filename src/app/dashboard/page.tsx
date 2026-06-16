@@ -31,6 +31,7 @@ import { TrainingJournal } from "@/components/dashboard/TrainingJournal";
 import { DataExport } from "@/components/dashboard/DataExport";
 import { TrainingCalculators } from "@/components/dashboard/TrainingCalculators";
 import { RacePlanner, type Race } from "@/components/dashboard/RacePlanner";
+import { RacePredictions } from "@/components/dashboard/RacePredictions";
 import {
   TrainerControl,
   type TrainerWorkout,
@@ -313,6 +314,22 @@ export default async function DashboardPage() {
                   <WeeklyGoals initial={goalProgress} />
                   <RacePlanner initialRaces={racesData} />
                 </div>
+                <RacePredictions
+                  profile={{
+                    thresholdPaceSecPerKm: athlete?.thresholdPaceSecPerKm ?? null,
+                    ftpWatts: athlete?.ftpWatts ?? null,
+                    cssPer100m: athlete?.thresholdSwimPer100m ?? null,
+                    weightKg: athlete?.weightKg ?? null,
+                    ctl: loadSeries.current.ctl,
+                  }}
+                  races={racesData.map((r) => ({
+                    id: r.id,
+                    name: r.name,
+                    date: r.date,
+                    type: r.type,
+                    distance: r.distance,
+                  }))}
+                />
                 <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
                   <CurrentPlan
                     items={upcoming.map((w) => ({
