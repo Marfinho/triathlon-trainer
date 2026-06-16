@@ -283,8 +283,10 @@ DB-Anbindung erfolgt in Importer, Sync und API-Routen.
 
 ## Offene Punkte / Bewusst nicht in V1
 
-- **Import von Ist-Aktivitäten aus Intervals.icu** (Client-Methoden `listActivities`
-  existieren, ein Scheduler/Import-Job fehlt noch) – aktuell via Seed/manuell.
+- **Hintergrund-Scheduler**: Der Ist-Aktivitäten-Import aus Intervals.icu läuft
+  automatisch beim Laden des Dashboards (gedrosselt) und beim manuellen Sync;
+  ein echter Cron/Worker (für reine Server-Betriebszeit ohne offenes Dashboard)
+  wäre der nächste Schritt.
 - **Readiness/Pain-Erfassung** über die UI (Anzeige ist vorhanden, Eingabe-Formulare
   fehlen noch).
 - **Hintergrund-Verarbeitung der SyncQueue** (aktuell manuell per Button/POST);
