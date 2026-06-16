@@ -10,6 +10,12 @@
  * bewusst transparent gehalten.
  */
 
+export interface RunReference {
+  distanceKm: number;
+  timeSec: number;
+  source: "activity" | "threshold";
+}
+
 export interface PredictionProfile {
   thresholdPaceSecPerKm: number | null; // Lauf-Schwellenpace
   ftpWatts: number | null;
@@ -17,6 +23,8 @@ export interface PredictionProfile {
   weightKg?: number | null;
   /** Aktuelle Fitness (CTL) – nur als Kontext/Confidence. */
   ctl?: number | null;
+  /** Optionale Lauf-Referenz aus realen Aktivitäten (überschreibt die Schwelle). */
+  runReference?: RunReference | null;
 }
 
 const RIEGEL_EXP = 1.06;
@@ -67,6 +75,93 @@ export function predictRunTime(
   return Math.round(3600 * (distanceKm / refDistKm) ** RIEGEL_EXP);
 }
 
+export interface RunSample {
+  sport: string;
+  distanceKm: number | null;
+  durationMin: number | null;
+}
+
+/**
+ * "Implizite 1-Stunden-Distanz" (km) einer Leistung über Riegel – je höher,
+ * desto leistungsfähiger. Dient als vergleichbarer Score zwischen Läufen.
+ */
+export function impliedHourKm(distanceKm: number, timeSec: number): number {
+  return distanceKm * (3600 / timeSec) ** (1 / RIEGEL_EXP);
+}
+
+/** Referenz aus der Schwellenpace (1-h-Effort). */
+export function thresholdReference(thresholdPaceSecPerKm: number): RunReference {
+  return {
+    distanceKm: 3600 / thresholdPaceSecPerKm,
+    timeSec: 3600,
+    source: "threshold",
+  };
+}
+
+/**
+ * Beste demonstrierte Lauf-Referenz aus realen Aktivitäten: der Lauf mit der
+ * höchsten impliziten 1-h-Distanz (= bestes Tempo, normalisiert auf die Dauer).
+ * Sehr kurze Läufe werden ausgeschlossen (Rauschen/Aufwärmen).
+ */
+export function bestRunReference(
+  runs: RunSample[],
+  opts: { minKm?: number } = {},
+): RunReference | null {
+  const minKm = opts.minKm ?? 3;
+  let best: RunReference | null = null;
+  let bestScore = 0;
+  for (const r of runs) {
+    if (r.sport !== "run") continue;
+    if (!r.distanceKm || !r.durationMin) continue;
+    if (r.distanceKm < minKm) continue;
+    const timeSec = r.durationMin * 60;
+    const score = impliedHourKm(r.distanceKm, timeSec);
+    if (score > bestScore) {
+      bestScore = score;
+      best = { distanceKm: r.distanceKm, timeSec, source: "activity" };
+    }
+  }
+  return best;
+}
+
+/**
+ * Wählt die aussagekräftigere Lauf-Referenz: die schnellere (höhere implizite
+ * 1-h-Distanz) von Schwelle und realer Bestleistung.
+ */
+export function resolveRunReference(opts: {
+  thresholdPaceSecPerKm?: number | null;
+  runs?: RunSample[];
+}): RunReference | null {
+  const fromThreshold =
+    opts.thresholdPaceSecPerKm != null
+      ? thresholdReference(opts.thresholdPaceSecPerKm)
+      : null;
+  const fromActivity = opts.runs ? bestRunReference(opts.runs) : null;
+  if (fromThreshold && fromActivity) {
+    return impliedHourKm(fromActivity.distanceKm, fromActivity.timeSec) >=
+      impliedHourKm(fromThreshold.distanceKm, fromThreshold.timeSec)
+      ? fromActivity
+      : fromThreshold;
+  }
+  return fromActivity ?? fromThreshold;
+}
+
+/** Lauf-Zeit (Sekunden) aus einer beliebigen Referenzleistung via Riegel. */
+export function predictRunFromReference(
+  distanceKm: number,
+  ref: RunReference,
+): number {
+  return Math.round(ref.timeSec * (distanceKm / ref.distanceKm) ** RIEGEL_EXP);
+}
+
+/** Ermittelt die zu verwendende Lauf-Referenz aus einem Profil. */
+function runRefFromProfile(profile: PredictionProfile): RunReference | null {
+  if (profile.runReference) return profile.runReference;
+  if (profile.thresholdPaceSecPerKm != null)
+    return thresholdReference(profile.thresholdPaceSecPerKm);
+  return null;
+}
+
 /** Rad-Zeit (Sekunden) aus FTP, Intensität und Power-Speed-Modell. */
 export function predictBikeTime(
   distanceKm: number,
@@ -111,11 +206,10 @@ export function predictTriathlon(
     profile.ftpWatts != null
       ? predictBikeTime(tri.bikeKm, profile.ftpWatts, tri.bikeIF)
       : null;
+  const runRef = runRefFromProfile(profile);
   const runSec =
-    profile.thresholdPaceSecPerKm != null
-      ? Math.round(
-          predictRunTime(tri.runKm, profile.thresholdPaceSecPerKm) * tri.runPenalty,
-        )
+    runRef != null
+      ? Math.round(predictRunFromReference(tri.runKm, runRef) * tri.runPenalty)
       : null;
 
   const legs = [swimSec, bikeSec, runSec];
@@ -167,10 +261,11 @@ export function matchRacePrediction(
     return { label: tri.label, totalSec: p.totalSec };
   }
   const run = RUN_DISTANCES.find((r) => r.key === d || r.label.toLowerCase() === d);
-  if (run && profile.thresholdPaceSecPerKm != null) {
+  const runRef = runRefFromProfile(profile);
+  if (run && runRef) {
     return {
       label: run.label,
-      totalSec: predictRunTime(run.km, profile.thresholdPaceSecPerKm),
+      totalSec: predictRunFromReference(run.km, runRef),
     };
   }
   return null;

@@ -4,9 +4,13 @@ import {
   predictBikeTime,
   predictSwimTime,
   predictTriathlon,
+  predictRunFromReference,
+  bestRunReference,
+  resolveRunReference,
   formatDuration,
   matchRacePrediction,
   TRI_DISTANCES,
+  type RunSample,
 } from "@/domain/training/prediction";
 
 describe("predictRunTime (Riegel)", () => {
@@ -64,6 +68,38 @@ describe("predictTriathlon", () => {
     expect(p.bikeSec).toBeNull();
     expect(p.totalSec).toBeNull();
     expect(p.confidence).toBeCloseTo(2 / 3, 2);
+  });
+});
+
+describe("bestRunReference / resolveRunReference", () => {
+  const runs: RunSample[] = [
+    { sport: "run", distanceKm: 10, durationMin: 45 }, // 4:30/km (schnell)
+    { sport: "run", distanceKm: 20, durationMin: 120 }, // 6:00/km (locker)
+    { sport: "run", distanceKm: 1, durationMin: 3 }, // zu kurz -> ignoriert
+    { sport: "bike", distanceKm: 40, durationMin: 60 }, // kein Lauf
+  ];
+
+  it("wählt den schnellsten qualifizierenden Lauf als Referenz", () => {
+    const ref = bestRunReference(runs)!;
+    expect(ref.source).toBe("activity");
+    expect(ref.distanceKm).toBe(10);
+    expect(ref.timeSec).toBe(45 * 60);
+  });
+
+  it("bevorzugt die schnellere von Schwelle und Bestleistung", () => {
+    // Schwelle 6:00/km ist langsamer als der 4:30/km-Lauf -> Aktivität gewinnt.
+    const ref = resolveRunReference({ thresholdPaceSecPerKm: 360, runs })!;
+    expect(ref.source).toBe("activity");
+    // Sehr schnelle Schwelle (3:30/km) schlägt die Aktivität.
+    const ref2 = resolveRunReference({ thresholdPaceSecPerKm: 210, runs })!;
+    expect(ref2.source).toBe("threshold");
+  });
+
+  it("eine schnellere Bestleistung ergibt schnellere Vorhersagen", () => {
+    const fast = predictRunFromReference(10, { distanceKm: 10, timeSec: 2700, source: "activity" });
+    const slow = predictRunFromReference(10, { distanceKm: 10, timeSec: 3000, source: "activity" });
+    expect(fast).toBeLessThan(slow);
+    expect(fast).toBe(2700);
   });
 });
 

@@ -2,7 +2,8 @@ import { Card } from "./Card";
 import {
   RUN_DISTANCES,
   TRI_DISTANCES,
-  predictRunTime,
+  predictRunFromReference,
+  thresholdReference,
   predictTriathlon,
   paceForRun,
   formatDuration,
@@ -25,10 +26,14 @@ export function RacePredictions({
   profile: PredictionProfile;
   races: PredictionRace[];
 }) {
+  const runRef =
+    profile.runReference ??
+    (profile.thresholdPaceSecPerKm != null
+      ? thresholdReference(profile.thresholdPaceSecPerKm)
+      : null);
+
   const hasAny =
-    profile.thresholdPaceSecPerKm != null ||
-    profile.ftpWatts != null ||
-    profile.cssPer100m != null;
+    runRef != null || profile.ftpWatts != null || profile.cssPer100m != null;
 
   const todayIso = new Date().toISOString().slice(0, 10);
   const upcoming = races
@@ -73,14 +78,21 @@ export function RacePredictions({
           ) : null}
 
           {/* Lauf */}
-          {profile.thresholdPaceSecPerKm != null ? (
+          {runRef != null ? (
             <div>
-              <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-neutral-400">
-                Laufen
-              </h3>
+              <div className="mb-2 flex items-center justify-between">
+                <h3 className="text-xs font-semibold uppercase tracking-wide text-neutral-400">
+                  Laufen
+                </h3>
+                <span className="text-[11px] text-neutral-400">
+                  {runRef.source === "activity"
+                    ? `Basis: Bestleistung ${runRef.distanceKm.toFixed(1)} km in ${formatDuration(runRef.timeSec)}`
+                    : "Basis: Schwellen-Pace"}
+                </span>
+              </div>
               <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                 {RUN_DISTANCES.map((d) => {
-                  const sec = predictRunTime(d.km, profile.thresholdPaceSecPerKm!);
+                  const sec = predictRunFromReference(d.km, runRef);
                   const pace = paceForRun(d.km, sec);
                   return (
                     <div key={d.key} className="rounded-xl border border-neutral-200 p-3">

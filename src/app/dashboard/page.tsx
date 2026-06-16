@@ -32,6 +32,7 @@ import { DataExport } from "@/components/dashboard/DataExport";
 import { TrainingCalculators } from "@/components/dashboard/TrainingCalculators";
 import { RacePlanner, type Race } from "@/components/dashboard/RacePlanner";
 import { RacePredictions } from "@/components/dashboard/RacePredictions";
+import { resolveRunReference } from "@/domain/training/prediction";
 import {
   TrainerControl,
   type TrainerWorkout,
@@ -321,6 +322,14 @@ export default async function DashboardPage() {
                     cssPer100m: athlete?.thresholdSwimPer100m ?? null,
                     weightKg: athlete?.weightKg ?? null,
                     ctl: loadSeries.current.ctl,
+                    runReference: resolveRunReference({
+                      thresholdPaceSecPerKm: athlete?.thresholdPaceSecPerKm ?? null,
+                      runs: loadActivities.map((a) => ({
+                        sport: a.sport,
+                        distanceKm: a.distanceKm,
+                        durationMin: a.durationMin,
+                      })),
+                    }),
                   }}
                   races={racesData.map((r) => ({
                     id: r.id,
