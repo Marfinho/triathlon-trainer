@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card } from "./Card";
+import { Sparkline } from "@/components/charts/Charts";
 
 export interface JournalItem {
   id: string;
@@ -103,6 +104,21 @@ export function TrainingJournal({ initial }: { initial: JournalItem[] }) {
             >
               {saving ? "…" : "Speichern"}
             </button>
+          </div>
+        </div>
+      ) : null}
+
+      {entries.some((e) => e.mood != null) ? (
+        <div className="mb-3 flex items-center gap-2">
+          <span className="text-[11px] uppercase tracking-wide text-neutral-400">
+            Stimmung
+          </span>
+          <div className="flex-1 text-amber-500">
+            <Sparkline
+              values={[...entries].reverse().map((e) => e.mood ?? null)}
+              color="#ff9f0a"
+              height={28}
+            />
           </div>
         </div>
       ) : null}

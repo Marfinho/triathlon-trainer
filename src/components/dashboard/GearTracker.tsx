@@ -384,6 +384,22 @@ function UsageBar({ gear }: { gear: Gear }) {
           />
         </div>
       ) : null}
+      {gear.alertHours ? (
+        <div className="mt-1.5">
+          <div className="flex justify-between text-[11px] text-neutral-400">
+            <span>{Math.round(gear.usage.hours)} h</span>
+            <span>Ziel {gear.alertHours} h</span>
+          </div>
+          <div className="mt-0.5 h-1.5 w-full overflow-hidden rounded-full bg-neutral-100">
+            <div
+              className="h-full rounded-full bg-neutral-400"
+              style={{
+                width: `${Math.min(100, (gear.usage.hours / gear.alertHours) * 100)}%`,
+              }}
+            />
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

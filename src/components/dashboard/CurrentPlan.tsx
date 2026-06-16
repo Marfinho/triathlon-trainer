@@ -15,6 +15,15 @@ const STATUS_STYLES: Record<string, string> = {
   completed: "bg-blue-50 text-blue-700",
 };
 
+function relativeDay(iso: string): { label: string; highlight: boolean } {
+  const today = new Date();
+  const todayIso = today.toISOString().slice(0, 10);
+  const tomorrow = new Date(today.getTime() + 86400000).toISOString().slice(0, 10);
+  if (iso === todayIso) return { label: "heute", highlight: true };
+  if (iso === tomorrow) return { label: "morgen", highlight: false };
+  return { label: iso, highlight: false };
+}
+
 export function CurrentPlan({ items }: { items: PlannedItem[] }) {
   return (
     <Card
@@ -27,7 +36,9 @@ export function CurrentPlan({ items }: { items: PlannedItem[] }) {
         </p>
       ) : (
         <ul className="divide-y divide-neutral-100">
-          {items.map((w) => (
+          {items.map((w) => {
+            const rel = relativeDay(w.date);
+            return (
             <li key={w.id} className="flex items-center justify-between gap-3 py-3">
               <div className="flex min-w-0 items-center gap-3">
                 <span
@@ -39,7 +50,10 @@ export function CurrentPlan({ items }: { items: PlannedItem[] }) {
                     {w.title}
                   </p>
                   <p className="text-xs text-neutral-500">
-                    {w.date} · {sportLabel(w.sport)} ·{" "}
+                    <span className={rel.highlight ? "font-semibold text-blue-600" : ""}>
+                      {rel.label}
+                    </span>{" "}
+                    · {sportLabel(w.sport)} ·{" "}
                     {w.sport === "rest" ? "Ruhetag" : `${w.plannedDurationMin} min`}
                   </p>
                 </div>
@@ -52,7 +66,8 @@ export function CurrentPlan({ items }: { items: PlannedItem[] }) {
                 {w.status}
               </span>
             </li>
-          ))}
+            );
+          })}
         </ul>
       )}
     </Card>

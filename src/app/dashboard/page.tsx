@@ -28,6 +28,7 @@ import { DashboardTabs } from "@/components/dashboard/DashboardTabs";
 import { BodyMetrics } from "@/components/dashboard/BodyMetrics";
 import { summarizeBody } from "@/domain/training/body";
 import { TrainingJournal } from "@/components/dashboard/TrainingJournal";
+import { DataExport } from "@/components/dashboard/DataExport";
 import { RacePlanner, type Race } from "@/components/dashboard/RacePlanner";
 import {
   TrainerControl,
@@ -416,6 +417,7 @@ export default async function DashboardPage() {
                   />
                 </div>
                 <BodyMetrics summary={bodySummary} heightCm={athlete?.heightCm ?? null} />
+                <DataExport />
               </>
             ),
           },
