@@ -244,6 +244,10 @@ export default async function DashboardPage() {
     distance: r.distance,
     priority: r.priority,
     notes: r.notes,
+    completed: r.completed,
+    resultSeconds: r.resultSeconds,
+    resultPlacement: r.resultPlacement,
+    resultNote: r.resultNote,
   }));
 
   const [pending, processing, failed, success, synced] = syncCounts;

@@ -49,6 +49,10 @@ model RaceEvent {
   distance  String? // z.B. "olympic" | "70.3" | "marathon"
   priority  String? // "A" | "B" | "C"
   notes     String?
+  completed Boolean  @default(false)
+  resultSeconds Int? // Zielzeit in Sekunden
+  resultPlacement Int? // Platzierung (optional)
+  resultNote String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

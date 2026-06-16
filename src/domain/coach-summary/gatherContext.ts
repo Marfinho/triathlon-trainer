@@ -49,6 +49,12 @@ export async function gatherCoachSummaryContext(
     db.syncQueue.count({ where: { status: "failed" } }),
   ]);
 
+  const [goals, latestBody, recentJournal] = await Promise.all([
+    db.trainingGoal.findMany({ orderBy: { sport: "asc" } }),
+    db.bodyMetric.findFirst({ orderBy: { date: "desc" } }),
+    db.journalEntry.findMany({ orderBy: { date: "desc" }, take: 5 }),
+  ]);
+
   // Trainingszusammenfassung der letzten Tage je Sportart.
   const summaryBySport: Record<
     string,
@@ -80,7 +86,11 @@ export async function gatherCoachSummaryContext(
         }
       : null,
     seasonContext: null,
-    planningConstraints: null,
+    planningConstraints: {
+      weeklyGoalsMin: Object.fromEntries(
+        goals.map((g) => [g.sport, g.weeklyTargetMin]),
+      ),
+    },
     recentTrainingSummary: {
       windowDays: lookbackDays,
       bySport: summaryBySport,
@@ -134,7 +144,16 @@ export async function gatherCoachSummaryContext(
       pendingQueue: pendingJobs,
       failedQueue: failedJobs,
     },
-    coachNotes: null,
+    coachNotes: {
+      body: latestBody
+        ? { weightKg: latestBody.weightKg, restingHr: latestBody.restingHr }
+        : null,
+      recentJournal: recentJournal.map((j) => ({
+        date: formatIsoDate(j.date),
+        mood: j.mood,
+        text: j.text,
+      })),
+    },
   };
 
   return { context, athleteId: athlete?.id ?? null };

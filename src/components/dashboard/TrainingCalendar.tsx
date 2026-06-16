@@ -3,6 +3,19 @@ import type { CalendarDay } from "@/domain/training/calendar";
 
 const WEEKDAYS = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"];
 
+const SPORT_ABBR: Record<string, string> = {
+  swim: "Sw",
+  bike: "Rad",
+  run: "Lauf",
+  strength: "Kraft",
+  brick: "Kop",
+  rest: "Rest",
+};
+
+function abbr(sport: string): string {
+  return SPORT_ABBR[sport] ?? sport.slice(0, 3);
+}
+
 export function TrainingCalendar({ grid }: { grid: CalendarDay[][] }) {
   return (
     <Card
@@ -101,7 +114,9 @@ function DayCell({ day }: { day: CalendarDay }) {
                 className="h-1.5 w-1.5 shrink-0 rounded-full"
                 style={{ backgroundColor: color }}
               />
-              <span className="truncate">{it.durationMin}′</span>
+              <span className="truncate">
+                {abbr(it.sport)} {it.durationMin}′
+              </span>
             </div>
           );
         })}

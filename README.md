@@ -119,7 +119,8 @@ src/
   app/
     dashboard/page.tsx        Dashboard (Einstieg)
     api/                      coach-summary | plan-import | intervals-sync
-                              activities | races | gear
+                              activities | races | gear | goals | body
+                              checkin | journal | profile | export
   components/
     dashboard/                UI-Komponenten (Plan, Form, Races, Gear, Trainer …)
     charts/                   abhängigkeitsfreie SVG-Charts
@@ -138,15 +139,36 @@ tests/                        Vitest-Tests
 
 ## Module im Dashboard
 
-- **Form & Belastung** – Performance-Management-Chart (Fitness/Ermüdung/Form =
-  CTL/ATL/TSB) und Wochenvolumen je Disziplin.
-- **Wettkämpfe & Saison** – Wettkampf-Verwaltung mit Countdown, Priorität und
-  Saison-Timeline.
-- **Plan vs. Ist** – Wochen-Compliance plus Detailabgleich.
+Das Dashboard ist in drei ruhige Tabs gegliedert (Form & Planung · Training &
+Material · Austausch & Sync):
+
+**Form & Planung**
+- **Form & Belastung** – Performance-Management-Chart (CTL/ATL/TSB), ACWR &
+  Aufbaurate, 7-/28-Tage-Load, Wochenvolumen je Disziplin.
+- **Wochenziele** – Zielstunden je Disziplin vs. laufende Woche.
+- **Wettkämpfe & Saison** – Countdown, Priorität (A/B/C), Periodisierungsphase,
+  Saison-Timeline und Ergebniserfassung vergangener Rennen.
+- **Aktueller Plan / Letzte Aktivitäten** – nächste Einheiten (heute/morgen) und
+  Wochen-Summary.
+- **Trainingskalender** – Mo–So-Gitter mit geplanten/Ist-Einheiten und
+  Wochensummen.
+- **Saison-Statistik & Bestwerte** – Gesamtvolumen, Ø/Woche, Streak, Bestwerte je
+  Disziplin, Zeitverteilung.
+- **Plan vs. Ist** – Gesamt- und Wochen-Compliance plus Detailabgleich.
+- **Trainingstagebuch** – Notizen mit Stimmung und Stimmungsverlauf.
+
+**Training & Material**
 - **Radrolle (Kickr Core v2)** – ERG-Steuerung & Aufzeichnung (siehe unten).
+- **Trainingszonen** – Power, HF, Lauf- und Schwimm-Pace aus Schwellenwerten.
 - **Sportgeräte** – Schuhe, Räder und Komponenten (z.B. Kette) mit automatischem
-  Verschleiß-Tracking aus den Aktivitäten und Wartungs-/Austausch-Hinweisen.
-- **ChatGPT-Austausch / Intervals.icu-Sync / Readiness & Schmerz**.
+  km-/Stunden-Verschleiß-Tracking und Wartungs-/Austausch-Hinweisen.
+
+**Austausch & Sync**
+- **ChatGPT-Austausch** – CoachSummary-Export & Planimport.
+- **Intervals.icu-Sync** – Queue-Status und letzte Sync-Ereignisse.
+- **Readiness & Schmerz** – Tages-Check-in mit Verlauf.
+- **Körpermetriken** – Gewicht, Ruhepuls, BMI mit Verlauf.
+- **Daten & Backup** – JSON-Backup und Aktivitäten-CSV-Export.
 
 ## Datenbank: SQLite jetzt, PostgreSQL später
 

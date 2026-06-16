@@ -18,6 +18,27 @@ export interface Race {
   distance: string | null;
   priority: string | null;
   notes: string | null;
+  completed: boolean;
+  resultSeconds: number | null;
+  resultPlacement: number | null;
+  resultNote: string | null;
+}
+
+function fmtTime(sec: number): string {
+  const h = Math.floor(sec / 3600);
+  const m = Math.floor((sec % 3600) / 60);
+  const s = sec % 60;
+  return h > 0
+    ? `${h}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`
+    : `${m}:${String(s).padStart(2, "0")}`;
+}
+
+function parseTime(str: string): number | null {
+  const parts = str.split(":").map((p) => Number(p.trim()));
+  if (parts.some((n) => Number.isNaN(n))) return null;
+  if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
+  if (parts.length === 2) return parts[0] * 60 + parts[1];
+  return parts[0];
 }
 
 const HORIZON_DAYS = 182;
@@ -89,6 +110,24 @@ export function RacePlanner({ initialRaces }: { initialRaces: Race[] }) {
   async function removeRace(id: string) {
     setRaces((r) => r.filter((x) => x.id !== id));
     await fetch(`/api/races/${id}`, { method: "DELETE" }).catch(() => {});
+    router.refresh();
+  }
+
+  async function enterResult(id: string, currentSec: number | null) {
+    const v = window.prompt(
+      "Zielzeit (h:mm:ss oder mm:ss):",
+      currentSec != null ? fmtTime(currentSec) : "",
+    );
+    if (v === null) return;
+    const secs = v.trim() === "" ? null : parseTime(v);
+    await fetch(`/api/races/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ completed: true, resultSeconds: secs }),
+    }).catch(() => {});
+    setRaces((rs) =>
+      rs.map((r) => (r.id === id ? { ...r, completed: true, resultSeconds: secs } : r)),
+    );
     router.refresh();
   }
 
@@ -254,13 +293,25 @@ export function RacePlanner({ initialRaces }: { initialRaces: Race[] }) {
                   <p className="text-xs text-neutral-500">
                     {fmtDate(race.date)}
                     {race.distance ? ` · ${race.distance}` : ""}
+                    {race.resultSeconds != null
+                      ? ` · 🏁 ${fmtTime(race.resultSeconds)}`
+                      : ""}
                   </p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <span className="text-xs text-neutral-500">
-                  {describeCountdown(days)}
-                </span>
+                {days < 0 ? (
+                  <button
+                    onClick={() => enterResult(race.id, race.resultSeconds)}
+                    className="text-xs font-medium text-blue-600 hover:underline"
+                  >
+                    {race.resultSeconds != null ? "Ergebnis" : "+ Ergebnis"}
+                  </button>
+                ) : (
+                  <span className="text-xs text-neutral-500">
+                    {describeCountdown(days)}
+                  </span>
+                )}
                 <button
                   onClick={() => removeRace(race.id)}
                   className="text-neutral-300 hover:text-rose-500"
