@@ -119,9 +119,21 @@ export function BodyMetrics({
           </div>
         </div>
         <div className="rounded-xl border border-neutral-200 p-3">
-          <span className="text-[11px] uppercase tracking-wide text-neutral-400">
-            Ruhepuls
-          </span>
+          <div className="flex items-baseline justify-between">
+            <span className="text-[11px] uppercase tracking-wide text-neutral-400">
+              Ruhepuls
+            </span>
+            {summary.restingHrChange != null && summary.restingHrChange !== 0 ? (
+              <span
+                className={`text-xs font-medium ${
+                  summary.restingHrChange < 0 ? "text-emerald-600" : "text-amber-600"
+                }`}
+              >
+                {summary.restingHrChange > 0 ? "+" : ""}
+                {summary.restingHrChange} bpm
+              </span>
+            ) : null}
+          </div>
           <p className="mt-0.5 text-2xl font-semibold text-neutral-900">
             {summary.latestRestingHr != null ? `${summary.latestRestingHr} bpm` : "—"}
           </p>

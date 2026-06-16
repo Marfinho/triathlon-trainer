@@ -13,7 +13,15 @@ export function SeasonStatsCard({ stats }: { stats: SeasonStats }) {
         <Kpi label="Ø / Woche" value={`${stats.avgWeeklyHours} h`} />
         <Kpi label="Distanz" value={`${stats.totalKm} km`} />
         <Kpi label="Streak" value={`${stats.currentStreakDays} d`} />
-        <Kpi label="Top-Woche" value={`${stats.biggestWeekLoad}`} sub="Load" />
+        <Kpi
+          label="Top-Woche"
+          value={`${stats.biggestWeekLoad}`}
+          sub={
+            stats.biggestWeekStart
+              ? `ab ${stats.biggestWeekStart.slice(8, 10)}.${stats.biggestWeekStart.slice(5, 7)}.`
+              : "Load"
+          }
+        />
       </div>
 
       {stats.bySport.length > 0 ? (

@@ -18,6 +18,8 @@ export interface BodySummary {
   latestRestingHr: number | null;
   /** Gewichtsänderung gegenüber dem ältesten Eintrag im Fenster. */
   weightChange: number | null;
+  /** Ruhepuls-Änderung gegenüber dem ältesten Eintrag im Fenster. */
+  restingHrChange: number | null;
 }
 
 /** Erwartet Einträge in beliebiger Reihenfolge; sortiert aufsteigend. */
@@ -41,11 +43,17 @@ export function summarizeBody(entries: BodyEntry[]): BodySummary {
       ? Math.round((latestWeight - firstWeight) * 10) / 10
       : null;
 
+  const restingHrChange =
+    hrVals.length >= 2
+      ? Math.round(hrVals[hrVals.length - 1] - hrVals[0])
+      : null;
+
   return {
     weights,
     restingHrs,
     latestWeight,
     latestRestingHr: hrVals.length ? hrVals[hrVals.length - 1] : null,
     weightChange,
+    restingHrChange,
   };
 }

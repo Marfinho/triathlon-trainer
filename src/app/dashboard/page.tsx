@@ -29,6 +29,7 @@ import { BodyMetrics } from "@/components/dashboard/BodyMetrics";
 import { summarizeBody } from "@/domain/training/body";
 import { TrainingJournal } from "@/components/dashboard/TrainingJournal";
 import { DataExport } from "@/components/dashboard/DataExport";
+import { TrainingCalculators } from "@/components/dashboard/TrainingCalculators";
 import { RacePlanner, type Race } from "@/components/dashboard/RacePlanner";
 import {
   TrainerControl,
@@ -365,6 +366,7 @@ export default async function DashboardPage() {
                   thresholdPaceSecPerKm={athlete?.thresholdPaceSecPerKm ?? null}
                   thresholdSwimPer100m={athlete?.thresholdSwimPer100m ?? null}
                 />
+                <TrainingCalculators />
                 <GearTracker initialGear={gearTree} />
               </>
             ),

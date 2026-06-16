@@ -148,6 +148,11 @@ export function WeeklyGoals({ initial }: { initial: GoalProgress[] }) {
                   <span className="flex items-center gap-2 text-neutral-500">
                     <span className={reached ? "font-semibold text-emerald-600" : ""}>
                       {(g.actualMin / 60).toFixed(1)} / {(g.targetMin / 60).toFixed(1)} h
+                      {!reached && g.targetMin > g.actualMin ? (
+                        <span className="ml-1 text-[11px] text-neutral-400">
+                          (noch {((g.targetMin - g.actualMin) / 60).toFixed(1)} h)
+                        </span>
+                      ) : null}
                     </span>
                     <button
                       onClick={() => removeGoal(g.sport)}

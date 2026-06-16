@@ -31,6 +31,7 @@ export interface SeasonStats {
   totalHours: number;
   totalKm: number;
   biggestWeekLoad: number;
+  biggestWeekStart: string | null;
   currentStreakDays: number;
   /** Wochen mit mindestens einer Einheit. */
   activeWeeks: number;
@@ -114,12 +115,22 @@ export function buildSeasonStats(
     }))
     .sort((a, b) => b.totalMin - a.totalMin);
 
+  let biggestWeekStart: string | null = null;
+  let biggestWeekLoad = 0;
+  for (const [week, load] of loadByWeek) {
+    if (load > biggestWeekLoad) {
+      biggestWeekLoad = load;
+      biggestWeekStart = week;
+    }
+  }
+
   return {
     bySport,
     totalSessions: activities.length,
     totalHours,
     totalKm: Math.round(totalKm),
-    biggestWeekLoad: Math.round(Math.max(0, ...loadByWeek.values())),
+    biggestWeekLoad: Math.round(biggestWeekLoad),
+    biggestWeekStart,
     currentStreakDays: streak,
     activeWeeks,
     avgWeeklyHours,
