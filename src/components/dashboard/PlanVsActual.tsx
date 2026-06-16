@@ -41,7 +41,13 @@ export function PlanVsActual({
           const completed = recent.reduce((s, w) => s + w.completed, 0);
           const overall = planned ? Math.round((completed / planned) * 100) : 0;
           return (
-            <div className="mb-4 flex items-center justify-between rounded-xl border border-neutral-200 bg-neutral-50 px-3 py-2">
+            <div
+              className="mb-4 flex items-center justify-between rounded-xl border px-3 py-2"
+              style={{
+                borderColor: `${complianceColor(overall)}44`,
+                backgroundColor: `${complianceColor(overall)}11`,
+              }}
+            >
               <span className="text-sm font-medium text-neutral-800">
                 Compliance (4 Wochen)
               </span>

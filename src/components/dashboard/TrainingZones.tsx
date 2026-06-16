@@ -143,8 +143,15 @@ export function TrainingZones({
       </div>
 
       <ul className="space-y-1.5">
-        {zones.map((z) => (
-          <li key={z.id} className="flex items-center gap-3">
+        {zones.map((z) => {
+          const isThreshold = tab === "swim" ? z.id === "z3" : z.id === "z4";
+          return (
+          <li
+            key={z.id}
+            className={`flex items-center gap-3 rounded-lg px-1.5 py-0.5 ${
+              isThreshold ? "bg-neutral-100" : ""
+            }`}
+          >
             <span
               className="h-2.5 w-2.5 shrink-0 rounded-full"
               style={{ backgroundColor: z.color }}
@@ -157,7 +164,8 @@ export function TrainingZones({
               <span className="text-xs text-neutral-400">{unit}</span>
             </span>
           </li>
-        ))}
+          );
+        })}
       </ul>
     </Card>
   );

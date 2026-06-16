@@ -23,6 +23,12 @@ export function DataExport() {
         >
           Aktivitäten (CSV)
         </a>
+        <a
+          href="/api/report"
+          className="rounded-lg border border-neutral-300 px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-100"
+        >
+          Wochenbericht (Markdown)
+        </a>
       </div>
       <p className="mt-2 text-[11px] text-neutral-400">
         Der Export läuft vollständig lokal. Es werden keine Daten an Dritte

@@ -89,13 +89,28 @@ export function FormFitness({
           color={current.rampRate > 8 ? "#ff9f0a" : "#0a84ff"}
         />
       </div>
-      <div className="mb-5 flex gap-3 text-xs text-neutral-500">
+      <div className="mb-5 flex flex-wrap gap-3 text-xs text-neutral-500">
         <span className="rounded-lg bg-neutral-50 px-2.5 py-1">
           Load 7 Tage: <span className="font-semibold text-neutral-800">{load7d}</span>
         </span>
         <span className="rounded-lg bg-neutral-50 px-2.5 py-1">
           Load 28 Tage: <span className="font-semibold text-neutral-800">{load28d}</span>
         </span>
+        {(() => {
+          const prev = series.tsb[series.tsb.length - 8];
+          if (prev == null) return null;
+          const delta = Math.round((current.tsb - prev) * 10) / 10;
+          const up = delta >= 0;
+          return (
+            <span className="rounded-lg bg-neutral-50 px-2.5 py-1">
+              Form-Trend (7 d):{" "}
+              <span className={`font-semibold ${up ? "text-emerald-600" : "text-amber-600"}`}>
+                {up ? "▲" : "▼"} {up ? "+" : ""}
+                {delta}
+              </span>
+            </span>
+          );
+        })()}
       </div>
       <div className="mb-2 flex items-center justify-between">
         <ChartLegend items={lineSeries.map((s) => ({ name: s.name, color: s.color }))} />
