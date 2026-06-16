@@ -1,23 +1,116 @@
-// LocalHub Prisma Schema
+// LocalHub Prisma Schema (PostgreSQL, Multi-User)
 //
-// SQLite für die lokale Entwicklung. Der Aufbau ist bewusst
-// PostgreSQL-kompatibel gehalten: für den Wechsel genügt es, `provider` auf
-// "postgresql" zu setzen, DATABASE_URL anzupassen und neu zu migrieren.
-//
-// Designentscheidungen für maximale Portabilität:
-//   * Enums werden NICHT als Prisma-Enums modelliert (SQLite unterstützt sie
-//     nicht). Stattdessen `String`-Felder mit dokumentierten erlaubten Werten;
-//     die Durchsetzung erfolgt in der Domain-Schicht via Zod/TypeScript.
-//   * JSON wird als serialisierter `String` gespeichert (Feldsuffix `Json`),
-//     was auf jedem Provider funktioniert.
+// - PostgreSQL als Provider; DATABASE_URL aus der Umgebung.
+// - JSON wird als nativer `Json`-Typ gespeichert (kein String/Serialisierung).
+// - Multi-User: jedes Domänen-Modell hat `userId` + Relation auf `User`.
+//   ALLE Queries filtern verpflichtend nach `userId`.
+// - Auth.js (NextAuth v5) Modelle: User, Account, Session, VerificationToken.
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Auth & Account
+// ---------------------------------------------------------------------------
+
+model User {
+  id                   String    @id @default(cuid())
+  email                String    @unique
+  name                 String?
+  emailVerified        DateTime?
+  image                String?
+  passwordHash         String?
+  provider             String? // "google" | "credentials"
+  providerId           String?
+  plan                 String    @default("free") // "free" | "paid"
+  planInterval         String? // "monthly" | "yearly" | "lifetime"
+  stripeCustomerId     String?
+  stripeSubscriptionId String?
+  planExpiresAt        DateTime?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  accounts     Account[]
+  sessions     Session[]
+  integrations UserIntegration[]
+
+  athleteProfiles     AthleteProfile[]
+  raceEvents          RaceEvent[]
+  plannedWorkouts     PlannedWorkout[]
+  actualActivities    ActualActivity[]
+  trainingPlanImports TrainingPlanImport[]
+  coachSummaryExports CoachSummaryExport[]
+  intervalsSyncs      IntervalsWorkoutSync[]
+  syncQueueJobs       SyncQueue[]
+  syncLogs            SyncLog[]
+  readinessSnapshots  ReadinessSnapshot[]
+  painSnapshots       PainSnapshot[]
+  gearItems           GearItem[]
+  journalEntries      JournalEntry[]
+  bodyMetrics         BodyMetric[]
+  trainingGoals       TrainingGoal[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+/// Verschlüsselte Drittanbieter-Zugangsdaten (z.B. Intervals.icu).
+model UserIntegration {
+  id        String   @id @default(cuid())
+  userId    String
+  provider  String // "intervals"
+  apiKey    String // AES-256-GCM-verschlüsselt
+  athleteId String?
+  enabled   Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, provider])
+  @@index([userId])
 }
 
 // ---------------------------------------------------------------------------
@@ -25,36 +118,47 @@ datasource db {
 // ---------------------------------------------------------------------------
 
 model AthleteProfile {
-  id            String   @id @default(cuid())
-  name          String
-  heightCm      Int?
-  weightKg      Float?
-  ftpWatts      Int? // Functional Threshold Power (für ERG-Steuerung & Power-Zonen)
-  thresholdHr   Int? // Schwellen-Herzfrequenz (LTHR) für HF-Zonen
-  thresholdPaceSecPerKm Int? // Schwellen-Lauf-Pace in Sekunden/km für Pace-Zonen
-  thresholdSwimPer100m  Int? // CSS-Pace (Schwimmen) in Sekunden je 100 m
-  trainingLevel String? // z.B. "beginner" | "intermediate" | "advanced"
-  primarySports String? // JSON-Array, z.B. ["run","bike","swim"]
-  knownLimiters String? // JSON-Array bekannter Limitierungen
-  equipment     String? // JSON-Objekt/Array vorhandener Ausrüstung
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id                    String   @id @default(cuid())
+  userId                String
+  name                  String
+  heightCm              Int?
+  weightKg              Float?
+  ftpWatts              Int?
+  thresholdHr           Int?
+  thresholdPaceSecPerKm Int?
+  thresholdSwimPer100m  Int?
+  trainingLevel         String?
+  primarySports         Json? // z.B. ["run","bike","swim"]
+  knownLimiters         Json?
+  equipment             Json?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 model RaceEvent {
-  id        String   @id @default(cuid())
-  name      String
-  date      DateTime
-  type      String // z.B. "triathlon" | "run" | "bike" | "swim"
-  distance  String? // z.B. "olympic" | "70.3" | "marathon"
-  priority  String? // "A" | "B" | "C"
-  notes     String?
-  completed Boolean  @default(false)
-  resultSeconds Int? // Zielzeit in Sekunden
-  resultPlacement Int? // Platzierung (optional)
-  resultNote String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id              String   @id @default(cuid())
+  userId          String
+  name            String
+  date            DateTime
+  type            String
+  distance        String?
+  priority        String?
+  notes           String?
+  completed       Boolean  @default(false)
+  resultSeconds   Int?
+  resultPlacement Int?
+  resultNote      String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([date])
 }
 
 // ---------------------------------------------------------------------------
@@ -63,41 +167,41 @@ model RaceEvent {
 
 model PlannedWorkout {
   id                 String   @id @default(cuid())
+  userId             String
   date               DateTime
-  sport              String // "run" | "bike" | "swim" | "strength" | "rest" | ...
+  sport              String
   title              String
   plannedDurationMin Int      @default(0)
   plannedDistanceM   Int?
   rpe                Int?
   description        String?
-  segmentsJson       String   @default("[]") // JSON-Array von Segmenten
-  // status: planned | synced | completed | skipped | cancelled | replaced
-  // Regel: nur planned/synced dürfen per Import zu `replaced` werden;
-  // `completed` wird niemals verändert.
+  segmentsJson       Json     @default("[]") // Json-Array von Segmenten
   status             String   @default("planned")
-  source             String   @default("plan_import") // "plan_import" | "manual" | "intervals"
+  source             String   @default("plan_import")
   planImportId       String?
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
 
-  planImport     TrainingPlanImport?   @relation(fields: [planImportId], references: [id])
-  intervalsSync  IntervalsWorkoutSync?
-  syncQueueJobs  SyncQueue[]
+  user          User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  planImport    TrainingPlanImport?   @relation(fields: [planImportId], references: [id])
+  intervalsSync IntervalsWorkoutSync?
+  syncQueueJobs SyncQueue[]
 
+  @@index([userId])
   @@index([date])
   @@index([status])
   @@index([planImportId])
 }
 
 // ---------------------------------------------------------------------------
-// Ist-Aktivitäten – UNANTASTBAR. Nur Import von Intervals.icu -> LocalHub.
-// Werden niemals durch Planimport überschrieben oder gelöscht.
+// Ist-Aktivitäten – UNANTASTBAR.
 // ---------------------------------------------------------------------------
 
 model ActualActivity {
   id          String   @id @default(cuid())
-  externalId  String? // z.B. Intervals.icu Activity-ID
-  source      String   @default("intervals") // "intervals" | "manual" | ...
+  userId      String
+  externalId  String?
+  source      String   @default("intervals")
   date        DateTime
   sport       String
   durationMin Float?
@@ -107,11 +211,14 @@ model ActualActivity {
   rpe         Float?
   avgHr       Int?
   notes       String?
-  rawJson     String? // Rohdaten der Quelle
+  rawJson     Json?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  @@unique([source, externalId])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, source, externalId])
+  @@index([userId])
   @@index([date])
 }
 
@@ -120,33 +227,42 @@ model ActualActivity {
 // ---------------------------------------------------------------------------
 
 model TrainingPlanImport {
-  id                   String   @id @default(cuid())
+  id                   String    @id @default(cuid())
+  userId               String
   schemaVersion        String
-  type                 String // erwartet "localhub_plan"
+  type                 String
   planName             String?
   generatedAt          DateTime?
   planStart            DateTime
   planDays             Int
   planEnd              DateTime
-  rawJson              String
-  validationStatus     String // "valid" | "invalid" | "imported"
-  validationErrorsJson String? // JSON-Array von Fehlern
-  createdAt            DateTime @default(now())
+  rawJson              Json
+  validationStatus     String
+  validationErrorsJson Json?
+  createdAt            DateTime  @default(now())
 
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   plannedWorkouts PlannedWorkout[]
+
+  @@index([userId])
 }
 
 model CoachSummaryExport {
-  id                     String   @id @default(cuid())
+  id                     String    @id @default(cuid())
+  userId                 String
   schemaVersion          String
-  exportPurpose          String // "training_plan" | "plan_review" | ...
-  requestedFormat        String // "localhub_plan_json"
+  exportPurpose          String
+  requestedFormat        String
   planStart              DateTime?
   planDays               Int?
-  includedModulesJson    String // JSON-Array enthaltener Module
-  modulesJson            String // JSON-Objekt der Modul-Inhalte
-  chatGptInstructionJson String // JSON-Objekt der Output-Regeln
-  createdAt              DateTime @default(now())
+  includedModulesJson    Json
+  modulesJson            Json
+  chatGptInstructionJson Json
+  createdAt              DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 // ---------------------------------------------------------------------------
@@ -154,57 +270,71 @@ model CoachSummaryExport {
 // ---------------------------------------------------------------------------
 
 model IntervalsWorkoutSync {
-  id                          String   @id @default(cuid())
-  localWorkoutId              String   @unique
-  intervalsEventId            String?
-  intervalsActivityId         String?
-  lastSyncedAt                DateTime?
-  lastSyncedHash              String?
-  syncStatus                  String   @default("pending") // pending|synced|failed|superseded
-  syncConflictState           String?
-  deletedOrSupersededAt       DateTime?
-  supersededByLocalWorkoutId  String?
-  createdAt                   DateTime @default(now())
-  updatedAt                   DateTime @updatedAt
+  id                         String    @id @default(cuid())
+  userId                     String
+  localWorkoutId             String    @unique
+  intervalsEventId           String?
+  intervalsActivityId        String?
+  lastSyncedAt               DateTime?
+  lastSyncedHash             String?
+  syncStatus                 String    @default("pending")
+  syncConflictState          String?
+  deletedOrSupersededAt      DateTime?
+  supersededByLocalWorkoutId String?
+  createdAt                  DateTime  @default(now())
+  updatedAt                  DateTime  @updatedAt
 
-  localWorkout PlannedWorkout @relation(fields: [localWorkoutId], references: [id])
+  user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  localWorkout PlannedWorkout @relation(fields: [localWorkoutId], references: [id], onDelete: Cascade)
 
+  @@index([userId])
   @@index([intervalsEventId])
 }
 
 model SyncQueue {
-  id               String   @id @default(cuid())
+  id               String    @id @default(cuid())
+  userId           String
   localWorkoutId   String
   intervalsEventId String?
-  action           String // create|update|move|delete|replace
-  payloadJson      String?
-  status           String   @default("pending") // pending|processing|success|failed
-  attempts         Int      @default(0)
+  action           String
+  payloadJson      Json?
+  status           String    @default("pending")
+  attempts         Int       @default(0)
   lastAttemptAt    DateTime?
   errorMessage     String?
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 
-  localWorkout PlannedWorkout @relation(fields: [localWorkoutId], references: [id])
+  user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  localWorkout PlannedWorkout @relation(fields: [localWorkoutId], references: [id], onDelete: Cascade)
 
+  @@index([userId])
   @@index([status])
   @@index([localWorkoutId])
 }
 
 model SyncLog {
   id                String   @id @default(cuid())
+  userId            String
   localWorkoutId    String?
   intervalsEventId  String?
-  action            String
-  previousStateJson String?
-  newStateJson      String?
+  action            String?
+  type              String? // "sync" | "backup" | ...
+  status            String?
+  durationMs        Int?
+  previousStateJson Json?
+  newStateJson      Json?
   reason            String?
-  triggeredBy       String? // "import" | "manual_sync" | "queue" | ...
+  triggeredBy       String?
   success           Boolean  @default(true)
   errorMessage      String?
   createdAt         DateTime @default(now())
 
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
   @@index([localWorkoutId])
+  @@index([type])
   @@index([createdAt])
 }
 
@@ -214,8 +344,9 @@ model SyncLog {
 
 model ReadinessSnapshot {
   id                String   @id @default(cuid())
+  userId            String
   date              DateTime
-  status            String? // "green" | "amber" | "red"
+  status            String?
   sleepTrend        String?
   hrvTrend          String?
   restingHrTrend    String?
@@ -223,73 +354,15 @@ model ReadinessSnapshot {
   notes             String?
   createdAt         DateTime @default(now())
 
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
   @@index([date])
-}
-
-// ---------------------------------------------------------------------------
-// Sportgeräte-Tracking (Schuhe, Räder, Komponenten wie Kette …)
-// ---------------------------------------------------------------------------
-
-model GearItem {
-  id           String   @id @default(cuid())
-  name         String
-  type         String // "shoe" | "bike" | "component" | "wetsuit" | "other"
-  sport        String? // "run" | "bike" | "swim" … (für Auto-Akkumulation)
-  parentId     String? // z.B. Kette -> Rad
-  brand        String?
-  model        String?
-  purchaseDate DateTime? // bei Komponenten = Einbaudatum (Tracking-Start)
-  retired      Boolean  @default(false)
-  // Auto-Akkumulation: zählt passende Aktivitäten (sport, ab purchaseDate).
-  autoTrack    Boolean  @default(true)
-  // Manuelle Zusatzwerte (z.B. Einheiten außerhalb von LocalHub).
-  manualKm     Float    @default(0)
-  manualHours  Float    @default(0)
-  // Verschleißgrenzen für Wartungs-/Austausch-Hinweise.
-  alertKm      Float?
-  alertHours   Float?
-  notes        String?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-
-  parent     GearItem?  @relation("GearComponents", fields: [parentId], references: [id], onDelete: Cascade)
-  components GearItem[] @relation("GearComponents")
-
-  @@index([type])
-  @@index([parentId])
-}
-
-model JournalEntry {
-  id        String   @id @default(cuid())
-  date      DateTime
-  mood      Int? // 1 (schlecht) … 5 (top)
-  text      String
-  createdAt DateTime @default(now())
-
-  @@index([date])
-}
-
-model BodyMetric {
-  id        String   @id @default(cuid())
-  date      DateTime
-  weightKg  Float?
-  restingHr Int?
-  notes     String?
-  createdAt DateTime @default(now())
-
-  @@index([date])
-}
-
-model TrainingGoal {
-  id              String   @id @default(cuid())
-  sport           String   @unique // ein Ziel je Disziplin
-  weeklyTargetMin Int
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
 }
 
 model PainSnapshot {
   id        String   @id @default(cuid())
+  userId    String
   date      DateTime
   overall   Int?
   knee      Int?
@@ -299,5 +372,84 @@ model PainSnapshot {
   notes     String?
   createdAt DateTime @default(now())
 
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
   @@index([date])
+}
+
+// ---------------------------------------------------------------------------
+// Sportgeräte-Tracking
+// ---------------------------------------------------------------------------
+
+model GearItem {
+  id           String    @id @default(cuid())
+  userId       String
+  name         String
+  type         String
+  sport        String?
+  parentId     String?
+  brand        String?
+  model        String?
+  purchaseDate DateTime?
+  retired      Boolean   @default(false)
+  autoTrack    Boolean   @default(true)
+  manualKm     Float     @default(0)
+  manualHours  Float     @default(0)
+  alertKm      Float?
+  alertHours   Float?
+  notes        String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parent     GearItem?  @relation("GearComponents", fields: [parentId], references: [id], onDelete: Cascade)
+  components GearItem[] @relation("GearComponents")
+
+  @@index([userId])
+  @@index([type])
+  @@index([parentId])
+}
+
+model JournalEntry {
+  id        String   @id @default(cuid())
+  userId    String
+  date      DateTime
+  mood      Int?
+  text      String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([date])
+}
+
+model BodyMetric {
+  id        String   @id @default(cuid())
+  userId    String
+  date      DateTime
+  weightKg  Float?
+  restingHr Int?
+  notes     String?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([date])
+}
+
+model TrainingGoal {
+  id              String   @id @default(cuid())
+  userId          String
+  sport           String
+  weeklyTargetMin Int
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, sport])
+  @@index([userId])
 }

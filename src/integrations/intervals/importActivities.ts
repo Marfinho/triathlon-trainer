@@ -44,6 +44,7 @@ export interface ImportActivitiesResult {
 export interface ImportActivitiesDeps {
   db: PrismaClient;
   client: IntervalsClient;
+  userId: string;
   sinceDays?: number;
   today?: Date;
 }
@@ -51,7 +52,7 @@ export interface ImportActivitiesDeps {
 export async function importActivitiesFromIntervals(
   deps: ImportActivitiesDeps,
 ): Promise<ImportActivitiesResult> {
-  const { db, client } = deps;
+  const { db, client, userId } = deps;
   const sinceDays = deps.sinceDays ?? 60;
   const today = deps.today ?? new Date();
   const newest = formatIsoDate(today);
@@ -66,6 +67,7 @@ export async function importActivitiesFromIntervals(
     if (!a.id) continue;
     const distanceM = typeof a.distance === "number" ? a.distance : null;
     const data = {
+      userId,
       source: "intervals",
       externalId: a.id,
       date: a.start_date_local ? new Date(a.start_date_local) : new Date(),
@@ -81,11 +83,17 @@ export async function importActivitiesFromIntervals(
         typeof a.average_heartrate === "number"
           ? Math.round(a.average_heartrate)
           : null,
-      rawJson: JSON.stringify(a),
+      rawJson: a as object,
     };
 
     const existing = await db.actualActivity.findUnique({
-      where: { source_externalId: { source: "intervals", externalId: a.id } },
+      where: {
+        userId_source_externalId: {
+          userId,
+          source: "intervals",
+          externalId: a.id,
+        },
+      },
     });
 
     if (existing) {

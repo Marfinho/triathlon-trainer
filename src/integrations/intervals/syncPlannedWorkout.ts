@@ -40,6 +40,7 @@ export interface SyncOutcome {
 export interface SyncDeps {
   db: PrismaClient;
   client: IntervalsClient;
+  userId: string;
   triggeredBy?: string;
 }
 
@@ -53,7 +54,7 @@ interface WorkoutRecord {
   plannedDurationMin: number;
   plannedDistanceM: number | null;
   description: string | null;
-  segmentsJson: string;
+  segmentsJson: unknown;
   status: string;
 }
 
@@ -85,11 +86,11 @@ export async function syncPlannedWorkout(
   workoutId: string,
   deps: SyncDeps,
 ): Promise<SyncOutcome> {
-  const { db, client } = deps;
+  const { db, client, userId } = deps;
   const triggeredBy = deps.triggeredBy ?? "manual_sync";
 
-  const workout = (await db.plannedWorkout.findUnique({
-    where: { id: workoutId },
+  const workout = (await db.plannedWorkout.findFirst({
+    where: { id: workoutId, userId },
   })) as WorkoutRecord | null;
 
   if (!workout) {
@@ -141,9 +142,11 @@ export async function syncPlannedWorkout(
     const message = error instanceof Error ? error.message : String(error);
     await db.syncLog.create({
       data: {
+        userId,
         localWorkoutId: workoutId,
         intervalsEventId: intervalsEventId ?? undefined,
         action: "sync",
+        type: "sync",
         triggeredBy,
         success: false,
         errorMessage: message,
@@ -156,6 +159,7 @@ export async function syncPlannedWorkout(
   await db.intervalsWorkoutSync.upsert({
     where: { localWorkoutId: workoutId },
     create: {
+      userId,
       localWorkoutId: workoutId,
       intervalsEventId,
       lastSyncedAt: now,
@@ -178,10 +182,12 @@ export async function syncPlannedWorkout(
 
   await db.syncLog.create({
     data: {
+      userId,
       localWorkoutId: workoutId,
       intervalsEventId: intervalsEventId ?? undefined,
       action,
-      newStateJson: JSON.stringify({ hash, eventInput }),
+      type: "sync",
+      newStateJson: { hash, eventInput } as object,
       triggeredBy,
       success: true,
     },

@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 # ---------------------------------------------------------------------------
-# LocalHub – Container-Image (Next.js + Prisma + SQLite)
+# LocalHub – Container-Image (Next.js + Prisma + PostgreSQL)
 #
 # Multi-Stage:
 #   deps   – Abhängigkeiten + Prisma-Client generieren
@@ -30,22 +30,21 @@ ENV NODE_ENV=production
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 # Dummy-URL nur für den Build (Seiten sind dynamisch, keine echte DB nötig).
-ENV DATABASE_URL="file:/app/prisma/build.db"
+ENV DATABASE_URL="postgresql://user:pass@localhost:5432/localhub"
 RUN npm run build
 
 # --- Runtime ---
 FROM base AS runner
 ENV NODE_ENV=production
 ENV PORT=3000
-# Persistente SQLite-Datenbank liegt unter /app/data (als Volume mounten).
-ENV DATABASE_URL="file:/app/data/localhub.db"
+# DATABASE_URL wird zur Laufzeit über die Compose-Umgebung gesetzt.
 
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=build /app/.next ./.next
 COPY package.json next.config.ts ./
 COPY prisma ./prisma
 COPY docker-entrypoint.sh ./
-RUN chmod +x docker-entrypoint.sh && mkdir -p /app/data
+RUN chmod +x docker-entrypoint.sh
 
 EXPOSE 3000
 ENTRYPOINT ["./docker-entrypoint.sh"]

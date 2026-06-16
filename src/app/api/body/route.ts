@@ -1,11 +1,16 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { requireUser } from "@/lib/auth-guard";
 
 /**
  * POST /api/body – Körpermetrik erfassen (neuer Datensatz, nichts überschrieben).
  * Body: { date?, weightKg?, restingHr?, notes? }
  */
 export async function POST(request: Request) {
+  const { user, response } = await requireUser();
+  if (response) return response;
+  const { userId } = user;
+
   let body: Record<string, unknown> = {};
   try {
     body = await request.json();
@@ -30,6 +35,7 @@ export async function POST(request: Request) {
 
   const entry = await prisma.bodyMetric.create({
     data: {
+      userId,
       date,
       weightKg,
       restingHr,

@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { requireUser } from "@/lib/auth-guard";
 import { validateLocalhubPlan } from "@/domain/plan-import/validateLocalhubPlan";
 import { importLocalhubPlan } from "@/domain/plan-import/importLocalhubPlan";
 import { parseIsoDate, addDays } from "@/domain/training/dates";
 import type { ExistingWorkoutRef } from "@/domain/plan-import/validateLocalhubPlan";
 import { processSyncQueue } from "@/integrations/intervals/syncQueue";
-import { createIntervalsClientFromEnv } from "@/integrations/intervals/client";
+import { createIntervalsClientForUser } from "@/integrations/intervals/userClient";
 
 /**
  * POST /api/plan-import
@@ -18,6 +19,10 @@ import { createIntervalsClientFromEnv } from "@/integrations/intervals/client";
  * Body: { plan: <localhub_plan JSON | string>, mode?: "validate" | "import" }
  */
 export async function POST(request: Request) {
+  const { user, response } = await requireUser();
+  if (response) return response;
+  const { userId } = user;
+
   let body: Record<string, unknown> = {};
   try {
     body = await request.json();
@@ -49,12 +54,15 @@ export async function POST(request: Request) {
   const mode = body.mode === "import" ? "import" : "validate";
 
   if (mode === "import") {
-    const result = await importLocalhubPlan(plan, { triggeredBy: "ui_import" });
+    const result = await importLocalhubPlan(plan, {
+      userId,
+      triggeredBy: "ui_import",
+    });
 
     // Instant-Sync: erzeugte/ersetzte Workouts sofort nach Intervals.icu pushen.
     let sync: Record<string, unknown> | null = null;
     if (result.success) {
-      const client = createIntervalsClientFromEnv();
+      const client = await createIntervalsClientForUser(userId);
       if (!client) {
         sync = {
           skipped: true,
@@ -65,6 +73,7 @@ export async function POST(request: Request) {
           const res = await processSyncQueue({
             db: prisma,
             client,
+            userId,
             triggeredBy: "import_autosync",
           });
           sync = { ...res };
@@ -84,7 +93,7 @@ export async function POST(request: Request) {
     const rangeStart = parseIsoDate(firstPass.meta.planStart);
     const rangeEndExclusive = addDays(parseIsoDate(firstPass.meta.planEnd), 1);
     const existing = await prisma.plannedWorkout.findMany({
-      where: { date: { gte: rangeStart, lt: rangeEndExclusive } },
+      where: { userId, date: { gte: rangeStart, lt: rangeEndExclusive } },
       select: { id: true, date: true, status: true, title: true },
     });
     existingRefs = existing.map((w) => ({

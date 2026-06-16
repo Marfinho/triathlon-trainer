@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
+import { requireUser } from "@/lib/auth-guard";
 import { buildCoachSummary } from "@/domain/coach-summary/buildCoachSummary";
 import { gatherCoachSummaryContext } from "@/domain/coach-summary/gatherContext";
 import {
@@ -15,6 +17,10 @@ import { formatIsoDate, addDays } from "@/domain/training/dates";
  * und gibt sie zurück (zum Kopieren in das externe LLM).
  */
 export async function POST(request: Request) {
+  const { user, response } = await requireUser();
+  if (response) return response;
+  const { userId } = user;
+
   let body: Record<string, unknown> = {};
   try {
     body = await request.json();
@@ -42,7 +48,9 @@ export async function POST(request: Request) {
     ? (body.excludeModules as SummaryModule[])
     : undefined;
 
-  const { context, athleteId } = await gatherCoachSummaryContext(prisma);
+  const { context, athleteId } = await gatherCoachSummaryContext(prisma, {
+    userId,
+  });
 
   const summary = buildCoachSummary({
     exportPurpose,
@@ -58,14 +66,15 @@ export async function POST(request: Request) {
 
   const saved = await prisma.coachSummaryExport.create({
     data: {
+      userId,
       schemaVersion: summary.schemaVersion,
       exportPurpose: summary.exportPurpose,
       requestedFormat: summary.requestedOutput.format,
       planStart: new Date(`${planStart}T00:00:00Z`),
       planDays,
-      includedModulesJson: JSON.stringify(summary.includedModules),
-      modulesJson: JSON.stringify(summary.modules),
-      chatGptInstructionJson: JSON.stringify(summary.chatGptInstruction),
+      includedModulesJson: summary.includedModules as unknown as Prisma.InputJsonValue,
+      modulesJson: summary.modules as Prisma.InputJsonValue,
+      chatGptInstructionJson: summary.chatGptInstruction as unknown as Prisma.InputJsonValue,
     },
   });
 

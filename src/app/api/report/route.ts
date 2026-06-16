@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { requireUser } from "@/lib/auth-guard";
+import { hasFeature } from "@/lib/plan-limits";
 import { mondayOfIso, formatIsoDate, addDays } from "@/domain/training/dates";
 import { buildLoadSeries } from "@/domain/training/trainingLoad";
 import { buildGoalProgress } from "@/domain/training/goals";
@@ -7,24 +9,39 @@ import { buildWeeklyReport } from "@/domain/training/report";
 
 /** GET /api/report – Wochenbericht der laufenden Woche als Markdown (Download). */
 export async function GET() {
+  const { user, response } = await requireUser();
+  if (response) return response;
+  const { userId } = user;
+
+  // FEATURE-GATE: Wochenbericht ist nur im Paid-Tier verfügbar.
+  if (!hasFeature(user.plan, "weeklyReport")) {
+    return NextResponse.json(
+      { error: "FEATURE_LOCKED", feature: "weeklyReport", tier: user.plan },
+      { status: 403 },
+    );
+  }
+
   const now = new Date();
   const weekStart = mondayOfIso(now);
   const weekStartDate = new Date(`${weekStart}T00:00:00Z`);
 
   const [weekActivities, loadActivities, plannedThisWeek, goals] =
     await Promise.all([
-      prisma.actualActivity.findMany({ where: { date: { gte: weekStartDate } } }),
       prisma.actualActivity.findMany({
-        where: { date: { gte: addDays(now, -90) } },
+        where: { userId, date: { gte: weekStartDate } },
+      }),
+      prisma.actualActivity.findMany({
+        where: { userId, date: { gte: addDays(now, -90) } },
         select: { date: true, sport: true, durationMin: true, load: true, rpe: true },
       }),
       prisma.plannedWorkout.findMany({
         where: {
+          userId,
           date: { gte: weekStartDate, lt: addDays(weekStartDate, 7) },
           status: { in: ["planned", "synced", "completed", "skipped"] },
         },
       }),
-      prisma.trainingGoal.findMany({ orderBy: { sport: "asc" } }),
+      prisma.trainingGoal.findMany({ where: { userId }, orderBy: { sport: "asc" } }),
     ]);
 
   const bySportMap = new Map<

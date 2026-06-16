@@ -12,6 +12,7 @@ import type { IntervalsClient } from "./client";
 export interface ProcessQueueOptions {
   db: PrismaClient;
   client: IntervalsClient;
+  userId: string;
   limit?: number;
   maxAttempts?: number;
   triggeredBy?: string;
@@ -26,18 +27,18 @@ export interface ProcessQueueResult {
 export async function processSyncQueue(
   options: ProcessQueueOptions,
 ): Promise<ProcessQueueResult> {
-  const { db, client } = options;
+  const { db, client, userId } = options;
   const limit = options.limit ?? 50;
   const maxAttempts = options.maxAttempts ?? 3;
   const triggeredBy = options.triggeredBy ?? "queue";
 
   const jobs = await db.syncQueue.findMany({
-    where: { status: "pending" },
+    where: { status: "pending", userId },
     orderBy: { createdAt: "asc" },
     take: limit,
   });
 
-  const deps: SyncDeps = { db, client, triggeredBy };
+  const deps: SyncDeps = { db, client, userId, triggeredBy };
   let succeeded = 0;
   let failed = 0;
 
@@ -56,7 +57,7 @@ export async function processSyncQueue(
         if (job.intervalsEventId) {
           await client.deleteEvent(job.intervalsEventId);
           await db.intervalsWorkoutSync.updateMany({
-            where: { intervalsEventId: job.intervalsEventId },
+            where: { intervalsEventId: job.intervalsEventId, userId },
             data: {
               syncStatus: "superseded",
               deletedOrSupersededAt: new Date(),
@@ -65,9 +66,11 @@ export async function processSyncQueue(
         }
         await db.syncLog.create({
           data: {
+            userId,
             localWorkoutId: job.localWorkoutId,
             intervalsEventId: job.intervalsEventId,
             action: "delete",
+            type: "sync",
             triggeredBy,
             success: true,
           },

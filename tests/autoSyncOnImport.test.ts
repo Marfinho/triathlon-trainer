@@ -9,6 +9,7 @@ import type { LocalhubPlan } from "@/domain/schemas";
 
 let db: PrismaClient;
 let cleanup: () => Promise<void>;
+let userId: string;
 
 beforeAll(() => {
   const ctx = createTestDb();
@@ -19,7 +20,7 @@ afterAll(async () => {
   await cleanup();
 });
 beforeEach(async () => {
-  await resetDb(db);
+  userId = await resetDb(db);
 });
 
 function validPlan(): LocalhubPlan {
@@ -41,9 +42,9 @@ function validPlan(): LocalhubPlan {
 
 /** Bildet den Ablauf der API-Route nach: Import gefolgt von Instant-Sync. */
 async function importThenSync(plan: unknown, client: MockIntervalsClient) {
-  const result = await importLocalhubPlan(plan, { db, triggeredBy: "ui_import" });
+  const result = await importLocalhubPlan(plan, { db, userId, triggeredBy: "ui_import" });
   const sync = result.success
-    ? await processSyncQueue({ db, client, triggeredBy: "import_autosync" })
+    ? await processSyncQueue({ db, client, userId, triggeredBy: "import_autosync" })
     : null;
   return { result, sync };
 }
@@ -74,6 +75,7 @@ describe("Instant-Sync nach Planimport", () => {
   it("entfernt ersetzte, bereits synchronisierte Workouts sofort aus Intervals.icu", async () => {
     const open = await db.plannedWorkout.create({
       data: {
+        userId,
         date: parseIsoDate("2026-06-16"),
         sport: "bike",
         title: "Altes synced",
@@ -83,7 +85,7 @@ describe("Instant-Sync nach Planimport", () => {
       },
     });
     await db.intervalsWorkoutSync.create({
-      data: { localWorkoutId: open.id, intervalsEventId: "evt-old", syncStatus: "synced" },
+      data: { userId, localWorkoutId: open.id, intervalsEventId: "evt-old", syncStatus: "synced" },
     });
 
     const client = new MockIntervalsClient();

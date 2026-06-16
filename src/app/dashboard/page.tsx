@@ -1,4 +1,7 @@
+import { redirect } from "next/navigation";
+import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
+import { getLimits } from "@/lib/plan-limits";
 import { addDays, formatIsoDate, mondayOfIso } from "@/domain/training/dates";
 import {
   buildPlanVsActual,
@@ -29,6 +32,7 @@ import { BodyMetrics } from "@/components/dashboard/BodyMetrics";
 import { summarizeBody } from "@/domain/training/body";
 import { TrainingJournal } from "@/components/dashboard/TrainingJournal";
 import { DataExport } from "@/components/dashboard/DataExport";
+import { BackupRestore } from "@/components/dashboard/BackupRestore";
 import { TrainingCalculators } from "@/components/dashboard/TrainingCalculators";
 import { RacePlanner, type Race } from "@/components/dashboard/RacePlanner";
 import { RacePredictions } from "@/components/dashboard/RacePredictions";
@@ -46,10 +50,27 @@ export const dynamic = "force-dynamic";
 const SPORT_ORDER = ["swim", "bike", "run", "strength", "brick", "other"];
 
 export default async function DashboardPage() {
+  const session = await auth();
+  if (!session?.user?.id) redirect("/auth/login");
+  const userId = session.user.id;
+  const dbUser = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { plan: true },
+  });
+  const plan = dbUser?.plan ?? "free";
+  const limits = getLimits(plan);
+
   const now = new Date();
   const windowStart = addDays(now, -14);
   const windowEnd = addDays(now, 21);
-  const loadWindowStart = addDays(now, -120);
+  // QUERY-GATE: Datenfenster je Plan (free 90 Tage, paid unbegrenzt).
+  const historyDays = Number.isFinite(limits.activityHistoryDays)
+    ? limits.activityHistoryDays
+    : 3650;
+  const pmcDays = Number.isFinite(limits.pmcHorizonDays)
+    ? limits.pmcHorizonDays
+    : 365;
+  const loadWindowStart = addDays(now, -historyDays);
 
   const [
     upcoming,
@@ -72,6 +93,7 @@ export default async function DashboardPage() {
   ] = await Promise.all([
     prisma.plannedWorkout.findMany({
       where: {
+        userId,
         date: { gte: addDays(now, -1), lte: windowEnd },
         status: { in: ["planned", "synced"] },
       },
@@ -79,24 +101,37 @@ export default async function DashboardPage() {
       take: 12,
     }),
     prisma.plannedWorkout.findMany({
-      where: { date: { gte: windowStart, lte: windowEnd } },
+      where: { userId, date: { gte: windowStart, lte: windowEnd } },
       orderBy: { date: "asc" },
     }),
     prisma.actualActivity.findMany({
-      where: { date: { gte: windowStart, lte: windowEnd } },
+      where: { userId, date: { gte: windowStart, lte: windowEnd } },
     }),
-    prisma.actualActivity.findMany({ orderBy: { date: "desc" }, take: 8 }),
-    prisma.readinessSnapshot.findMany({ orderBy: { date: "desc" }, take: 21 }),
-    prisma.painSnapshot.findMany({ orderBy: { date: "desc" }, take: 21 }),
+    prisma.actualActivity.findMany({
+      where: { userId },
+      orderBy: { date: "desc" },
+      take: 8,
+    }),
+    prisma.readinessSnapshot.findMany({
+      where: { userId },
+      orderBy: { date: "desc" },
+      take: 21,
+    }),
+    prisma.painSnapshot.findMany({
+      where: { userId },
+      orderBy: { date: "desc" },
+      take: 21,
+    }),
     Promise.all([
-      prisma.syncQueue.count({ where: { status: "pending" } }),
-      prisma.syncQueue.count({ where: { status: "processing" } }),
-      prisma.syncQueue.count({ where: { status: "failed" } }),
-      prisma.syncQueue.count({ where: { status: "success" } }),
-      prisma.intervalsWorkoutSync.count({ where: { syncStatus: "synced" } }),
+      prisma.syncQueue.count({ where: { userId, status: "pending" } }),
+      prisma.syncQueue.count({ where: { userId, status: "processing" } }),
+      prisma.syncQueue.count({ where: { userId, status: "failed" } }),
+      prisma.syncQueue.count({ where: { userId, status: "success" } }),
+      prisma.intervalsWorkoutSync.count({ where: { userId, syncStatus: "synced" } }),
     ]),
     prisma.plannedWorkout.findMany({
       where: {
+        userId,
         sport: { in: ["bike", "brick"] },
         status: { in: ["planned", "synced"] },
         date: { gte: addDays(now, -1), lte: windowEnd },
@@ -104,21 +139,37 @@ export default async function DashboardPage() {
       orderBy: { date: "asc" },
       take: 10,
     }),
-    prisma.athleteProfile.findFirst({ orderBy: { createdAt: "asc" } }),
+    prisma.athleteProfile.findFirst({
+      where: { userId },
+      orderBy: { createdAt: "asc" },
+    }),
     prisma.actualActivity.findMany({
-      where: { date: { gte: loadWindowStart } },
+      where: { userId, date: { gte: loadWindowStart } },
       orderBy: { date: "asc" },
       select: { date: true, sport: true, durationMin: true, distanceKm: true, load: true, rpe: true },
     }),
-    prisma.raceEvent.findMany({ orderBy: { date: "asc" } }),
-    prisma.gearItem.findMany({ orderBy: { createdAt: "asc" } }),
+    prisma.raceEvent.findMany({ where: { userId }, orderBy: { date: "asc" } }),
+    prisma.gearItem.findMany({ where: { userId }, orderBy: { createdAt: "asc" } }),
     prisma.actualActivity.findMany({
+      where: { userId },
       select: { date: true, sport: true, distanceKm: true, durationMin: true },
     }),
-    prisma.syncLog.findMany({ orderBy: { createdAt: "desc" }, take: 5 }),
-    prisma.trainingGoal.findMany({ orderBy: { sport: "asc" } }),
-    prisma.bodyMetric.findMany({ orderBy: { date: "desc" }, take: 30 }),
-    prisma.journalEntry.findMany({ orderBy: { date: "desc" }, take: 12 }),
+    prisma.syncLog.findMany({
+      where: { userId },
+      orderBy: { createdAt: "desc" },
+      take: 5,
+    }),
+    prisma.trainingGoal.findMany({ where: { userId }, orderBy: { sport: "asc" } }),
+    prisma.bodyMetric.findMany({
+      where: { userId },
+      orderBy: { date: "desc" },
+      take: 30,
+    }),
+    prisma.journalEntry.findMany({
+      where: { userId },
+      orderBy: { date: "desc" },
+      take: 12,
+    }),
   ]);
 
   const bodySummary = summarizeBody(
@@ -158,8 +209,14 @@ export default async function DashboardPage() {
     load: a.load,
     rpe: a.rpe,
   }));
-  const loadSeries = buildLoadSeries(loadInput, { days: 90, today: now });
-  const weeklyVolume = buildWeeklyVolume(loadInput, { weeks: 12, today: now });
+  const loadSeries = buildLoadSeries(loadInput, {
+    days: Math.min(90, pmcDays),
+    today: now,
+  });
+  const weeklyVolume = buildWeeklyVolume(loadInput, {
+    weeks: Math.min(12, Math.max(4, Math.ceil(pmcDays / 7))),
+    today: now,
+  });
   const seasonStats = buildSeasonStats(
     loadActivities.map((a) => ({
       date: a.date,
@@ -182,12 +239,9 @@ export default async function DashboardPage() {
 
   // --- Trainer ---
   const trainerWorkouts: TrainerWorkout[] = bikeWorkouts.map((w) => {
-    let segments: TimelineSegmentInput[] = [];
-    try {
-      segments = JSON.parse(w.segmentsJson) as TimelineSegmentInput[];
-    } catch {
-      segments = [];
-    }
+    const segments = Array.isArray(w.segmentsJson)
+      ? (w.segmentsJson as unknown as TimelineSegmentInput[])
+      : [];
     return {
       id: w.id,
       date: formatIsoDate(w.date),
@@ -257,6 +311,26 @@ export default async function DashboardPage() {
   const intervalsConfigured = Boolean(
     process.env.INTERVALS_ATHLETE_ID && process.env.INTERVALS_API_KEY,
   );
+
+  // --- Backup-Cooldown (Free-Tier) ---
+  let backupCooldownActive = false;
+  let nextBackupAt: string | null = null;
+  if (limits.manualBackupCooldownHours > 0) {
+    const lastBackup = await prisma.syncLog.findFirst({
+      where: { userId, type: "backup" },
+      orderBy: { createdAt: "desc" },
+    });
+    if (lastBackup) {
+      const next = new Date(
+        lastBackup.createdAt.getTime() +
+          limits.manualBackupCooldownHours * 3600 * 1000,
+      );
+      if (next.getTime() > now.getTime()) {
+        backupCooldownActive = true;
+        nextBackupAt = next.toISOString();
+      }
+    }
+  }
 
   // --- Wochenziele & Kurzfrist-Load ---
   const goalProgress = buildGoalProgress(
@@ -410,7 +484,7 @@ export default async function DashboardPage() {
                       queue: { pending, processing, failed, success },
                       syncedWorkouts: synced,
                       recentLogs: syncLogs.map((l) => ({
-                        action: l.action,
+                        action: l.action ?? "",
                         success: l.success,
                         reason: l.reason,
                         at: l.createdAt.toISOString(),
@@ -450,6 +524,10 @@ export default async function DashboardPage() {
                 </div>
                 <BodyMetrics summary={bodySummary} heightCm={athlete?.heightCm ?? null} />
                 <DataExport />
+                <BackupRestore
+                  cooldownActive={backupCooldownActive}
+                  nextBackupAt={nextBackupAt}
+                />
               </>
             ),
           },

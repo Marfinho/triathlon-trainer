@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { requireUser } from "@/lib/auth-guard";
 
 /**
  * GET    /api/journal       – letzte Einträge.
@@ -7,7 +8,12 @@ import { prisma } from "@/lib/db";
  * DELETE /api/journal?id=…  – Eintrag löschen.
  */
 export async function GET() {
+  const { user, response } = await requireUser();
+  if (response) return response;
+  const { userId } = user;
+
   const entries = await prisma.journalEntry.findMany({
+    where: { userId },
     orderBy: { date: "desc" },
     take: 30,
   });
@@ -15,6 +21,10 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  const { user, response } = await requireUser();
+  if (response) return response;
+  const { userId } = user;
+
   let body: Record<string, unknown> = {};
   try {
     body = await request.json();
@@ -29,6 +39,7 @@ export async function POST(request: Request) {
 
   const entry = await prisma.journalEntry.create({
     data: {
+      userId,
       date:
         typeof body.date === "string" && body.date
           ? new Date(`${body.date.slice(0, 10)}T00:00:00Z`)
@@ -41,7 +52,14 @@ export async function POST(request: Request) {
 }
 
 export async function DELETE(request: Request) {
+  const { user, response } = await requireUser();
+  if (response) return response;
+  const { userId } = user;
+
   const id = new URL(request.url).searchParams.get("id");
-  if (id) await prisma.journalEntry.delete({ where: { id } }).catch(() => {});
+  if (id)
+    await prisma.journalEntry
+      .deleteMany({ where: { id, userId } })
+      .catch(() => {});
   return NextResponse.json({ ok: true });
 }

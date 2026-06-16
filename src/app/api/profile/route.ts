@@ -1,11 +1,16 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { requireUser } from "@/lib/auth-guard";
 
 /**
  * PATCH /api/profile – Schwellenwerte des (ersten) Athleten-Profils setzen.
  * Body: { ftpWatts?, thresholdHr?, thresholdPaceSecPerKm? }
  */
 export async function PATCH(request: Request) {
+  const { user, response } = await requireUser();
+  if (response) return response;
+  const { userId } = user;
+
   let body: Record<string, unknown> = {};
   try {
     body = await request.json();
@@ -31,6 +36,7 @@ export async function PATCH(request: Request) {
   }
 
   const existing = await prisma.athleteProfile.findFirst({
+    where: { userId },
     orderBy: { createdAt: "asc" },
   });
   if (!existing) {

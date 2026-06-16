@@ -1,22 +1,58 @@
 services:
-  localhub:
+  db:
+    image: postgres:16-alpine
+    container_name: localhub-db
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - localhub-db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  app:
     build: .
     image: localhub:latest
     container_name: localhub
+    depends_on:
+      db:
+        condition: service_healthy
     ports:
       - "3000:3000"
     environment:
-      # Persistente SQLite-DB im Volume.
-      DATABASE_URL: "file:/app/data/localhub.db"
-      # Beim ersten Start Demodaten anlegen (auf "false" setzen, wenn nicht gewünscht).
-      SEED_ON_START: "true"
-      # Optional: Intervals.icu-Anbindung.
-      # INTERVALS_ATHLETE_ID: "i12345"
-      # INTERVALS_API_KEY: "dein-api-key"
-      INTERVALS_API_BASE_URL: "https://intervals.icu/api/v1"
-    volumes:
-      - localhub-data:/app/data
+      DATABASE_URL: "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}"
+      NEXTAUTH_URL: ${NEXTAUTH_URL}
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
+      AUTH_SECRET: ${NEXTAUTH_SECRET}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
+      STRIPE_PRICE_MONTHLY: ${STRIPE_PRICE_MONTHLY}
+      STRIPE_PRICE_YEARLY: ${STRIPE_PRICE_YEARLY}
+      STRIPE_PRICE_LIFETIME: ${STRIPE_PRICE_LIFETIME}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY}
+      CRON_SECRET: ${CRON_SECRET}
+      INTERVALS_ATHLETE_ID: ${INTERVALS_ATHLETE_ID}
+      INTERVALS_API_KEY: ${INTERVALS_API_KEY}
+      INTERVALS_API_BASE_URL: ${INTERVALS_API_BASE_URL}
+      SEED_ON_START: ${SEED_ON_START:-false}
+    restart: unless-stopped
+
+  cron:
+    image: alpine
+    container_name: localhub-cron
+    depends_on:
+      - app
+    command: sh -c "echo '*/30 * * * * wget -qO- --header=\"Authorization: Bearer $CRON_SECRET\" http://app:3000/api/cron/sync' > /etc/crontabs/root && crond -f -l 2"
+    environment:
+      CRON_SECRET: ${CRON_SECRET}
     restart: unless-stopped
 
 volumes:
-  localhub-data:
+  localhub-db: {}

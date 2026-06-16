@@ -1,12 +1,28 @@
 @import "tailwindcss";
 
 :root {
-  /* Ruhige, helle Apple-artige Palette. */
+  /* Ruhige, helle Apple-artige Palette (Dashboard). */
   --background: #f5f5f7;
   --surface: #ffffff;
   --foreground: #1d1d1f;
   --muted: #6e6e73;
   --accent: #0a84ff;
+
+  /* Marketing-/Auth-Palette (Landingpage). */
+  --night: #0b1120;
+  --night2: #111827;
+  --night3: #1e293b;
+  --m-border: #1e293b;
+  --m-border2: #334155;
+  --amber: #f0a500;
+  --silver: #94a3b8;
+  --m-white: #f8fafc;
+  --m-green: #22c55e;
+}
+
+/* DM Mono für Datenpunkte/Labels/Logo. */
+.font-display {
+  font-family: var(--font-dm-mono), ui-monospace, SFMono-Regular, monospace;
 }
 
 @theme inline {
@@ -23,9 +39,8 @@ html {
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family:
-    -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto,
-    Helvetica, Arial, sans-serif;
+  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, Helvetica, Arial, sans-serif;
 }
 
 /* Dezente, ruhige Scrollbar. */

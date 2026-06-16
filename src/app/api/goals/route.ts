@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { requireUser } from "@/lib/auth-guard";
 
 /**
  * GET  /api/goals  – alle Wochenziele.
@@ -7,11 +8,22 @@ import { prisma } from "@/lib/db";
  *                    Body: { sport, weeklyTargetMin }
  */
 export async function GET() {
-  const goals = await prisma.trainingGoal.findMany({ orderBy: { sport: "asc" } });
+  const { user, response } = await requireUser();
+  if (response) return response;
+  const { userId } = user;
+
+  const goals = await prisma.trainingGoal.findMany({
+    where: { userId },
+    orderBy: { sport: "asc" },
+  });
   return NextResponse.json({ goals });
 }
 
 export async function POST(request: Request) {
+  const { user, response } = await requireUser();
+  if (response) return response;
+  const { userId } = user;
+
   let body: Record<string, unknown> = {};
   try {
     body = await request.json();
@@ -30,18 +42,24 @@ export async function POST(request: Request) {
   }
 
   const goal = await prisma.trainingGoal.upsert({
-    where: { sport },
-    create: { sport, weeklyTargetMin: target },
+    where: { userId_sport: { userId, sport } },
+    create: { userId, sport, weeklyTargetMin: target },
     update: { weeklyTargetMin: target },
   });
   return NextResponse.json({ ok: true, goal });
 }
 
 export async function DELETE(request: Request) {
+  const { user, response } = await requireUser();
+  if (response) return response;
+  const { userId } = user;
+
   const url = new URL(request.url);
   const sport = url.searchParams.get("sport");
   if (sport) {
-    await prisma.trainingGoal.delete({ where: { sport } }).catch(() => {});
+    await prisma.trainingGoal
+      .deleteMany({ where: { userId, sport } })
+      .catch(() => {});
   }
   return NextResponse.json({ ok: true });
 }

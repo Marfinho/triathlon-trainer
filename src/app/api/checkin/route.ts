@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { requireUser } from "@/lib/auth-guard";
 
 /**
  * POST /api/checkin – Tages-Check-in: legt einen Readiness- und/oder
@@ -11,6 +12,10 @@ import { prisma } from "@/lib/db";
  * }
  */
 export async function POST(request: Request) {
+  const { user, response } = await requireUser();
+  if (response) return response;
+  const { userId } = user;
+
   let body: Record<string, unknown> = {};
   try {
     body = await request.json();
@@ -36,6 +41,7 @@ export async function POST(request: Request) {
   if (r) {
     const snap = await prisma.readinessSnapshot.create({
       data: {
+        userId,
         date,
         status: strOrNull(r.status),
         sleepTrend: strOrNull(r.sleepTrend),
@@ -51,6 +57,7 @@ export async function POST(request: Request) {
   if (p) {
     const snap = await prisma.painSnapshot.create({
       data: {
+        userId,
         date,
         overall: intOrNull(p.overall),
         knee: intOrNull(p.knee),

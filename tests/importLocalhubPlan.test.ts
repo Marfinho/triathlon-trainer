@@ -7,6 +7,7 @@ import { parseIsoDate } from "@/domain/training/dates";
 
 let db: PrismaClient;
 let cleanup: () => Promise<void>;
+let userId: string;
 
 beforeAll(() => {
   const ctx = createTestDb();
@@ -19,7 +20,7 @@ afterAll(async () => {
 });
 
 beforeEach(async () => {
-  await resetDb(db);
+  userId = await resetDb(db);
 });
 
 function validPlan(): LocalhubPlan {
@@ -68,7 +69,7 @@ function validPlan(): LocalhubPlan {
 
 describe("importLocalhubPlan", () => {
   it("importiert einen gültigen Plan und legt Workouts + Import + Sync-Jobs an", async () => {
-    const result = await importLocalhubPlan(validPlan(), { db });
+    const result = await importLocalhubPlan(validPlan(), { db, userId });
     expect(result.success).toBe(true);
     expect(result.importJobId).toBeDefined();
     expect(result.preview?.createdCount).toBe(3);
@@ -95,6 +96,7 @@ describe("importLocalhubPlan", () => {
     // Vorbereitung: ein completed + ein offenes Workout im Zeitraum.
     const completed = await db.plannedWorkout.create({
       data: {
+        userId,
         date: parseIsoDate("2026-06-15"),
         sport: "run",
         title: "Bereits erledigt",
@@ -105,6 +107,7 @@ describe("importLocalhubPlan", () => {
     });
     const open = await db.plannedWorkout.create({
       data: {
+        userId,
         date: parseIsoDate("2026-06-16"),
         sport: "bike",
         title: "Altes geplantes",
@@ -114,7 +117,7 @@ describe("importLocalhubPlan", () => {
       },
     });
 
-    const result = await importLocalhubPlan(validPlan(), { db });
+    const result = await importLocalhubPlan(validPlan(), { db, userId });
     expect(result.success).toBe(true);
     expect(result.preview?.replacedCount).toBe(1);
     expect(result.preview?.protectedCount).toBe(1);
@@ -137,6 +140,7 @@ describe("importLocalhubPlan", () => {
   it("erzeugt Delete-Job für ersetzte, bereits synchronisierte Workouts", async () => {
     const open = await db.plannedWorkout.create({
       data: {
+        userId,
         date: parseIsoDate("2026-06-16"),
         sport: "bike",
         title: "Synced workout",
@@ -147,13 +151,14 @@ describe("importLocalhubPlan", () => {
     });
     await db.intervalsWorkoutSync.create({
       data: {
+        userId,
         localWorkoutId: open.id,
         intervalsEventId: "evt-123",
         syncStatus: "synced",
       },
     });
 
-    const result = await importLocalhubPlan(validPlan(), { db });
+    const result = await importLocalhubPlan(validPlan(), { db, userId });
     expect(result.success).toBe(true);
 
     const deleteJobs = await db.syncQueue.findMany({
@@ -170,7 +175,7 @@ describe("importLocalhubPlan", () => {
 
   it("lehnt ungültigen Plan ab ohne jede DB-Änderung", async () => {
     const invalid = { ...validPlan(), planEnd: "2026-06-30" };
-    const result = await importLocalhubPlan(invalid, { db });
+    const result = await importLocalhubPlan(invalid, { db, userId });
     expect(result.success).toBe(false);
     expect(result.errors.length).toBeGreaterThan(0);
 
@@ -182,6 +187,7 @@ describe("importLocalhubPlan", () => {
   it("behandelt Export-Mismatch als Warnung, nicht als Blocker", async () => {
     await db.coachSummaryExport.create({
       data: {
+        userId,
         schemaVersion: "1.0",
         exportPurpose: "training_plan",
         requestedFormat: "localhub_plan_json",
@@ -193,7 +199,7 @@ describe("importLocalhubPlan", () => {
       },
     });
 
-    const result = await importLocalhubPlan(validPlan(), { db });
+    const result = await importLocalhubPlan(validPlan(), { db, userId });
     expect(result.success).toBe(true);
     expect(result.warnings.some((w) => w.code === "EXPORT_MISMATCH")).toBe(true);
     expect(await db.plannedWorkout.count()).toBe(3);

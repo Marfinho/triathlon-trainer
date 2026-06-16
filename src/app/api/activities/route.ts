@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { requireUser } from "@/lib/auth-guard";
 
 /**
  * POST /api/activities
@@ -10,6 +11,10 @@ import { prisma } from "@/lib/db";
  *         source?, notes?, samples? }
  */
 export async function POST(request: Request) {
+  const { user, response } = await requireUser();
+  if (response) return response;
+  const { userId } = user;
+
   let body: Record<string, unknown> = {};
   try {
     body = await request.json();
@@ -35,6 +40,7 @@ export async function POST(request: Request) {
 
   const created = await prisma.actualActivity.create({
     data: {
+      userId,
       source: typeof body.source === "string" ? body.source : "trainer",
       date,
       sport,
@@ -50,7 +56,7 @@ export async function POST(request: Request) {
       avgHr: typeof body.avgHr === "number" ? body.avgHr : null,
       notes: typeof body.notes === "string" ? body.notes : null,
       rawJson:
-        body.samples !== undefined ? JSON.stringify(body.samples) : null,
+        body.samples !== undefined ? (body.samples as object) : undefined,
     },
   });
 

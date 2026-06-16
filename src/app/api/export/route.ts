@@ -1,19 +1,25 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { requireUser } from "@/lib/auth-guard";
 
 /**
  * GET /api/export?format=json|csv
- *   - json: vollständiges Backup aller Tabellen (Download).
+ *   - json: vollständiger Datenexport (Download).
  *   - csv:  Ist-Aktivitäten als CSV (Download).
  *
  * Rein lesend – ändert nichts.
  */
 export async function GET(request: Request) {
+  const { user, response } = await requireUser();
+  if (response) return response;
+  const { userId } = user;
+
   const format = new URL(request.url).searchParams.get("format") ?? "json";
   const stamp = new Date().toISOString().slice(0, 10);
 
   if (format === "csv") {
     const activities = await prisma.actualActivity.findMany({
+      where: { userId },
       orderBy: { date: "desc" },
     });
     const header = [
@@ -61,20 +67,20 @@ export async function GET(request: Request) {
     bodyMetric,
     journalEntry,
   ] = await Promise.all([
-    prisma.athleteProfile.findMany(),
-    prisma.raceEvent.findMany(),
-    prisma.plannedWorkout.findMany(),
-    prisma.actualActivity.findMany(),
-    prisma.trainingPlanImport.findMany(),
-    prisma.coachSummaryExport.findMany(),
-    prisma.intervalsWorkoutSync.findMany(),
-    prisma.syncLog.findMany(),
-    prisma.readinessSnapshot.findMany(),
-    prisma.painSnapshot.findMany(),
-    prisma.gearItem.findMany(),
-    prisma.trainingGoal.findMany(),
-    prisma.bodyMetric.findMany(),
-    prisma.journalEntry.findMany(),
+    prisma.athleteProfile.findMany({ where: { userId } }),
+    prisma.raceEvent.findMany({ where: { userId } }),
+    prisma.plannedWorkout.findMany({ where: { userId } }),
+    prisma.actualActivity.findMany({ where: { userId } }),
+    prisma.trainingPlanImport.findMany({ where: { userId } }),
+    prisma.coachSummaryExport.findMany({ where: { userId } }),
+    prisma.intervalsWorkoutSync.findMany({ where: { userId } }),
+    prisma.syncLog.findMany({ where: { userId } }),
+    prisma.readinessSnapshot.findMany({ where: { userId } }),
+    prisma.painSnapshot.findMany({ where: { userId } }),
+    prisma.gearItem.findMany({ where: { userId } }),
+    prisma.trainingGoal.findMany({ where: { userId } }),
+    prisma.bodyMetric.findMany({ where: { userId } }),
+    prisma.journalEntry.findMany({ where: { userId } }),
   ]);
 
   const backup = {

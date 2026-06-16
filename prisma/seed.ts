@@ -6,6 +6,7 @@
  * vorhandene Daten werden vorher gelöscht.
  */
 import { PrismaClient } from "@prisma/client";
+import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
@@ -17,25 +18,21 @@ function daysFromNow(offset: number): Date {
 }
 
 async function main() {
-  // Aufräumen (Reihenfolge wegen Relationen)
-  await prisma.syncLog.deleteMany();
-  await prisma.syncQueue.deleteMany();
-  await prisma.intervalsWorkoutSync.deleteMany();
-  await prisma.plannedWorkout.deleteMany();
-  await prisma.trainingPlanImport.deleteMany();
-  await prisma.actualActivity.deleteMany();
-  await prisma.coachSummaryExport.deleteMany();
-  await prisma.readinessSnapshot.deleteMany();
-  await prisma.painSnapshot.deleteMany();
-  await prisma.gearItem.deleteMany();
-  await prisma.bodyMetric.deleteMany();
-  await prisma.journalEntry.deleteMany();
-  await prisma.trainingGoal.deleteMany();
-  await prisma.raceEvent.deleteMany();
-  await prisma.athleteProfile.deleteMany();
+  // Aufräumen: User-Löschung kaskadiert auf alle Domänen-Tabellen.
+  await prisma.user.deleteMany();
+
+  const user = await prisma.user.create({
+    data: {
+      email: "demo@localhub.app",
+      name: "Sven",
+      passwordHash: await bcrypt.hash("password123", 10),
+      provider: "credentials",
+    },
+  });
 
   await prisma.athleteProfile.create({
     data: {
+      userId: user.id,
       name: "Sven",
       heightCm: 182,
       weightKg: 76,
@@ -44,14 +41,15 @@ async function main() {
       thresholdPaceSecPerKm: 255,
       thresholdSwimPer100m: 95,
       trainingLevel: "intermediate",
-      primarySports: JSON.stringify(["run", "bike", "swim"]),
-      knownLimiters: JSON.stringify(["achilles", "swim_technique"]),
-      equipment: JSON.stringify({ bike: "road", powerMeter: true, pool: "25m" }),
+      primarySports: ["run", "bike", "swim"],
+      knownLimiters: ["achilles", "swim_technique"],
+      equipment: { bike: "road", powerMeter: true, pool: "25m" },
     },
   });
 
   await prisma.raceEvent.create({
     data: {
+      userId: user.id,
       name: "Ironman 70.3 Beispielstadt",
       date: daysFromNow(120),
       type: "triathlon",
@@ -64,6 +62,7 @@ async function main() {
   // Eine bereits abgeschlossene Einheit (geschützt!) und zwei offene.
   await prisma.plannedWorkout.create({
     data: {
+      userId: user.id,
       date: daysFromNow(-1),
       sport: "run",
       title: "Lockerer Dauerlauf",
@@ -72,12 +71,13 @@ async function main() {
       rpe: 3,
       status: "completed",
       source: "plan_import",
-      segmentsJson: JSON.stringify([]),
+      segmentsJson: [],
     },
   });
 
   await prisma.plannedWorkout.create({
     data: {
+      userId: user.id,
       date: daysFromNow(1),
       sport: "bike",
       title: "GA1 Radausfahrt",
@@ -86,7 +86,7 @@ async function main() {
       rpe: 3,
       status: "planned",
       source: "plan_import",
-      segmentsJson: JSON.stringify([
+      segmentsJson: [
         {
           type: "steady",
           durationSec: 5400,
@@ -99,12 +99,13 @@ async function main() {
           rpeTarget: 3,
           description: "Gleichmäßig im GA1",
         },
-      ]),
+      ],
     },
   });
 
   await prisma.plannedWorkout.create({
     data: {
+      userId: user.id,
       date: daysFromNow(2),
       sport: "swim",
       title: "Techniktraining",
@@ -113,13 +114,14 @@ async function main() {
       rpe: 2,
       status: "planned",
       source: "plan_import",
-      segmentsJson: JSON.stringify([]),
+      segmentsJson: [],
     },
   });
 
   // Ist-Aktivität aus Intervals.icu (Spiegel).
   await prisma.actualActivity.create({
     data: {
+      userId: user.id,
       externalId: "demo-act-1",
       source: "intervals",
       date: daysFromNow(-1),
@@ -136,6 +138,7 @@ async function main() {
 
   await prisma.readinessSnapshot.create({
     data: {
+      userId: user.id,
       date: daysFromNow(0),
       status: "green",
       sleepTrend: "stable",
@@ -148,6 +151,7 @@ async function main() {
 
   await prisma.painSnapshot.create({
     data: {
+      userId: user.id,
       date: daysFromNow(0),
       overall: 1,
       knee: 0,
@@ -174,6 +178,7 @@ async function main() {
     if (p.offset >= 0) continue; // nur Vergangenheit
     await prisma.actualActivity.create({
       data: {
+        userId: user.id,
         externalId: `seed-${actSeq++}`,
         source: "intervals",
         date: daysFromNow(p.offset),
@@ -190,6 +195,7 @@ async function main() {
   // Wettkämpfe (Saisonziele).
   await prisma.raceEvent.create({
     data: {
+      userId: user.id,
       name: "Sprint-Triathlon Saisonstart",
       date: daysFromNow(35),
       type: "triathlon",
@@ -200,6 +206,7 @@ async function main() {
   });
   await prisma.raceEvent.create({
     data: {
+      userId: user.id,
       name: "Olympische Distanz Cup",
       date: daysFromNow(70),
       type: "triathlon",
@@ -211,6 +218,7 @@ async function main() {
   // Sportgeräte: Laufschuh + Rad mit Komponente (Kette).
   await prisma.gearItem.create({
     data: {
+      userId: user.id,
       name: "Nike Vaporfly 3",
       type: "shoe",
       sport: "run",
@@ -222,6 +230,7 @@ async function main() {
   });
   const bike = await prisma.gearItem.create({
     data: {
+      userId: user.id,
       name: "Canyon Speedmax",
       type: "bike",
       sport: "bike",
@@ -232,6 +241,7 @@ async function main() {
   });
   await prisma.gearItem.create({
     data: {
+      userId: user.id,
       name: "Kette KMC X11",
       type: "component",
       sport: "bike",
@@ -245,6 +255,7 @@ async function main() {
 
   await prisma.journalEntry.create({
     data: {
+      userId: user.id,
       date: daysFromNow(-1),
       mood: 4,
       text: "Lockerer Lauf, Achillessehne unauffällig. Beine fühlten sich frisch an.",
@@ -255,6 +266,7 @@ async function main() {
   for (let i = 14; i >= 0; i -= 2) {
     await prisma.bodyMetric.create({
       data: {
+        userId: user.id,
         date: daysFromNow(-i),
         weightKg: Math.round((76 - i * 0.05) * 10) / 10,
         restingHr: 48 + (i % 3),
@@ -265,9 +277,9 @@ async function main() {
   // Wochenziele je Disziplin (Minuten).
   await prisma.trainingGoal.createMany({
     data: [
-      { sport: "swim", weeklyTargetMin: 120 },
-      { sport: "bike", weeklyTargetMin: 300 },
-      { sport: "run", weeklyTargetMin: 180 },
+      { userId: user.id, sport: "swim", weeklyTargetMin: 120 },
+      { userId: user.id, sport: "bike", weeklyTargetMin: 300 },
+      { userId: user.id, sport: "run", weeklyTargetMin: 180 },
     ],
   });
 

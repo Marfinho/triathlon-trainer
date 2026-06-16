@@ -9,6 +9,7 @@ import {
 
 let db: PrismaClient;
 let cleanup: () => Promise<void>;
+let userId: string;
 
 beforeAll(() => {
   const ctx = createTestDb();
@@ -19,7 +20,7 @@ afterAll(async () => {
   await cleanup();
 });
 beforeEach(async () => {
-  await resetDb(db);
+  userId = await resetDb(db);
 });
 
 describe("intervalsTypeToSport", () => {
@@ -54,7 +55,7 @@ describe("importActivitiesFromIntervals", () => {
       },
     ];
 
-    const res = await importActivitiesFromIntervals({ db, client, sinceDays: 30, today: new Date("2026-06-16") });
+    const res = await importActivitiesFromIntervals({ db, client, userId, sinceDays: 30, today: new Date("2026-06-16") });
     expect(res).toEqual({ fetched: 2, created: 2, updated: 0 });
 
     const ride = await db.actualActivity.findFirst({ where: { externalId: "act-1" } });
@@ -70,11 +71,11 @@ describe("importActivitiesFromIntervals", () => {
     client.activitiesList = [
       { id: "act-1", start_date_local: "2026-06-15T07:00:00", type: "Run", moving_time: 3000, distance: 10000 },
     ];
-    await importActivitiesFromIntervals({ db, client, today: new Date("2026-06-16") });
+    await importActivitiesFromIntervals({ db, client, userId, today: new Date("2026-06-16") });
 
     // gleiche Aktivität, aktualisierte Dauer
     client.activitiesList[0].moving_time = 3120;
-    const res = await importActivitiesFromIntervals({ db, client, today: new Date("2026-06-16") });
+    const res = await importActivitiesFromIntervals({ db, client, userId, today: new Date("2026-06-16") });
     expect(res).toEqual({ fetched: 1, created: 0, updated: 1 });
     expect(await db.actualActivity.count()).toBe(1);
 
@@ -84,13 +85,13 @@ describe("importActivitiesFromIntervals", () => {
 
   it("berührt manuelle Aktivitäten anderer Quellen nicht", async () => {
     await db.actualActivity.create({
-      data: { source: "manual", externalId: "m1", date: new Date("2026-06-15"), sport: "run", durationMin: 30 },
+      data: { userId, source: "manual", externalId: "m1", date: new Date("2026-06-15"), sport: "run", durationMin: 30 },
     });
     const client = new MockIntervalsClient();
     client.activitiesList = [
       { id: "m1", start_date_local: "2026-06-15T07:00:00", type: "Run", moving_time: 3000 },
     ];
-    await importActivitiesFromIntervals({ db, client, today: new Date("2026-06-16") });
+    await importActivitiesFromIntervals({ db, client, userId, today: new Date("2026-06-16") });
     // gleiche externalId aber andere source -> neuer Datensatz, manueller bleibt
     expect(await db.actualActivity.count()).toBe(2);
   });

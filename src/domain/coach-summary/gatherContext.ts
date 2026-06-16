@@ -8,8 +8,14 @@ import type { CoachSummaryContext } from "./buildCoachSummary";
  */
 export async function gatherCoachSummaryContext(
   db: PrismaClient,
-  opts: { lookbackDays?: number; lookaheadDays?: number; now?: Date } = {},
+  opts: {
+    userId: string;
+    lookbackDays?: number;
+    lookaheadDays?: number;
+    now?: Date;
+  },
 ): Promise<{ context: CoachSummaryContext; athleteId: string | null }> {
+  const userId = opts.userId;
   const now = opts.now ?? new Date();
   const lookbackDays = opts.lookbackDays ?? 14;
   const lookaheadDays = opts.lookaheadDays ?? 14;
@@ -26,33 +32,35 @@ export async function gatherCoachSummaryContext(
     pendingJobs,
     failedJobs,
   ] = await Promise.all([
-    db.athleteProfile.findFirst({ orderBy: { createdAt: "asc" } }),
+    db.athleteProfile.findFirst({ where: { userId }, orderBy: { createdAt: "asc" } }),
     db.actualActivity.findMany({
-      where: { date: { gte: since } },
+      where: { userId, date: { gte: since } },
       orderBy: { date: "desc" },
       take: 30,
     }),
     db.plannedWorkout.findMany({
       where: {
+        userId,
         date: { gte: addDays(now, -1), lte: until },
         status: { in: ["planned", "synced"] },
       },
       orderBy: { date: "asc" },
     }),
-    db.readinessSnapshot.findFirst({ orderBy: { date: "desc" } }),
-    db.painSnapshot.findFirst({ orderBy: { date: "desc" } }),
+    db.readinessSnapshot.findFirst({ where: { userId }, orderBy: { date: "desc" } }),
+    db.painSnapshot.findFirst({ where: { userId }, orderBy: { date: "desc" } }),
     db.intervalsWorkoutSync.groupBy({
       by: ["syncStatus"],
+      where: { userId },
       _count: { _all: true },
     }),
-    db.syncQueue.count({ where: { status: "pending" } }),
-    db.syncQueue.count({ where: { status: "failed" } }),
+    db.syncQueue.count({ where: { userId, status: "pending" } }),
+    db.syncQueue.count({ where: { userId, status: "failed" } }),
   ]);
 
   const [goals, latestBody, recentJournal] = await Promise.all([
-    db.trainingGoal.findMany({ orderBy: { sport: "asc" } }),
-    db.bodyMetric.findFirst({ orderBy: { date: "desc" } }),
-    db.journalEntry.findMany({ orderBy: { date: "desc" }, take: 5 }),
+    db.trainingGoal.findMany({ where: { userId }, orderBy: { sport: "asc" } }),
+    db.bodyMetric.findFirst({ where: { userId }, orderBy: { date: "desc" } }),
+    db.journalEntry.findMany({ where: { userId }, orderBy: { date: "desc" }, take: 5 }),
   ]);
 
   // Trainingszusammenfassung der letzten Tage je Sportart.
@@ -80,9 +88,9 @@ export async function gatherCoachSummaryContext(
           heightCm: athlete.heightCm,
           weightKg: athlete.weightKg,
           trainingLevel: athlete.trainingLevel,
-          primarySports: safeJson(athlete.primarySports),
-          knownLimiters: safeJson(athlete.knownLimiters),
-          equipment: safeJson(athlete.equipment),
+          primarySports: athlete.primarySports ?? null,
+          knownLimiters: athlete.knownLimiters ?? null,
+          equipment: athlete.equipment ?? null,
         }
       : null,
     seasonContext: null,

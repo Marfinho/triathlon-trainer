@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { requireUser } from "@/lib/auth-guard";
 
 /**
  * PATCH  /api/gear/:id  – Gerät aktualisieren.
@@ -12,6 +13,10 @@ export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  const { user, response } = await requireUser();
+  if (response) return response;
+  const { userId } = user;
+
   const { id } = await params;
   let body: Record<string, unknown> = {};
   try {
@@ -20,7 +25,7 @@ export async function PATCH(
     return NextResponse.json({ ok: false, error: "Ungültiger Body." }, { status: 400 });
   }
 
-  const current = await prisma.gearItem.findUnique({ where: { id } });
+  const current = await prisma.gearItem.findFirst({ where: { id, userId } });
   if (!current) {
     return NextResponse.json({ ok: false, error: "Nicht gefunden." }, { status: 404 });
   }
@@ -65,7 +70,15 @@ export async function DELETE(
   _request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  const { user, response } = await requireUser();
+  if (response) return response;
+  const { userId } = user;
+
   const { id } = await params;
+  const existing = await prisma.gearItem.findFirst({ where: { id, userId } });
+  if (!existing) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
   await prisma.gearItem.delete({ where: { id } }).catch(() => {});
   return NextResponse.json({ ok: true });
 }

@@ -26,6 +26,7 @@ import type { ExistingWorkoutRef } from "./validateLocalhubPlan";
 
 export interface ImportDeps {
   db?: PrismaClient;
+  userId: string;
   triggeredBy?: string;
 }
 
@@ -66,9 +67,10 @@ function toInt(value: number | null | undefined): number | null {
 
 export async function importLocalhubPlan(
   raw: unknown,
-  deps: ImportDeps = {},
+  deps: ImportDeps,
 ): Promise<ImportResult> {
   const db = deps.db ?? defaultPrisma;
+  const userId = deps.userId;
   const triggeredBy = deps.triggeredBy ?? "import";
 
   // 1a. Erster Pass (rein, ohne DB) – liefert den Zeitraum, falls strukturell ok.
@@ -83,7 +85,7 @@ export async function importLocalhubPlan(
 
   // 1b. Vorhandene Workouts im Zeitraum + letzten Export laden.
   const existing = await db.plannedWorkout.findMany({
-    where: { date: { gte: rangeStart, lt: rangeEndExclusive } },
+    where: { userId, date: { gte: rangeStart, lt: rangeEndExclusive } },
     select: { id: true, date: true, status: true, title: true },
   });
   const existingRefs: ExistingWorkoutRef[] = existing.map((w) => ({
@@ -94,7 +96,11 @@ export async function importLocalhubPlan(
   }));
 
   const lastExport = await db.coachSummaryExport.findFirst({
-    where: { requestedFormat: "localhub_plan_json", planStart: { not: null } },
+    where: {
+      userId,
+      requestedFormat: "localhub_plan_json",
+      planStart: { not: null },
+    },
     orderBy: { createdAt: "desc" },
     select: { planStart: true, planDays: true },
   });
@@ -134,6 +140,7 @@ export async function importLocalhubPlan(
   const importJobId = await db.$transaction(async (tx) => {
     const importRecord = await tx.trainingPlanImport.create({
       data: {
+        userId,
         schemaVersion: plan.schemaVersion,
         type: plan.type,
         planName: plan.planName ?? null,
@@ -141,23 +148,26 @@ export async function importLocalhubPlan(
         planStart: rangeStart,
         planDays: plan.planDays,
         planEnd: parseIsoDate(planEnd),
-        rawJson: JSON.stringify(raw),
+        rawJson: raw as object,
         validationStatus: "imported",
-        validationErrorsJson:
-          warnings.length > 0 ? JSON.stringify(warnings) : null,
+        validationErrorsJson: warnings.length > 0 ? (warnings as object) : undefined,
       },
     });
 
     // Offene Workouts als `replaced` markieren – completed bleibt unangetastet.
     if (replaceableIds.length > 0) {
       await tx.plannedWorkout.updateMany({
-        where: { id: { in: replaceableIds }, status: { in: ["planned", "synced"] } },
+        where: {
+          userId,
+          id: { in: replaceableIds },
+          status: { in: ["planned", "synced"] },
+        },
         data: { status: "replaced" },
       });
 
       // Verknüpfte Intervals-Syncs als superseded markieren + Delete-Jobs.
       const syncs = await tx.intervalsWorkoutSync.findMany({
-        where: { localWorkoutId: { in: replaceableIds } },
+        where: { userId, localWorkoutId: { in: replaceableIds } },
       });
       for (const sync of syncs) {
         await tx.intervalsWorkoutSync.update({
@@ -170,6 +180,7 @@ export async function importLocalhubPlan(
         if (sync.intervalsEventId) {
           await tx.syncQueue.create({
             data: {
+              userId,
               localWorkoutId: sync.localWorkoutId,
               intervalsEventId: sync.intervalsEventId,
               action: "delete",
@@ -182,8 +193,10 @@ export async function importLocalhubPlan(
       for (const id of replaceableIds) {
         await tx.syncLog.create({
           data: {
+            userId,
             localWorkoutId: id,
             action: "replace",
+            type: "sync",
             reason: "plan_import",
             triggeredBy,
             success: true,
@@ -196,6 +209,7 @@ export async function importLocalhubPlan(
     for (const entry of plan.entries) {
       const created = await tx.plannedWorkout.create({
         data: {
+          userId,
           date: parseIsoDate(entry.date),
           sport: entry.sport,
           title: entry.title,
@@ -203,7 +217,7 @@ export async function importLocalhubPlan(
           plannedDistanceM: toInt(entry.plannedDistanceM),
           rpe: toInt(entry.rpe),
           description: entry.description ?? null,
-          segmentsJson: JSON.stringify(entry.segments),
+          segmentsJson: entry.segments as object,
           status: "planned",
           source: "plan_import",
           planImportId: importRecord.id,
@@ -214,6 +228,7 @@ export async function importLocalhubPlan(
       if (entry.sport !== "rest") {
         await tx.syncQueue.create({
           data: {
+            userId,
             localWorkoutId: created.id,
             action: "create",
             status: "pending",
