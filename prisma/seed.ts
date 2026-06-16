@@ -28,6 +28,7 @@ async function main() {
   await prisma.readinessSnapshot.deleteMany();
   await prisma.painSnapshot.deleteMany();
   await prisma.gearItem.deleteMany();
+  await prisma.trainingGoal.deleteMany();
   await prisma.raceEvent.deleteMany();
   await prisma.athleteProfile.deleteMany();
 
@@ -238,6 +239,15 @@ async function main() {
       autoTrack: true,
       alertKm: 4000,
     },
+  });
+
+  // Wochenziele je Disziplin (Minuten).
+  await prisma.trainingGoal.createMany({
+    data: [
+      { sport: "swim", weeklyTargetMin: 120 },
+      { sport: "bike", weeklyTargetMin: 300 },
+      { sport: "run", weeklyTargetMin: 180 },
+    ],
   });
 
   console.log("Seed abgeschlossen.");

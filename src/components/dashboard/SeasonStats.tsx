@@ -15,6 +15,37 @@ export function SeasonStatsCard({ stats }: { stats: SeasonStats }) {
         <Kpi label="Top-Woche" value={`${stats.biggestWeekLoad}`} sub="Load" />
       </div>
 
+      {stats.bySport.length > 0 ? (
+        <div className="mb-4">
+          <p className="mb-1.5 text-[11px] uppercase tracking-wide text-neutral-400">
+            Zeitverteilung
+          </p>
+          <div className="flex h-3 w-full overflow-hidden rounded-full">
+            {(() => {
+              const total = stats.bySport.reduce((s, x) => s + x.totalMin, 0) || 1;
+              return stats.bySport.map((s) => (
+                <div
+                  key={s.sport}
+                  title={`${sportLabel(s.sport)} · ${Math.round((s.totalMin / total) * 100)}%`}
+                  style={{
+                    width: `${(s.totalMin / total) * 100}%`,
+                    backgroundColor: sportColor(s.sport),
+                  }}
+                />
+              ));
+            })()}
+          </div>
+          <div className="mt-1.5 flex flex-wrap gap-x-4 gap-y-1">
+            {stats.bySport.map((s) => (
+              <span key={s.sport} className="flex items-center gap-1.5 text-xs text-neutral-500">
+                <span className="h-2 w-2 rounded-full" style={{ backgroundColor: sportColor(s.sport) }} />
+                {sportLabel(s.sport)}
+              </span>
+            ))}
+          </div>
+        </div>
+      ) : null}
+
       {stats.bySport.length === 0 ? (
         <p className="text-sm text-neutral-400">Noch keine Aktivitäten erfasst.</p>
       ) : (

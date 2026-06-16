@@ -11,6 +11,8 @@ export interface FormFitnessProps {
   current: { ctl: number; atl: number; tsb: number; acwr: number | null; rampRate: number };
   form: { state: FormState; label: string };
   acwr: { level: RiskLevel; label: string };
+  load7d: number;
+  load28d: number;
   weeks: WeeklyVolume[];
   sports: string[];
 }
@@ -39,6 +41,8 @@ export function FormFitness({
   current,
   form,
   acwr,
+  load7d,
+  load28d,
   weeks,
   sports,
 }: FormFitnessProps) {
@@ -84,6 +88,14 @@ export function FormFitness({
           value={current.rampRate > 0 ? `+${current.rampRate}` : current.rampRate}
           color={current.rampRate > 8 ? "#ff9f0a" : "#0a84ff"}
         />
+      </div>
+      <div className="mb-5 flex gap-3 text-xs text-neutral-500">
+        <span className="rounded-lg bg-neutral-50 px-2.5 py-1">
+          Load 7 Tage: <span className="font-semibold text-neutral-800">{load7d}</span>
+        </span>
+        <span className="rounded-lg bg-neutral-50 px-2.5 py-1">
+          Load 28 Tage: <span className="font-semibold text-neutral-800">{load28d}</span>
+        </span>
       </div>
       <div className="mb-2 flex items-center justify-between">
         <ChartLegend items={lineSeries.map((s) => ({ name: s.name, color: s.color }))} />

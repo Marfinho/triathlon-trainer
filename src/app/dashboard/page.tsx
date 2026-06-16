@@ -22,6 +22,9 @@ import { TrainingCalendar } from "@/components/dashboard/TrainingCalendar";
 import { buildCalendar } from "@/domain/training/calendar";
 import { SeasonStatsCard } from "@/components/dashboard/SeasonStats";
 import { buildSeasonStats } from "@/domain/training/stats";
+import { WeeklyGoals } from "@/components/dashboard/WeeklyGoals";
+import { buildGoalProgress } from "@/domain/training/goals";
+import { DashboardTabs } from "@/components/dashboard/DashboardTabs";
 import { RacePlanner, type Race } from "@/components/dashboard/RacePlanner";
 import {
   TrainerControl,
@@ -56,6 +59,7 @@ export default async function DashboardPage() {
     gearItems,
     gearActivities,
     syncLogs,
+    goals,
   ] = await Promise.all([
     prisma.plannedWorkout.findMany({
       where: {
@@ -103,6 +107,7 @@ export default async function DashboardPage() {
       select: { date: true, sport: true, distanceKm: true, durationMin: true },
     }),
     prisma.syncLog.findMany({ orderBy: { createdAt: "desc" }, take: 5 }),
+    prisma.trainingGoal.findMany({ orderBy: { sport: "asc" } }),
   ]);
 
   // --- Plan vs. Ist ---
@@ -230,6 +235,21 @@ export default async function DashboardPage() {
     process.env.INTERVALS_ATHLETE_ID && process.env.INTERVALS_API_KEY,
   );
 
+  // --- Wochenziele & Kurzfrist-Load ---
+  const goalProgress = buildGoalProgress(
+    goals.map((g) => ({ sport: g.sport, weeklyTargetMin: g.weeklyTargetMin })),
+    loadActivities.map((a) => ({
+      date: a.date,
+      sport: a.sport,
+      durationMin: a.durationMin,
+    })),
+    now,
+  );
+  const sumLast = (arr: number[], n: number) =>
+    Math.round(arr.slice(-n).reduce((s, v) => s + v, 0));
+  const load7d = sumLast(loadSeries.dailyLoad, 7);
+  const load28d = sumLast(loadSeries.dailyLoad, 28);
+
   return (
     <main className="mx-auto max-w-6xl px-6 py-10">
       <header className="mb-10">
@@ -246,131 +266,137 @@ export default async function DashboardPage() {
         </p>
       </header>
 
-      <SectionLabel>Form & Planung</SectionLabel>
-      <div className="space-y-5">
-        <FormFitness
-          series={{
-            dates: loadSeries.dates,
-            ctl: loadSeries.ctl,
-            atl: loadSeries.atl,
-            tsb: loadSeries.tsb,
-          }}
-          current={loadSeries.current}
-          form={form}
-          acwr={acwrInfo}
-          weeks={weeklyVolume}
-          sports={sports.length ? sports : ["bike", "run", "swim"]}
-        />
-        <RacePlanner initialRaces={racesData} />
-        <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-          <CurrentPlan
-            items={upcoming.map((w) => ({
-              id: w.id,
-              date: formatIsoDate(w.date),
-              sport: w.sport,
-              title: w.title,
-              plannedDurationMin: w.plannedDurationMin,
-              status: w.status,
-            }))}
-          />
-          <RecentActivities
-            items={recentActuals.map((a) => ({
-              id: a.id,
-              date: formatIsoDate(a.date),
-              sport: a.sport,
-              durationMin: a.durationMin,
-              distanceKm: a.distanceKm,
-              load: a.load,
-              source: a.source,
-            }))}
-            summary={weekSummary}
-          />
-        </div>
-        <TrainingCalendar grid={calendarGrid} />
-        <SeasonStatsCard stats={seasonStats} />
-        <PlanVsActual rows={planVsActualRows} weeks={weeklyCompliance} />
-      </div>
-
-      <SectionLabel className="mt-10">Training & Material</SectionLabel>
-      <div className="space-y-5">
-        <TrainerControl
-          workouts={trainerWorkouts}
-          defaultFtp={athlete?.ftpWatts ?? 200}
-        />
-        <TrainingZones
-          ftp={athlete?.ftpWatts ?? null}
-          thresholdHr={athlete?.thresholdHr ?? null}
-          thresholdPaceSecPerKm={athlete?.thresholdPaceSecPerKm ?? null}
-          thresholdSwimPer100m={athlete?.thresholdSwimPer100m ?? null}
-        />
-        <GearTracker initialGear={gearTree} />
-      </div>
-
-      <SectionLabel className="mt-10">Austausch & Sync</SectionLabel>
-      <div className="space-y-5">
-        <ChatGptExchange />
-        <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-          <IntervalsSyncStatus
-            initial={{
-              configured: intervalsConfigured,
-              queue: { pending, processing, failed, success },
-              syncedWorkouts: synced,
-              recentLogs: syncLogs.map((l) => ({
-                action: l.action,
-                success: l.success,
-                reason: l.reason,
-                at: l.createdAt.toISOString(),
-              })),
-            }}
-          />
-          <ReadinessPain
-            readiness={
-              readinessLatest
-                ? {
-                    date: formatIsoDate(readinessLatest.date),
-                    status: readinessLatest.status,
-                    sleepTrend: readinessLatest.sleepTrend,
-                    hrvTrend: readinessLatest.hrvTrend,
-                    restingHrTrend: readinessLatest.restingHrTrend,
-                    subjectiveFatigue: readinessLatest.subjectiveFatigue,
-                    notes: readinessLatest.notes,
-                  }
-                : null
-            }
-            pain={
-              painLatest
-                ? {
-                    date: formatIsoDate(painLatest.date),
-                    overall: painLatest.overall,
-                    knee: painLatest.knee,
-                    achilles: painLatest.achilles,
-                    calf: painLatest.calf,
-                    back: painLatest.back,
-                    notes: painLatest.notes,
-                  }
-                : null
-            }
-            fatigueTrend={fatigueTrend}
-            painTrend={painTrend}
-          />
-        </div>
-      </div>
+      <DashboardTabs
+        tabs={[
+          {
+            id: "form",
+            label: "Form & Planung",
+            content: (
+              <>
+                <FormFitness
+                  series={{
+                    dates: loadSeries.dates,
+                    ctl: loadSeries.ctl,
+                    atl: loadSeries.atl,
+                    tsb: loadSeries.tsb,
+                  }}
+                  current={loadSeries.current}
+                  form={form}
+                  acwr={acwrInfo}
+                  load7d={load7d}
+                  load28d={load28d}
+                  weeks={weeklyVolume}
+                  sports={sports.length ? sports : ["bike", "run", "swim"]}
+                />
+                <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+                  <WeeklyGoals initial={goalProgress} />
+                  <RacePlanner initialRaces={racesData} />
+                </div>
+                <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+                  <CurrentPlan
+                    items={upcoming.map((w) => ({
+                      id: w.id,
+                      date: formatIsoDate(w.date),
+                      sport: w.sport,
+                      title: w.title,
+                      plannedDurationMin: w.plannedDurationMin,
+                      status: w.status,
+                    }))}
+                  />
+                  <RecentActivities
+                    items={recentActuals.map((a) => ({
+                      id: a.id,
+                      date: formatIsoDate(a.date),
+                      sport: a.sport,
+                      durationMin: a.durationMin,
+                      distanceKm: a.distanceKm,
+                      load: a.load,
+                      source: a.source,
+                    }))}
+                    summary={weekSummary}
+                  />
+                </div>
+                <TrainingCalendar grid={calendarGrid} />
+                <SeasonStatsCard stats={seasonStats} />
+                <PlanVsActual rows={planVsActualRows} weeks={weeklyCompliance} />
+              </>
+            ),
+          },
+          {
+            id: "training",
+            label: "Training & Material",
+            content: (
+              <>
+                <TrainerControl
+                  workouts={trainerWorkouts}
+                  defaultFtp={athlete?.ftpWatts ?? 200}
+                />
+                <TrainingZones
+                  ftp={athlete?.ftpWatts ?? null}
+                  thresholdHr={athlete?.thresholdHr ?? null}
+                  thresholdPaceSecPerKm={athlete?.thresholdPaceSecPerKm ?? null}
+                  thresholdSwimPer100m={athlete?.thresholdSwimPer100m ?? null}
+                />
+                <GearTracker initialGear={gearTree} />
+              </>
+            ),
+          },
+          {
+            id: "exchange",
+            label: "Austausch & Sync",
+            content: (
+              <>
+                <ChatGptExchange />
+                <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+                  <IntervalsSyncStatus
+                    initial={{
+                      configured: intervalsConfigured,
+                      queue: { pending, processing, failed, success },
+                      syncedWorkouts: synced,
+                      recentLogs: syncLogs.map((l) => ({
+                        action: l.action,
+                        success: l.success,
+                        reason: l.reason,
+                        at: l.createdAt.toISOString(),
+                      })),
+                    }}
+                  />
+                  <ReadinessPain
+                    readiness={
+                      readinessLatest
+                        ? {
+                            date: formatIsoDate(readinessLatest.date),
+                            status: readinessLatest.status,
+                            sleepTrend: readinessLatest.sleepTrend,
+                            hrvTrend: readinessLatest.hrvTrend,
+                            restingHrTrend: readinessLatest.restingHrTrend,
+                            subjectiveFatigue: readinessLatest.subjectiveFatigue,
+                            notes: readinessLatest.notes,
+                          }
+                        : null
+                    }
+                    pain={
+                      painLatest
+                        ? {
+                            date: formatIsoDate(painLatest.date),
+                            overall: painLatest.overall,
+                            knee: painLatest.knee,
+                            achilles: painLatest.achilles,
+                            calf: painLatest.calf,
+                            back: painLatest.back,
+                            notes: painLatest.notes,
+                          }
+                        : null
+                    }
+                    fatigueTrend={fatigueTrend}
+                    painTrend={painTrend}
+                  />
+                </div>
+              </>
+            ),
+          },
+        ]}
+      />
     </main>
-  );
-}
-
-function SectionLabel({
-  children,
-  className = "",
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) {
-  return (
-    <h2
-      className={`mb-3 text-xs font-semibold uppercase tracking-[0.16em] text-neutral-400 ${className}`}
-    >
-      {children}
-    </h2>
   );
 }

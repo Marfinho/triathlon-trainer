@@ -23,14 +23,17 @@ export function TrainingCalendar({ grid }: { grid: CalendarDay[][] }) {
       </div>
       <div className="space-y-1">
         {grid.map((week, wi) => {
-          const actualMin = week.reduce(
-            (sum, d) =>
-              sum +
-              d.items
-                .filter((it) => it.kind === "actual")
-                .reduce((s, it) => s + it.durationMin, 0),
-            0,
-          );
+          const sumKind = (kind: "actual" | "planned") =>
+            week.reduce(
+              (sum, d) =>
+                sum +
+                d.items
+                  .filter((it) => it.kind === kind)
+                  .reduce((s, it) => s + it.durationMin, 0),
+              0,
+            );
+          const actualMin = sumKind("actual");
+          const plannedMin = sumKind("planned");
           return (
             <div key={wi} className="flex items-stretch gap-1">
               <div className="grid flex-1 grid-cols-7 gap-1">
@@ -38,9 +41,12 @@ export function TrainingCalendar({ grid }: { grid: CalendarDay[][] }) {
                   <DayCell key={day.date} day={day} />
                 ))}
               </div>
-              <div className="flex w-14 flex-col items-center justify-center rounded-lg border border-neutral-100 bg-neutral-50 text-center">
+              <div className="flex w-14 flex-col items-center justify-center rounded-lg border border-neutral-100 bg-neutral-50 text-center leading-tight">
                 <span className="text-sm font-semibold text-neutral-700">
                   {(actualMin / 60).toFixed(1)}
+                </span>
+                <span className="text-[10px] text-neutral-400">
+                  /{(plannedMin / 60).toFixed(1)}
                 </span>
               </div>
             </div>
