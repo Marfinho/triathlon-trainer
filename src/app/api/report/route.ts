@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/auth-guard";
-import { hasFeature } from "@/lib/plan-limits";
+import { getEffectiveLimits } from "@/lib/plan-config";
 import { mondayOfIso, formatIsoDate, addDays } from "@/domain/training/dates";
 import { buildLoadSeries } from "@/domain/training/trainingLoad";
 import { buildGoalProgress } from "@/domain/training/goals";
@@ -14,7 +14,8 @@ export async function GET() {
   const { userId } = user;
 
   // FEATURE-GATE: Wochenbericht ist nur im Paid-Tier verfügbar.
-  if (!hasFeature(user.plan, "weeklyReport")) {
+  const effective = await getEffectiveLimits(user.plan);
+  if (!effective.weeklyReport) {
     return NextResponse.json(
       { error: "FEATURE_LOCKED", feature: "weeklyReport", tier: user.plan },
       { status: 403 },

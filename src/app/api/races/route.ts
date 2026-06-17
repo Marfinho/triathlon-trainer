@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/auth-guard";
-import { getLimits } from "@/lib/plan-limits";
+import { getEffectiveLimits } from "@/lib/plan-config";
 
 /**
  * GET  /api/races  – kommende & jüngst vergangene Rennen (chronologisch).
@@ -40,7 +40,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const limit = getLimits(user.plan).maxRaceEvents;
+  const limit = (await getEffectiveLimits(user.plan)).maxRaceEvents;
   if (Number.isFinite(limit)) {
     const current = await prisma.raceEvent.count({ where: { userId } });
     if (current >= limit) {

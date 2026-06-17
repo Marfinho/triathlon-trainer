@@ -27,6 +27,7 @@ async function main() {
       name: "Sven",
       passwordHash: await bcrypt.hash("password123", 10),
       provider: "credentials",
+      role: "admin",
     },
   });
 

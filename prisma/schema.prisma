@@ -28,6 +28,7 @@ model User {
   passwordHash         String?
   provider             String? // "google" | "credentials"
   providerId           String?
+  role                 String    @default("user") // "user" | "admin"
   plan                 String    @default("free") // "free" | "paid"
   planInterval         String? // "monthly" | "yearly" | "lifetime"
   stripeCustomerId     String?
@@ -94,6 +95,17 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+/// Globale, vom Admin editierbare Plan-Limit-Overrides je Tier.
+/// `settingsJson` ist eine partielle Map der PLAN_LIMITS-Felder; `null` als
+/// Wert bedeutet "unbegrenzt" (= Infinity), da JSON kein Infinity kennt.
+model PlanOverride {
+  id           String   @id @default(cuid())
+  tier         String   @unique // "free" | "paid"
+  settingsJson Json
+  updatedAt    DateTime @updatedAt
+  updatedBy    String?
 }
 
 /// Verschlüsselte Drittanbieter-Zugangsdaten (z.B. Intervals.icu).

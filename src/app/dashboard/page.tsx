@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
-import { getLimits } from "@/lib/plan-limits";
+import { getEffectiveLimits } from "@/lib/plan-config";
 import { addDays, formatIsoDate, mondayOfIso } from "@/domain/training/dates";
 import {
   buildPlanVsActual,
@@ -55,10 +55,11 @@ export default async function DashboardPage() {
   const userId = session.user.id;
   const dbUser = await prisma.user.findUnique({
     where: { id: userId },
-    select: { plan: true },
+    select: { plan: true, role: true },
   });
   const plan = dbUser?.plan ?? "free";
-  const limits = getLimits(plan);
+  const isAdmin = dbUser?.role === "admin";
+  const limits = await getEffectiveLimits(plan);
 
   const now = new Date();
   const windowStart = addDays(now, -14);
@@ -350,9 +351,19 @@ export default async function DashboardPage() {
   return (
     <main className="mx-auto max-w-6xl px-6 py-10">
       <header className="mb-10">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-600">
-          LocalHub
-        </p>
+        <div className="flex items-center justify-between gap-4">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-600">
+            LocalHub
+          </p>
+          {isAdmin && (
+            <a
+              href="/admin"
+              className="rounded-full border border-neutral-200 bg-white px-3.5 py-1.5 text-xs font-medium text-neutral-600 transition hover:border-neutral-300 hover:text-neutral-900"
+            >
+              Admin
+            </a>
+          )}
+        </div>
         <h1 className="mt-1.5 text-3xl font-semibold tracking-tight text-neutral-900">
           Trainings-Dashboard
         </h1>

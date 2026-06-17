@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { buildGearTree } from "@/domain/training/gear";
 import { requireUser } from "@/lib/auth-guard";
-import { getLimits } from "@/lib/plan-limits";
+import { getEffectiveLimits } from "@/lib/plan-config";
 
 /**
  * GET  /api/gear  – Geräte als Baum (Komponenten unter Rädern) inkl. Nutzung.
@@ -47,7 +47,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const limits = getLimits(user.plan);
+  const limits = await getEffectiveLimits(user.plan);
   if (typeof body.parentId === "string" && body.parentId) {
     const limit = limits.maxGearComponents;
     if (Number.isFinite(limit)) {

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { getLimits } from "@/lib/plan-limits";
+import { getEffectiveLimits } from "@/lib/plan-config";
 import { decryptApiKey } from "@/lib/crypto";
 import { HttpIntervalsClient } from "@/integrations/intervals/client";
 import { processSyncQueue } from "@/integrations/intervals/syncQueue";
@@ -36,7 +36,7 @@ export async function GET(request: Request) {
   for (const integration of integrations) {
     const userId = integration.userId;
     const plan = integration.user.plan;
-    const intervalMin = getLimits(plan).syncIntervalMinutes;
+    const intervalMin = (await getEffectiveLimits(plan)).syncIntervalMinutes;
 
     // Frequenz prüfen: letzter erfolgreicher Sync.
     const lastSync = await prisma.syncLog.findFirst({

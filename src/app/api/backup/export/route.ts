@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/auth-guard";
-import { getLimits } from "@/lib/plan-limits";
+import { getEffectiveLimits } from "@/lib/plan-config";
 import { buildBackupForUser } from "@/lib/backup";
 
 /**
@@ -13,7 +13,7 @@ export async function GET() {
   if (response) return response;
   const { userId } = user;
 
-  const cooldownHours = getLimits(user.plan).manualBackupCooldownHours;
+  const cooldownHours = (await getEffectiveLimits(user.plan)).manualBackupCooldownHours;
   if (cooldownHours > 0) {
     const last = await prisma.syncLog.findFirst({
       where: { userId, type: "backup" },
