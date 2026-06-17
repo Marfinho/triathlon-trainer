@@ -84,6 +84,7 @@ export function TrainerControl({
   const [summarySamples, setSummarySamples] = useState<RideSample[]>([]);
   const [saving, setSaving] = useState(false);
   const [savedMsg, setSavedMsg] = useState<string | null>(null);
+  const [savedActivityId, setSavedActivityId] = useState<string | null>(null);
 
   useEffect(() => {
     const stored = window.localStorage.getItem("localhub_ftp");
@@ -128,6 +129,7 @@ export function TrainerControl({
     recSecRef.current = 0;
     setSummary(null);
     setSavedMsg(null);
+    setSavedActivityId(null);
     setRecording(true);
   }, []);
 
@@ -244,6 +246,7 @@ export function TrainerControl({
     if (!summary) return;
     setSaving(true);
     setSavedMsg(null);
+    setSavedActivityId(null);
     try {
       const res = await fetch("/api/activities", {
         method: "POST",
@@ -256,6 +259,7 @@ export function TrainerControl({
           distanceKm: summary.distanceKm ?? undefined,
           load: summary.tss ?? undefined,
           avgHr: summary.avgHrBpm ?? undefined,
+          avgPower: summary.avgPowerW ?? undefined,
           notes: selected ? `Radrolle: ${selected.title}` : "Radrolle (frei)",
           samples: downsample(summarySamples, 300),
         }),
@@ -263,6 +267,7 @@ export function TrainerControl({
       const data = await res.json();
       if (data.ok) {
         setSavedMsg("Als Aktivität gespeichert.");
+        setSavedActivityId(data.id ?? null);
         setSummary(null);
         router.refresh();
       } else {
@@ -543,7 +548,20 @@ export function TrainerControl({
         </div>
       ) : null}
       {savedMsg ? (
-        <p className="mt-3 text-xs text-emerald-600">{savedMsg}</p>
+        <p className="mt-3 text-xs text-emerald-600">
+          {savedMsg}
+          {savedActivityId ? (
+            <>
+              {" "}
+              <a
+                href={`/api/activities/${savedActivityId}/tcx`}
+                className="font-medium text-blue-600 underline hover:text-blue-500"
+              >
+                TCX herunterladen
+              </a>
+            </>
+          ) : null}
+        </p>
       ) : null}
     </Card>
   );
