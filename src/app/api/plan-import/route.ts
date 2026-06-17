@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/auth-guard";
 import { validateLocalhubPlan } from "@/domain/plan-import/validateLocalhubPlan";
 import { importLocalhubPlan } from "@/domain/plan-import/importLocalhubPlan";
+import { buildPlanPreview } from "@/domain/plan-import/buildPlanPreview";
 import { parseIsoDate, addDays } from "@/domain/training/dates";
 import type { ExistingWorkoutRef } from "@/domain/plan-import/validateLocalhubPlan";
 import { processSyncQueue } from "@/integrations/intervals/syncQueue";
@@ -112,5 +113,6 @@ export async function POST(request: Request) {
     protectedCount: result.protectedActivities.length,
     replaceableCount: result.replaceableWorkouts.length,
     entryCount: result.plan?.entries.length ?? 0,
+    days: result.plan ? buildPlanPreview(result.plan, existingRefs) : [],
   });
 }
