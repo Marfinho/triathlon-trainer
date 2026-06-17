@@ -457,16 +457,19 @@ model JournalEntry {
 }
 
 model BodyMetric {
-  id        String   @id @default(cuid())
-  userId    String
-  date      DateTime
-  weightKg  Float?
-  restingHr Int?
-  notes     String?
-  createdAt DateTime @default(now())
+  id         String   @id @default(cuid())
+  userId     String
+  date       DateTime
+  weightKg   Float?
+  restingHr  Int?
+  notes      String?
+  source     String   @default("manual") // "manual" | "withings"
+  externalId String? // stabile Quell-ID (z.B. Withings grpid) für idempotenten Import
+  createdAt  DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@unique([userId, source, externalId])
   @@index([userId])
   @@index([date])
 }

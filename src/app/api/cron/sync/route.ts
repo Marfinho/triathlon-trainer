@@ -5,6 +5,9 @@ import { decryptApiKey } from "@/lib/crypto";
 import { HttpIntervalsClient } from "@/integrations/intervals/client";
 import { processSyncQueue } from "@/integrations/intervals/syncQueue";
 import { importActivitiesFromIntervals } from "@/integrations/intervals/importActivities";
+import { getValidAccessToken } from "@/integrations/oauth/token";
+import { HttpWithingsClient } from "@/integrations/withings/client";
+import { importWithingsBody } from "@/integrations/withings/importBody";
 import { isSyncDue } from "@/lib/sync-schedule";
 
 /**
@@ -91,5 +94,68 @@ export async function GET(request: Request) {
     }
   }
 
-  return NextResponse.json({ processed, skipped, errors });
+  // Withings-Körperdaten – eigener Frequenz-Gate via SyncLog type "withings_sync",
+  // damit er den Intervals-Sync-Rhythmus nicht beeinflusst.
+  const withingsIntegrations = await prisma.userIntegration.findMany({
+    where: { provider: "withings", enabled: true },
+    include: { user: { select: { id: true, plan: true } } },
+  });
+
+  let bodyProcessed = 0;
+  let bodySkipped = 0;
+
+  for (const integration of withingsIntegrations) {
+    const userId = integration.userId;
+    const intervalMin = (await getEffectiveLimits(integration.user.plan)).syncIntervalMinutes;
+
+    const lastBodySync = await prisma.syncLog.findFirst({
+      where: { userId, type: "withings_sync" },
+      orderBy: { createdAt: "desc" },
+    });
+    if (!isSyncDue(lastBodySync?.createdAt ?? null, intervalMin, now)) {
+      bodySkipped++;
+      continue;
+    }
+
+    const start = Date.now();
+    try {
+      const token = await getValidAccessToken(userId, "withings");
+      if (!token) throw new Error("Kein gültiger Withings-Token.");
+      const client = new HttpWithingsClient(token);
+      await importWithingsBody({ db: prisma, client, userId });
+
+      await prisma.syncLog.create({
+        data: {
+          userId,
+          type: "withings_sync",
+          status: "success",
+          durationMs: Date.now() - start,
+          triggeredBy: "cron",
+          success: true,
+        },
+      });
+      bodyProcessed++;
+    } catch (e) {
+      const message = e instanceof Error ? e.message : "Withings-Sync fehlgeschlagen";
+      await prisma.syncLog.create({
+        data: {
+          userId,
+          type: "withings_sync",
+          status: "failed",
+          durationMs: Date.now() - start,
+          triggeredBy: "cron",
+          success: false,
+          errorMessage: message,
+        },
+      });
+      errors.push({ userId, error: message });
+    }
+  }
+
+  return NextResponse.json({
+    processed,
+    skipped,
+    errors,
+    withings: { processed: bodyProcessed, skipped: bodySkipped },
+  });
 }
