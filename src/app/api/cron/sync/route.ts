@@ -6,15 +6,18 @@ import { HttpIntervalsClient } from "@/integrations/intervals/client";
 import { processSyncQueue } from "@/integrations/intervals/syncQueue";
 import { importActivitiesFromIntervals } from "@/integrations/intervals/importActivities";
 import { isSyncDue } from "@/lib/sync-schedule";
+import { refreshExpiringTokens } from "@/integrations/oauth/refreshScheduler";
 
 /**
  * GET /api/cron/sync – von außen (Cron) getriggert. Gesichert per CRON_SECRET
  * (Bearer-Token), KEIN Session-Check.
  *
- * Für jeden User mit aktiver Intervals-Integration:
- *  - prüft das plan-abhängige Sync-Intervall gegen den letzten Sync-Log
- *  - falls fällig: Aktivitäten pullen + geplante Workouts pushen
- *  - schreibt einen SyncLog (type="sync", status, durationMs)
+ *  - erneuert zuerst bald ablaufende OAuth-Tokens (Strava/Wahoo/Withings)
+ *    proaktiv, statt erst beim nächsten On-Demand-Check
+ *  - für jeden User mit aktiver Intervals-Integration:
+ *    - prüft das plan-abhängige Sync-Intervall gegen den letzten Sync-Log
+ *    - falls fällig: Aktivitäten pullen + geplante Workouts pushen
+ *    - schreibt einen SyncLog (type="sync", status, durationMs)
  */
 export async function GET(request: Request) {
   const expected = process.env.CRON_SECRET;
@@ -22,6 +25,8 @@ export async function GET(request: Request) {
   if (!expected || authHeader !== `Bearer ${expected}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+
+  const tokenRefresh = await refreshExpiringTokens(prisma);
 
   const integrations = await prisma.userIntegration.findMany({
     where: { provider: "intervals", enabled: true },
@@ -91,5 +96,5 @@ export async function GET(request: Request) {
     }
   }
 
-  return NextResponse.json({ processed, skipped, errors });
+  return NextResponse.json({ processed, skipped, errors, tokenRefresh });
 }

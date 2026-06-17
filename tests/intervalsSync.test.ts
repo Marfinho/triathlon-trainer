@@ -204,4 +204,33 @@ describe("processSyncQueue", () => {
     expect(job?.attempts).toBe(1);
     expect(job?.errorMessage).toContain("API down");
   });
+
+  it("greift fehlgeschlagene Jobs erst nach Backoff wieder auf", async () => {
+    const w = await createWorkout();
+    await db.syncQueue.create({
+      data: { userId, localWorkoutId: w.id, action: "create", status: "pending" },
+    });
+    const failing = new MockIntervalsClient();
+    failing.createEvent = async () => {
+      throw new Error("API down");
+    };
+
+    await processSyncQueue({ db, client: failing, userId, maxAttempts: 3 });
+    const job = await db.syncQueue.findFirst();
+    expect(job?.nextAttemptAt).not.toBeNull();
+    expect(job!.nextAttemptAt!.getTime()).toBeGreaterThan(Date.now());
+
+    // Solange das Backoff-Fenster läuft, wird der Job nicht erneut aufgegriffen.
+    const second = await processSyncQueue({ db, client: failing, userId, maxAttempts: 3 });
+    expect(second.processed).toBe(0);
+
+    // Nach Ablauf des Fensters wird er wieder aufgegriffen.
+    await db.syncQueue.update({
+      where: { id: job!.id },
+      data: { nextAttemptAt: new Date(Date.now() - 1000) },
+    });
+    const third = await processSyncQueue({ db, client: failing, userId, maxAttempts: 3 });
+    expect(third.processed).toBe(1);
+    expect(third.failed).toBe(1);
+  });
 });
