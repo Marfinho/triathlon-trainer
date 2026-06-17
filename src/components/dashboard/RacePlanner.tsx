@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card } from "./Card";
+import { RaceNutritionPanel } from "./RaceNutritionPanel";
 import {
   daysUntilRace,
   describeCountdown,
@@ -65,6 +66,7 @@ export function RacePlanner({ initialRaces }: { initialRaces: Race[] }) {
   const [races, setRaces] = useState<Race[]>(initialRaces);
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [nutritionOpenId, setNutritionOpenId] = useState<string | null>(null);
   const [form, setForm] = useState({
     name: "",
     date: "",
@@ -279,47 +281,60 @@ export function RacePlanner({ initialRaces }: { initialRaces: Race[] }) {
       ) : (
         <ul className="divide-y divide-neutral-100">
           {enriched.map(({ race, days }) => (
-            <li key={race.id} className="flex items-center justify-between gap-3 py-3">
-              <div className="flex items-center gap-3">
-                <span
-                  className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${
-                    PRIORITY_CLS[race.priority ?? "C"]
-                  }`}
-                >
-                  {race.priority ?? "C"}
-                </span>
-                <div>
-                  <p className="text-sm font-medium text-neutral-900">{race.name}</p>
-                  <p className="text-xs text-neutral-500">
-                    {fmtDate(race.date)}
-                    {race.distance ? ` · ${race.distance}` : ""}
-                    {race.resultSeconds != null
-                      ? ` · 🏁 ${fmtTime(race.resultSeconds)}`
-                      : ""}
-                  </p>
+            <li key={race.id} className="py-3">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <span
+                    className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${
+                      PRIORITY_CLS[race.priority ?? "C"]
+                    }`}
+                  >
+                    {race.priority ?? "C"}
+                  </span>
+                  <div>
+                    <p className="text-sm font-medium text-neutral-900">{race.name}</p>
+                    <p className="text-xs text-neutral-500">
+                      {fmtDate(race.date)}
+                      {race.distance ? ` · ${race.distance}` : ""}
+                      {race.resultSeconds != null
+                        ? ` · 🏁 ${fmtTime(race.resultSeconds)}`
+                        : ""}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  {days < 0 ? (
+                    <button
+                      onClick={() => enterResult(race.id, race.resultSeconds)}
+                      className="text-xs font-medium text-blue-600 hover:underline"
+                    >
+                      {race.resultSeconds != null ? "Ergebnis" : "+ Ergebnis"}
+                    </button>
+                  ) : (
+                    <span className="text-xs text-neutral-500">
+                      {describeCountdown(days)}
+                    </span>
+                  )}
+                  <button
+                    onClick={() =>
+                      setNutritionOpenId((cur) => (cur === race.id ? null : race.id))
+                    }
+                    className="text-xs font-medium text-violet-600 hover:underline"
+                  >
+                    {nutritionOpenId === race.id ? "Verpflegung ▲" : "Verpflegung ▼"}
+                  </button>
+                  <button
+                    onClick={() => removeRace(race.id)}
+                    className="text-neutral-300 hover:text-rose-500"
+                    aria-label="Rennen löschen"
+                  >
+                    ✕
+                  </button>
                 </div>
               </div>
-              <div className="flex items-center gap-3">
-                {days < 0 ? (
-                  <button
-                    onClick={() => enterResult(race.id, race.resultSeconds)}
-                    className="text-xs font-medium text-blue-600 hover:underline"
-                  >
-                    {race.resultSeconds != null ? "Ergebnis" : "+ Ergebnis"}
-                  </button>
-                ) : (
-                  <span className="text-xs text-neutral-500">
-                    {describeCountdown(days)}
-                  </span>
-                )}
-                <button
-                  onClick={() => removeRace(race.id)}
-                  className="text-neutral-300 hover:text-rose-500"
-                  aria-label="Rennen löschen"
-                >
-                  ✕
-                </button>
-              </div>
+              {nutritionOpenId === race.id ? (
+                <RaceNutritionPanel raceId={race.id} raceType={race.type} />
+              ) : null}
             </li>
           ))}
         </ul>
