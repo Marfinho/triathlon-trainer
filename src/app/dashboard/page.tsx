@@ -19,6 +19,7 @@ import { RecentActivities } from "@/components/dashboard/RecentActivities";
 import { ReadinessPain } from "@/components/dashboard/ReadinessPain";
 import { IntervalsSyncStatus } from "@/components/dashboard/IntervalsSyncStatus";
 import { ChatGptExchange } from "@/components/dashboard/ChatGptExchange";
+import { isLlmConfigured } from "@/integrations/llm/client";
 import { FormFitness } from "@/components/dashboard/FormFitness";
 import { TrainingZones } from "@/components/dashboard/TrainingZones";
 import { TrainingCalendar } from "@/components/dashboard/TrainingCalendar";
@@ -520,7 +521,7 @@ export default async function DashboardPage() {
             label: "Austausch & Sync",
             content: (
               <>
-                <ChatGptExchange />
+                <ChatGptExchange llmConfigured={isLlmConfigured()} />
                 <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
                   <IntervalsSyncStatus
                     initial={{
