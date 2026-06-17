@@ -4,7 +4,7 @@ import { requireUser } from "@/lib/auth-guard";
 
 /**
  * POST /api/body – Körpermetrik erfassen (neuer Datensatz, nichts überschrieben).
- * Body: { date?, weightKg?, restingHr?, notes? }
+ * Body: { date?, weightKg?, restingHr?, hrv?, notes? }
  */
 export async function POST(request: Request) {
   const { user, response } = await requireUser();
@@ -21,9 +21,10 @@ export async function POST(request: Request) {
   const weightKg = typeof body.weightKg === "number" ? body.weightKg : null;
   const restingHr =
     typeof body.restingHr === "number" ? Math.round(body.restingHr) : null;
-  if (weightKg == null && restingHr == null) {
+  const hrv = typeof body.hrv === "number" ? Math.round(body.hrv) : null;
+  if (weightKg == null && restingHr == null && hrv == null) {
     return NextResponse.json(
-      { ok: false, error: "Gewicht oder Ruhepuls erforderlich." },
+      { ok: false, error: "Gewicht, Ruhepuls oder HRV erforderlich." },
       { status: 400 },
     );
   }
@@ -39,6 +40,7 @@ export async function POST(request: Request) {
       date,
       weightKg,
       restingHr,
+      hrv,
       notes: typeof body.notes === "string" ? body.notes : null,
     },
   });

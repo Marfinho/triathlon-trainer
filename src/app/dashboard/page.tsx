@@ -29,7 +29,7 @@ import { WeeklyGoals } from "@/components/dashboard/WeeklyGoals";
 import { buildGoalProgress } from "@/domain/training/goals";
 import { DashboardTabs } from "@/components/dashboard/DashboardTabs";
 import { BodyMetrics } from "@/components/dashboard/BodyMetrics";
-import { summarizeBody } from "@/domain/training/body";
+import { summarizeBody, trendLabel } from "@/domain/training/body";
 import { TrainingJournal } from "@/components/dashboard/TrainingJournal";
 import { DataExport } from "@/components/dashboard/DataExport";
 import { BackupRestore } from "@/components/dashboard/BackupRestore";
@@ -182,8 +182,12 @@ export default async function DashboardPage() {
       date: b.date,
       weightKg: b.weightKg,
       restingHr: b.restingHr,
+      hrv: b.hrv,
     })),
   );
+  // summarizeBody liefert die Reihen bereits chronologisch (älteste zuerst).
+  const computedHrvTrend = trendLabel(bodySummary.hrvs);
+  const computedRestingHrTrend = trendLabel(bodySummary.restingHrs);
 
   // --- Plan vs. Ist ---
   const planVsActualRows = buildPlanVsActual(
@@ -560,6 +564,8 @@ export default async function DashboardPage() {
                     }
                     fatigueTrend={fatigueTrend}
                     painTrend={painTrend}
+                    computedHrvTrend={computedHrvTrend}
+                    computedRestingHrTrend={computedRestingHrTrend}
                   />
                 </div>
                 <BodyMetrics summary={bodySummary} heightCm={athlete?.heightCm ?? null} />

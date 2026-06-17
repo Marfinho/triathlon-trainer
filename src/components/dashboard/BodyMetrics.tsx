@@ -23,6 +23,7 @@ export function BodyMetrics({
   const [form, setForm] = useState({
     weightKg: summary.latestWeight ?? 75,
     restingHr: summary.latestRestingHr ?? 50,
+    hrv: summary.latestHrv ?? 60,
   });
 
   async function save() {
@@ -34,6 +35,7 @@ export function BodyMetrics({
         body: JSON.stringify({
           weightKg: form.weightKg,
           restingHr: form.restingHr,
+          hrv: form.hrv,
         }),
       });
       setOpen(false);
@@ -79,6 +81,15 @@ export function BodyMetrics({
               className="mt-1 block w-24 rounded-lg border border-neutral-300 bg-white px-2 py-1.5 text-sm"
             />
           </label>
+          <label className="text-xs text-neutral-500">
+            HRV (ms)
+            <input
+              type="number"
+              value={form.hrv}
+              onChange={(e) => setForm({ ...form, hrv: Number(e.target.value) || 0 })}
+              className="mt-1 block w-24 rounded-lg border border-neutral-300 bg-white px-2 py-1.5 text-sm"
+            />
+          </label>
           <button
             onClick={save}
             disabled={saving}
@@ -89,7 +100,7 @@ export function BodyMetrics({
         </div>
       ) : null}
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div className="rounded-xl border border-neutral-200 p-3">
           <div className="flex items-baseline justify-between">
             <span className="text-[11px] uppercase tracking-wide text-neutral-400">
@@ -139,6 +150,29 @@ export function BodyMetrics({
           </p>
           <div className="mt-1 text-rose-400">
             <Sparkline values={summary.restingHrs} color="#ff3b30" height={32} />
+          </div>
+        </div>
+        <div className="rounded-xl border border-neutral-200 p-3">
+          <div className="flex items-baseline justify-between">
+            <span className="text-[11px] uppercase tracking-wide text-neutral-400">
+              HRV
+            </span>
+            {summary.hrvChange != null && summary.hrvChange !== 0 ? (
+              <span
+                className={`text-xs font-medium ${
+                  summary.hrvChange > 0 ? "text-emerald-600" : "text-amber-600"
+                }`}
+              >
+                {summary.hrvChange > 0 ? "+" : ""}
+                {summary.hrvChange} ms
+              </span>
+            ) : null}
+          </div>
+          <p className="mt-0.5 text-2xl font-semibold text-neutral-900">
+            {summary.latestHrv != null ? `${summary.latestHrv} ms` : "—"}
+          </p>
+          <div className="mt-1 text-emerald-500">
+            <Sparkline values={summary.hrvs} color="#34c759" height={32} />
           </div>
         </div>
       </div>
