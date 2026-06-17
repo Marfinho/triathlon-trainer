@@ -355,14 +355,22 @@ export default async function DashboardPage() {
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-600">
             LocalHub
           </p>
-          {isAdmin && (
+          <div className="flex items-center gap-2">
             <a
-              href="/admin"
+              href="/profile"
               className="rounded-full border border-neutral-200 bg-white px-3.5 py-1.5 text-xs font-medium text-neutral-600 transition hover:border-neutral-300 hover:text-neutral-900"
             >
-              Admin
+              Profil
             </a>
-          )}
+            {isAdmin && (
+              <a
+                href="/admin"
+                className="rounded-full border border-neutral-200 bg-white px-3.5 py-1.5 text-xs font-medium text-neutral-600 transition hover:border-neutral-300 hover:text-neutral-900"
+              >
+                Admin
+              </a>
+            )}
+          </div>
         </div>
         <h1 className="mt-1.5 text-3xl font-semibold tracking-tight text-neutral-900">
           Trainings-Dashboard

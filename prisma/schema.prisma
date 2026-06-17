@@ -108,16 +108,20 @@ model PlanOverride {
   updatedBy    String?
 }
 
-/// Verschlüsselte Drittanbieter-Zugangsdaten (z.B. Intervals.icu).
+/// Verschlüsselte Drittanbieter-Zugangsdaten (Intervals.icu: statischer
+/// API-Key; Strava/Wahoo/Withings: OAuth2 Access-/Refresh-Token).
 model UserIntegration {
-  id        String   @id @default(cuid())
-  userId    String
-  provider  String // "intervals"
-  apiKey    String // AES-256-GCM-verschlüsselt
-  athleteId String?
-  enabled   Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id             String    @id @default(cuid())
+  userId         String
+  provider       String // "intervals" | "strava" | "wahoo" | "withings"
+  apiKey         String // AES-256-GCM-verschlüsselt: API-Key oder OAuth-Access-Token
+  refreshToken   String? // AES-256-GCM-verschlüsselt: OAuth-Refresh-Token
+  tokenExpiresAt DateTime?
+  scope          String?
+  athleteId      String?
+  enabled        Boolean   @default(true)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 

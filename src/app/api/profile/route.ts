@@ -3,8 +3,8 @@ import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/auth-guard";
 
 /**
- * PATCH /api/profile – Schwellenwerte des (ersten) Athleten-Profils setzen.
- * Body: { ftpWatts?, thresholdHr?, thresholdPaceSecPerKm? }
+ * PATCH /api/profile – Athleten-Profil aktualisieren (Schwellenwerte +
+ * Stammdaten). Body: beliebige Teilmenge der unterstützten Felder.
  */
 export async function PATCH(request: Request) {
   const { user, response } = await requireUser();
@@ -23,16 +23,53 @@ export async function PATCH(request: Request) {
     if (typeof v === "number" && Number.isFinite(v)) return Math.round(v);
     return undefined;
   };
+  const floatOrNull = (v: unknown): number | null | undefined => {
+    if (v === null) return null;
+    if (typeof v === "number" && Number.isFinite(v)) return v;
+    return undefined;
+  };
+  const stringOrNull = (v: unknown): string | null | undefined => {
+    if (v === null) return null;
+    if (typeof v === "string") return v.trim();
+    return undefined;
+  };
+  const stringArray = (v: unknown): string[] | undefined => {
+    if (!Array.isArray(v)) return undefined;
+    const out = v.filter((x): x is string => typeof x === "string" && x.trim().length > 0);
+    return out.map((x) => x.trim());
+  };
 
-  const data: Record<string, number | null> = {};
-  for (const key of [
-    "ftpWatts",
-    "thresholdHr",
-    "thresholdPaceSecPerKm",
-    "thresholdSwimPer100m",
-  ]) {
+  const data: Record<string, unknown> = {};
+
+  for (const key of ["ftpWatts", "thresholdHr", "thresholdPaceSecPerKm", "thresholdSwimPer100m"]) {
     const val = intOrNull(body[key]);
     if (val !== undefined) data[key] = val;
+  }
+  {
+    const val = floatOrNull(body.weightKg);
+    if (val !== undefined) data.weightKg = val;
+  }
+  {
+    const val = intOrNull(body.heightCm);
+    if (val !== undefined) data.heightCm = val;
+  }
+  {
+    const val = stringOrNull(body.name);
+    if (val !== undefined && val !== null && val !== "") data.name = val;
+  }
+  {
+    const val = stringOrNull(body.trainingLevel);
+    if (val !== undefined) data.trainingLevel = val;
+  }
+  for (const key of ["primarySports", "knownLimiters", "equipment"]) {
+    if (key in body) {
+      const val = stringArray(body[key]);
+      if (val !== undefined) data[key] = val as object;
+    }
+  }
+
+  if (Object.keys(data).length === 0) {
+    return NextResponse.json({ ok: false, error: "Keine gültigen Felder." }, { status: 400 });
   }
 
   const existing = await prisma.athleteProfile.findFirst({
@@ -50,10 +87,17 @@ export async function PATCH(request: Request) {
   return NextResponse.json({
     ok: true,
     profile: {
+      name: updated.name,
+      heightCm: updated.heightCm,
+      weightKg: updated.weightKg,
       ftpWatts: updated.ftpWatts,
       thresholdHr: updated.thresholdHr,
       thresholdPaceSecPerKm: updated.thresholdPaceSecPerKm,
       thresholdSwimPer100m: updated.thresholdSwimPer100m,
+      trainingLevel: updated.trainingLevel,
+      primarySports: updated.primarySports,
+      knownLimiters: updated.knownLimiters,
+      equipment: updated.equipment,
     },
   });
 }
