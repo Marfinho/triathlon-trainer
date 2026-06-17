@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/auth-guard";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 /**
  * POST /api/profile/password – Passwort ändern. Nur für Credentials-Accounts.
@@ -11,6 +12,11 @@ export async function POST(request: Request) {
   const { user, response } = await requireUser();
   if (response) return response;
   const { userId } = user;
+
+  const rl = await checkRateLimit(`password-change:${userId}`, 10, 15 * 60 * 1000);
+  if (!rl.allowed) {
+    return NextResponse.json({ ok: false, error: "TOO_MANY_REQUESTS" }, { status: 429 });
+  }
 
   let body: Record<string, unknown> = {};
   try {

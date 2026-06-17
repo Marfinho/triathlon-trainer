@@ -5,6 +5,7 @@ import Google from "next-auth/providers/google";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/db";
 import { authConfig } from "@/auth.config";
+import { checkRateLimit, clientIp } from "@/lib/rate-limit";
 
 /**
  * Vollständige Auth.js-Konfiguration (Node-Runtime).
@@ -27,10 +28,20 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         email: { label: "E-Mail", type: "email" },
         password: { label: "Passwort", type: "password" },
       },
-      authorize: async (credentials) => {
+      authorize: async (credentials, request) => {
         const email = credentials?.email as string | undefined;
         const password = credentials?.password as string | undefined;
         if (!email || !password || password.length < 8) return null;
+
+        // Brute-Force-Schutz: pro IP UND pro E-Mail begrenzen, damit weder ein
+        // einzelner Angreifer noch ein Credential-Stuffing über viele IPs
+        // unbegrenzt Versuche gegen ein Konto fahren kann.
+        const ip = clientIp(request);
+        const [ipLimit, emailLimit] = await Promise.all([
+          checkRateLimit(`login-ip:${ip}`, 20, 15 * 60 * 1000),
+          checkRateLimit(`login-email:${email.toLowerCase()}`, 10, 15 * 60 * 1000),
+        ]);
+        if (!ipLimit.allowed || !emailLimit.allowed) return null;
 
         const user = await prisma.user.findUnique({ where: { email } });
         if (!user?.passwordHash) return null;

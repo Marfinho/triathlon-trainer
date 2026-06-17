@@ -21,12 +21,29 @@ export async function requireUser(): Promise<
   }
   const dbUser = await prisma.user.findUnique({
     where: { id: session.user.id },
-    select: { plan: true, role: true },
+    select: { plan: true, role: true, planExpiresAt: true },
   });
+
+  // Stripe-Webhooks können verloren gehen (Netzwerk, Downtime). Deshalb wird
+  // der Plan-Status hier defensiv ein zweites Mal geprüft: ein abgelaufenes
+  // "paid" wird sofort als "free" behandelt, statt blind auf das nächste
+  // subscription.deleted-Event zu vertrauen. `planExpiresAt: null` (Lifetime
+  // oder noch nie abgerechnet) läuft nie ab.
+  let plan = dbUser?.plan ?? "free";
+  if (plan === "paid" && dbUser?.planExpiresAt && dbUser.planExpiresAt.getTime() < Date.now()) {
+    plan = "free";
+    await prisma.user
+      .update({
+        where: { id: session.user.id },
+        data: { plan: "free", planInterval: null },
+      })
+      .catch(() => {});
+  }
+
   return {
     user: {
       userId: session.user.id,
-      plan: dbUser?.plan ?? "free",
+      plan,
       role: dbUser?.role ?? "user",
     },
   };
