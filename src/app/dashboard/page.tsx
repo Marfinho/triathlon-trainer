@@ -317,6 +317,7 @@ export default async function DashboardPage() {
     resultSeconds: r.resultSeconds,
     resultPlacement: r.resultPlacement,
     resultNote: r.resultNote,
+    locationName: r.locationName,
   }));
 
   const [pending, processing, failed, success, synced] = syncCounts;

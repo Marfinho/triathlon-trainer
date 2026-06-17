@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card } from "./Card";
 import { RaceNutritionPanel } from "./RaceNutritionPanel";
+import { RaceWeatherPanel } from "./RaceWeatherPanel";
 import {
   daysUntilRace,
   describeCountdown,
@@ -23,6 +24,7 @@ export interface Race {
   resultSeconds: number | null;
   resultPlacement: number | null;
   resultNote: string | null;
+  locationName: string | null;
 }
 
 function fmtTime(sec: number): string {
@@ -67,6 +69,7 @@ export function RacePlanner({ initialRaces }: { initialRaces: Race[] }) {
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [nutritionOpenId, setNutritionOpenId] = useState<string | null>(null);
+  const [weatherOpenId, setWeatherOpenId] = useState<string | null>(null);
   const [form, setForm] = useState({
     name: "",
     date: "",
@@ -317,6 +320,14 @@ export function RacePlanner({ initialRaces }: { initialRaces: Race[] }) {
                   )}
                   <button
                     onClick={() =>
+                      setWeatherOpenId((cur) => (cur === race.id ? null : race.id))
+                    }
+                    className="text-xs font-medium text-sky-600 hover:underline"
+                  >
+                    {weatherOpenId === race.id ? "Wetter ▲" : "Wetter ▼"}
+                  </button>
+                  <button
+                    onClick={() =>
                       setNutritionOpenId((cur) => (cur === race.id ? null : race.id))
                     }
                     className="text-xs font-medium text-violet-600 hover:underline"
@@ -332,6 +343,9 @@ export function RacePlanner({ initialRaces }: { initialRaces: Race[] }) {
                   </button>
                 </div>
               </div>
+              {weatherOpenId === race.id ? (
+                <RaceWeatherPanel raceId={race.id} initialLocationName={race.locationName} />
+              ) : null}
               {nutritionOpenId === race.id ? (
                 <RaceNutritionPanel raceId={race.id} raceType={race.type} />
               ) : null}
