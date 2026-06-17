@@ -147,7 +147,7 @@ export default async function DashboardPage() {
     prisma.actualActivity.findMany({
       where: { userId, date: { gte: loadWindowStart } },
       orderBy: { date: "asc" },
-      select: { date: true, sport: true, durationMin: true, distanceKm: true, load: true, rpe: true },
+      select: { date: true, sport: true, durationMin: true, distanceKm: true, load: true, rpe: true, avgHr: true },
     }),
     prisma.raceEvent.findMany({ where: { userId }, orderBy: { date: "asc" } }),
     prisma.gearItem.findMany({ where: { userId }, orderBy: { createdAt: "asc" } }),
@@ -209,10 +209,12 @@ export default async function DashboardPage() {
     durationMin: a.durationMin,
     load: a.load,
     rpe: a.rpe,
+    avgHr: a.avgHr,
   }));
   const loadSeries = buildLoadSeries(loadInput, {
     days: Math.min(90, pmcDays),
     today: now,
+    thresholdHr: athlete?.thresholdHr,
   });
   const weeklyVolume = buildWeeklyVolume(loadInput, {
     weeks: Math.min(12, Math.max(4, Math.ceil(pmcDays / 7))),

@@ -9,8 +9,9 @@ import { formatIsoDate, addDays, mondayOfIso } from "./dates";
  *   - ATL (Fatigue):  exponentiell gewichteter 7-Tage-Schnitt
  *   - TSB (Form):     CTL − ATL
  *
- * Fehlt die Last einer Aktivität, wird sie aus Dauer und RPE/Intensität
- * geschätzt (TSS-ähnlich).
+ * Fehlt die Last einer Aktivität, wird sie aus Dauer und Intensität geschätzt
+ * (TSS-ähnlich): bevorzugt aus Herzfrequenz (avgHr / thresholdHr), sonst aus
+ * RPE.
  */
 
 export interface LoadActivity {
@@ -19,6 +20,7 @@ export interface LoadActivity {
   durationMin: number | null;
   load: number | null;
   rpe?: number | null;
+  avgHr?: number | null;
 }
 
 const CTL_TIME_CONSTANT = 42;
@@ -33,13 +35,26 @@ function rpeToIntensityFactor(rpe: number): number {
   return Math.min(1.15, Math.max(0.4, 0.4 + (rpe - 1) * 0.08));
 }
 
-/** Last einer Aktivität: gemessen, sonst aus Dauer × Intensität geschätzt. */
-export function estimateActivityLoad(a: LoadActivity): number {
+/**
+ * Last einer Aktivität: gemessen, sonst geschätzt aus Dauer × Intensität.
+ * Intensität bevorzugt avgHr/thresholdHr (objektiv), sonst RPE, sonst ein
+ * neutraler Default-Wert.
+ */
+export function estimateActivityLoad(
+  a: LoadActivity,
+  thresholdHr?: number | null,
+): number {
   if (typeof a.load === "number" && a.load > 0) return a.load;
   const min = a.durationMin ?? 0;
   if (min <= 0) return 0;
-  const intensity =
-    typeof a.rpe === "number" ? rpeToIntensityFactor(a.rpe) : 0.65;
+  let intensity: number;
+  if (typeof a.avgHr === "number" && a.avgHr > 0 && typeof thresholdHr === "number" && thresholdHr > 0) {
+    intensity = Math.min(1.15, Math.max(0.4, a.avgHr / thresholdHr));
+  } else if (typeof a.rpe === "number") {
+    intensity = rpeToIntensityFactor(a.rpe);
+  } else {
+    intensity = 0.65;
+  }
   // TSS-ähnlich: IF^2 * Stunden * 100.
   return Math.round(intensity ** 2 * (min / 60) * 100);
 }
@@ -67,7 +82,7 @@ export interface LoadSeries {
  */
 export function buildLoadSeries(
   activities: LoadActivity[],
-  opts: { days?: number; today?: Date } = {},
+  opts: { days?: number; today?: Date; thresholdHr?: number | null } = {},
 ): LoadSeries {
   const days = opts.days ?? 90;
   const today = opts.today ?? new Date();
@@ -77,7 +92,10 @@ export function buildLoadSeries(
   const loadByDay = new Map<string, number>();
   for (const a of activities) {
     const key = toIso(a.date);
-    loadByDay.set(key, (loadByDay.get(key) ?? 0) + estimateActivityLoad(a));
+    loadByDay.set(
+      key,
+      (loadByDay.get(key) ?? 0) + estimateActivityLoad(a, opts.thresholdHr),
+    );
   }
 
   const dates: string[] = [];

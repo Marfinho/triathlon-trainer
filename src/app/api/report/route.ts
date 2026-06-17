@@ -26,14 +26,14 @@ export async function GET() {
   const weekStart = mondayOfIso(now);
   const weekStartDate = new Date(`${weekStart}T00:00:00Z`);
 
-  const [weekActivities, loadActivities, plannedThisWeek, goals] =
+  const [weekActivities, loadActivities, plannedThisWeek, goals, athlete] =
     await Promise.all([
       prisma.actualActivity.findMany({
         where: { userId, date: { gte: weekStartDate } },
       }),
       prisma.actualActivity.findMany({
         where: { userId, date: { gte: addDays(now, -90) } },
-        select: { date: true, sport: true, durationMin: true, load: true, rpe: true },
+        select: { date: true, sport: true, durationMin: true, load: true, rpe: true, avgHr: true },
       }),
       prisma.plannedWorkout.findMany({
         where: {
@@ -43,6 +43,7 @@ export async function GET() {
         },
       }),
       prisma.trainingGoal.findMany({ where: { userId }, orderBy: { sport: "asc" } }),
+      prisma.athleteProfile.findFirst({ where: { userId }, orderBy: { createdAt: "asc" } }),
     ]);
 
   const bySportMap = new Map<
@@ -71,8 +72,9 @@ export async function GET() {
       durationMin: a.durationMin,
       load: a.load,
       rpe: a.rpe,
+      avgHr: a.avgHr,
     })),
-    { days: 90, today: now },
+    { days: 90, today: now, thresholdHr: athlete?.thresholdHr },
   );
 
   const goalProgress = buildGoalProgress(
