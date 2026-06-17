@@ -9,10 +9,12 @@ import {
   toJsonSafeLimits,
   type PlanOverrideSettings,
 } from "@/lib/plan-config";
+import { listIntegrationConfigViews } from "@/lib/integration-config";
 import { SystemStatus } from "@/components/admin/SystemStatus";
 import { UserStatsCard } from "@/components/admin/UserStatsCard";
 import { DomainStatsCard } from "@/components/admin/DomainStatsCard";
 import { PlanLimitsEditor, type TierConfig } from "@/components/admin/PlanLimitsEditor";
+import { IntegrationsAdmin } from "@/components/admin/IntegrationsAdmin";
 
 export const dynamic = "force-dynamic";
 
@@ -26,6 +28,7 @@ export default async function AdminPage() {
   if (dbUser?.role !== "admin") redirect("/dashboard");
 
   const stats = await collectAdminStats(prisma);
+  const integrations = await listIntegrationConfigViews();
 
   const overrides = await prisma.planOverride.findMany();
   const overrideByTier = new Map(overrides.map((o) => [o.tier, o]));
@@ -78,6 +81,18 @@ export default async function AdminPage() {
         <section className="grid grid-cols-1 gap-5 lg:grid-cols-2">
           <UserStatsCard users={stats.users} />
           <DomainStatsCard domain={stats.domain} />
+        </section>
+
+        <section>
+          <h2 className="mb-4 text-sm font-semibold uppercase tracking-[0.16em] text-neutral-400">
+            Integrationen
+          </h2>
+          <p className="mb-4 max-w-2xl text-sm text-neutral-500">
+            Nur hier aktivierte Integrationen sind für Nutzer im Profil sichtbar
+            und verbindbar. OAuth-Provider benötigen zusätzlich Client-ID &amp;
+            Secret.
+          </p>
+          <IntegrationsAdmin initial={integrations} />
         </section>
 
         <section>

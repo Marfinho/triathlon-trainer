@@ -8,6 +8,8 @@ import { IntegrationSettings } from "@/components/profile/IntegrationSettings";
 import { OAuthIntegrations } from "@/components/profile/OAuthIntegrations";
 import { BillingSection } from "@/components/profile/BillingSection";
 import { getConnectionStatus } from "@/integrations/oauth/connectionStatus";
+import { getEnabledProviders } from "@/lib/integration-config";
+import type { OAuthProviderId } from "@/integrations/oauth/providers";
 
 export const dynamic = "force-dynamic";
 
@@ -43,23 +45,35 @@ export default async function ProfilePage({
   const integrationError =
     typeof params.integration_error === "string" ? params.integration_error : null;
 
-  const [dbUser, athleteProfile, integration, stravaStatus, wahooStatus, withingsStatus] =
-    await Promise.all([
-      prisma.user.findUnique({ where: { id: userId } }),
-      prisma.athleteProfile.findFirst({ where: { userId }, orderBy: { createdAt: "asc" } }),
-      prisma.userIntegration.findFirst({
-        where: { userId, provider: "intervals", enabled: true },
-      }),
-      getConnectionStatus(userId, "strava"),
-      getConnectionStatus(userId, "wahoo"),
-      getConnectionStatus(userId, "withings"),
-    ]);
+  const [dbUser, athleteProfile, integration, enabledProviders] = await Promise.all([
+    prisma.user.findUnique({ where: { id: userId } }),
+    prisma.athleteProfile.findFirst({ where: { userId }, orderBy: { createdAt: "asc" } }),
+    prisma.userIntegration.findFirst({
+      where: { userId, provider: "intervals", enabled: true },
+    }),
+    getEnabledProviders(),
+  ]);
   if (!dbUser) redirect("/auth/login");
+
+  const intervalsEnabled = enabledProviders.has("intervals");
+  const oauthProviderIds = (["strava", "wahoo", "withings"] as const).filter((p) =>
+    enabledProviders.has(p),
+  );
+  const oauthStatuses = await Promise.all(
+    oauthProviderIds.map((p) => getConnectionStatus(userId, p)),
+  );
+  const oauthProviders = oauthProviderIds.map((provider, i) => ({
+    provider: provider as OAuthProviderId,
+    label: PROVIDER_LABELS[provider] ?? provider,
+    connected: oauthStatuses[i].connected,
+    externalId: oauthStatuses[i].externalId,
+  }));
 
   const limits = await getEffectiveLimits(dbUser.plan);
   const activeIntegrations = await prisma.userIntegration.count({
     where: { userId, enabled: true },
   });
+  const anyIntegrationEnabled = intervalsEnabled || oauthProviders.length > 0;
 
   return (
     <main className="mx-auto max-w-4xl px-6 py-10">
@@ -122,22 +136,30 @@ export default async function ProfilePage({
           />
         )}
 
-        <IntegrationSettings
-          connected={Boolean(integration)}
-          athleteId={integration?.athleteId ?? null}
-          maxActiveIntegrations={limits.maxActiveIntegrations}
-          activeIntegrations={activeIntegrations}
-        />
+        {intervalsEnabled && (
+          <IntegrationSettings
+            connected={Boolean(integration)}
+            athleteId={integration?.athleteId ?? null}
+            maxActiveIntegrations={limits.maxActiveIntegrations}
+            activeIntegrations={activeIntegrations}
+          />
+        )}
 
-        <OAuthIntegrations
-          providers={[
-            { provider: "strava", label: "Strava", connected: stravaStatus.connected, externalId: stravaStatus.externalId },
-            { provider: "wahoo", label: "Wahoo", connected: wahooStatus.connected, externalId: wahooStatus.externalId },
-            { provider: "withings", label: "Withings", connected: withingsStatus.connected, externalId: withingsStatus.externalId },
-          ]}
-          maxActiveIntegrations={limits.maxActiveIntegrations}
-          activeIntegrations={activeIntegrations}
-        />
+        {oauthProviders.length > 0 && (
+          <OAuthIntegrations
+            providers={oauthProviders}
+            maxActiveIntegrations={limits.maxActiveIntegrations}
+            activeIntegrations={activeIntegrations}
+          />
+        )}
+
+        {!anyIntegrationEnabled && (
+          <div className="rounded-xl border border-neutral-200 bg-neutral-50 px-5 py-4 text-sm text-neutral-500">
+            Aktuell sind keine Integrationen freigeschaltet. Frag deinen
+            Administrator, um Quellen wie Intervals.icu, Strava, Wahoo oder
+            Withings zu aktivieren.
+          </div>
+        )}
 
         <BillingSection
           plan={dbUser.plan}

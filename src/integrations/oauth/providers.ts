@@ -4,6 +4,8 @@
  * keinen Self-Service-API-Zugang (nur über Partner-Vereinbarung) und ist
  * deshalb hier bewusst nicht enthalten.
  */
+import { getIntegrationRuntime } from "@/lib/integration-config";
+
 export type OAuthProviderId = "strava" | "wahoo" | "withings";
 
 export interface OAuthProviderConfig {
@@ -11,6 +13,7 @@ export interface OAuthProviderConfig {
   label: string;
   authorizeUrl: string;
   scope: string;
+  enabled: boolean;
   clientId: string | undefined;
   clientSecret: string | undefined;
 }
@@ -23,7 +26,15 @@ export interface OAuthTokenResult {
   scope: string | null;
 }
 
-export function getProviderConfig(id: OAuthProviderId): OAuthProviderConfig {
+interface ProviderStatic {
+  id: OAuthProviderId;
+  label: string;
+  authorizeUrl: string;
+  scope: string;
+}
+
+/** Reine, DB-unabhängige Provider-Metadaten (Authorize-URL, Scope, Label). */
+function getProviderStatic(id: OAuthProviderId): ProviderStatic {
   switch (id) {
     case "strava":
       return {
@@ -31,8 +42,6 @@ export function getProviderConfig(id: OAuthProviderId): OAuthProviderConfig {
         label: "Strava",
         authorizeUrl: "https://www.strava.com/oauth/authorize",
         scope: "activity:read_all",
-        clientId: process.env.STRAVA_CLIENT_ID,
-        clientSecret: process.env.STRAVA_CLIENT_SECRET,
       };
     case "wahoo":
       return {
@@ -40,8 +49,6 @@ export function getProviderConfig(id: OAuthProviderId): OAuthProviderConfig {
         label: "Wahoo",
         authorizeUrl: "https://api.wahooligan.com/oauth/authorize",
         scope: "user_read workouts_read",
-        clientId: process.env.WAHOO_CLIENT_ID,
-        clientSecret: process.env.WAHOO_CLIENT_SECRET,
       };
     case "withings":
       return {
@@ -49,18 +56,31 @@ export function getProviderConfig(id: OAuthProviderId): OAuthProviderConfig {
         label: "Withings",
         authorizeUrl: "https://account.withings.com/oauth2_user/authorize2",
         scope: "user.metrics,user.activity",
-        clientId: process.env.WITHINGS_CLIENT_ID,
-        clientSecret: process.env.WITHINGS_CLIENT_SECRET,
       };
   }
 }
 
-export function buildAuthorizeUrl(
+/**
+ * Effektive Provider-Konfiguration inkl. Admin-Gate (`enabled`) und Credentials
+ * aus der DB (mit Env-Fallback). Server-only, async.
+ */
+export async function getProviderConfig(id: OAuthProviderId): Promise<OAuthProviderConfig> {
+  const stat = getProviderStatic(id);
+  const runtime = await getIntegrationRuntime(id);
+  return {
+    ...stat,
+    enabled: runtime.enabled,
+    clientId: runtime.clientId,
+    clientSecret: runtime.clientSecret,
+  };
+}
+
+export async function buildAuthorizeUrl(
   id: OAuthProviderId,
   redirectUri: string,
   state: string,
-): string {
-  const cfg = getProviderConfig(id);
+): Promise<string> {
+  const cfg = await getProviderConfig(id);
   const params = new URLSearchParams({
     client_id: cfg.clientId ?? "",
     redirect_uri: redirectUri,
@@ -173,7 +193,7 @@ export async function exchangeCodeForToken(
   code: string,
   redirectUri: string,
 ): Promise<OAuthTokenResult> {
-  const cfg = getProviderConfig(id);
+  const cfg = await getProviderConfig(id);
   if (id === "strava") return exchangeStrava(cfg, code);
   if (id === "wahoo") return exchangeWahoo(cfg, code, redirectUri);
   return exchangeWithings(cfg, code, redirectUri);
@@ -257,7 +277,7 @@ export async function refreshOAuthToken(
   id: OAuthProviderId,
   refreshTokenValue: string,
 ): Promise<OAuthTokenResult> {
-  const cfg = getProviderConfig(id);
+  const cfg = await getProviderConfig(id);
   if (id === "strava") return refreshStrava(cfg, refreshTokenValue);
   if (id === "wahoo") return refreshWahoo(cfg, refreshTokenValue);
   return refreshWithings(cfg, refreshTokenValue);

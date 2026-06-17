@@ -41,8 +41,8 @@ export async function handleConnect(provider: OAuthProviderId): Promise<NextResp
   const { user, response } = await requireUser();
   if (response) return response;
 
-  const cfg = getProviderConfig(provider);
-  if (!cfg.clientId || !cfg.clientSecret) {
+  const cfg = await getProviderConfig(provider);
+  if (!cfg.enabled || !cfg.clientId || !cfg.clientSecret) {
     return NextResponse.redirect(`${baseUrl()}/profile?integration_error=not_configured`);
   }
   if (!(await withinIntegrationLimit(user.userId, user.plan, provider))) {
@@ -50,7 +50,7 @@ export async function handleConnect(provider: OAuthProviderId): Promise<NextResp
   }
 
   const state = createOAuthState(user.userId);
-  const url = buildAuthorizeUrl(provider, redirectUriFor(provider), state);
+  const url = await buildAuthorizeUrl(provider, redirectUriFor(provider), state);
   return NextResponse.redirect(url);
 }
 
@@ -71,6 +71,10 @@ export async function handleCallback(
   }
   if (!code || !state || !verifyOAuthState(state, user.userId)) {
     return NextResponse.redirect(`${baseUrl()}/profile?integration_error=invalid_state`);
+  }
+  const cfg = await getProviderConfig(provider);
+  if (!cfg.enabled || !cfg.clientId || !cfg.clientSecret) {
+    return NextResponse.redirect(`${baseUrl()}/profile?integration_error=not_configured`);
   }
   if (!(await withinIntegrationLimit(user.userId, user.plan, provider))) {
     return NextResponse.redirect(`${baseUrl()}/profile?integration_error=limit_reached`);

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/auth-guard";
 import { getEffectiveLimits } from "@/lib/plan-config";
+import { getIntegrationRuntime } from "@/lib/integration-config";
 import { encryptApiKey } from "@/lib/crypto";
 
 /**
@@ -29,6 +30,11 @@ export async function PUT(request: Request) {
       { ok: false, error: "athleteId und apiKey sind erforderlich." },
       { status: 400 },
     );
+  }
+
+  // Gate: Intervals.icu muss vom Admin aktiviert sein.
+  if (!(await getIntegrationRuntime("intervals")).enabled) {
+    return NextResponse.json({ ok: false, error: "NOT_CONFIGURED" }, { status: 403 });
   }
 
   const existing = await prisma.userIntegration.findFirst({

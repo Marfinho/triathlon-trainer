@@ -108,6 +108,21 @@ model PlanOverride {
   updatedBy    String?
 }
 
+/// Globale, vom Admin verwaltete Konfiguration je Integration/Provider.
+/// Eine Integration ist für Nutzer nur verfügbar, wenn hier `enabled = true`
+/// gesetzt ist. OAuth-Provider (Strava/Wahoo/Withings) benötigen zusätzlich
+/// `clientId` + `clientSecret` (Secret AES-256-GCM-verschlüsselt). Intervals.icu
+/// braucht keine globalen Credentials (Nutzer geben ihren eigenen API-Key ein).
+model IntegrationConfig {
+  id           String   @id @default(cuid())
+  provider     String   @unique // "intervals" | "strava" | "wahoo" | "withings"
+  enabled      Boolean  @default(false)
+  clientId     String?
+  clientSecret String? // AES-256-GCM-verschlüsselt
+  updatedAt    DateTime @updatedAt
+  updatedBy    String?
+}
+
 /// Verschlüsselte Drittanbieter-Zugangsdaten (Intervals.icu: statischer
 /// API-Key; Strava/Wahoo/Withings: OAuth2 Access-/Refresh-Token).
 model UserIntegration {
