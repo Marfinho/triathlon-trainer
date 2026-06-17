@@ -159,6 +159,7 @@ export function RacePredictions({
             renntypische Intensität. Tatsächliche Zeiten hängen von Strecke, Wetter
             und Tagesform ab
             {profile.ctl != null ? ` (aktuelle Fitness CTL ${Math.round(profile.ctl)})` : ""}.
+            {profile.bikeReference ? " Rad-Modell aus eigener Bestleistung kalibriert." : ""}
           </p>
         </div>
       )}

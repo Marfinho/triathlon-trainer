@@ -36,7 +36,11 @@ import { BackupRestore } from "@/components/dashboard/BackupRestore";
 import { TrainingCalculators } from "@/components/dashboard/TrainingCalculators";
 import { RacePlanner, type Race } from "@/components/dashboard/RacePlanner";
 import { RacePredictions } from "@/components/dashboard/RacePredictions";
-import { resolveRunReference } from "@/domain/training/prediction";
+import {
+  resolveRunReference,
+  calibrateRiegelExponent,
+  bestBikeReference,
+} from "@/domain/training/prediction";
 import {
   TrainerControl,
   type TrainerWorkout,
@@ -147,7 +151,7 @@ export default async function DashboardPage() {
     prisma.actualActivity.findMany({
       where: { userId, date: { gte: loadWindowStart } },
       orderBy: { date: "asc" },
-      select: { date: true, sport: true, durationMin: true, distanceKm: true, load: true, rpe: true, avgHr: true },
+      select: { date: true, sport: true, durationMin: true, distanceKm: true, load: true, rpe: true, avgHr: true, avgPower: true },
     }),
     prisma.raceEvent.findMany({ where: { userId }, orderBy: { date: "asc" } }),
     prisma.gearItem.findMany({ where: { userId }, orderBy: { createdAt: "asc" } }),
@@ -425,6 +429,21 @@ export default async function DashboardPage() {
                         durationMin: a.durationMin,
                       })),
                     }),
+                    riegelExponent: calibrateRiegelExponent(
+                      loadActivities.map((a) => ({
+                        sport: a.sport,
+                        distanceKm: a.distanceKm,
+                        durationMin: a.durationMin,
+                      })),
+                    ).exponent,
+                    bikeReference: bestBikeReference(
+                      loadActivities.map((a) => ({
+                        sport: a.sport,
+                        distanceKm: a.distanceKm,
+                        durationMin: a.durationMin,
+                        avgPower: a.avgPower,
+                      })),
+                    ),
                   }}
                   races={racesData.map((r) => ({
                     id: r.id,

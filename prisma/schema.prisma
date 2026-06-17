@@ -269,6 +269,7 @@ model ActualActivity {
   load        Float?
   rpe         Float?
   avgHr       Int?
+  avgPower    Int?
   notes       String?
   rawJson     Json?
   createdAt   DateTime @default(now())

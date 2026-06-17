@@ -83,6 +83,8 @@ export async function importActivitiesFromIntervals(
         typeof a.average_heartrate === "number"
           ? Math.round(a.average_heartrate)
           : null,
+      avgPower:
+        typeof a.average_watts === "number" ? Math.round(a.average_watts) : null,
       rawJson: a as object,
     };
 

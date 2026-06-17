@@ -38,6 +38,7 @@ export interface IntervalsActivity {
   distance?: number;
   icu_training_load?: number;
   average_heartrate?: number;
+  average_watts?: number;
 }
 
 export interface IntervalsClient {

@@ -2,9 +2,14 @@
  * Wettkampfzeit-Vorhersage (rein/testbar).
  *
  * Schätzt Renn­zeiten aus den distillierten Trainingsdaten des Athleten:
- *   - Laufen:    Schwellen-Pace + Riegel-Endurance-Formel (T2 = T1·(D2/D1)^1.06)
+ *   - Laufen:    Schwellen-Pace + Riegel-Endurance-Formel (T2 = T1·(D2/D1)^Exponent)
  *   - Rad:       FTP + intensitätsabhängiger Anteil + Power-Speed-Modell (v∝P^⅓)
  *   - Schwimmen: CSS-Pace (Sekunden/100 m) × distanzabhängiger Faktor
+ *
+ * Riegel-Exponent und Power-Speed-Referenz sind als generische Defaults
+ * hinterlegt, werden aber, wenn genug eigene Aktivitäten vorliegen, durch
+ * `calibrateRiegelExponent`/`bestBikeReference` aus den realen Bestleistungen
+ * des Athleten ersetzt (siehe unten) – individueller als fixe Konstanten.
  *
  * Alle Werte sind Schätzungen und ersetzen keine Renn­erfahrung. Annahmen sind
  * bewusst transparent gehalten.
@@ -25,11 +30,18 @@ export interface PredictionProfile {
   ctl?: number | null;
   /** Optionale Lauf-Referenz aus realen Aktivitäten (überschreibt die Schwelle). */
   runReference?: RunReference | null;
+  /** Personalisierter Riegel-Exponent (aus eigenen Bestleistungen kalibriert). */
+  riegelExponent?: number | null;
+  /** Personalisierte Power-Speed-Referenz (aus einer eigenen Bestleistung kalibriert). */
+  bikeReference?: BikeReference | null;
 }
 
 const RIEGEL_EXP = 1.06;
+const RIEGEL_EXP_MIN = 1.0;
+const RIEGEL_EXP_MAX = 1.15;
 
 // Power-Speed-Referenz: flotter age-grouper in TT-Position auf flachem Kurs.
+// Default, solange keine eigene Bestleistung mit Leistungsmesser vorliegt.
 const BIKE_V_REF_KMH = 36;
 const BIKE_P_REF_W = 200;
 
@@ -69,10 +81,11 @@ export const TRI_DISTANCES: TriProfile[] = [
 export function predictRunTime(
   distanceKm: number,
   thresholdPaceSecPerKm: number,
+  exponent = RIEGEL_EXP,
 ): number {
   // Schwellenpace ≈ Tempo, das ~1 h gehalten werden kann.
   const refDistKm = 3600 / thresholdPaceSecPerKm;
-  return Math.round(3600 * (distanceKm / refDistKm) ** RIEGEL_EXP);
+  return Math.round(3600 * (distanceKm / refDistKm) ** exponent);
 }
 
 export interface RunSample {
@@ -150,8 +163,52 @@ export function resolveRunReference(opts: {
 export function predictRunFromReference(
   distanceKm: number,
   ref: RunReference,
+  exponent = RIEGEL_EXP,
 ): number {
-  return Math.round(ref.timeSec * (distanceKm / ref.distanceKm) ** RIEGEL_EXP);
+  return Math.round(ref.timeSec * (distanceKm / ref.distanceKm) ** exponent);
+}
+
+export interface RiegelCalibration {
+  exponent: number;
+  source: "personal" | "default";
+}
+
+/**
+ * Berechnet einen personalisierten Riegel-Exponenten aus zwei unterschiedlich
+ * langen Bestleistungen (log-log-Regression: Exponent = ln(T2/T1)/ln(D2/D1)).
+ * Braucht mindestens zwei Distanzen mit ausreichendem Abstand (>30%), sonst
+ * ist die Schätzung zu instabil und der Default wird beibehalten. Das
+ * Ergebnis wird auf einen physiologisch plausiblen Bereich begrenzt.
+ */
+export function calibrateRiegelExponent(runs: RunSample[]): RiegelCalibration {
+  const bestByDistanceBucket = new Map<number, { distanceKm: number; timeSec: number }>();
+  for (const r of runs) {
+    if (r.sport !== "run" || !r.distanceKm || !r.durationMin) continue;
+    if (r.distanceKm < 3) continue;
+    const bucket = Math.round(r.distanceKm);
+    const timeSec = r.durationMin * 60;
+    const existing = bestByDistanceBucket.get(bucket);
+    if (!existing || timeSec < existing.timeSec) {
+      bestByDistanceBucket.set(bucket, { distanceKm: r.distanceKm, timeSec });
+    }
+  }
+
+  const distinct = [...bestByDistanceBucket.values()].sort(
+    (a, b) => a.distanceKm - b.distanceKm,
+  );
+  if (distinct.length < 2) return { exponent: RIEGEL_EXP, source: "default" };
+
+  const shortest = distinct[0];
+  const longest = distinct[distinct.length - 1];
+  if (longest.distanceKm / shortest.distanceKm < 1.3) {
+    return { exponent: RIEGEL_EXP, source: "default" };
+  }
+
+  const exponent =
+    Math.log(longest.timeSec / shortest.timeSec) /
+    Math.log(longest.distanceKm / shortest.distanceKm);
+  const clamped = Math.min(RIEGEL_EXP_MAX, Math.max(RIEGEL_EXP_MIN, exponent));
+  return { exponent: Math.round(clamped * 1000) / 1000, source: "personal" };
 }
 
 /** Ermittelt die zu verwendende Lauf-Referenz aus einem Profil. */
@@ -162,15 +219,56 @@ function runRefFromProfile(profile: PredictionProfile): RunReference | null {
   return null;
 }
 
+export interface BikeReference {
+  vRefKmh: number;
+  pRefW: number;
+}
+
 /** Rad-Zeit (Sekunden) aus FTP, Intensität und Power-Speed-Modell. */
 export function predictBikeTime(
   distanceKm: number,
   ftp: number,
   intensityFactor: number,
+  reference: BikeReference = { vRefKmh: BIKE_V_REF_KMH, pRefW: BIKE_P_REF_W },
 ): number {
   const power = ftp * intensityFactor;
-  const speed = BIKE_V_REF_KMH * (power / BIKE_P_REF_W) ** (1 / 3);
+  const speed = reference.vRefKmh * (power / reference.pRefW) ** (1 / 3);
   return Math.round((distanceKm / speed) * 3600);
+}
+
+export interface BikeSample {
+  sport: string;
+  distanceKm: number | null;
+  durationMin: number | null;
+  avgPower: number | null;
+}
+
+/**
+ * Personalisierte Power-Speed-Referenz aus der eigenen Bestleistung: die
+ * Fahrt mit der höchsten gehaltenen Leistung in einem renntypischen
+ * Dauerfenster (20–240 min, schließt kurze Sprints/sehr lange Grundlagen-
+ * fahrten mit verzerrtem Ø-Power aus). Ersetzt die generische
+ * Age-Grouper-Annahme durch eine real demonstrierte Geschwindigkeit bei
+ * bekannter Leistung.
+ */
+export function bestBikeReference(
+  rides: BikeSample[],
+  opts: { minDurationMin?: number; maxDurationMin?: number } = {},
+): BikeReference | null {
+  const minDurationMin = opts.minDurationMin ?? 20;
+  const maxDurationMin = opts.maxDurationMin ?? 240;
+  let best: BikeReference | null = null;
+  let bestPower = 0;
+  for (const r of rides) {
+    if (r.sport !== "bike") continue;
+    if (!r.distanceKm || !r.durationMin || !r.avgPower) continue;
+    if (r.durationMin < minDurationMin || r.durationMin > maxDurationMin) continue;
+    if (r.avgPower > bestPower) {
+      bestPower = r.avgPower;
+      best = { vRefKmh: r.distanceKm / (r.durationMin / 60), pRefW: r.avgPower };
+    }
+  }
+  return best;
 }
 
 /** Schwimm-Zeit (Sekunden) aus CSS-Pace und Distanzfaktor. */
@@ -204,12 +302,23 @@ export function predictTriathlon(
       : null;
   const bikeSec =
     profile.ftpWatts != null
-      ? predictBikeTime(tri.bikeKm, profile.ftpWatts, tri.bikeIF)
+      ? predictBikeTime(
+          tri.bikeKm,
+          profile.ftpWatts,
+          tri.bikeIF,
+          profile.bikeReference ?? undefined,
+        )
       : null;
   const runRef = runRefFromProfile(profile);
   const runSec =
     runRef != null
-      ? Math.round(predictRunFromReference(tri.runKm, runRef) * tri.runPenalty)
+      ? Math.round(
+          predictRunFromReference(
+            tri.runKm,
+            runRef,
+            profile.riegelExponent ?? undefined,
+          ) * tri.runPenalty,
+        )
       : null;
 
   const legs = [swimSec, bikeSec, runSec];
@@ -265,7 +374,7 @@ export function matchRacePrediction(
   if (run && runRef) {
     return {
       label: run.label,
-      totalSec: predictRunFromReference(run.km, runRef),
+      totalSec: predictRunFromReference(run.km, runRef, profile.riegelExponent ?? undefined),
     };
   }
   return null;
