@@ -537,3 +537,21 @@ model TrainingGoal {
   @@unique([userId, sport])
   @@index([userId])
 }
+
+/// Audit-Log für sicherheitsrelevante Aktionen (Registrierung, Login,
+/// Passwortwechsel, Datenexport, Kontolöschung). Bewusst ohne harte FK-Relation
+/// auf User, damit auch Ereignisse ohne bekannten Nutzer (z. B. fehlgeschlagene
+/// Logins) protokolliert werden können und ein Konto-Löschen die Historie nicht
+/// kaskadierend mitlöscht.
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  action    String
+  ip        String?
+  meta      Json?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+}

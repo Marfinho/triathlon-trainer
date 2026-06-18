@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/auth-guard";
+import { sanitizeOptionalText } from "@/domain/security/sanitize";
 
 /**
  * GET /api/races/:id/nutrition – Verpflegungsplan eines Rennens (oder null).
@@ -55,7 +56,7 @@ export async function PUT(
     caffeineMg: toIntOrNull(body.caffeineMg),
     bikeCarbsGPerHour: toIntOrNull(body.bikeCarbsGPerHour),
     runCarbsGPerHour: toIntOrNull(body.runCarbsGPerHour),
-    notes: typeof body.notes === "string" ? body.notes : null,
+    notes: sanitizeOptionalText(body.notes, 2000),
     checklistJson: Array.isArray(body.checklist)
       ? (body.checklist as Prisma.InputJsonValue)
       : Prisma.JsonNull,

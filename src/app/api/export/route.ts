@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/auth-guard";
 import { activitiesToCsv } from "@/domain/export/csv";
+import { recordAudit } from "@/lib/audit";
+import { clientIp } from "@/lib/rate-limit";
 
 /**
  * GET /api/export?format=json|csv
@@ -17,6 +19,8 @@ export async function GET(request: Request) {
 
   const format = new URL(request.url).searchParams.get("format") ?? "json";
   const stamp = new Date().toISOString().slice(0, 10);
+
+  await recordAudit({ userId, action: "data_exported", ip: clientIp(request), meta: { format } });
 
   if (format === "csv") {
     const activities = await prisma.actualActivity.findMany({

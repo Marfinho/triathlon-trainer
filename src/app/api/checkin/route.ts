@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/auth-guard";
+import { sanitizeOptionalText } from "@/domain/security/sanitize";
 
 /**
  * POST /api/checkin – Tages-Check-in: legt einen Readiness- und/oder
@@ -35,6 +36,7 @@ export async function POST(request: Request) {
     typeof v === "number" && Number.isFinite(v) ? Math.round(v) : null;
   const strOrNull = (v: unknown): string | null =>
     typeof v === "string" && v ? v : null;
+  const notesOrNull = (v: unknown): string | null => sanitizeOptionalText(v, 2000);
 
   const created: { readiness?: string; pain?: string } = {};
 
@@ -48,7 +50,7 @@ export async function POST(request: Request) {
         hrvTrend: strOrNull(r.hrvTrend),
         restingHrTrend: strOrNull(r.restingHrTrend),
         subjectiveFatigue: intOrNull(r.subjectiveFatigue),
-        notes: strOrNull(r.notes),
+        notes: notesOrNull(r.notes),
       },
     });
     created.readiness = snap.id;
@@ -64,7 +66,7 @@ export async function POST(request: Request) {
         achilles: intOrNull(p.achilles),
         calf: intOrNull(p.calf),
         back: intOrNull(p.back),
-        notes: strOrNull(p.notes),
+        notes: notesOrNull(p.notes),
       },
     });
     created.pain = snap.id;

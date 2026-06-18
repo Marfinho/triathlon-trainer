@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/auth-guard";
+import { sanitizeText } from "@/domain/security/sanitize";
 
 /**
  * GET    /api/journal       – letzte Einträge.
@@ -32,7 +33,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, error: "Ungültiger Body." }, { status: 400 });
   }
 
-  const text = typeof body.text === "string" ? body.text.trim() : "";
+  const text = sanitizeText(body.text, 5000);
   if (!text) {
     return NextResponse.json({ ok: false, error: "Text erforderlich." }, { status: 400 });
   }

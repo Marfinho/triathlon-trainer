@@ -6,6 +6,7 @@ import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/db";
 import { authConfig } from "@/auth.config";
 import { checkRateLimit, clientIp } from "@/lib/rate-limit";
+import { recordAudit } from "@/lib/audit";
 
 /**
  * Vollständige Auth.js-Konfiguration (Node-Runtime).
@@ -16,7 +17,14 @@ import { checkRateLimit, clientIp } from "@/lib/rate-limit";
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
   adapter: PrismaAdapter(prisma),
-  session: { strategy: "jwt" },
+  // Session-Härtung: begrenzte Lebensdauer (7 Tage), tägliche Rotation des
+  // JWT und – in Produktion – ausschließlich über HTTPS gesetzte Cookies.
+  session: {
+    strategy: "jwt",
+    maxAge: 60 * 60 * 24 * 7,
+    updateAge: 60 * 60 * 24,
+  },
+  useSecureCookies: process.env.NODE_ENV === "production",
   providers: [
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID,
@@ -44,11 +52,18 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (!ipLimit.allowed || !emailLimit.allowed) return null;
 
         const user = await prisma.user.findUnique({ where: { email } });
-        if (!user?.passwordHash) return null;
+        if (!user?.passwordHash) {
+          await recordAudit({ action: "login_failed", ip, meta: { reason: "unknown_user" } });
+          return null;
+        }
 
         const ok = await bcrypt.compare(password, user.passwordHash);
-        if (!ok) return null;
+        if (!ok) {
+          await recordAudit({ userId: user.id, action: "login_failed", ip });
+          return null;
+        }
 
+        await recordAudit({ userId: user.id, action: "login_success", ip });
         return { id: user.id, email: user.email, name: user.name ?? undefined };
       },
     }),

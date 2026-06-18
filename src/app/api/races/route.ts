@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/auth-guard";
 import { getEffectiveLimits } from "@/lib/plan-config";
+import { sanitizeText, sanitizeOptionalText } from "@/domain/security/sanitize";
 
 /**
  * GET  /api/races  – kommende & jüngst vergangene Rennen (chronologisch).
@@ -31,7 +32,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, error: "Ungültiger Body." }, { status: 400 });
   }
 
-  const name = typeof body.name === "string" ? body.name.trim() : "";
+  const name = sanitizeText(body.name, 200);
   const dateStr = typeof body.date === "string" ? body.date : "";
   if (!name || !dateStr) {
     return NextResponse.json(
@@ -57,9 +58,9 @@ export async function POST(request: Request) {
       name,
       date: new Date(`${dateStr.slice(0, 10)}T00:00:00Z`),
       type: typeof body.type === "string" ? body.type : "triathlon",
-      distance: typeof body.distance === "string" ? body.distance : null,
+      distance: sanitizeOptionalText(body.distance, 60),
       priority: typeof body.priority === "string" ? body.priority : "B",
-      notes: typeof body.notes === "string" ? body.notes : null,
+      notes: sanitizeOptionalText(body.notes, 2000),
     },
   });
 
