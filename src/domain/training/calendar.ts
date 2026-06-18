@@ -1,4 +1,5 @@
 import { formatIsoDate, addDays, mondayOfIso, parseIsoDate } from "./dates";
+import type { ProfileSegmentInput } from "./workoutProfile";
 
 /**
  * Trainingskalender (rein/testbar). Baut ein Wochengitter (Mo–So) und ordnet je
@@ -15,6 +16,7 @@ export interface CalendarPlanned {
   plannedDistanceM?: number | null;
   rpe?: number | null;
   description?: string | null;
+  segments?: ProfileSegmentInput[] | null;
 }
 
 export interface CalendarActual {
@@ -38,6 +40,7 @@ export interface CalendarItem {
   rpe?: number | null;
   avgHr?: number | null;
   description?: string | null;
+  segments?: ProfileSegmentInput[] | null;
 }
 
 export interface CalendarDay {
@@ -96,6 +99,7 @@ export function buildCalendar(
             typeof p.plannedDistanceM === "number" ? p.plannedDistanceM / 1000 : null,
           rpe: p.rpe ?? null,
           description: p.description ?? null,
+          segments: p.segments ?? null,
         });
       }
       for (const a of actualByDay.get(date) ?? []) {

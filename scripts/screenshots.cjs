@@ -96,10 +96,17 @@ async function shoot(page, name, { fullPage = false } = {}) {
     await shoot(page, name, { fullPage: true });
   }
 
-  // Kalender-Detail-Modal (erster Tag mit Einheiten).
+  // Kalender-Detail-Modal: gezielt der morgige Tag (geplante Intervall-Einheit
+  // mit Leistungsprofil); Fallback auf den ersten Tag mit Einheiten.
   await selectTab("Kalender");
   await page.waitForTimeout(800);
-  const dayBtn = page.locator('[aria-label*="Details öffnen"]').first();
+  const tomorrow = new Date();
+  tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
+  const tomorrowIso = tomorrow.toISOString().slice(0, 10);
+  let dayBtn = page.locator(`[aria-label^="${tomorrowIso}"][aria-label*="Details"]`).first();
+  if (!(await dayBtn.count())) {
+    dayBtn = page.locator('[aria-label*="Details öffnen"]').first();
+  }
   if (await dayBtn.count()) {
     await dayBtn.click();
     await page.waitForSelector('[role="dialog"]', { timeout: 5000 });

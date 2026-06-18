@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Card, sportLabel, sportColor } from "./Card";
+import { WorkoutProfile } from "./WorkoutProfile";
 import type { CalendarDay, CalendarItem } from "@/domain/training/calendar";
 
 const WEEKDAYS = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"];
@@ -37,7 +38,13 @@ function fmtFullDate(iso: string): string {
   });
 }
 
-export function TrainingCalendar({ grid }: { grid: CalendarDay[][] }) {
+export function TrainingCalendar({
+  grid,
+  ftp = 200,
+}: {
+  grid: CalendarDay[][];
+  ftp?: number;
+}) {
   const [openDay, setOpenDay] = useState<CalendarDay | null>(null);
 
   return (
@@ -96,7 +103,9 @@ export function TrainingCalendar({ grid }: { grid: CalendarDay[][] }) {
         })}
       </div>
       <Legend />
-      {openDay ? <DayModal day={openDay} onClose={() => setOpenDay(null)} /> : null}
+      {openDay ? (
+        <DayModal day={openDay} ftp={ftp} onClose={() => setOpenDay(null)} />
+      ) : null}
     </Card>
   );
 }
@@ -158,7 +167,15 @@ function Chip({ item }: { item: CalendarItem }) {
   );
 }
 
-function DayModal({ day, onClose }: { day: CalendarDay; onClose: () => void }) {
+function DayModal({
+  day,
+  ftp,
+  onClose,
+}: {
+  day: CalendarDay;
+  ftp: number;
+  onClose: () => void;
+}) {
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
       if (e.key === "Escape") onClose();
@@ -203,7 +220,7 @@ function DayModal({ day, onClose }: { day: CalendarDay; onClose: () => void }) {
                 </h4>
                 <ul className="space-y-2">
                   {planned.map((it, i) => (
-                    <DetailRow key={i} item={it} />
+                    <DetailRow key={i} item={it} ftp={ftp} />
                   ))}
                 </ul>
               </section>
@@ -215,7 +232,7 @@ function DayModal({ day, onClose }: { day: CalendarDay; onClose: () => void }) {
                 </h4>
                 <ul className="space-y-2">
                   {actual.map((it, i) => (
-                    <DetailRow key={i} item={it} />
+                    <DetailRow key={i} item={it} ftp={ftp} />
                   ))}
                 </ul>
               </section>
@@ -227,7 +244,7 @@ function DayModal({ day, onClose }: { day: CalendarDay; onClose: () => void }) {
   );
 }
 
-function DetailRow({ item }: { item: CalendarItem }) {
+function DetailRow({ item, ftp }: { item: CalendarItem; ftp: number }) {
   const color = sportColor(item.sport);
   const facts: string[] = [`${item.durationMin}′`];
   if (item.distanceKm != null && item.distanceKm > 0) {
@@ -259,6 +276,11 @@ function DetailRow({ item }: { item: CalendarItem }) {
       </p>
       {item.description ? (
         <p className="mt-1.5 text-xs text-neutral-500">{item.description}</p>
+      ) : null}
+      {item.kind === "planned" && item.segments && item.segments.length > 0 ? (
+        <div className="mt-3">
+          <WorkoutProfile segments={item.segments} ftp={ftp} sport={item.sport} />
+        </div>
       ) : null}
     </li>
   );

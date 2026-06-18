@@ -30,9 +30,9 @@ Der Austausch mit dem LLM funktioniert auf **zwei Wegen**:
 
 ## Screenshots
 
-| Form & Planung | Kalender (Tag-Detail im Modal) |
+| Form & Planung | Geplante Einheit: Leistungsprofil im Modal |
 |---|---|
-| ![Dashboard Form & Planung](docs/screenshots/03-dashboard-form.png) | ![Kalender mit Detail-Modal](docs/screenshots/08-calendar-modal.png) |
+| ![Dashboard Form & Planung](docs/screenshots/03-dashboard-form.png) | ![Kalender mit Leistungsprofil-Modal](docs/screenshots/08-calendar-modal.png) |
 
 | Analyse (Form-Forecast & Taper) | Trainingskalender |
 |---|---|
@@ -64,8 +64,11 @@ Der Austausch mit dem LLM funktioniert auf **zwei Wegen**:
 - **Wettkampf-Prognosen** – Lauf/Rad/Schwimm-Zeiten, aus eigenen Daten kalibriert.
 - **Plan vs. Ist** – Gesamt- und Wochen-Compliance plus Detailabgleich.
 - **Trainingskalender** (eigener Tab) – Wochengitter mit geplant (Umriss) vs.
-  absolviert (gefüllt); Klick auf einen Tag öffnet ein Detail-Modal
-  (Dauer, Distanz, Load, HF, RPE, Status, Beschreibung).
+  absolviert (gefüllt); Klick auf einen Tag öffnet ein Detail-Modal. Geplante
+  Einheiten zeigen ein **grafisches Leistungsprofil** (Segmente über die Zeit,
+  Höhe = %FTP, Farbe = Zone) plus Segmentliste mit Ziel-Watt, Trittfrequenz und
+  Beschreibung – „was erwartet mich?". Absolvierte Einheiten zeigen Dauer,
+  Distanz, Load, HF und RPE.
 - **Wochenziele**, **Saison-Statistik & Bestwerte**.
 
 **Wettkampf**

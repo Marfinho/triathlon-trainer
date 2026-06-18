@@ -24,6 +24,7 @@ import { FormFitness } from "@/components/dashboard/FormFitness";
 import { TrainingZones } from "@/components/dashboard/TrainingZones";
 import { TrainingCalendar } from "@/components/dashboard/TrainingCalendar";
 import { buildCalendar } from "@/domain/training/calendar";
+import type { ProfileSegmentInput } from "@/domain/training/workoutProfile";
 import { SeasonStatsCard } from "@/components/dashboard/SeasonStats";
 import { buildSeasonStats } from "@/domain/training/stats";
 import { WeeklyGoals } from "@/components/dashboard/WeeklyGoals";
@@ -303,6 +304,9 @@ export default async function DashboardPage() {
       plannedDistanceM: w.plannedDistanceM,
       rpe: w.rpe,
       description: w.description,
+      segments: Array.isArray(w.segmentsJson)
+        ? (w.segmentsJson as unknown as ProfileSegmentInput[])
+        : null,
     })),
     rangeActuals.map((a) => ({
       date: a.date,
@@ -551,7 +555,9 @@ export default async function DashboardPage() {
           {
             id: "kalender",
             label: "Kalender",
-            content: <TrainingCalendar grid={calendarGrid} />,
+            content: (
+              <TrainingCalendar grid={calendarGrid} ftp={athlete?.ftpWatts ?? 200} />
+            ),
           },
           {
             id: "analyse",
