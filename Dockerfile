@@ -41,6 +41,7 @@ ENV PORT=3000
 
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=build /app/.next ./.next
+COPY --from=build /app/public ./public
 COPY package.json next.config.ts ./
 COPY prisma ./prisma
 COPY docker-entrypoint.sh ./

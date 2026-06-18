@@ -1,0 +1,79 @@
+name: CI & Deploy
+
+# Bei jedem Push auf main: erst testen/bauen, dann (nur bei Erfolg) per SSH
+# auf den VPS deployen. Manueller Start über die Actions-Oberfläche möglich.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Verhindert überlappende Deploys, wenn schnell hintereinander gemergt wird.
+concurrency:
+  group: deploy-main
+  cancel-in-progress: false
+
+jobs:
+  ci:
+    name: Test & Build
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: localhub
+          POSTGRES_PASSWORD: localhub
+          POSTGRES_DB: localhub_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U localhub"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://localhub:localhub@localhost:5432/localhub_test
+      TEST_DATABASE_URL: postgresql://localhub:localhub@localhost:5432/localhub_test
+      # Dummy-Secrets, damit der Build nicht an fehlenden Env-Vars scheitert.
+      NEXTAUTH_SECRET: ci-dummy-secret-not-used-in-prod
+      AUTH_SECRET: ci-dummy-secret-not-used-in-prod
+      ENCRYPTION_KEY: ci-dummy-encryption-key-not-used
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Prisma Client generieren
+        run: npx prisma generate
+      - name: Typecheck
+        run: npx tsc --noEmit
+      - name: Tests
+        run: npm run test
+      - name: Build
+        run: npm run build
+
+  deploy:
+    name: Deploy über SSH
+    needs: ci
+    runs-on: ubuntu-latest
+    # Nur echte Pushes/Manueller Trigger auf main – nicht für Forks o. Ä.
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: SSH-Deploy auf den VPS
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script_stop: true
+          script: |
+            set -euo pipefail
+            cd "${{ secrets.DEPLOY_PATH }}"
+            git fetch --all --prune
+            git reset --hard origin/main
+            docker compose pull db
+            docker compose up -d --build
+            docker image prune -f
+            echo "Deploy abgeschlossen: $(git rev-parse --short HEAD)"
