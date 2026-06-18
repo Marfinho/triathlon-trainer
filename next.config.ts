@@ -1,5 +1,13 @@
 import type { NextConfig } from "next";
 
+// Im Dev-Modus benötigt Next.js (React Refresh / HMR) `eval`; in Produktion
+// nicht. Daher wird `'unsafe-eval'` ausschließlich in der Entwicklung erlaubt,
+// damit die Produktions-CSP streng bleibt.
+const isDev = process.env.NODE_ENV !== "production";
+const scriptSrc = isDev
+  ? "script-src 'self' 'unsafe-inline' 'unsafe-eval'"
+  : "script-src 'self' 'unsafe-inline'";
+
 /**
  * Content-Security-Policy. Bewusst pragmatisch: Next.js injiziert Inline-
  * Bootstrap-Skripte und Tailwind Inline-Styles, daher 'unsafe-inline'. Der
@@ -9,7 +17,7 @@ import type { NextConfig } from "next";
  */
 const csp = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline'",
+  scriptSrc,
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: https:",
   "font-src 'self'",
