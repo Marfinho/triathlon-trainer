@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/auth-guard";
+import { sanitizeText } from "@/domain/security/sanitize";
 
 /** PATCH /api/profile/account – Account-Anzeigename ändern. Body: { name } */
 export async function PATCH(request: Request) {
@@ -15,7 +16,7 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ ok: false, error: "Ungültiger Body." }, { status: 400 });
   }
 
-  const name = typeof body.name === "string" ? body.name.trim() : "";
+  const name = sanitizeText(body.name, 120);
   if (!name) {
     return NextResponse.json({ ok: false, error: "Name ist erforderlich." }, { status: 400 });
   }

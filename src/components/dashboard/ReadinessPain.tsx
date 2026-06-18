@@ -43,11 +43,17 @@ export function ReadinessPain({
   pain,
   fatigueTrend,
   painTrend,
+  computedHrvTrend,
+  computedRestingHrTrend,
 }: {
   readiness: ReadinessData | null;
   pain: PainData | null;
   fatigueTrend: (number | null)[];
   painTrend: (number | null)[];
+  /** Aus den HRV-Körpermetriken berechnete Tendenz (überschreibt die manuelle Angabe). */
+  computedHrvTrend?: string | null;
+  /** Aus den Ruhepuls-Körpermetriken berechnete Tendenz (überschreibt die manuelle Angabe). */
+  computedRestingHrTrend?: string | null;
 }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -55,9 +61,13 @@ export function ReadinessPain({
   const [f, setF] = useState({
     status: "green",
     subjectiveFatigue: 3,
+    sleepTrend: "",
     overall: 1,
     achilles: 0,
     knee: 0,
+    calf: 0,
+    back: 0,
+    notes: "",
   });
 
   async function save() {
@@ -70,11 +80,15 @@ export function ReadinessPain({
           readiness: {
             status: f.status,
             subjectiveFatigue: f.subjectiveFatigue,
+            sleepTrend: f.sleepTrend || undefined,
+            notes: f.notes || undefined,
           },
           pain: {
             overall: f.overall,
             achilles: f.achilles,
             knee: f.knee,
+            calf: f.calf,
+            back: f.back,
           },
         }),
       });
@@ -84,6 +98,9 @@ export function ReadinessPain({
       setSaving(false);
     }
   }
+
+  const hrvTrend = computedHrvTrend ?? readiness?.hrvTrend ?? null;
+  const restingHrTrend = computedRestingHrTrend ?? readiness?.restingHrTrend ?? null;
 
   return (
     <Card
@@ -117,6 +134,19 @@ export function ReadinessPain({
             value={f.subjectiveFatigue}
             onChange={(v) => setF({ ...f, subjectiveFatigue: v })}
           />
+          <label className="text-xs text-neutral-500">
+            Schlaf
+            <select
+              value={f.sleepTrend}
+              onChange={(e) => setF({ ...f, sleepTrend: e.target.value })}
+              className="mt-1 block w-full rounded-lg border border-neutral-300 bg-white px-2 py-1.5 text-sm"
+            >
+              <option value="">— keine Angabe —</option>
+              <option value="besser">besser</option>
+              <option value="gleich">gleich</option>
+              <option value="schlechter">schlechter</option>
+            </select>
+          </label>
           <RangeField
             label={`Schmerz gesamt (${f.overall})`}
             value={f.overall}
@@ -132,6 +162,25 @@ export function ReadinessPain({
             value={f.knee}
             onChange={(v) => setF({ ...f, knee: v })}
           />
+          <RangeField
+            label={`Wade (${f.calf})`}
+            value={f.calf}
+            onChange={(v) => setF({ ...f, calf: v })}
+          />
+          <RangeField
+            label={`Rücken (${f.back})`}
+            value={f.back}
+            onChange={(v) => setF({ ...f, back: v })}
+          />
+          <label className="col-span-2 text-xs text-neutral-500 sm:col-span-3">
+            Notizen
+            <textarea
+              value={f.notes}
+              onChange={(e) => setF({ ...f, notes: e.target.value })}
+              rows={2}
+              className="mt-1 block w-full rounded-lg border border-neutral-300 bg-white px-2 py-1.5 text-sm"
+            />
+          </label>
           <div className="flex items-end">
             <button
               onClick={save}
@@ -161,16 +210,28 @@ export function ReadinessPain({
                 />
               ) : null}
             </h3>
-            {readiness ? (
+            {readiness || hrvTrend || restingHrTrend ? (
               <dl className="space-y-1.5 text-sm">
-                <Row label="Status" value={readiness.status ?? "—"} />
-                <Row label="Schlaf" value={readiness.sleepTrend ?? "—"} />
-                <Row label="HRV" value={readiness.hrvTrend ?? "—"} />
+                <Row label="Status" value={readiness?.status ?? "—"} />
+                <Row label="Schlaf" value={readiness?.sleepTrend ?? "—"} />
+                <Row
+                  label="HRV"
+                  value={hrvTrend ?? "—"}
+                  auto={computedHrvTrend != null}
+                />
+                <Row
+                  label="Ruhepuls"
+                  value={restingHrTrend ?? "—"}
+                  auto={computedRestingHrTrend != null}
+                />
                 <Row
                   label="Subj. Müdigkeit"
-                  value={String(readiness.subjectiveFatigue ?? "—")}
+                  value={String(readiness?.subjectiveFatigue ?? "—")}
                 />
               </dl>
+            ) : null}
+            {readiness?.notes ? (
+              <p className="mt-2 text-xs italic text-neutral-500">{readiness.notes}</p>
             ) : null}
             <div className="mt-2 text-blue-500">
               <p className="mb-0.5 text-[11px] text-neutral-400">Müdigkeit (Verlauf)</p>
@@ -219,11 +280,29 @@ export function ReadinessPain({
   );
 }
 
-function Row({ label, value }: { label: string; value: string }) {
+function Row({
+  label,
+  value,
+  auto,
+}: {
+  label: string;
+  value: string;
+  auto?: boolean;
+}) {
   return (
     <div className="flex justify-between">
       <dt className="text-neutral-500">{label}</dt>
-      <dd className="font-medium text-neutral-800">{value}</dd>
+      <dd className="font-medium text-neutral-800">
+        {value}
+        {auto ? (
+          <span
+            title="Automatisch aus den Körpermetriken berechnet"
+            className="ml-1.5 rounded-full bg-blue-50 px-1.5 py-0.5 text-[10px] font-normal text-blue-500"
+          >
+            auto
+          </span>
+        ) : null}
+      </dd>
     </div>
   );
 }

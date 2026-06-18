@@ -20,13 +20,34 @@ interface ValidationError {
   path?: string;
 }
 
+interface PreviewDay {
+  date: string;
+  entry: { sport: string; title: string; plannedDurationMin: number };
+  existing: { title?: string; status: string } | null;
+  action: "create" | "replace" | "protected" | "rest";
+}
+
+const ACTION_LABEL: Record<PreviewDay["action"], string> = {
+  create: "neu",
+  replace: "ersetzt",
+  protected: "geschützt",
+  rest: "ruhe",
+};
+
+const ACTION_CLASS: Record<PreviewDay["action"], string> = {
+  create: "bg-blue-50 text-blue-700",
+  replace: "bg-amber-50 text-amber-700",
+  protected: "bg-rose-50 text-rose-700",
+  rest: "bg-neutral-100 text-neutral-500",
+};
+
 function tomorrowIso(): string {
   const d = new Date();
   d.setUTCDate(d.getUTCDate() + 1);
   return d.toISOString().slice(0, 10);
 }
 
-export function ChatGptExchange() {
+export function ChatGptExchange({ llmConfigured }: { llmConfigured?: boolean }) {
   const router = useRouter();
 
   // --- CoachSummary-Export ---
@@ -37,11 +58,16 @@ export function ChatGptExchange() {
   const [copyLabel, setCopyLabel] = useState("Kopieren");
   const [exporting, setExporting] = useState(false);
 
+  // --- Direkte LLM-Generierung ---
+  const [generating, setGenerating] = useState(false);
+  const [generateError, setGenerateError] = useState<string | null>(null);
+
   // --- Planimport ---
   const [planInput, setPlanInput] = useState("");
   const [errors, setErrors] = useState<ValidationError[]>([]);
   const [info, setInfo] = useState<string | null>(null);
   const [importing, setImporting] = useState(false);
+  const [previewDays, setPreviewDays] = useState<PreviewDay[]>([]);
 
   async function generateSummary() {
     setExporting(true);
@@ -55,6 +81,30 @@ export function ChatGptExchange() {
       setSummaryJson(JSON.stringify(data.summary, null, 2));
     } finally {
       setExporting(false);
+    }
+  }
+
+  async function generateViaLlm() {
+    setGenerating(true);
+    setGenerateError(null);
+    try {
+      const res = await fetch("/api/coach-summary/generate-plan", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ exportPurpose: purpose, planStart, planDays }),
+      });
+      const data = await res.json();
+      if (!data.ok) {
+        setGenerateError(data.error ?? "LLM-Anfrage fehlgeschlagen.");
+        return;
+      }
+      setPlanInput(JSON.stringify(data.plan, null, 2));
+      setErrors([]);
+      setInfo(null);
+    } catch (e) {
+      setGenerateError(e instanceof Error ? e.message : "Fehler");
+    } finally {
+      setGenerating(false);
     }
   }
 
@@ -82,12 +132,14 @@ export function ChatGptExchange() {
       if (!data.ok) {
         setErrors(data.errors ?? []);
         setInfo(null);
+        setPreviewDays([]);
         return;
       }
       if (mode === "validate") {
         setInfo(
           `Gültig: ${data.entryCount} Einträge, ${data.replaceableCount} offene Workouts werden ersetzt, ${data.protectedCount} completed bleiben geschützt.`,
         );
+        setPreviewDays(data.days ?? []);
       } else {
         const p = data.preview;
         let msg = `Importiert: ${p.createdCount} neu, ${p.replacedCount} ersetzt, ${p.protectedCount} geschützt.`;
@@ -104,6 +156,7 @@ export function ChatGptExchange() {
         if (data.warnings?.length) {
           setErrors(data.warnings);
         }
+        setPreviewDays([]);
         router.refresh();
       }
     } catch (e) {
@@ -168,7 +221,23 @@ export function ChatGptExchange() {
             >
               {exporting ? "Erzeuge…" : "Erzeugen"}
             </button>
+            {llmConfigured ? (
+              <button
+                onClick={generateViaLlm}
+                disabled={generating}
+                title="Erzeugt die CoachSummary und schickt sie direkt an die konfigurierte LLM-API – der Plan landet zur Prüfung im Importfeld unten."
+                className="rounded-lg bg-violet-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-violet-500 disabled:opacity-40"
+              >
+                {generating ? "Generiere…" : "Plan direkt generieren"}
+              </button>
+            ) : null}
           </div>
+
+          {generateError ? (
+            <p className="mt-2 rounded-lg bg-rose-50 px-3 py-2 text-xs text-rose-700">
+              {generateError}
+            </p>
+          ) : null}
 
           {summaryJson ? (
             <div className="mt-3">
@@ -234,6 +303,31 @@ export function ChatGptExchange() {
                 </li>
               ))}
             </ul>
+          ) : null}
+
+          {previewDays.length > 0 ? (
+            <div className="mt-3 max-h-56 overflow-y-auto rounded-lg border border-neutral-200">
+              <table className="w-full text-xs">
+                <tbody>
+                  {previewDays.map((d) => (
+                    <tr key={d.date} className="border-b border-neutral-100 last:border-0">
+                      <td className="px-2 py-1.5 text-neutral-500">{d.date}</td>
+                      <td className="px-2 py-1.5 text-neutral-700">{d.entry.title}</td>
+                      <td className="px-2 py-1.5">
+                        <span
+                          className={`rounded-full px-1.5 py-0.5 text-[10px] font-medium ${ACTION_CLASS[d.action]}`}
+                        >
+                          {ACTION_LABEL[d.action]}
+                        </span>
+                      </td>
+                      <td className="px-2 py-1.5 text-neutral-400">
+                        {d.existing ? `war: ${d.existing.title ?? d.existing.status}` : ""}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           ) : null}
         </div>
       </div>

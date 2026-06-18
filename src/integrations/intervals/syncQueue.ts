@@ -6,7 +6,8 @@ import type { IntervalsClient } from "./client";
  * Verarbeitet ausstehende SyncQueue-Jobs. Jeder Job wird auf `processing`
  * gesetzt, ausgeführt und danach auf `success` oder `failed` aktualisiert.
  * `attempts` wird hochgezählt; fehlgeschlagene Jobs unterhalb von `maxAttempts`
- * bleiben für einen erneuten Lauf `pending`.
+ * bleiben für einen erneuten Lauf `pending`, aber erst nach einem
+ * exponentiellen Backoff (`nextAttemptAt`) wieder aufgreifbar.
  */
 
 export interface ProcessQueueOptions {
@@ -16,12 +17,19 @@ export interface ProcessQueueOptions {
   limit?: number;
   maxAttempts?: number;
   triggeredBy?: string;
+  baseDelayMs?: number;
+  maxDelayMs?: number;
 }
 
 export interface ProcessQueueResult {
   processed: number;
   succeeded: number;
   failed: number;
+}
+
+/** 30s, 60s, 120s, ... gedeckelt auf `maxDelayMs`. */
+function backoffDelayMs(attempts: number, baseDelayMs: number, maxDelayMs: number): number {
+  return Math.min(baseDelayMs * 2 ** (attempts - 1), maxDelayMs);
 }
 
 export async function processSyncQueue(
@@ -31,9 +39,16 @@ export async function processSyncQueue(
   const limit = options.limit ?? 50;
   const maxAttempts = options.maxAttempts ?? 3;
   const triggeredBy = options.triggeredBy ?? "queue";
+  const baseDelayMs = options.baseDelayMs ?? 30_000;
+  const maxDelayMs = options.maxDelayMs ?? 30 * 60_000;
 
+  const now = new Date();
   const jobs = await db.syncQueue.findMany({
-    where: { status: "pending", userId },
+    where: {
+      status: "pending",
+      userId,
+      OR: [{ nextAttemptAt: null }, { nextAttemptAt: { lte: now } }],
+    },
     orderBy: { createdAt: "asc" },
     take: limit,
   });
@@ -82,18 +97,23 @@ export async function processSyncQueue(
 
       await db.syncQueue.update({
         where: { id: job.id },
-        data: { status: "success", errorMessage: null },
+        data: { status: "success", errorMessage: null, nextAttemptAt: null },
       });
       succeeded++;
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       const attempts = job.attempts + 1;
-      // Unter maxAttempts erneut versuchen (zurück auf pending), sonst failed.
+      // Unter maxAttempts erneut versuchen (zurück auf pending, aber erst nach
+      // Backoff wieder aufgreifbar), sonst endgültig failed.
+      const retry = attempts < maxAttempts;
       await db.syncQueue.update({
         where: { id: job.id },
         data: {
-          status: attempts < maxAttempts ? "pending" : "failed",
+          status: retry ? "pending" : "failed",
           errorMessage: message,
+          nextAttemptAt: retry
+            ? new Date(Date.now() + backoffDelayMs(attempts, baseDelayMs, maxDelayMs))
+            : null,
         },
       });
       failed++;

@@ -33,6 +33,50 @@ describe("estimateActivityLoad", () => {
       estimateActivityLoad({ date: "x", sport: "run", durationMin: 0, load: null }),
     ).toBe(0);
   });
+
+  it("schätzt aus Herzfrequenz, wenn avgHr und thresholdHr vorliegen", () => {
+    const l = estimateActivityLoad(
+      { date: "2026-06-10", sport: "run", durationMin: 60, load: null, avgHr: 150 },
+      160,
+    );
+    // intensity ~0.9375 -> IF^2 * 1h * 100 ~ 88
+    expect(l).toBeGreaterThan(80);
+    expect(l).toBeLessThan(95);
+  });
+
+  it("bevorzugt Herzfrequenz vor RPE, wenn beides vorhanden ist", () => {
+    const hrBased = estimateActivityLoad(
+      { date: "2026-06-10", sport: "run", durationMin: 60, load: null, avgHr: 150, rpe: 2 },
+      160,
+    );
+    const rpeBased = estimateActivityLoad({
+      date: "2026-06-10",
+      sport: "run",
+      durationMin: 60,
+      load: null,
+      rpe: 2,
+    });
+    expect(hrBased).not.toBe(rpeBased);
+  });
+
+  it("fällt auf RPE zurück, wenn kein thresholdHr bekannt ist", () => {
+    const withoutThreshold = estimateActivityLoad({
+      date: "2026-06-10",
+      sport: "run",
+      durationMin: 60,
+      load: null,
+      avgHr: 150,
+      rpe: 7,
+    });
+    const rpeOnly = estimateActivityLoad({
+      date: "2026-06-10",
+      sport: "run",
+      durationMin: 60,
+      load: null,
+      rpe: 7,
+    });
+    expect(withoutThreshold).toBe(rpeOnly);
+  });
 });
 
 describe("buildLoadSeries", () => {

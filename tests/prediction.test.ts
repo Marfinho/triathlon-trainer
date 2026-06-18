@@ -7,10 +7,13 @@ import {
   predictRunFromReference,
   bestRunReference,
   resolveRunReference,
+  calibrateRiegelExponent,
+  bestBikeReference,
   formatDuration,
   matchRacePrediction,
   TRI_DISTANCES,
   type RunSample,
+  type BikeSample,
 } from "@/domain/training/prediction";
 
 describe("predictRunTime (Riegel)", () => {
@@ -100,6 +103,68 @@ describe("bestRunReference / resolveRunReference", () => {
     const slow = predictRunFromReference(10, { distanceKm: 10, timeSec: 3000, source: "activity" });
     expect(fast).toBeLessThan(slow);
     expect(fast).toBe(2700);
+  });
+});
+
+describe("calibrateRiegelExponent", () => {
+  it("fällt auf den Default zurück, wenn weniger als zwei Distanzen vorliegen", () => {
+    const runs: RunSample[] = [{ sport: "run", distanceKm: 10, durationMin: 45 }];
+    expect(calibrateRiegelExponent(runs)).toEqual({ exponent: 1.06, source: "default" });
+  });
+
+  it("fällt auf den Default zurück, wenn die Distanzen zu ähnlich sind", () => {
+    const runs: RunSample[] = [
+      { sport: "run", distanceKm: 10, durationMin: 45 },
+      { sport: "run", distanceKm: 11, durationMin: 50 },
+    ];
+    expect(calibrateRiegelExponent(runs).source).toBe("default");
+  });
+
+  it("berechnet einen personalisierten Exponenten aus zwei hinreichend unterschiedlichen Bestleistungen", () => {
+    // 10 km in 40 min, Marathon in 3:30 -> Exponent via log-log-Regression.
+    const runs: RunSample[] = [
+      { sport: "run", distanceKm: 10, durationMin: 40 },
+      { sport: "run", distanceKm: 42.195, durationMin: 210 },
+    ];
+    const cal = calibrateRiegelExponent(runs);
+    expect(cal.source).toBe("personal");
+    expect(cal.exponent).toBeGreaterThanOrEqual(1.0);
+    expect(cal.exponent).toBeLessThanOrEqual(1.15);
+  });
+
+  it("ignoriert Nicht-Lauf-Aktivitäten und zu kurze Läufe", () => {
+    const runs: RunSample[] = [
+      { sport: "bike", distanceKm: 40, durationMin: 60 },
+      { sport: "run", distanceKm: 1, durationMin: 4 },
+    ];
+    expect(calibrateRiegelExponent(runs).source).toBe("default");
+  });
+});
+
+describe("bestBikeReference", () => {
+  it("wählt die Fahrt mit der höchsten Leistung in renntypischer Dauer", () => {
+    const rides: BikeSample[] = [
+      { sport: "bike", distanceKm: 40, durationMin: 60, avgPower: 220 },
+      { sport: "bike", distanceKm: 90, durationMin: 150, avgPower: 180 },
+      { sport: "bike", distanceKm: 5, durationMin: 8, avgPower: 400 }, // zu kurz -> ignoriert
+      { sport: "run", distanceKm: 10, durationMin: 45, avgPower: 999 }, // kein Rad
+    ];
+    const ref = bestBikeReference(rides)!;
+    expect(ref.pRefW).toBe(220);
+    expect(ref.vRefKmh).toBeCloseTo(40, 1);
+  });
+
+  it("liefert null ohne qualifizierende Fahrten", () => {
+    const rides: BikeSample[] = [
+      { sport: "bike", distanceKm: 40, durationMin: 60, avgPower: null },
+    ];
+    expect(bestBikeReference(rides)).toBeNull();
+  });
+
+  it("eine bessere Referenz führt zu einer schnelleren Vorhersage", () => {
+    const slow = predictBikeTime(40, 250, 0.85, { vRefKmh: 30, pRefW: 200 });
+    const fast = predictBikeTime(40, 250, 0.85, { vRefKmh: 40, pRefW: 200 });
+    expect(fast).toBeLessThan(slow);
   });
 });
 

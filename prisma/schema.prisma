@@ -56,6 +56,7 @@ model User {
   journalEntries      JournalEntry[]
   bodyMetrics         BodyMetric[]
   trainingGoals       TrainingGoal[]
+  raceNutritionPlans  RaceNutritionPlan[]
 }
 
 model Account {
@@ -183,13 +184,40 @@ model RaceEvent {
   resultSeconds   Int?
   resultPlacement Int?
   resultNote      String?
+  locationName    String?
+  lat             Float?
+  lon             Float?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  nutritionPlan  RaceNutritionPlan?
 
   @@index([userId])
   @@index([date])
+}
+
+/// Wettkampf-Verpflegungsplan (Carbs/Fluid/Sodium pro Stunde je Disziplin) +
+/// Checkliste. Optional 1:1 an ein RaceEvent gehängt.
+model RaceNutritionPlan {
+  id                 String   @id @default(cuid())
+  userId             String
+  raceEventId        String   @unique
+  carbsGPerHour      Int?
+  fluidMlPerHour     Int?
+  sodiumMgPerHour    Int?
+  caffeineMg         Int?
+  bikeCarbsGPerHour  Int?
+  runCarbsGPerHour   Int?
+  notes              String?
+  checklistJson      Json?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  raceEvent RaceEvent @relation(fields: [raceEventId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 // ---------------------------------------------------------------------------
@@ -241,6 +269,7 @@ model ActualActivity {
   load        Float?
   rpe         Float?
   avgHr       Int?
+  avgPower    Int?
   notes       String?
   rawJson     Json?
   createdAt   DateTime @default(now())
@@ -332,6 +361,8 @@ model SyncQueue {
   status           String    @default("pending")
   attempts         Int       @default(0)
   lastAttemptAt    DateTime?
+  /// Backoff: Job wird erst ab diesem Zeitpunkt erneut versucht.
+  nextAttemptAt    DateTime?
   errorMessage     String?
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
@@ -462,6 +493,7 @@ model BodyMetric {
   date      DateTime
   weightKg  Float?
   restingHr Int?
+  hrv       Int?
   notes     String?
   createdAt DateTime @default(now())
 
@@ -469,6 +501,27 @@ model BodyMetric {
 
   @@index([userId])
   @@index([date])
+}
+
+// ---------------------------------------------------------------------------
+// Rate-Limiting & Webhook-Idempotenz
+// ---------------------------------------------------------------------------
+
+/// DB-gestützter Fixed-Window-Rate-Limiter (kein Redis nötig). `key` ist z.B.
+/// "login:<ip>" oder "register:<ip>". Siehe src/lib/rate-limit.ts.
+model RateLimitEntry {
+  key         String   @id
+  count       Int      @default(0)
+  windowStart DateTime
+  updatedAt   DateTime @updatedAt
+}
+
+/// Bereits verarbeitete Stripe-Webhook-Event-IDs (Idempotenz: jedes Event nur
+/// einmal anwenden, auch bei Stripe-Retries).
+model StripeProcessedEvent {
+  id        String   @id
+  type      String
+  createdAt DateTime @default(now())
 }
 
 model TrainingGoal {
@@ -483,4 +536,22 @@ model TrainingGoal {
 
   @@unique([userId, sport])
   @@index([userId])
+}
+
+/// Audit-Log für sicherheitsrelevante Aktionen (Registrierung, Login,
+/// Passwortwechsel, Datenexport, Kontolöschung). Bewusst ohne harte FK-Relation
+/// auf User, damit auch Ereignisse ohne bekannten Nutzer (z. B. fehlgeschlagene
+/// Logins) protokolliert werden können und ein Konto-Löschen die Historie nicht
+/// kaskadierend mitlöscht.
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  action    String
+  ip        String?
+  meta      Json?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
 }

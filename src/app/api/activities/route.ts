@@ -7,8 +7,8 @@ import { requireUser } from "@/lib/auth-guard";
  * Speichert eine (z.B. auf der Radrolle aufgezeichnete) Ist-Aktivität.
  * Ist-Aktivitäten sind unantastbar – diese Route legt nur NEUE Datensätze an.
  *
- * Body: { sport, date?, durationMin, distanceKm?, load?, avgHr?, rpe?,
- *         source?, notes?, samples? }
+ * Body: { sport, date?, durationMin, distanceKm?, load?, avgHr?, avgPower?,
+ *         rpe?, source?, notes?, samples? }
  */
 export async function POST(request: Request) {
   const { user, response } = await requireUser();
@@ -54,6 +54,7 @@ export async function POST(request: Request) {
       load: typeof body.load === "number" ? body.load : null,
       rpe: typeof body.rpe === "number" ? body.rpe : null,
       avgHr: typeof body.avgHr === "number" ? body.avgHr : null,
+      avgPower: typeof body.avgPower === "number" ? body.avgPower : null,
       notes: typeof body.notes === "string" ? body.notes : null,
       rawJson:
         body.samples !== undefined ? (body.samples as object) : undefined,

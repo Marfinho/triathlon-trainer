@@ -19,6 +19,7 @@ import { RecentActivities } from "@/components/dashboard/RecentActivities";
 import { ReadinessPain } from "@/components/dashboard/ReadinessPain";
 import { IntervalsSyncStatus } from "@/components/dashboard/IntervalsSyncStatus";
 import { ChatGptExchange } from "@/components/dashboard/ChatGptExchange";
+import { isLlmConfigured } from "@/integrations/llm/client";
 import { FormFitness } from "@/components/dashboard/FormFitness";
 import { TrainingZones } from "@/components/dashboard/TrainingZones";
 import { TrainingCalendar } from "@/components/dashboard/TrainingCalendar";
@@ -29,14 +30,18 @@ import { WeeklyGoals } from "@/components/dashboard/WeeklyGoals";
 import { buildGoalProgress } from "@/domain/training/goals";
 import { DashboardTabs } from "@/components/dashboard/DashboardTabs";
 import { BodyMetrics } from "@/components/dashboard/BodyMetrics";
-import { summarizeBody } from "@/domain/training/body";
+import { summarizeBody, trendLabel } from "@/domain/training/body";
 import { TrainingJournal } from "@/components/dashboard/TrainingJournal";
 import { DataExport } from "@/components/dashboard/DataExport";
 import { BackupRestore } from "@/components/dashboard/BackupRestore";
 import { TrainingCalculators } from "@/components/dashboard/TrainingCalculators";
 import { RacePlanner, type Race } from "@/components/dashboard/RacePlanner";
 import { RacePredictions } from "@/components/dashboard/RacePredictions";
-import { resolveRunReference } from "@/domain/training/prediction";
+import {
+  resolveRunReference,
+  calibrateRiegelExponent,
+  bestBikeReference,
+} from "@/domain/training/prediction";
 import {
   TrainerControl,
   type TrainerWorkout,
@@ -44,6 +49,25 @@ import {
 import { GearTracker, type Gear } from "@/components/dashboard/GearTracker";
 import { buildGearTree } from "@/domain/training/gear";
 import type { TimelineSegmentInput } from "@/integrations/trainer/workoutPlayer";
+import { estimateActivityLoad } from "@/domain/training/trainingLoad";
+import {
+  intensityDistribution,
+  sportBalance,
+  buildMonthlyVolume,
+  bestPaceBySport,
+  efficiencyTrend,
+  estimateCalories,
+} from "@/domain/training/analytics";
+import {
+  weeklyRampRate,
+  consistencyScore,
+  recommendTraining,
+} from "@/domain/training/loadAdvisor";
+import { estimateVdot, vdotCategory } from "@/domain/training/vdot";
+import { forecastForm } from "@/domain/training/formForecast";
+import { bestRunReference } from "@/domain/training/prediction";
+import { TrainingInsights } from "@/components/dashboard/TrainingInsights";
+import { FormForecastCard } from "@/components/dashboard/FormForecastCard";
 
 export const dynamic = "force-dynamic";
 
@@ -111,7 +135,7 @@ export default async function DashboardPage() {
     prisma.actualActivity.findMany({
       where: { userId },
       orderBy: { date: "desc" },
-      take: 8,
+      take: 50,
     }),
     prisma.readinessSnapshot.findMany({
       where: { userId },
@@ -147,7 +171,7 @@ export default async function DashboardPage() {
     prisma.actualActivity.findMany({
       where: { userId, date: { gte: loadWindowStart } },
       orderBy: { date: "asc" },
-      select: { date: true, sport: true, durationMin: true, distanceKm: true, load: true, rpe: true },
+      select: { date: true, sport: true, durationMin: true, distanceKm: true, load: true, rpe: true, avgHr: true, avgPower: true },
     }),
     prisma.raceEvent.findMany({ where: { userId }, orderBy: { date: "asc" } }),
     prisma.gearItem.findMany({ where: { userId }, orderBy: { createdAt: "asc" } }),
@@ -178,8 +202,12 @@ export default async function DashboardPage() {
       date: b.date,
       weightKg: b.weightKg,
       restingHr: b.restingHr,
+      hrv: b.hrv,
     })),
   );
+  // summarizeBody liefert die Reihen bereits chronologisch (älteste zuerst).
+  const computedHrvTrend = trendLabel(bodySummary.hrvs);
+  const computedRestingHrTrend = trendLabel(bodySummary.restingHrs);
 
   // --- Plan vs. Ist ---
   const planVsActualRows = buildPlanVsActual(
@@ -209,10 +237,12 @@ export default async function DashboardPage() {
     durationMin: a.durationMin,
     load: a.load,
     rpe: a.rpe,
+    avgHr: a.avgHr,
   }));
   const loadSeries = buildLoadSeries(loadInput, {
     days: Math.min(90, pmcDays),
     today: now,
+    thresholdHr: athlete?.thresholdHr,
   });
   const weeklyVolume = buildWeeklyVolume(loadInput, {
     weeks: Math.min(12, Math.max(4, Math.ceil(pmcDays / 7))),
@@ -306,7 +336,83 @@ export default async function DashboardPage() {
     resultSeconds: r.resultSeconds,
     resultPlacement: r.resultPlacement,
     resultNote: r.resultNote,
+    locationName: r.locationName,
   }));
+
+  // --- Trainings-Analyse (aus den Ist-Daten der History) ---
+  const analyticsActs = loadActivities.map((a) => ({
+    date: a.date,
+    sport: a.sport,
+    durationMin: a.durationMin,
+    distanceKm: a.distanceKm,
+    load: a.load,
+    rpe: a.rpe,
+    avgHr: a.avgHr,
+    avgPower: a.avgPower,
+  }));
+  const intensity = intensityDistribution(analyticsActs);
+  const balance = sportBalance(analyticsActs);
+  const monthly = buildMonthlyVolume(analyticsActs);
+  const bestPaces = bestPaceBySport(analyticsActs);
+  const efficiency = efficiencyTrend(analyticsActs).map((p) => p.ef);
+  const ramp = weeklyRampRate(loadActivities.map((a) => ({ date: a.date, load: a.load })));
+  const recommendation = recommendTraining(
+    loadSeries.current.tsb,
+    loadSeries.current.acwr,
+    form.state,
+  );
+  const plannedTotal = weeklyCompliance.reduce((s, w) => s + w.planned, 0);
+  const completedTotal = weeklyCompliance.reduce((s, w) => s + w.completed, 0);
+  const consistency = consistencyScore({
+    plannedCount: plannedTotal,
+    completedCount: completedTotal,
+  });
+  const runRef = bestRunReference(
+    loadActivities.map((a) => ({
+      sport: a.sport,
+      distanceKm: a.distanceKm,
+      durationMin: a.durationMin,
+    })),
+  );
+  const vdotResult = runRef ? estimateVdot(runRef.distanceKm * 1000, runRef.timeSec) : null;
+  const vdot = vdotResult
+    ? { vdot: vdotResult.vdot, category: vdotCategory(vdotResult.vdot) }
+    : null;
+  const sevenDaysAgo = formatIsoDate(addDays(now, -7));
+  const caloriesLast7d = analyticsActs
+    .filter((a) => formatIsoDate(a.date) >= sevenDaysAgo)
+    .reduce((sum, a) => sum + (estimateCalories(a, athlete?.weightKg ?? null) ?? 0), 0);
+
+  // --- Form-Forecast & Taper (Projektion auf geplante Workouts) ---
+  const futurePlanned = await prisma.plannedWorkout.findMany({
+    where: { userId, status: { in: ["planned", "synced"] }, date: { gte: now } },
+    orderBy: { date: "asc" },
+    select: { date: true, sport: true, plannedDurationMin: true, rpe: true },
+    take: 200,
+  });
+  const nextRaceEvent =
+    races.find((r) => r.date.getTime() >= now.getTime() && r.priority === "A") ??
+    races.find((r) => r.date.getTime() >= now.getTime());
+  const plannedLoads = futurePlanned.map((w) => ({
+    date: formatIsoDate(w.date),
+    load: estimateActivityLoad(
+      {
+        date: w.date,
+        sport: w.sport,
+        durationMin: w.plannedDurationMin,
+        load: null,
+        rpe: w.rpe,
+      },
+      athlete?.thresholdHr ?? null,
+    ),
+  }));
+  const forecast = forecastForm({
+    startCtl: loadSeries.current.ctl,
+    startAtl: loadSeries.current.atl,
+    startDate: addDays(now, 1),
+    raceDate: nextRaceEvent ? formatIsoDate(nextRaceEvent.date) : null,
+    plannedLoads,
+  });
 
   const [pending, processing, failed, success, synced] = syncCounts;
   const intervalsConfigured = Boolean(
@@ -423,6 +529,21 @@ export default async function DashboardPage() {
                         durationMin: a.durationMin,
                       })),
                     }),
+                    riegelExponent: calibrateRiegelExponent(
+                      loadActivities.map((a) => ({
+                        sport: a.sport,
+                        distanceKm: a.distanceKm,
+                        durationMin: a.durationMin,
+                      })),
+                    ).exponent,
+                    bikeReference: bestBikeReference(
+                      loadActivities.map((a) => ({
+                        sport: a.sport,
+                        distanceKm: a.distanceKm,
+                        durationMin: a.durationMin,
+                        avgPower: a.avgPower,
+                      })),
+                    ),
                   }}
                   races={racesData.map((r) => ({
                     id: r.id,
@@ -471,6 +592,35 @@ export default async function DashboardPage() {
             ),
           },
           {
+            id: "analyse",
+            label: "Analyse",
+            content: (
+              <>
+                <FormForecastCard
+                  series={forecast.series}
+                  raceDay={forecast.raceDay}
+                  verdict={forecast.verdict}
+                  recommendation={forecast.recommendation}
+                  raceName={nextRaceEvent?.name ?? null}
+                />
+                <TrainingInsights
+                  intensity={intensity}
+                  recommendation={recommendation}
+                  sportShares={balance.shares}
+                  sportWarning={balance.warning}
+                  monthly={monthly}
+                  bestPaces={bestPaces}
+                  efficiencyValues={efficiency}
+                  vdot={vdot}
+                  consistency={consistency}
+                  rampRatio={ramp.latestRatio}
+                  rampRisk={ramp.risk}
+                  caloriesLast7d={caloriesLast7d > 0 ? caloriesLast7d : null}
+                />
+              </>
+            ),
+          },
+          {
             id: "training",
             label: "Training & Material",
             content: (
@@ -495,7 +645,7 @@ export default async function DashboardPage() {
             label: "Austausch & Sync",
             content: (
               <>
-                <ChatGptExchange />
+                <ChatGptExchange llmConfigured={isLlmConfigured()} />
                 <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
                   <IntervalsSyncStatus
                     initial={{
@@ -539,6 +689,8 @@ export default async function DashboardPage() {
                     }
                     fatigueTrend={fatigueTrend}
                     painTrend={painTrend}
+                    computedHrvTrend={computedHrvTrend}
+                    computedRestingHrTrend={computedRestingHrTrend}
                   />
                 </div>
                 <BodyMetrics summary={bodySummary} heightCm={athlete?.heightCm ?? null} />
