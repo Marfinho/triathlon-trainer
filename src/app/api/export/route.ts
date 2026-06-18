@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/auth-guard";
+import { activitiesToCsv } from "@/domain/export/csv";
 
 /**
  * GET /api/export?format=json|csv
@@ -22,27 +23,7 @@ export async function GET(request: Request) {
       where: { userId },
       orderBy: { date: "desc" },
     });
-    const header = [
-      "date",
-      "sport",
-      "durationMin",
-      "distanceKm",
-      "load",
-      "avgHr",
-      "source",
-    ];
-    const rows = activities.map((a) =>
-      [
-        a.date.toISOString().slice(0, 10),
-        a.sport,
-        a.durationMin ?? "",
-        a.distanceKm ?? "",
-        a.load ?? "",
-        a.avgHr ?? "",
-        a.source,
-      ].join(","),
-    );
-    const csv = [header.join(","), ...rows].join("\n");
+    const csv = activitiesToCsv(activities);
     return new NextResponse(csv, {
       headers: {
         "Content-Type": "text/csv; charset=utf-8",
