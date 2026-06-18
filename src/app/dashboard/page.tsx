@@ -49,6 +49,25 @@ import {
 import { GearTracker, type Gear } from "@/components/dashboard/GearTracker";
 import { buildGearTree } from "@/domain/training/gear";
 import type { TimelineSegmentInput } from "@/integrations/trainer/workoutPlayer";
+import { estimateActivityLoad } from "@/domain/training/trainingLoad";
+import {
+  intensityDistribution,
+  sportBalance,
+  buildMonthlyVolume,
+  bestPaceBySport,
+  efficiencyTrend,
+  estimateCalories,
+} from "@/domain/training/analytics";
+import {
+  weeklyRampRate,
+  consistencyScore,
+  recommendTraining,
+} from "@/domain/training/loadAdvisor";
+import { estimateVdot, vdotCategory } from "@/domain/training/vdot";
+import { forecastForm } from "@/domain/training/formForecast";
+import { bestRunReference } from "@/domain/training/prediction";
+import { TrainingInsights } from "@/components/dashboard/TrainingInsights";
+import { FormForecastCard } from "@/components/dashboard/FormForecastCard";
 
 export const dynamic = "force-dynamic";
 
@@ -320,6 +339,81 @@ export default async function DashboardPage() {
     locationName: r.locationName,
   }));
 
+  // --- Trainings-Analyse (aus den Ist-Daten der History) ---
+  const analyticsActs = loadActivities.map((a) => ({
+    date: a.date,
+    sport: a.sport,
+    durationMin: a.durationMin,
+    distanceKm: a.distanceKm,
+    load: a.load,
+    rpe: a.rpe,
+    avgHr: a.avgHr,
+    avgPower: a.avgPower,
+  }));
+  const intensity = intensityDistribution(analyticsActs);
+  const balance = sportBalance(analyticsActs);
+  const monthly = buildMonthlyVolume(analyticsActs);
+  const bestPaces = bestPaceBySport(analyticsActs);
+  const efficiency = efficiencyTrend(analyticsActs).map((p) => p.ef);
+  const ramp = weeklyRampRate(loadActivities.map((a) => ({ date: a.date, load: a.load })));
+  const recommendation = recommendTraining(
+    loadSeries.current.tsb,
+    loadSeries.current.acwr,
+    form.state,
+  );
+  const plannedTotal = weeklyCompliance.reduce((s, w) => s + w.planned, 0);
+  const completedTotal = weeklyCompliance.reduce((s, w) => s + w.completed, 0);
+  const consistency = consistencyScore({
+    plannedCount: plannedTotal,
+    completedCount: completedTotal,
+  });
+  const runRef = bestRunReference(
+    loadActivities.map((a) => ({
+      sport: a.sport,
+      distanceKm: a.distanceKm,
+      durationMin: a.durationMin,
+    })),
+  );
+  const vdotResult = runRef ? estimateVdot(runRef.distanceKm * 1000, runRef.timeSec) : null;
+  const vdot = vdotResult
+    ? { vdot: vdotResult.vdot, category: vdotCategory(vdotResult.vdot) }
+    : null;
+  const sevenDaysAgo = formatIsoDate(addDays(now, -7));
+  const caloriesLast7d = analyticsActs
+    .filter((a) => formatIsoDate(a.date) >= sevenDaysAgo)
+    .reduce((sum, a) => sum + (estimateCalories(a, athlete?.weightKg ?? null) ?? 0), 0);
+
+  // --- Form-Forecast & Taper (Projektion auf geplante Workouts) ---
+  const futurePlanned = await prisma.plannedWorkout.findMany({
+    where: { userId, status: { in: ["planned", "synced"] }, date: { gte: now } },
+    orderBy: { date: "asc" },
+    select: { date: true, sport: true, plannedDurationMin: true, rpe: true },
+    take: 200,
+  });
+  const nextRaceEvent =
+    races.find((r) => r.date.getTime() >= now.getTime() && r.priority === "A") ??
+    races.find((r) => r.date.getTime() >= now.getTime());
+  const plannedLoads = futurePlanned.map((w) => ({
+    date: formatIsoDate(w.date),
+    load: estimateActivityLoad(
+      {
+        date: w.date,
+        sport: w.sport,
+        durationMin: w.plannedDurationMin,
+        load: null,
+        rpe: w.rpe,
+      },
+      athlete?.thresholdHr ?? null,
+    ),
+  }));
+  const forecast = forecastForm({
+    startCtl: loadSeries.current.ctl,
+    startAtl: loadSeries.current.atl,
+    startDate: addDays(now, 1),
+    raceDate: nextRaceEvent ? formatIsoDate(nextRaceEvent.date) : null,
+    plannedLoads,
+  });
+
   const [pending, processing, failed, success, synced] = syncCounts;
   const intervalsConfigured = Boolean(
     process.env.INTERVALS_ATHLETE_ID && process.env.INTERVALS_API_KEY,
@@ -493,6 +587,35 @@ export default async function DashboardPage() {
                     mood: e.mood,
                     text: e.text,
                   }))}
+                />
+              </>
+            ),
+          },
+          {
+            id: "analyse",
+            label: "Analyse",
+            content: (
+              <>
+                <FormForecastCard
+                  series={forecast.series}
+                  raceDay={forecast.raceDay}
+                  verdict={forecast.verdict}
+                  recommendation={forecast.recommendation}
+                  raceName={nextRaceEvent?.name ?? null}
+                />
+                <TrainingInsights
+                  intensity={intensity}
+                  recommendation={recommendation}
+                  sportShares={balance.shares}
+                  sportWarning={balance.warning}
+                  monthly={monthly}
+                  bestPaces={bestPaces}
+                  efficiencyValues={efficiency}
+                  vdot={vdot}
+                  consistency={consistency}
+                  rampRatio={ramp.latestRatio}
+                  rampRisk={ramp.risk}
+                  caloriesLast7d={caloriesLast7d > 0 ? caloriesLast7d : null}
                 />
               </>
             ),
