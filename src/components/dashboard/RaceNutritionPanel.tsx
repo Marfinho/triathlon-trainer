@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { suggestNutritionTargets, buildDefaultChecklist, type ChecklistItem } from "@/domain/training/nutrition";
+import { SkeletonLines } from "@/components/ui/Skeleton";
+import { useToast } from "@/components/ui/Toast";
 
 interface NutritionPlanData {
   carbsGPerHour: number | null;
@@ -38,9 +40,9 @@ function NumberField({
 }
 
 export function RaceNutritionPanel({ raceId, raceType }: { raceId: string; raceType: string }) {
+  const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [savedMsg, setSavedMsg] = useState(false);
   const [durationMin, setDurationMin] = useState(180);
   const [carbsGPerHour, setCarbsGPerHour] = useState<number | null>(null);
   const [fluidMlPerHour, setFluidMlPerHour] = useState<number | null>(null);
@@ -112,9 +114,8 @@ export function RaceNutritionPanel({ raceId, raceType }: { raceId: string; raceT
 
   async function save() {
     setSaving(true);
-    setSavedMsg(false);
     try {
-      await fetch(`/api/races/${raceId}/nutrition`, {
+      const res = await fetch(`/api/races/${raceId}/nutrition`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -128,15 +129,21 @@ export function RaceNutritionPanel({ raceId, raceType }: { raceId: string; raceT
           checklist,
         }),
       });
-      setSavedMsg(true);
-      setTimeout(() => setSavedMsg(false), 1500);
+      if (res.ok) toast("Verpflegungsplan gespeichert.", "success");
+      else toast("Speichern fehlgeschlagen.", "error");
+    } catch {
+      toast("Netzwerkfehler beim Speichern.", "error");
     } finally {
       setSaving(false);
     }
   }
 
   if (loading) {
-    return <p className="mt-2 text-xs text-neutral-400">Lade Verpflegungsplan…</p>;
+    return (
+      <div className="mt-2 rounded-xl border border-neutral-200 bg-neutral-50 p-3">
+        <SkeletonLines lines={4} />
+      </div>
+    );
   }
 
   return (
@@ -229,7 +236,6 @@ export function RaceNutritionPanel({ raceId, raceType }: { raceId: string; raceT
         >
           {saving ? "Speichere…" : "Speichern"}
         </button>
-        {savedMsg ? <span className="text-xs text-emerald-600">Gespeichert.</span> : null}
       </div>
     </div>
   );

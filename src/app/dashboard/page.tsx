@@ -135,7 +135,7 @@ export default async function DashboardPage() {
     prisma.actualActivity.findMany({
       where: { userId },
       orderBy: { date: "desc" },
-      take: 8,
+      take: 50,
     }),
     prisma.readinessSnapshot.findMany({
       where: { userId },
