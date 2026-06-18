@@ -2,7 +2,8 @@ import { formatIsoDate, addDays, mondayOfIso, parseIsoDate } from "./dates";
 
 /**
  * Trainingskalender (rein/testbar). Baut ein Wochengitter (Mo–So) und ordnet je
- * Tag geplante Workouts und Ist-Aktivitäten zu.
+ * Tag geplante Workouts und Ist-Aktivitäten zu – inklusive Detailfelder für eine
+ * Tages-Detailansicht (Modal).
  */
 
 export interface CalendarPlanned {
@@ -11,12 +12,19 @@ export interface CalendarPlanned {
   title: string;
   plannedDurationMin: number;
   status: string;
+  plannedDistanceM?: number | null;
+  rpe?: number | null;
+  description?: string | null;
 }
 
 export interface CalendarActual {
   date: Date | string;
   sport: string;
   durationMin: number | null;
+  distanceKm?: number | null;
+  load?: number | null;
+  rpe?: number | null;
+  avgHr?: number | null;
 }
 
 export interface CalendarItem {
@@ -25,6 +33,11 @@ export interface CalendarItem {
   label: string;
   durationMin: number;
   status?: string;
+  distanceKm?: number | null;
+  load?: number | null;
+  rpe?: number | null;
+  avgHr?: number | null;
+  description?: string | null;
 }
 
 export interface CalendarDay {
@@ -79,6 +92,10 @@ export function buildCalendar(
           label: p.title,
           durationMin: p.plannedDurationMin,
           status: p.status,
+          distanceKm:
+            typeof p.plannedDistanceM === "number" ? p.plannedDistanceM / 1000 : null,
+          rpe: p.rpe ?? null,
+          description: p.description ?? null,
         });
       }
       for (const a of actualByDay.get(date) ?? []) {
@@ -87,6 +104,10 @@ export function buildCalendar(
           sport: a.sport,
           label: a.sport,
           durationMin: Math.round(a.durationMin ?? 0),
+          distanceKm: a.distanceKm ?? null,
+          load: a.load ?? null,
+          rpe: a.rpe ?? null,
+          avgHr: a.avgHr ?? null,
         });
       }
       week.push({

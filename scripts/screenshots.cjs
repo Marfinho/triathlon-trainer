@@ -84,6 +84,7 @@ async function shoot(page, name, { fullPage = false } = {}) {
 
   const tabs = [
     ["Form & Planung", "03-dashboard-form"],
+    ["Kalender", "07-dashboard-kalender"],
     ["Analyse", "04-dashboard-analyse"],
     ["Training & Material", "05-dashboard-training"],
     ["Austausch & Sync", "06-dashboard-austausch"],
@@ -93,6 +94,17 @@ async function shoot(page, name, { fullPage = false } = {}) {
     await page.waitForTimeout(1200);
     await page.evaluate(() => window.scrollTo(0, 0));
     await shoot(page, name, { fullPage: true });
+  }
+
+  // Kalender-Detail-Modal (erster Tag mit Einheiten).
+  await selectTab("Kalender");
+  await page.waitForTimeout(800);
+  const dayBtn = page.locator('[aria-label*="Details öffnen"]').first();
+  if (await dayBtn.count()) {
+    await dayBtn.click();
+    await page.waitForSelector('[role="dialog"]', { timeout: 5000 });
+    await page.waitForTimeout(500);
+    await shoot(page, "08-calendar-modal", { fullPage: false });
   }
 
   await browser.close();
