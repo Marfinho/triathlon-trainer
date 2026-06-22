@@ -30,9 +30,13 @@ Der Austausch mit dem LLM funktioniert auf **zwei Wegen**:
 
 ## Screenshots
 
-| Form & Planung | Analyse (Form-Forecast & Taper) |
+| Form & Planung | Geplante Einheit: Leistungsprofil im Modal |
 |---|---|
-| ![Dashboard Form & Planung](docs/screenshots/03-dashboard-form.png) | ![Dashboard Analyse](docs/screenshots/04-dashboard-analyse.png) |
+| ![Dashboard Form & Planung](docs/screenshots/03-dashboard-form.png) | ![Kalender mit Leistungsprofil-Modal](docs/screenshots/08-calendar-modal.png) |
+
+| Analyse (Form-Forecast & Taper) | Trainingskalender |
+|---|---|
+| ![Dashboard Analyse](docs/screenshots/04-dashboard-analyse.png) | ![Trainingskalender](docs/screenshots/07-dashboard-kalender.png) |
 
 <details>
 <summary>Weitere Screenshots (Login, Training & Material, Austausch & Sync)</summary>
@@ -59,7 +63,13 @@ Der Austausch mit dem LLM funktioniert auf **zwei Wegen**:
   Verletzungs-Flag, Konsistenz-Score, Kalorienschätzung, Best-Pace je Disziplin.
 - **Wettkampf-Prognosen** – Lauf/Rad/Schwimm-Zeiten, aus eigenen Daten kalibriert.
 - **Plan vs. Ist** – Gesamt- und Wochen-Compliance plus Detailabgleich.
-- **Wochenziele**, **Trainingskalender**, **Saison-Statistik & Bestwerte**.
+- **Trainingskalender** (eigener Tab) – Wochengitter mit geplant (Umriss) vs.
+  absolviert (gefüllt); Klick auf einen Tag öffnet ein Detail-Modal. Geplante
+  Einheiten zeigen ein **grafisches Leistungsprofil** (Segmente über die Zeit,
+  Höhe = %FTP, Farbe = Zone) plus Segmentliste mit Ziel-Watt, Trittfrequenz und
+  Beschreibung – „was erwartet mich?". Absolvierte Einheiten zeigen Dauer,
+  Distanz, Load, HF und RPE.
+- **Wochenziele**, **Saison-Statistik & Bestwerte**.
 
 **Wettkampf**
 - **Wettkämpfe & Saison** – Countdown, Priorität (A/B/C), Periodisierungsphase,
@@ -197,7 +207,7 @@ Einheit aufgezeichnet (Speichern als Aktivität + **TCX-Export**).
 ```
 src/
   app/                  Next.js App Router (Seiten + API-Routen)
-    dashboard/          Dashboard (4 Tabs) + Layout (Toast-Provider)
+    dashboard/          Dashboard (5 Tabs) + Layout (Toast-Provider)
     api/                coach-summary | plan-import | intervals-sync | races
                         activities | gear | goals | body | checkin | journal
                         billing | profile | export | cron | integrations …

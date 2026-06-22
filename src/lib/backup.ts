@@ -7,7 +7,16 @@ import { z } from "zod";
  */
 export const BACKUP_VERSION = "2";
 
+/**
+ * Maximale Einträge je Kategorie beim Restore – verhindert, dass eine
+ * manipulierte/überdimensionierte Backup-Datei die Restore-Transaktion (eine
+ * sequentielle Upsert-Schleife je Kategorie) zu einer DoS-Last für die
+ * gemeinsame DB-Instanz macht.
+ */
+const MAX_RECORDS = 50_000;
+
 const recordSchema = z.object({ id: z.string() }).passthrough();
+const recordArray = () => z.array(recordSchema).max(MAX_RECORDS).default([]);
 
 export const backupSchema = z.object({
   version: z.literal(BACKUP_VERSION),
@@ -16,15 +25,15 @@ export const backupSchema = z.object({
   userEmail: z.string().optional(),
   data: z.object({
     profile: recordSchema.nullable().optional(),
-    raceEvents: z.array(recordSchema).default([]),
-    plannedWorkouts: z.array(recordSchema).default([]),
-    actualActivities: z.array(recordSchema).default([]),
-    gearItems: z.array(recordSchema).default([]),
-    trainingGoals: z.array(recordSchema).default([]),
-    bodyMetrics: z.array(recordSchema).default([]),
-    journalEntries: z.array(recordSchema).default([]),
-    readinessSnapshots: z.array(recordSchema).default([]),
-    painSnapshots: z.array(recordSchema).default([]),
+    raceEvents: recordArray(),
+    plannedWorkouts: recordArray(),
+    actualActivities: recordArray(),
+    gearItems: recordArray(),
+    trainingGoals: recordArray(),
+    bodyMetrics: recordArray(),
+    journalEntries: recordArray(),
+    readinessSnapshots: recordArray(),
+    painSnapshots: recordArray(),
     integrations: z
       .array(
         z.object({
@@ -33,6 +42,7 @@ export const backupSchema = z.object({
           enabled: z.boolean().optional(),
         }),
       )
+      .max(MAX_RECORDS)
       .default([]),
   }),
 });

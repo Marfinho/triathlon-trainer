@@ -25,9 +25,17 @@ export async function PUT(request: Request) {
 
   const athleteId = typeof body.athleteId === "string" ? body.athleteId.trim() : "";
   const apiKey = typeof body.apiKey === "string" ? body.apiKey.trim() : "";
-  if (!athleteId || !apiKey) {
+  if (!athleteId || !apiKey || apiKey.length > 500) {
     return NextResponse.json(
       { ok: false, error: "athleteId und apiKey sind erforderlich." },
+      { status: 400 },
+    );
+  }
+  // Wird unverändert in URL-Pfade interpoliert (HttpIntervalsClient) – nur
+  // Zeichen erlauben, die dort keine Pfad-/Query-Struktur verändern können.
+  if (!/^[A-Za-z0-9_-]{1,40}$/.test(athleteId)) {
+    return NextResponse.json(
+      { ok: false, error: "Ungültige athleteId." },
       { status: 400 },
     );
   }

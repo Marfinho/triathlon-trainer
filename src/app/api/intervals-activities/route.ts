@@ -28,7 +28,9 @@ export async function POST(request: Request) {
   let sinceDays = 60;
   try {
     const body = await request.json();
-    if (typeof body?.sinceDays === "number") sinceDays = body.sinceDays;
+    if (typeof body?.sinceDays === "number" && Number.isFinite(body.sinceDays) && body.sinceDays > 0) {
+      sinceDays = Math.min(Math.round(body.sinceDays), 3650);
+    }
   } catch {
     /* leerer Body ok */
   }

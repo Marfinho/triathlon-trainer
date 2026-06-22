@@ -24,6 +24,7 @@ import { FormFitness } from "@/components/dashboard/FormFitness";
 import { TrainingZones } from "@/components/dashboard/TrainingZones";
 import { TrainingCalendar } from "@/components/dashboard/TrainingCalendar";
 import { buildCalendar } from "@/domain/training/calendar";
+import type { ProfileSegmentInput } from "@/domain/training/workoutProfile";
 import { SeasonStatsCard } from "@/components/dashboard/SeasonStats";
 import { buildSeasonStats } from "@/domain/training/stats";
 import { WeeklyGoals } from "@/components/dashboard/WeeklyGoals";
@@ -300,11 +301,24 @@ export default async function DashboardPage() {
       title: w.title,
       plannedDurationMin: w.plannedDurationMin,
       status: w.status,
+      plannedDistanceM: w.plannedDistanceM,
+      rpe: w.rpe,
+      description: w.description,
+      segments: Array.isArray(w.segmentsJson)
+        ? (w.segmentsJson as unknown as ProfileSegmentInput[])
+        : null,
     })),
     rangeActuals.map((a) => ({
       date: a.date,
       sport: a.sport,
       durationMin: a.durationMin,
+      distanceKm: a.distanceKm,
+      load: a.load,
+      rpe: a.rpe,
+      avgHr: a.avgHr,
+      avgPower: a.avgPower,
+      source: a.source,
+      notes: a.notes,
     })),
     { weeks: 4, weeksBefore: 1, today: now },
   );
@@ -514,6 +528,66 @@ export default async function DashboardPage() {
                   <WeeklyGoals initial={goalProgress} />
                   <RacePlanner initialRaces={racesData} />
                 </div>
+                <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+                  <CurrentPlan
+                    items={upcoming.map((w) => ({
+                      id: w.id,
+                      date: formatIsoDate(w.date),
+                      sport: w.sport,
+                      title: w.title,
+                      plannedDurationMin: w.plannedDurationMin,
+                      status: w.status,
+                    }))}
+                  />
+                  <RecentActivities
+                    items={recentActuals.map((a) => ({
+                      id: a.id,
+                      date: formatIsoDate(a.date),
+                      sport: a.sport,
+                      durationMin: a.durationMin,
+                      distanceKm: a.distanceKm,
+                      load: a.load,
+                      source: a.source,
+                    }))}
+                    summary={weekSummary}
+                  />
+                </div>
+              </>
+            ),
+          },
+          {
+            id: "kalender",
+            label: "Kalender",
+            content: (
+              <TrainingCalendar grid={calendarGrid} ftp={athlete?.ftpWatts ?? 200} />
+            ),
+          },
+          {
+            id: "analyse",
+            label: "Analyse",
+            content: (
+              <>
+                <FormForecastCard
+                  series={forecast.series}
+                  raceDay={forecast.raceDay}
+                  verdict={forecast.verdict}
+                  recommendation={forecast.recommendation}
+                  raceName={nextRaceEvent?.name ?? null}
+                />
+                <TrainingInsights
+                  intensity={intensity}
+                  recommendation={recommendation}
+                  sportShares={balance.shares}
+                  sportWarning={balance.warning}
+                  monthly={monthly}
+                  bestPaces={bestPaces}
+                  efficiencyValues={efficiency}
+                  vdot={vdot}
+                  consistency={consistency}
+                  rampRatio={ramp.latestRatio}
+                  rampRisk={ramp.risk}
+                  caloriesLast7d={caloriesLast7d > 0 ? caloriesLast7d : null}
+                />
                 <RacePredictions
                   profile={{
                     thresholdPaceSecPerKm: athlete?.thresholdPaceSecPerKm ?? null,
@@ -553,70 +627,8 @@ export default async function DashboardPage() {
                     distance: r.distance,
                   }))}
                 />
-                <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-                  <CurrentPlan
-                    items={upcoming.map((w) => ({
-                      id: w.id,
-                      date: formatIsoDate(w.date),
-                      sport: w.sport,
-                      title: w.title,
-                      plannedDurationMin: w.plannedDurationMin,
-                      status: w.status,
-                    }))}
-                  />
-                  <RecentActivities
-                    items={recentActuals.map((a) => ({
-                      id: a.id,
-                      date: formatIsoDate(a.date),
-                      sport: a.sport,
-                      durationMin: a.durationMin,
-                      distanceKm: a.distanceKm,
-                      load: a.load,
-                      source: a.source,
-                    }))}
-                    summary={weekSummary}
-                  />
-                </div>
-                <TrainingCalendar grid={calendarGrid} />
                 <SeasonStatsCard stats={seasonStats} />
                 <PlanVsActual rows={planVsActualRows} weeks={weeklyCompliance} />
-                <TrainingJournal
-                  initial={journalEntries.map((e) => ({
-                    id: e.id,
-                    date: e.date.toISOString(),
-                    mood: e.mood,
-                    text: e.text,
-                  }))}
-                />
-              </>
-            ),
-          },
-          {
-            id: "analyse",
-            label: "Analyse",
-            content: (
-              <>
-                <FormForecastCard
-                  series={forecast.series}
-                  raceDay={forecast.raceDay}
-                  verdict={forecast.verdict}
-                  recommendation={forecast.recommendation}
-                  raceName={nextRaceEvent?.name ?? null}
-                />
-                <TrainingInsights
-                  intensity={intensity}
-                  recommendation={recommendation}
-                  sportShares={balance.shares}
-                  sportWarning={balance.warning}
-                  monthly={monthly}
-                  bestPaces={bestPaces}
-                  efficiencyValues={efficiency}
-                  vdot={vdot}
-                  consistency={consistency}
-                  rampRatio={ramp.latestRatio}
-                  rampRisk={ramp.risk}
-                  caloriesLast7d={caloriesLast7d > 0 ? caloriesLast7d : null}
-                />
               </>
             ),
           },
@@ -694,6 +706,14 @@ export default async function DashboardPage() {
                   />
                 </div>
                 <BodyMetrics summary={bodySummary} heightCm={athlete?.heightCm ?? null} />
+                <TrainingJournal
+                  initial={journalEntries.map((e) => ({
+                    id: e.id,
+                    date: e.date.toISOString(),
+                    mood: e.mood,
+                    text: e.text,
+                  }))}
+                />
                 <DataExport />
                 <BackupRestore
                   cooldownActive={backupCooldownActive}

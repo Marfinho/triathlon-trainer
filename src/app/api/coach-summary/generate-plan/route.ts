@@ -46,12 +46,15 @@ export async function POST(request: Request) {
       : "training_plan"
   ) as ExportPurpose;
 
-  const planStart =
-    typeof body.planStart === "string"
-      ? body.planStart
-      : formatIsoDate(addDays(new Date(), 1));
+  let planStart = formatIsoDate(addDays(new Date(), 1));
+  if (typeof body.planStart === "string" && body.planStart) {
+    const parsed = new Date(`${body.planStart.slice(0, 10)}T00:00:00Z`);
+    if (!Number.isNaN(parsed.getTime())) planStart = body.planStart.slice(0, 10);
+  }
   const planDays =
-    typeof body.planDays === "number" && body.planDays > 0 ? body.planDays : 7;
+    typeof body.planDays === "number" && Number.isFinite(body.planDays) && body.planDays > 0
+      ? Math.min(Math.round(body.planDays), 90)
+      : 7;
 
   const includeModules = Array.isArray(body.includeModules)
     ? (body.includeModules as SummaryModule[])

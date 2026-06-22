@@ -38,14 +38,21 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, error: "Text erforderlich." }, { status: 400 });
   }
 
+  let date = new Date();
+  if (typeof body.date === "string" && body.date) {
+    const parsed = new Date(`${body.date.slice(0, 10)}T00:00:00Z`);
+    if (!Number.isNaN(parsed.getTime())) date = parsed;
+  }
+  const mood =
+    typeof body.mood === "number" && Number.isFinite(body.mood)
+      ? Math.round(body.mood)
+      : null;
+
   const entry = await prisma.journalEntry.create({
     data: {
       userId,
-      date:
-        typeof body.date === "string" && body.date
-          ? new Date(`${body.date.slice(0, 10)}T00:00:00Z`)
-          : new Date(),
-      mood: typeof body.mood === "number" ? Math.round(body.mood) : null,
+      date,
+      mood,
       text,
     },
   });

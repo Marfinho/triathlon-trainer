@@ -47,7 +47,8 @@ export async function PUT(
     return NextResponse.json({ ok: false, error: "Ungültiger Body." }, { status: 400 });
   }
 
-  const toIntOrNull = (v: unknown) => (typeof v === "number" ? Math.round(v) : null);
+  const toIntOrNull = (v: unknown) =>
+    typeof v === "number" && Number.isFinite(v) ? Math.round(v) : null;
 
   const data = {
     carbsGPerHour: toIntOrNull(body.carbsGPerHour),
@@ -58,7 +59,7 @@ export async function PUT(
     runCarbsGPerHour: toIntOrNull(body.runCarbsGPerHour),
     notes: sanitizeOptionalText(body.notes, 2000),
     checklistJson: Array.isArray(body.checklist)
-      ? (body.checklist as Prisma.InputJsonValue)
+      ? (body.checklist.slice(0, 200) as Prisma.InputJsonValue)
       : Prisma.JsonNull,
   };
 

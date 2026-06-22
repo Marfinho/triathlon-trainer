@@ -40,6 +40,13 @@ export async function POST(request: Request) {
       { status: 400 },
     );
   }
+  const raceDate = new Date(`${dateStr.slice(0, 10)}T00:00:00Z`);
+  if (Number.isNaN(raceDate.getTime())) {
+    return NextResponse.json(
+      { ok: false, error: "Ungültiges Datum." },
+      { status: 400 },
+    );
+  }
 
   const limit = (await getEffectiveLimits(user.plan)).maxRaceEvents;
   if (Number.isFinite(limit)) {
@@ -56,7 +63,7 @@ export async function POST(request: Request) {
     data: {
       userId,
       name,
-      date: new Date(`${dateStr.slice(0, 10)}T00:00:00Z`),
+      date: raceDate,
       type: typeof body.type === "string" ? body.type : "triathlon",
       distance: sanitizeOptionalText(body.distance, 60),
       priority: typeof body.priority === "string" ? body.priority : "B",

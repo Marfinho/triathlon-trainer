@@ -75,7 +75,25 @@ export async function POST(request: Request) {
   }
 
   const num = (v: unknown): number | null =>
-    typeof v === "number" && !Number.isNaN(v) ? v : null;
+    typeof v === "number" && Number.isFinite(v) ? v : null;
+
+  // parentId nur akzeptieren, wenn das Elternteil dem Nutzer gehört (kein
+  // Querverweis auf fremde Geräte).
+  let parentId: string | null = null;
+  if (typeof body.parentId === "string" && body.parentId) {
+    const parent = await prisma.gearItem.findFirst({
+      where: { id: body.parentId, userId },
+      select: { id: true },
+    });
+    parentId = parent?.id ?? null;
+  }
+
+  // Kaufdatum validieren – ungültige Eingaben werden ignoriert statt 500.
+  let purchaseDate: Date | null = null;
+  if (typeof body.purchaseDate === "string" && body.purchaseDate) {
+    const parsed = new Date(`${body.purchaseDate.slice(0, 10)}T00:00:00Z`);
+    if (!Number.isNaN(parsed.getTime())) purchaseDate = parsed;
+  }
 
   const created = await prisma.gearItem.create({
     data: {
@@ -83,13 +101,10 @@ export async function POST(request: Request) {
       name,
       type: typeof body.type === "string" ? body.type : "other",
       sport: typeof body.sport === "string" ? body.sport : null,
-      parentId: typeof body.parentId === "string" ? body.parentId : null,
+      parentId,
       brand: typeof body.brand === "string" ? body.brand : null,
       model: typeof body.model === "string" ? body.model : null,
-      purchaseDate:
-        typeof body.purchaseDate === "string" && body.purchaseDate
-          ? new Date(`${body.purchaseDate.slice(0, 10)}T00:00:00Z`)
-          : null,
+      purchaseDate,
       autoTrack: body.autoTrack !== false,
       manualKm: num(body.manualKm) ?? 0,
       manualHours: num(body.manualHours) ?? 0,
