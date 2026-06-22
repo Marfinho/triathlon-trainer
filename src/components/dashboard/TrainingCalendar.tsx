@@ -3,7 +3,42 @@
 import { useEffect, useState } from "react";
 import { Card, sportLabel, sportColor } from "./Card";
 import { WorkoutProfile } from "./WorkoutProfile";
+import {
+  buildWorkoutProfile,
+  summarizeProfile,
+} from "@/domain/training/workoutProfile";
 import type { CalendarDay, CalendarItem } from "@/domain/training/calendar";
+
+const SOURCE_LABEL: Record<string, string> = {
+  intervals: "Intervals.icu",
+  strava: "Strava",
+  wahoo: "Wahoo",
+  manual: "manuell",
+  trainer: "Radrolle",
+};
+
+/** Pace/Tempo je Sportart aus Dauer + Distanz. */
+function derivePace(
+  sport: string,
+  durationMin: number,
+  distanceKm: number | null | undefined,
+): string | null {
+  if (durationMin <= 0 || distanceKm == null || distanceKm <= 0) return null;
+  if (sport === "bike") {
+    const kmh = distanceKm / (durationMin / 60);
+    return `${kmh.toFixed(1)} km/h`;
+  }
+  if (sport === "swim") {
+    const secPer100 = (durationMin * 60) / (distanceKm * 10);
+    const m = Math.floor(secPer100 / 60);
+    const s = Math.round(secPer100 % 60);
+    return `${m}:${String(s).padStart(2, "0")}/100m`;
+  }
+  const secPerKm = (durationMin * 60) / distanceKm;
+  const m = Math.floor(secPerKm / 60);
+  const s = Math.round(secPerKm % 60);
+  return `${m}:${String(s).padStart(2, "0")}/km`;
+}
 
 const WEEKDAYS = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"];
 
@@ -110,8 +145,16 @@ export function TrainingCalendar({
   );
 }
 
+const MONTH_ABBR = [
+  "Jan", "Feb", "Mär", "Apr", "Mai", "Jun",
+  "Jul", "Aug", "Sep", "Okt", "Nov", "Dez",
+];
+
 function DayCell({ day, onOpen }: { day: CalendarDay; onOpen: () => void }) {
   const dayNum = day.date.slice(8, 10);
+  // Am Monatsersten den Monat anzeigen, damit das Gitter zeitlich verortet ist.
+  const monthTag =
+    dayNum === "01" ? MONTH_ABBR[Number(day.date.slice(5, 7)) - 1] ?? "" : "";
   const hasItems = day.items.length > 0;
   return (
     <button
@@ -128,11 +171,12 @@ function DayCell({ day, onOpen }: { day: CalendarDay; onOpen: () => void }) {
       } ${hasItems ? "cursor-pointer hover:border-blue-300 hover:shadow-sm" : "cursor-default"}`}
     >
       <div
-        className={`mb-1 text-right text-[10px] ${
+        className={`mb-1 flex items-center justify-between text-[10px] ${
           day.isToday ? "font-semibold text-blue-600" : "text-neutral-400"
         }`}
       >
-        {dayNum}
+        <span className="font-medium text-neutral-400">{monthTag}</span>
+        <span>{dayNum}</span>
       </div>
       <div className="space-y-0.5">
         {day.items.slice(0, 3).map((it, i) => (
@@ -195,7 +239,7 @@ function DayModal({
       onClick={onClose}
     >
       <div
-        className="max-h-[80vh] w-full max-w-md overflow-y-auto rounded-2xl bg-white p-5 shadow-xl"
+        className="max-h-[85vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-5 shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mb-4 flex items-start justify-between gap-3">
@@ -213,6 +257,7 @@ function DayModal({
           <p className="text-sm text-neutral-400">Kein Training an diesem Tag.</p>
         ) : (
           <div className="space-y-4">
+            <DaySummary planned={planned} actual={actual} />
             {planned.length > 0 ? (
               <section>
                 <h4 className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-neutral-400">
@@ -244,19 +289,113 @@ function DayModal({
   );
 }
 
+function DaySummary({
+  planned,
+  actual,
+}: {
+  planned: CalendarItem[];
+  actual: CalendarItem[];
+}) {
+  const plannedMin = planned.reduce((s, it) => s + it.durationMin, 0);
+  const actualMin = actual.reduce((s, it) => s + it.durationMin, 0);
+  const actualLoad = actual.reduce((s, it) => s + (it.load ?? 0), 0);
+
+  return (
+    <div className="grid grid-cols-3 gap-1.5">
+      <Stat
+        label="Geplant"
+        value={planned.length ? `${planned.length} · ${Math.round((plannedMin / 60) * 10) / 10} h` : "—"}
+      />
+      <Stat
+        label="Absolviert"
+        value={actual.length ? `${actual.length} · ${Math.round((actualMin / 60) * 10) / 10} h` : "—"}
+      />
+      <Stat label="Load" value={actualLoad > 0 ? String(Math.round(actualLoad)) : "—"} />
+    </div>
+  );
+}
+
+function Stat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-lg bg-neutral-50 px-2 py-1.5">
+      <div className="text-[10px] uppercase tracking-wide text-neutral-400">{label}</div>
+      <div className="text-sm font-medium text-neutral-800">{value}</div>
+    </div>
+  );
+}
+
+function fmtDistance(sport: string, km: number): string {
+  return sport === "swim" ? `${Math.round(km * 1000)} m` : `${km.toFixed(1)} km`;
+}
+
+function fmtDuration(min: number): string {
+  if (min < 60) return `${min} min`;
+  const h = Math.floor(min / 60);
+  const m = min % 60;
+  return m > 0 ? `${h} h ${m} min` : `${h} h`;
+}
+
+/** Detailkarte einer Einheit – zeigt möglichst alle verfügbaren Kennzahlen. */
 function DetailRow({ item, ftp }: { item: CalendarItem; ftp: number }) {
   const color = sportColor(item.sport);
-  const facts: string[] = [`${item.durationMin}′`];
-  if (item.distanceKm != null && item.distanceKm > 0) {
-    facts.push(
-      item.sport === "swim"
-        ? `${Math.round(item.distanceKm * 1000)} m`
-        : `${item.distanceKm.toFixed(1)} km`,
-    );
+  const stats: { label: string; value: string }[] = [];
+
+  stats.push({ label: "Sport", value: sportLabel(item.sport) });
+  if (item.durationMin > 0) {
+    stats.push({ label: "Dauer", value: fmtDuration(item.durationMin) });
   }
-  if (item.load != null && item.load > 0) facts.push(`Load ${Math.round(item.load)}`);
-  if (item.avgHr != null && item.avgHr > 0) facts.push(`${item.avgHr} bpm`);
-  if (item.rpe != null && item.rpe > 0) facts.push(`RPE ${item.rpe}`);
+  if (item.distanceKm != null && item.distanceKm > 0) {
+    stats.push({ label: "Distanz", value: fmtDistance(item.sport, item.distanceKm) });
+    const pace = derivePace(item.sport, item.durationMin, item.distanceKm);
+    if (pace) stats.push({ label: "Tempo", value: pace });
+  }
+
+  // Geplante Einheit: aus dem Profil abgeleitete Eckwerte.
+  let profileSummary: ReturnType<typeof summarizeProfile> | null = null;
+  if (item.kind === "planned" && item.segments && item.segments.length > 0) {
+    const bars = buildWorkoutProfile(item.segments, { ftp });
+    profileSummary = summarizeProfile(bars, ftp);
+  }
+
+  if (item.kind === "actual") {
+    if (item.avgPower != null && item.avgPower > 0) {
+      stats.push({ label: "Ø Leistung", value: `${item.avgPower} W` });
+      if (item.durationMin > 0) {
+        stats.push({
+          label: "Arbeit",
+          value: `${Math.round((item.avgPower * item.durationMin * 60) / 1000)} kJ`,
+        });
+      }
+    }
+    if (item.avgHr != null && item.avgHr > 0) {
+      stats.push({ label: "Ø Puls", value: `${item.avgHr} bpm` });
+    }
+    if (item.load != null && item.load > 0) {
+      stats.push({ label: "Load", value: String(Math.round(item.load)) });
+    }
+    if (item.rpe != null && item.rpe > 0) {
+      stats.push({ label: "RPE", value: String(item.rpe) });
+    }
+  } else {
+    if (item.rpe != null && item.rpe > 0) {
+      stats.push({ label: "Ziel-RPE", value: String(item.rpe) });
+    }
+    if (profileSummary && profileSummary.tss > 0) {
+      stats.push({ label: "TSS (≈)", value: String(profileSummary.tss) });
+      stats.push({ label: "IF (≈)", value: profileSummary.intensityFactor.toFixed(2) });
+    }
+    if (profileSummary && profileSummary.kJ > 0 && (item.sport === "bike" || item.sport === "brick")) {
+      stats.push({ label: "Arbeit (≈)", value: `${profileSummary.kJ} kJ` });
+    }
+    if (item.segments && item.segments.length > 0) {
+      stats.push({ label: "Segmente", value: String(item.segments.length) });
+    }
+  }
+
+  const sourceLabel =
+    item.kind === "actual" && item.source
+      ? SOURCE_LABEL[item.source] ?? item.source
+      : null;
 
   return (
     <li className="rounded-xl border border-neutral-200 p-3">
@@ -269,14 +408,29 @@ function DetailRow({ item, ftp }: { item: CalendarItem; ftp: number }) {
           <span className="ml-auto rounded-full bg-neutral-100 px-2 py-0.5 text-[10px] text-neutral-500">
             {STATUS_LABEL[item.status] ?? item.status}
           </span>
+        ) : sourceLabel ? (
+          <span className="ml-auto rounded-full bg-neutral-100 px-2 py-0.5 text-[10px] text-neutral-500">
+            {sourceLabel}
+          </span>
         ) : null}
       </div>
-      <p className="mt-1 text-xs text-neutral-500">
-        {sportLabel(item.sport)} · {facts.join(" · ")}
-      </p>
+
+      <div className="mt-2 grid grid-cols-3 gap-1.5">
+        {stats.map((s, i) => (
+          <Stat key={i} label={s.label} value={s.value} />
+        ))}
+      </div>
+
       {item.description ? (
-        <p className="mt-1.5 text-xs text-neutral-500">{item.description}</p>
+        <p className="mt-2 text-xs text-neutral-500">{item.description}</p>
       ) : null}
+
+      {item.kind === "actual" && item.notes ? (
+        <p className="mt-2 rounded-lg bg-neutral-50 px-2 py-1.5 text-xs italic text-neutral-500">
+          {item.notes}
+        </p>
+      ) : null}
+
       {item.kind === "planned" && item.segments && item.segments.length > 0 ? (
         <div className="mt-3">
           <WorkoutProfile segments={item.segments} ftp={ftp} sport={item.sport} />

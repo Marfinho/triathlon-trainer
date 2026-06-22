@@ -96,3 +96,44 @@ export function buildWorkoutProfile(
     };
   });
 }
+
+export interface ProfileSummary {
+  /** Gesamtdauer in Sekunden (nur Segmente mit Dauer). */
+  totalSec: number;
+  /** Intensitätsfaktor: dauergewichteter Ø-Anteil der FTP. */
+  intensityFactor: number;
+  /** Geschätzte Trainingsbelastung (TSS-Stil) aus dem Profil. */
+  tss: number;
+  /** Mechanische Arbeit in kJ (v. a. Rad). */
+  kJ: number;
+}
+
+/**
+ * Verdichtet ein Profil zu Eckwerten (Gesamtdauer, IF, geschätzte TSS, Arbeit).
+ * TSS = Σ (Dauer_h · IF_seg²) · 100; IF = dauergewichteter Ø-%FTP. Segmente ohne
+ * Dauer fließen nur in die Arbeit/IF-Gewichtung ein, soweit sie Dauer haben.
+ */
+export function summarizeProfile(bars: ProfileBar[], ftp: number): ProfileSummary {
+  const safeFtp = ftp > 0 ? ftp : 200;
+  let totalSec = 0;
+  let weightedPctSum = 0;
+  let tss = 0;
+  let joules = 0;
+  for (const b of bars) {
+    const sec = typeof b.durationSec === "number" && b.durationSec > 0 ? b.durationSec : 0;
+    if (sec > 0) {
+      totalSec += sec;
+      weightedPctSum += b.pctFtp * sec;
+      tss += (sec / 3600) * b.pctFtp * b.pctFtp * 100;
+      joules += b.watts * sec;
+    }
+  }
+  const intensityFactor =
+    totalSec > 0 ? Math.round((weightedPctSum / totalSec) * 100) / 100 : 0;
+  return {
+    totalSec,
+    intensityFactor,
+    tss: Math.round(tss),
+    kJ: Math.round(joules / 1000),
+  };
+}

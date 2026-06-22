@@ -27,6 +27,9 @@ export interface CalendarActual {
   load?: number | null;
   rpe?: number | null;
   avgHr?: number | null;
+  avgPower?: number | null;
+  source?: string | null;
+  notes?: string | null;
 }
 
 export interface CalendarItem {
@@ -39,6 +42,9 @@ export interface CalendarItem {
   load?: number | null;
   rpe?: number | null;
   avgHr?: number | null;
+  avgPower?: number | null;
+  source?: string | null;
+  notes?: string | null;
   description?: string | null;
   segments?: ProfileSegmentInput[] | null;
 }
@@ -112,6 +118,9 @@ export function buildCalendar(
           load: a.load ?? null,
           rpe: a.rpe ?? null,
           avgHr: a.avgHr ?? null,
+          avgPower: a.avgPower ?? null,
+          source: a.source ?? null,
+          notes: a.notes ?? null,
         });
       }
       week.push({

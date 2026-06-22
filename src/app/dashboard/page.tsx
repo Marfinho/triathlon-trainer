@@ -316,6 +316,9 @@ export default async function DashboardPage() {
       load: a.load,
       rpe: a.rpe,
       avgHr: a.avgHr,
+      avgPower: a.avgPower,
+      source: a.source,
+      notes: a.notes,
     })),
     { weeks: 4, weeksBefore: 1, today: now },
   );

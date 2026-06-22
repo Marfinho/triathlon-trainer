@@ -3,6 +3,7 @@ import {
   buildWorkoutProfile,
   segmentTypeLabel,
   zoneColorForPct,
+  summarizeProfile,
   type ProfileSegmentInput,
 } from "@/domain/training/workoutProfile";
 
@@ -60,5 +61,33 @@ describe("buildWorkoutProfile", () => {
     );
     expect(bars[0].weight).toBe(2000);
     expect(bars[1].weight).toBe(60);
+  });
+});
+
+describe("summarizeProfile", () => {
+  it("berechnet Dauer, IF, TSS und kJ aus dem Profil", () => {
+    const ftp = 200;
+    const bars = buildWorkoutProfile(
+      [
+        { type: "steady", durationSec: 3600, targetType: "power", targetValue: 200 },
+      ],
+      { ftp },
+    );
+    const s = summarizeProfile(bars, ftp);
+    expect(s.totalSec).toBe(3600);
+    expect(s.intensityFactor).toBe(1); // 200 W bei 200 FTP
+    expect(s.tss).toBe(100); // 1 h bei IF 1.0
+    expect(s.kJ).toBe(720); // 200 W * 3600 s / 1000
+  });
+
+  it("ignoriert Segmente ohne Dauer bei Zeit/TSS", () => {
+    const bars = buildWorkoutProfile(
+      [{ type: "steady", distanceM: 1000, intensity: "endurance" }],
+      { ftp: 200 },
+    );
+    const s = summarizeProfile(bars, 200);
+    expect(s.totalSec).toBe(0);
+    expect(s.tss).toBe(0);
+    expect(s.intensityFactor).toBe(0);
   });
 });
