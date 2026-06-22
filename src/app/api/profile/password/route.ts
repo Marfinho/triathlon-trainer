@@ -5,6 +5,7 @@ import { requireUser } from "@/lib/auth-guard";
 import { checkRateLimit, clientIp } from "@/lib/rate-limit";
 import { validatePasswordStrength } from "@/domain/auth/password";
 import { recordAudit } from "@/lib/audit";
+import { blockedResponse } from "@/lib/security/taunt";
 
 const BCRYPT_ROUNDS = 12;
 
@@ -19,7 +20,7 @@ export async function POST(request: Request) {
 
   const rl = await checkRateLimit(`password-change:${userId}`, 10, 15 * 60 * 1000);
   if (!rl.allowed) {
-    return NextResponse.json({ ok: false, error: "TOO_MANY_REQUESTS" }, { status: 429 });
+    return blockedResponse({ ok: false, error: "TOO_MANY_REQUESTS" }, 429);
   }
 
   let body: Record<string, unknown> = {};

@@ -1,13 +1,19 @@
 /**
- * Optionale direkte LLM-Anbindung (Anthropic/OpenAI) als Alternative zum
- * manuellen Copy-Paste-Workflow im ChatGPT-Austausch. Aktiv, sobald der
- * Betreiber ANTHROPIC_API_KEY oder OPENAI_API_KEY gesetzt hat (Anthropic hat
- * Vorrang, falls beide gesetzt sind). Ohne API-Key bleibt der bisherige
- * manuelle Workflow unverändert nutzbar.
+ * Optionale direkte LLM-Anbindung (Ollama/Anthropic/OpenAI) als Alternative
+ * zum manuellen Copy-Paste-Workflow im ChatGPT-Austausch. Aktiv, sobald der
+ * Betreiber OLLAMA_BASE_URL, ANTHROPIC_API_KEY oder OPENAI_API_KEY gesetzt
+ * hat (Reihenfolge bei mehreren gesetzten: Ollama > Anthropic > OpenAI – die
+ * lokale, kostenlose Instanz hat Vorrang vor Cloud-APIs). Ohne eine dieser
+ * Variablen bleibt der bisherige manuelle Workflow unverändert nutzbar –
+ * beide Wege funktionieren nebeneinander.
  */
 
 export function isLlmConfigured(): boolean {
-  return Boolean(process.env.ANTHROPIC_API_KEY || process.env.OPENAI_API_KEY);
+  return Boolean(
+    process.env.ANTHROPIC_API_KEY ||
+      process.env.OPENAI_API_KEY ||
+      process.env.OLLAMA_BASE_URL,
+  );
 }
 
 interface AnthropicContentBlock {
@@ -64,9 +70,41 @@ async function callOpenAi(prompt: string): Promise<string> {
   return data.choices?.[0]?.message?.content ?? "";
 }
 
-/** Schickt den Prompt an den konfigurierten Anbieter (Anthropic bevorzugt). */
+interface OllamaChatResponse {
+  message?: { content?: string };
+}
+
+/**
+ * Lokale Ollama-Instanz (https://ollama.com) – läuft beim Betreiber selbst,
+ * keine Daten verlassen die eigene Infrastruktur. OLLAMA_BASE_URL ist eine
+ * vom Betreiber gesetzte Server-Konfiguration (kein Nutzer-Input), daher
+ * keine zusätzliche SSRF-Validierung nötig – analog zu INTERVALS_API_BASE_URL.
+ */
+async function callOllama(prompt: string): Promise<string> {
+  const baseUrl = process.env.OLLAMA_BASE_URL!;
+  const model = process.env.OLLAMA_MODEL || "llama3.1";
+  const res = await fetch(`${baseUrl.replace(/\/+$/, "")}/api/chat`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model,
+      messages: [{ role: "user", content: prompt }],
+      stream: false,
+    }),
+  });
+  if (!res.ok) {
+    throw new Error(`Ollama-API-Fehler (${res.status}): ${await res.text()}`);
+  }
+  const data = (await res.json()) as OllamaChatResponse;
+  return data.message?.content ?? "";
+}
+
+/** Schickt den Prompt an den konfigurierten Anbieter (Ollama > Anthropic > OpenAI). */
 export async function callLlm(prompt: string): Promise<string> {
+  if (process.env.OLLAMA_BASE_URL) return callOllama(prompt);
   if (process.env.ANTHROPIC_API_KEY) return callAnthropic(prompt);
   if (process.env.OPENAI_API_KEY) return callOpenAi(prompt);
-  throw new Error("Keine LLM-API konfiguriert (ANTHROPIC_API_KEY oder OPENAI_API_KEY fehlt).");
+  throw new Error(
+    "Keine LLM-API konfiguriert (OLLAMA_BASE_URL, ANTHROPIC_API_KEY oder OPENAI_API_KEY fehlt).",
+  );
 }

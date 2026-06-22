@@ -28,7 +28,11 @@ export async function POST(request: Request) {
 
   if (!isLlmConfigured()) {
     return NextResponse.json(
-      { ok: false, error: "Keine LLM-API konfiguriert (ANTHROPIC_API_KEY oder OPENAI_API_KEY fehlt)." },
+      {
+        ok: false,
+        error:
+          "Keine LLM-API konfiguriert (OLLAMA_BASE_URL, ANTHROPIC_API_KEY oder OPENAI_API_KEY fehlt).",
+      },
       { status: 400 },
     );
   }

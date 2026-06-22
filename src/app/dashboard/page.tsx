@@ -69,6 +69,7 @@ import { forecastForm } from "@/domain/training/formForecast";
 import { bestRunReference } from "@/domain/training/prediction";
 import { TrainingInsights } from "@/components/dashboard/TrainingInsights";
 import { FormForecastCard } from "@/components/dashboard/FormForecastCard";
+import { NutritionTab } from "@/components/dashboard/nutrition/NutritionTab";
 
 export const dynamic = "force-dynamic";
 
@@ -559,8 +560,17 @@ export default async function DashboardPage() {
             id: "kalender",
             label: "Kalender",
             content: (
-              <TrainingCalendar grid={calendarGrid} ftp={athlete?.ftpWatts ?? 200} />
+              <TrainingCalendar
+                grid={calendarGrid}
+                ftp={athlete?.ftpWatts ?? 200}
+                weightKg={athlete?.weightKg ?? null}
+              />
             ),
+          },
+          {
+            id: "ernaehrung",
+            label: "Ernährung",
+            content: <NutritionTab />,
           },
           {
             id: "analyse",

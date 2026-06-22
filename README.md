@@ -20,10 +20,11 @@ Der Austausch mit dem LLM funktioniert auf **zwei Wegen**:
 1. **Copy & Paste (Standard):** LocalHub erzeugt eine modulare `coach_summary`
    (JSON), du fügst sie in einen LLM-Chat ein und importierst den erzeugten
    `localhub_plan` zurück.
-2. **Direkte LLM-API (optional):** Mit hinterlegtem `ANTHROPIC_API_KEY` oder
-   `OPENAI_API_KEY` generiert LocalHub den Plan direkt per Knopfdruck – das
-   Ergebnis landet zur Prüfung im Importfeld und durchläuft denselben harten
-   Validierungs-Flow.
+2. **Direkte LLM-API (optional):** Mit hinterlegtem `ANTHROPIC_API_KEY`,
+   `OPENAI_API_KEY` **oder** `OLLAMA_BASE_URL` (lokale [Ollama](https://ollama.com)-
+   Instanz, kein Cloud-Key nötig) generiert LocalHub den Plan direkt per
+   Knopfdruck – das Ergebnis landet zur Prüfung im Importfeld und durchläuft
+   denselben harten Validierungs-Flow. Beide Wege bleiben parallel nutzbar.
 
 > Bewusst **kein** autonomer Coach: keine versteckte Adaptations-/Strategie-Logik.
 > Jede Planänderung ist nachvollziehbar und wird vor dem Import validiert.
