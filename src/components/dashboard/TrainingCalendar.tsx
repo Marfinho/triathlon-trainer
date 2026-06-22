@@ -8,6 +8,13 @@ import {
   summarizeProfile,
 } from "@/domain/training/workoutProfile";
 import type { CalendarDay, CalendarItem } from "@/domain/training/calendar";
+import { forecastWorkoutEnergy } from "@/domain/nutrition/forecast";
+
+const FORECAST_CONFIDENCE_LABEL: Record<string, string> = {
+  high: "hohe Konfidenz",
+  medium: "mittlere Konfidenz",
+  low: "niedrige Konfidenz",
+};
 
 const SOURCE_LABEL: Record<string, string> = {
   intervals: "Intervals.icu",
@@ -76,9 +83,11 @@ function fmtFullDate(iso: string): string {
 export function TrainingCalendar({
   grid,
   ftp = 200,
+  weightKg = null,
 }: {
   grid: CalendarDay[][];
   ftp?: number;
+  weightKg?: number | null;
 }) {
   const [openDay, setOpenDay] = useState<CalendarDay | null>(null);
 
@@ -139,7 +148,7 @@ export function TrainingCalendar({
       </div>
       <Legend />
       {openDay ? (
-        <DayModal day={openDay} ftp={ftp} onClose={() => setOpenDay(null)} />
+        <DayModal day={openDay} ftp={ftp} weightKg={weightKg} onClose={() => setOpenDay(null)} />
       ) : null}
     </Card>
   );
@@ -214,10 +223,12 @@ function Chip({ item }: { item: CalendarItem }) {
 function DayModal({
   day,
   ftp,
+  weightKg,
   onClose,
 }: {
   day: CalendarDay;
   ftp: number;
+  weightKg: number | null;
   onClose: () => void;
 }) {
   useEffect(() => {
@@ -266,7 +277,7 @@ function DayModal({
                 </h4>
                 <ul className="space-y-2">
                   {planned.map((it, i) => (
-                    <DetailRow key={i} item={it} ftp={ftp} />
+                    <DetailRow key={i} item={it} ftp={ftp} date={day.date} weightKg={weightKg} />
                   ))}
                 </ul>
               </section>
@@ -278,7 +289,7 @@ function DayModal({
                 </h4>
                 <ul className="space-y-2">
                   {actual.map((it, i) => (
-                    <DetailRow key={i} item={it} ftp={ftp} />
+                    <DetailRow key={i} item={it} ftp={ftp} date={day.date} weightKg={weightKg} />
                   ))}
                 </ul>
               </section>
@@ -337,7 +348,17 @@ function fmtDuration(min: number): string {
 }
 
 /** Detailkarte einer Einheit – zeigt möglichst alle verfügbaren Kennzahlen. */
-function DetailRow({ item, ftp }: { item: CalendarItem; ftp: number }) {
+function DetailRow({
+  item,
+  ftp,
+  date,
+  weightKg,
+}: {
+  item: CalendarItem;
+  ftp: number;
+  date: string;
+  weightKg: number | null;
+}) {
   const color = sportColor(item.sport);
   const stats: { label: string; value: string }[] = [];
 
@@ -385,11 +406,27 @@ function DetailRow({ item, ftp }: { item: CalendarItem; ftp: number }) {
       stats.push({ label: "TSS (≈)", value: String(profileSummary.tss) });
       stats.push({ label: "IF (≈)", value: profileSummary.intensityFactor.toFixed(2) });
     }
-    if (profileSummary && profileSummary.kJ > 0 && (item.sport === "bike" || item.sport === "brick")) {
-      stats.push({ label: "Arbeit (≈)", value: `${profileSummary.kJ} kJ` });
+    const hasKjStat =
+      profileSummary != null &&
+      profileSummary.kJ > 0 &&
+      (item.sport === "bike" || item.sport === "brick");
+    if (hasKjStat) {
+      stats.push({ label: "Arbeit (≈)", value: `${profileSummary!.kJ} kJ` });
     }
     if (item.segments && item.segments.length > 0) {
       stats.push({ label: "Segmente", value: String(item.segments.length) });
+    }
+    if (!hasKjStat) {
+      const energyForecast = forecastWorkoutEnergy(
+        { date, sport: item.sport, plannedDurationMin: item.durationMin, segments: item.segments },
+        { ftpWatts: ftp, weightKg },
+      );
+      if (energyForecast) {
+        stats.push({
+          label: `Energie (≈, ${FORECAST_CONFIDENCE_LABEL[energyForecast.confidence]})`,
+          value: `${energyForecast.kcal} kcal`,
+        });
+      }
     }
   }
 

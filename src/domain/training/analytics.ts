@@ -87,7 +87,9 @@ export function intensityDistribution(
 
 // Grobe MET-Werte je Sportart (moderate Intensität) als Fallback, wenn keine
 // Power-Daten vorliegen. Quelle: Compendium of Physical Activities (gerundet).
-const MET_BY_SPORT: Record<string, number> = {
+// Exportiert, damit der Energie-Forecast (src/domain/nutrition/forecast.ts)
+// denselben Fallback statt einer eigenen Kopie nutzt.
+export const MET_BY_SPORT: Record<string, number> = {
   run: 9.8,
   bike: 7.5,
   swim: 8.3,
