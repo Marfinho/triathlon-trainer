@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/auth-guard";
+import { sanitizeText } from "@/domain/security/sanitize";
 
 /**
  * PATCH /api/profile – Athleten-Profil aktualisieren (Schwellenwerte +
@@ -30,13 +31,16 @@ export async function PATCH(request: Request) {
   };
   const stringOrNull = (v: unknown): string | null | undefined => {
     if (v === null) return null;
-    if (typeof v === "string") return v.trim();
+    if (typeof v === "string") return sanitizeText(v, 120);
     return undefined;
   };
   const stringArray = (v: unknown): string[] | undefined => {
     if (!Array.isArray(v)) return undefined;
-    const out = v.filter((x): x is string => typeof x === "string" && x.trim().length > 0);
-    return out.map((x) => x.trim());
+    return v
+      .filter((x): x is string => typeof x === "string")
+      .map((x) => sanitizeText(x, 120))
+      .filter((x) => x.length > 0)
+      .slice(0, 50);
   };
 
   const data: Record<string, unknown> = {};

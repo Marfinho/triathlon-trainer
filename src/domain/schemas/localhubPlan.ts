@@ -14,12 +14,12 @@ import { segmentSchema } from "./segment";
 export const planEntrySchema = z.object({
   date: isoDateSchema,
   sport: sportSchema,
-  title: z.string().min(1),
-  plannedDurationMin: z.number().int().nonnegative(),
-  plannedDistanceM: z.number().nonnegative().nullable().default(null),
+  title: z.string().min(1).max(200),
+  plannedDurationMin: z.number().int().nonnegative().max(1440),
+  plannedDistanceM: z.number().nonnegative().max(1_000_000).nullable().default(null),
   rpe: z.number().nullable().default(null),
-  description: z.string().nullable().default(null),
-  segments: z.array(segmentSchema).default([]),
+  description: z.string().max(4000).nullable().default(null),
+  segments: z.array(segmentSchema).max(200).default([]),
 });
 
 export type PlanEntry = z.infer<typeof planEntrySchema>;
@@ -36,14 +36,14 @@ export const planRationaleSchema = z
 export const localhubPlanSchema = z.object({
   schemaVersion: z.string(),
   type: z.literal("localhub_plan"),
-  planName: z.string().nullable().optional(),
+  planName: z.string().max(200).nullable().optional(),
   generatedAt: z.string().nullable().optional(),
   planStart: isoDateSchema,
-  planDays: z.number().int().positive(),
+  planDays: z.number().int().positive().max(400),
   planEnd: isoDateSchema,
-  entries: z.array(planEntrySchema),
+  entries: z.array(planEntrySchema).max(400),
   planRationale: planRationaleSchema,
-  assumptions: z.array(z.string()).optional(),
+  assumptions: z.array(z.string().max(1000)).max(100).optional(),
 });
 
 export type LocalhubPlan = z.infer<typeof localhubPlanSchema>;

@@ -62,15 +62,15 @@ export const segmentSchema = z.preprocess(
   normalizeSegmentKeys,
   z.object({
     type: z.enum(SEGMENT_TYPES),
-    durationSec: z.number().int().nonnegative().nullable().default(null),
-    distanceM: z.number().nonnegative().nullable().default(null),
-    intensity: z.string().nullable().default(null),
+    durationSec: z.number().int().nonnegative().max(86400).nullable().default(null),
+    distanceM: z.number().nonnegative().max(1_000_000).nullable().default(null),
+    intensity: z.string().max(200).nullable().default(null),
     targetType: z.enum(SEGMENT_TARGET_TYPES).nullable().default(null),
     targetValue: z.number().nullable().default(null),
     targetValueTo: z.number().nullable().default(null),
-    cadenceNote: z.string().nullable().default(null),
+    cadenceNote: z.string().max(200).nullable().default(null),
     rpeTarget: z.number().nullable().default(null),
-    description: z.string().nullable().default(null),
+    description: z.string().max(1000).nullable().default(null),
   }),
 );
 

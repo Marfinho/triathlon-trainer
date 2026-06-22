@@ -13,6 +13,8 @@ export async function POST(request: Request) {
   if (response) return response;
   const { userId } = user;
 
+  const MAX_UPLOAD_BYTES = 25 * 1024 * 1024;
+
   let raw: unknown;
   try {
     const form = await request.formData();
@@ -21,6 +23,12 @@ export async function POST(request: Request) {
       return NextResponse.json(
         { error: "INVALID_FORMAT", details: "Feld 'backup-json' fehlt." },
         { status: 400 },
+      );
+    }
+    if (file.size > MAX_UPLOAD_BYTES) {
+      return NextResponse.json(
+        { error: "INVALID_FORMAT", details: "Datei zu groß (max. 25 MB)." },
+        { status: 413 },
       );
     }
     raw = JSON.parse(await file.text());

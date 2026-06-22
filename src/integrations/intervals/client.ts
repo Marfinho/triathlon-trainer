@@ -78,7 +78,7 @@ export class HttpIntervalsClient implements IntervalsClient {
   private readonly fetchImpl: typeof fetch;
 
   constructor(config: IntervalsClientConfig) {
-    this.athleteId = config.athleteId;
+    this.athleteId = encodeURIComponent(config.athleteId);
     this.baseUrl = config.baseUrl ?? "https://intervals.icu/api/v1";
     this.authHeader =
       "Basic " +

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/auth-guard";
+import { sanitizeOptionalText } from "@/domain/security/sanitize";
 
 /**
  * PATCH  /api/gear/:id  – Gerät aktualisieren.
@@ -31,30 +32,38 @@ export async function PATCH(
   }
 
   const data: Record<string, unknown> = {};
-  const str = (k: string) => {
-    if (typeof body[k] === "string") data[k] = body[k];
+  const str = (k: string, maxLen: number) => {
+    if (typeof body[k] === "string") data[k] = sanitizeOptionalText(body[k], maxLen);
   };
+  const finite = (v: unknown): number | null =>
+    typeof v === "number" && Number.isFinite(v) ? v : null;
   const numField = (k: string) => {
-    if (typeof body[k] === "number") data[k] = body[k];
-    else if (body[k] === null) data[k] = null;
+    if (body[k] === null) data[k] = null;
+    else if (finite(body[k]) != null) data[k] = body[k];
   };
 
-  str("name");
-  str("brand");
-  str("model");
-  str("notes");
+  // `name` ist Pflichtfeld – ein leeres Ergebnis nach Sanitisierung würde die
+  // DB-Constraint verletzen, daher wird ein solcher Wert ignoriert statt
+  // gespeichert (kein Crash, kein versehentliches Leeren des Namens).
+  if (typeof body.name === "string") {
+    const cleaned = sanitizeOptionalText(body.name, 200);
+    if (cleaned) data.name = cleaned;
+  }
+  str("brand", 120);
+  str("model", 120);
+  str("notes", 2000);
   numField("alertKm");
   numField("alertHours");
   if (typeof body.retired === "boolean") data.retired = body.retired;
   if (typeof body.autoTrack === "boolean") data.autoTrack = body.autoTrack;
-  if (typeof body.manualKm === "number") data.manualKm = body.manualKm;
-  if (typeof body.manualHours === "number") data.manualHours = body.manualHours;
+  if (finite(body.manualKm) != null) data.manualKm = body.manualKm;
+  if (finite(body.manualHours) != null) data.manualHours = body.manualHours;
 
-  if (typeof body.addKm === "number") {
-    data.manualKm = current.manualKm + body.addKm;
+  if (finite(body.addKm) != null) {
+    data.manualKm = current.manualKm + (body.addKm as number);
   }
-  if (typeof body.addHours === "number") {
-    data.manualHours = current.manualHours + body.addHours;
+  if (finite(body.addHours) != null) {
+    data.manualHours = current.manualHours + (body.addHours as number);
   }
   if (body.resetUsage === true) {
     data.manualKm = 0;
