@@ -5,6 +5,7 @@ import { checkRateLimit, clientIp } from "@/lib/rate-limit";
 import { validatePasswordStrength } from "@/domain/auth/password";
 import { sanitizeOptionalText } from "@/domain/security/sanitize";
 import { recordAudit } from "@/lib/audit";
+import { blockedResponse } from "@/lib/security/taunt";
 
 const BCRYPT_ROUNDS = 12;
 
@@ -17,9 +18,10 @@ export async function POST(request: Request) {
   const ip = clientIp(request);
   const rl = await checkRateLimit(`register:${ip}`, 10, 60 * 60 * 1000);
   if (!rl.allowed) {
-    return NextResponse.json(
+    return blockedResponse(
       { error: "TOO_MANY_REQUESTS" },
-      { status: 429, headers: { "Retry-After": String(Math.ceil(rl.retryAfterMs / 1000)) } },
+      429,
+      { headers: { "Retry-After": String(Math.ceil(rl.retryAfterMs / 1000)) } },
     );
   }
 

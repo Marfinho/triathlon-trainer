@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
+import { blockedResponse } from "@/lib/security/taunt";
 
 export interface AuthedUser {
   userId: string;
@@ -61,7 +62,7 @@ export async function requireAdmin(): Promise<
   if (result.response) return result;
   if (result.user.role !== "admin") {
     return {
-      response: NextResponse.json({ error: "Forbidden" }, { status: 403 }),
+      response: blockedResponse({ error: "Forbidden" }, 403),
     };
   }
   return result;

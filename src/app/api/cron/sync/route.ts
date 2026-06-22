@@ -16,6 +16,7 @@ import { processSyncQueue } from "@/integrations/intervals/syncQueue";
 import { importActivitiesFromIntervals } from "@/integrations/intervals/importActivities";
 import { isSyncDue } from "@/lib/sync-schedule";
 import { refreshExpiringTokens } from "@/integrations/oauth/refreshScheduler";
+import { blockedResponse } from "@/lib/security/taunt";
 
 /**
  * GET /api/cron/sync – von außen (Cron) getriggert. Gesichert per CRON_SECRET
@@ -32,7 +33,7 @@ export async function GET(request: Request) {
   const expected = process.env.CRON_SECRET;
   const authHeader = request.headers.get("authorization");
   if (!expected || !authHeader || !safeEqual(authHeader, `Bearer ${expected}`)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return blockedResponse({ error: "Unauthorized" }, 401);
   }
 
   const tokenRefresh = await refreshExpiringTokens(prisma);
