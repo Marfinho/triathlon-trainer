@@ -1,7 +1,16 @@
 import { NextResponse } from "next/server";
+import { timingSafeEqual } from "node:crypto";
 import { prisma } from "@/lib/db";
 import { getEffectiveLimits } from "@/lib/plan-config";
 import { decryptApiKey } from "@/lib/crypto";
+
+/** Konstant-zeitiger Vergleich – verhindert einen Timing-Seitenkanal auf das Secret. */
+function safeEqual(a: string, b: string): boolean {
+  const ab = Buffer.from(a);
+  const bb = Buffer.from(b);
+  if (ab.length !== bb.length) return false;
+  return timingSafeEqual(ab, bb);
+}
 import { HttpIntervalsClient } from "@/integrations/intervals/client";
 import { processSyncQueue } from "@/integrations/intervals/syncQueue";
 import { importActivitiesFromIntervals } from "@/integrations/intervals/importActivities";
@@ -22,7 +31,7 @@ import { refreshExpiringTokens } from "@/integrations/oauth/refreshScheduler";
 export async function GET(request: Request) {
   const expected = process.env.CRON_SECRET;
   const authHeader = request.headers.get("authorization");
-  if (!expected || authHeader !== `Bearer ${expected}`) {
+  if (!expected || !authHeader || !safeEqual(authHeader, `Bearer ${expected}`)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

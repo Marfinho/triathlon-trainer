@@ -24,10 +24,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, error: "Ungültiger Body." }, { status: 400 });
   }
 
-  const date =
-    typeof body.date === "string" && body.date
-      ? new Date(`${body.date.slice(0, 10)}T00:00:00Z`)
-      : new Date();
+  let date = new Date();
+  if (typeof body.date === "string" && body.date) {
+    const parsed = new Date(`${body.date.slice(0, 10)}T00:00:00Z`);
+    if (!Number.isNaN(parsed.getTime())) date = parsed;
+  }
 
   const r = (body.readiness ?? null) as Record<string, unknown> | null;
   const p = (body.pain ?? null) as Record<string, unknown> | null;

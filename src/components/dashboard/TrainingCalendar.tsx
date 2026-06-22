@@ -234,12 +234,13 @@ function DayModal({
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-neutral-900/40 p-4"
-      role="dialog"
-      aria-modal="true"
       onClick={onClose}
     >
       <div
         className="max-h-[85vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-5 shadow-xl"
+        role="dialog"
+        aria-modal="true"
+        aria-label={`Trainingsdetails ${fmtFullDate(day.date)}`}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mb-4 flex items-start justify-between gap-3">

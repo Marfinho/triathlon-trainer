@@ -25,9 +25,12 @@ export async function POST(request: Request) {
     );
   }
 
+  // Nur endliche Zahlen akzeptieren (NaN/Infinity bestehen `typeof === "number"`).
+  const finite = (v: unknown): number | null =>
+    typeof v === "number" && Number.isFinite(v) ? v : null;
+
   const sport = typeof body.sport === "string" ? body.sport : "bike";
-  const durationMin =
-    typeof body.durationMin === "number" ? body.durationMin : null;
+  const durationMin = finite(body.durationMin);
   if (durationMin == null || durationMin <= 0) {
     return NextResponse.json(
       { ok: false, error: "durationMin fehlt oder ist ungültig." },
@@ -35,29 +38,37 @@ export async function POST(request: Request) {
     );
   }
 
-  const date =
-    typeof body.date === "string" ? new Date(body.date) : new Date();
+  // Datum validieren – ungültige Eingaben fallen auf "jetzt" zurück statt 500.
+  let date = new Date();
+  if (typeof body.date === "string") {
+    const parsed = new Date(body.date);
+    if (!Number.isNaN(parsed.getTime())) date = parsed;
+  }
+
+  // Aufzeichnungs-Samples: nur Arrays, gedeckelt (Speicher-/DoS-Schutz).
+  const MAX_SAMPLES = 50000;
+  const rawJson = Array.isArray(body.samples)
+    ? (body.samples.slice(0, MAX_SAMPLES) as object)
+    : undefined;
+
+  const distanceKm = finite(body.distanceKm);
 
   const created = await prisma.actualActivity.create({
     data: {
       userId,
-      source: typeof body.source === "string" ? body.source : "trainer",
+      source:
+        typeof body.source === "string" ? body.source.slice(0, 40) : "trainer",
       date,
       sport,
       durationMin,
-      distanceKm:
-        typeof body.distanceKm === "number" ? body.distanceKm : null,
-      distanceM:
-        typeof body.distanceKm === "number"
-          ? Math.round(body.distanceKm * 1000)
-          : null,
-      load: typeof body.load === "number" ? body.load : null,
-      rpe: typeof body.rpe === "number" ? body.rpe : null,
-      avgHr: typeof body.avgHr === "number" ? body.avgHr : null,
-      avgPower: typeof body.avgPower === "number" ? body.avgPower : null,
-      notes: typeof body.notes === "string" ? body.notes : null,
-      rawJson:
-        body.samples !== undefined ? (body.samples as object) : undefined,
+      distanceKm,
+      distanceM: distanceKm != null ? Math.round(distanceKm * 1000) : null,
+      load: finite(body.load),
+      rpe: finite(body.rpe),
+      avgHr: finite(body.avgHr),
+      avgPower: finite(body.avgPower),
+      notes: typeof body.notes === "string" ? body.notes.slice(0, 2000) : null,
+      rawJson,
     },
   });
 

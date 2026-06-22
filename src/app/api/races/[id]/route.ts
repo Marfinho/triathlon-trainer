@@ -27,12 +27,18 @@ export async function PATCH(
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
+  // Nur endliche Zahlen (NaN/Infinity bestehen `typeof === "number"`).
+  const finite = (v: unknown): number | null =>
+    typeof v === "number" && Number.isFinite(v) ? v : null;
+
   const data: Record<string, unknown> = {};
   if (typeof body.completed === "boolean") data.completed = body.completed;
-  if (typeof body.resultSeconds === "number") data.resultSeconds = Math.round(body.resultSeconds);
-  else if (body.resultSeconds === null) data.resultSeconds = null;
-  if (typeof body.resultPlacement === "number") data.resultPlacement = Math.round(body.resultPlacement);
-  if (typeof body.resultNote === "string") data.resultNote = body.resultNote;
+  if (body.resultSeconds === null) data.resultSeconds = null;
+  else if (finite(body.resultSeconds) != null)
+    data.resultSeconds = Math.round(body.resultSeconds as number);
+  if (finite(body.resultPlacement) != null)
+    data.resultPlacement = Math.round(body.resultPlacement as number);
+  if (typeof body.resultNote === "string") data.resultNote = body.resultNote.slice(0, 2000);
 
   const race = await prisma.raceEvent.update({ where: { id }, data }).catch(() => null);
   if (!race) return NextResponse.json({ ok: false, error: "Nicht gefunden." }, { status: 404 });
