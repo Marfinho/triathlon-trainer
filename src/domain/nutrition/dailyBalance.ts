@@ -34,12 +34,14 @@ export interface DailyBalanceResult {
 const STATUS_THRESHOLD_KCAL = 300;
 
 export function computeDailyBalance(input: DailyBalanceInput): DailyBalanceResult {
-  const netKcal = Math.round(input.intakeKcal - input.burnedKcal);
+  const intakeKcal = Math.round(input.intakeKcal);
+  const burnedKcal = Math.round(input.burnedKcal);
+  const netKcal = intakeKcal - burnedKcal;
 
   if (input.targetKcal == null) {
     return {
-      intakeKcal: Math.round(input.intakeKcal),
-      burnedKcal: Math.round(input.burnedKcal),
+      intakeKcal,
+      burnedKcal,
       netKcal,
       targetKcal: null,
       deltaToTargetKcal: null,
@@ -47,14 +49,14 @@ export function computeDailyBalance(input: DailyBalanceInput): DailyBalanceResul
     };
   }
 
-  const deltaToTargetKcal = Math.round(netKcal - input.targetKcal);
+  const deltaToTargetKcal = netKcal - input.targetKcal;
   let status: BalanceStatus = "ok";
   if (deltaToTargetKcal < -STATUS_THRESHOLD_KCAL) status = "underfueled";
   else if (deltaToTargetKcal > STATUS_THRESHOLD_KCAL) status = "surplus";
 
   return {
-    intakeKcal: Math.round(input.intakeKcal),
-    burnedKcal: Math.round(input.burnedKcal),
+    intakeKcal,
+    burnedKcal,
     netKcal,
     targetKcal: input.targetKcal,
     deltaToTargetKcal,

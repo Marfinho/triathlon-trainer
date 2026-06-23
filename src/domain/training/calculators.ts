@@ -40,7 +40,11 @@ export function parseClock(str: string): number | null {
 
 /** Formatiert Sekunden als m:ss. */
 export function formatClock(sec: number): string {
-  const m = Math.floor(sec / 60);
-  const s = Math.round(sec % 60);
+  let m = Math.floor(sec / 60);
+  let s = Math.round(sec % 60);
+  if (s === 60) {
+    m += 1;
+    s = 0;
+  }
   return `${m}:${String(s).padStart(2, "0")}`;
 }
