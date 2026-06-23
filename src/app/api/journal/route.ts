@@ -65,9 +65,10 @@ export async function DELETE(request: Request) {
   const { userId } = user;
 
   const id = new URL(request.url).searchParams.get("id");
-  if (id)
-    await prisma.journalEntry
-      .deleteMany({ where: { id, userId } })
-      .catch(() => {});
+  if (!id) return NextResponse.json({ ok: false, error: "id fehlt." }, { status: 400 });
+  const result = await prisma.journalEntry.deleteMany({ where: { id, userId } });
+  if (result.count === 0) {
+    return NextResponse.json({ ok: false, error: "Nicht gefunden." }, { status: 404 });
+  }
   return NextResponse.json({ ok: true });
 }

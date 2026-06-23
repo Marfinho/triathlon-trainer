@@ -29,6 +29,7 @@ type UserSeed = {
   thresholdSwimPer100m: number;
   primarySports: string[];
   raceName: string;
+  raceType: "triathlon" | "run" | "bike" | "swim";
   raceDistance: string;
 };
 
@@ -45,6 +46,7 @@ const USERS: UserSeed[] = [
     thresholdSwimPer100m: 95,
     primarySports: ["run", "bike", "swim"],
     raceName: "Ironman 70.3 Beispielstadt",
+    raceType: "triathlon",
     raceDistance: "70.3",
   },
   {
@@ -59,6 +61,7 @@ const USERS: UserSeed[] = [
     thresholdSwimPer100m: 105,
     primarySports: ["run", "swim"],
     raceName: "Berlin Marathon",
+    raceType: "run",
     raceDistance: "marathon",
   },
   {
@@ -73,6 +76,7 @@ const USERS: UserSeed[] = [
     thresholdSwimPer100m: 110,
     primarySports: ["bike", "run"],
     raceName: "Alpen-Radmarathon",
+    raceType: "bike",
     raceDistance: "olympic",
   },
 ];
@@ -110,7 +114,7 @@ async function seedUser(spec: UserSeed) {
       userId: user.id,
       name: spec.raceName,
       date: daysFromNow(120),
-      type: "triathlon",
+      type: spec.raceType,
       distance: spec.raceDistance,
       priority: "A",
       notes: "Saisonhighlight",

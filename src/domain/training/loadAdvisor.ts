@@ -49,7 +49,7 @@ export function weeklyRampRate(activities: RampActivity[]): RampRateResult {
   let risk: RiskLevel = "ok";
   if (latestRatio != null) {
     if (latestRatio > 1.5) risk = "high";
-    else if (latestRatio >= 1.3 || latestRatio < 0.6) risk = "high";
+    else if (latestRatio >= 1.3) risk = "high";
     else risk = "low";
   }
 
