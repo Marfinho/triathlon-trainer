@@ -59,7 +59,7 @@ export function FormForecastCard({
       ) : (
         <>
           {raceDay ? (
-            <div className="mb-4 grid grid-cols-3 gap-3">
+            <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
               <Metric label="Fitness am Renntag" value={raceDay.ctl.toFixed(0)} hint="CTL" />
               <Metric label="Ermüdung" value={raceDay.atl.toFixed(0)} hint="ATL" />
               <Metric

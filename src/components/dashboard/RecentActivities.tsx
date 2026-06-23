@@ -60,7 +60,7 @@ export function RecentActivities({
       subtitle="Ist-Daten aus Intervals.icu / Radrolle / manuell"
     >
       {summary ? (
-        <div className="mb-4 grid grid-cols-4 gap-2">
+        <div className="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
           <SummaryTile label="Einheiten" value={String(summary.sessions)} />
           <SummaryTile label="Stunden" value={summary.hours.toFixed(1)} />
           <SummaryTile label="km" value={Math.round(summary.distanceKm).toString()} />

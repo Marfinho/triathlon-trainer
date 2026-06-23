@@ -24,6 +24,22 @@ const SOURCE_LABEL: Record<string, string> = {
   trainer: "Radrolle",
 };
 
+const SPORT_ICON: Record<string, string> = {
+  swim: "🏊",
+  bike: "🚴",
+  run: "🏃",
+  strength: "💪",
+  brick: "🔄",
+  rest: "😴",
+};
+
+const STATUS_LABEL: Record<string, string> = {
+  planned: "geplant",
+  synced: "synchronisiert",
+  completed: "erledigt",
+  skipped: "ausgelassen",
+};
+
 /** Pace/Tempo je Sportart aus Dauer + Distanz. */
 function derivePace(
   sport: string,
@@ -47,28 +63,6 @@ function derivePace(
   return `${m}:${String(s).padStart(2, "0")}/km`;
 }
 
-const WEEKDAYS = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"];
-
-const SPORT_ABBR: Record<string, string> = {
-  swim: "Sw",
-  bike: "Rad",
-  run: "Lauf",
-  strength: "Kraft",
-  brick: "Kop",
-  rest: "Rest",
-};
-
-const STATUS_LABEL: Record<string, string> = {
-  planned: "geplant",
-  synced: "synchronisiert",
-  completed: "erledigt",
-  skipped: "ausgelassen",
-};
-
-function abbr(sport: string): string {
-  return SPORT_ABBR[sport] ?? sport.slice(0, 3);
-}
-
 function fmtFullDate(iso: string): string {
   const d = new Date(`${iso}T00:00:00Z`);
   return d.toLocaleDateString("de-DE", {
@@ -78,6 +72,16 @@ function fmtFullDate(iso: string): string {
     year: "numeric",
     timeZone: "UTC",
   });
+}
+
+function fmtWeekRange(weekDays: CalendarDay[]): string {
+  if (weekDays.length === 0) return "";
+  const first = weekDays[0]?.date ?? "";
+  const last = weekDays[weekDays.length - 1]?.date ?? "";
+  const d1 = new Date(`${first}T00:00:00Z`);
+  const d2 = new Date(`${last}T00:00:00Z`);
+  const fmt = (d: Date) => d.toLocaleDateString("de-DE", { day: "numeric", month: "short", timeZone: "UTC" });
+  return `${fmt(d1)} – ${fmt(d2)}`;
 }
 
 export function TrainingCalendar({
@@ -91,24 +95,60 @@ export function TrainingCalendar({
 }) {
   const [openDay, setOpenDay] = useState<CalendarDay | null>(null);
 
+  // Flatten all days and find today + next 3 workouts
+  const allDays = grid.flat();
+  const today = allDays.find((d) => d.isToday);
+  const nextWorkouts = allDays
+    .filter((d) => !d.inPast)
+    .flatMap((d) => d.items.filter((it) => it.kind === "planned").map((it) => ({ day: d, item: it })))
+    .slice(0, 3);
+
   return (
     <Card
       title="Trainingskalender"
-      subtitle="Geplant (Umriss) und absolviert (gefüllt) – Tag anklicken für Details"
+      subtitle="Geplant vs. absolviert – Trainingstage im Überblick"
     >
-      <div className="flex gap-1">
-        <div className="grid flex-1 grid-cols-7 gap-1 text-center text-[11px] font-medium text-neutral-400">
-          {WEEKDAYS.map((d) => (
-            <div key={d} className="pb-1">
-              {d}
-            </div>
-          ))}
+      {/* Next Workouts Preview */}
+      {nextWorkouts.length > 0 && (
+        <div className="mb-4 rounded-xl bg-gradient-to-br from-blue-50 to-blue-100/50 p-4">
+          <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-blue-600">
+            Nächste Trainings
+          </h3>
+          <div className="space-y-2">
+            {nextWorkouts.map(({ day, item }, i) => {
+              const isToday = day.isToday;
+              const tomorrow = new Date(`${day.date}T00:00:00Z`);
+              const d = new Date();
+              const todayStr = d.toISOString().split("T")[0];
+              const isTomorrow = day.date === new Date(d.getTime() + 86400000).toISOString().split("T")[0];
+              return (
+                <div
+                  key={i}
+                  className="flex items-center gap-3 rounded-lg bg-white px-3 py-2 text-sm"
+                >
+                  <span className="text-lg">{SPORT_ICON[item.sport] ?? "⚽"}</span>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-medium text-neutral-900">
+                      {item.label || sportLabel(item.sport)}
+                    </div>
+                    <div className="text-xs text-neutral-500">
+                      {isToday ? "Heute" : isTomorrow ? "Morgen" : day.date} • {item.durationMin} min
+                    </div>
+                  </div>
+                  {item.distanceKm && (
+                    <span className="text-xs font-medium text-neutral-600">
+                      {item.distanceKm.toFixed(1)} km
+                    </span>
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </div>
-        <div className="w-14 pb-1 text-center text-[11px] font-medium text-neutral-400">
-          Σ Std
-        </div>
-      </div>
-      <div className="space-y-1">
+      )}
+
+      {/* Weeks List */}
+      <div className="space-y-5">
         {grid.map((week, wi) => {
           const sumKind = (kind: "actual" | "planned") =>
             week.reduce(
@@ -122,31 +162,45 @@ export function TrainingCalendar({
           const actualMin = sumKind("actual");
           const plannedMin = sumKind("planned");
           const isCurrentWeek = week.some((d) => d.isToday);
+
           return (
-            <div
-              key={wi}
-              className={`flex items-stretch gap-1 rounded-lg ${
-                isCurrentWeek ? "ring-1 ring-blue-200" : ""
-              }`}
-            >
-              <div className="grid flex-1 grid-cols-7 gap-1">
-                {week.map((day) => (
-                  <DayCell key={day.date} day={day} onOpen={() => setOpenDay(day)} />
-                ))}
+            <div key={wi}>
+              {/* Week Header */}
+              <div
+                className={`mb-2 flex items-center justify-between px-1 py-2 ${
+                  isCurrentWeek ? "" : ""
+                }`}
+              >
+                <h3 className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
+                  {fmtWeekRange(week)}
+                </h3>
+                <div className="flex gap-3 text-[11px] text-neutral-600">
+                  <span>
+                    <span className="font-medium">{(actualMin / 60).toFixed(1)} h</span>
+                    <span className="text-neutral-400"> absolviert</span>
+                  </span>
+                  <span>
+                    <span className="font-medium">{(plannedMin / 60).toFixed(1)} h</span>
+                    <span className="text-neutral-400"> geplant</span>
+                  </span>
+                </div>
               </div>
-              <div className="flex w-14 flex-col items-center justify-center rounded-lg border border-neutral-100 bg-neutral-50 text-center leading-tight">
-                <span className="text-sm font-semibold text-neutral-700">
-                  {(actualMin / 60).toFixed(1)}
-                </span>
-                <span className="text-[10px] text-neutral-400">
-                  /{(plannedMin / 60).toFixed(1)}
-                </span>
+
+              {/* Days */}
+              <div className="space-y-2">
+                {week.map((day) => (
+                  <DayRow
+                    key={day.date}
+                    day={day}
+                    onOpen={() => setOpenDay(day)}
+                  />
+                ))}
               </div>
             </div>
           );
         })}
       </div>
-      <Legend />
+
       {openDay ? (
         <DayModal day={openDay} ftp={ftp} weightKg={weightKg} onClose={() => setOpenDay(null)} />
       ) : null}
@@ -154,69 +208,109 @@ export function TrainingCalendar({
   );
 }
 
-const MONTH_ABBR = [
-  "Jan", "Feb", "Mär", "Apr", "Mai", "Jun",
-  "Jul", "Aug", "Sep", "Okt", "Nov", "Dez",
-];
+/** Mobile-first day row: single-line layout with sport icons and status. */
+function DayRow({ day, onOpen }: { day: CalendarDay; onOpen: () => void }) {
+  const d = new Date(`${day.date}T00:00:00Z`);
+  const weekday = d.toLocaleDateString("de-DE", { weekday: "short", timeZone: "UTC" });
+  const dayNum = d.toLocaleDateString("de-DE", { day: "numeric", timeZone: "UTC" });
 
-function DayCell({ day, onOpen }: { day: CalendarDay; onOpen: () => void }) {
-  const dayNum = day.date.slice(8, 10);
-  // Am Monatsersten den Monat anzeigen, damit das Gitter zeitlich verortet ist.
-  const monthTag =
-    dayNum === "01" ? MONTH_ABBR[Number(day.date.slice(5, 7)) - 1] ?? "" : "";
+  const planned = day.items.filter((it) => it.kind === "planned");
+  const actual = day.items.filter((it) => it.kind === "actual");
+  const plannedMin = planned.reduce((s, it) => s + it.durationMin, 0);
+  const actualMin = actual.reduce((s, it) => s + it.durationMin, 0);
+
   const hasItems = day.items.length > 0;
+  const hasBoth = planned.length > 0 && actual.length > 0;
+
   return (
     <button
       type="button"
       onClick={hasItems ? onOpen : undefined}
       disabled={!hasItems}
-      aria-label={`${day.date}${hasItems ? ` – ${day.items.length} Einheit(en), Details öffnen` : ""}`}
-      className={`min-h-[68px] rounded-lg border p-1.5 text-left transition ${
+      className={`w-full rounded-xl border p-3 text-left transition ${
         day.isToday
-          ? "border-blue-400 bg-blue-50/40"
+          ? "border-blue-400 bg-gradient-to-r from-blue-50 to-blue-50/40 shadow-sm"
           : day.inPast
-            ? "border-neutral-100 bg-neutral-50/40"
-            : "border-neutral-200 bg-white"
-      } ${hasItems ? "cursor-pointer hover:border-blue-300 hover:shadow-sm" : "cursor-default"}`}
+            ? "border-neutral-100 bg-neutral-50/50"
+            : "border-neutral-200 bg-white hover:border-neutral-300 hover:shadow-sm"
+      } ${hasItems ? "cursor-pointer" : "cursor-default opacity-50"}`}
     >
-      <div
-        className={`mb-1 flex items-center justify-between text-[10px] ${
-          day.isToday ? "font-semibold text-blue-600" : "text-neutral-400"
-        }`}
-      >
-        <span className="font-medium text-neutral-400">{monthTag}</span>
-        <span>{dayNum}</span>
-      </div>
-      <div className="space-y-0.5">
-        {day.items.slice(0, 3).map((it, i) => (
-          <Chip key={i} item={it} />
-        ))}
-        {day.items.length > 3 ? (
-          <div className="text-[10px] text-neutral-400">+{day.items.length - 3} mehr</div>
-        ) : null}
+      <div className="flex items-start justify-between gap-3">
+        {/* Date */}
+        <div className="min-w-0">
+          <div className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
+            {weekday}
+          </div>
+          <div className="text-lg font-bold text-neutral-900">{dayNum}</div>
+        </div>
+
+        {/* Sports & Status */}
+        <div className="flex-1 min-w-0">
+          {!hasItems ? (
+            <div className="text-xs text-neutral-400">Trainingstag</div>
+          ) : (
+            <div className="space-y-1.5">
+              {/* Planned */}
+              {planned.length > 0 && (
+                <div className="flex items-center flex-wrap gap-1.5">
+                  <span className="text-[10px] uppercase text-neutral-400 font-medium">Plan:</span>
+                  <div className="flex gap-1.5 flex-wrap">
+                    {planned.map((it, i) => (
+                      <div
+                        key={i}
+                        className="flex items-center gap-1 rounded-full border border-neutral-300 bg-white px-2 py-0.5 text-xs text-neutral-600"
+                      >
+                        <span>{SPORT_ICON[it.sport] ?? "⚽"}</span>
+                        <span className="font-medium">{it.durationMin}′</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Actual */}
+              {actual.length > 0 && (
+                <div className="flex items-center flex-wrap gap-1.5">
+                  <span className="text-[10px] uppercase text-neutral-400 font-medium">Erledigt:</span>
+                  <div className="flex gap-1.5 flex-wrap">
+                    {actual.map((it, i) => {
+                      const color = sportColor(it.sport);
+                      return (
+                        <div
+                          key={i}
+                          className="flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium text-white"
+                          style={{ backgroundColor: color }}
+                        >
+                          <span>{SPORT_ICON[it.sport] ?? "⚽"}</span>
+                          <span>{it.durationMin}′</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Duration summary */}
+        {hasItems && (
+          <div className="flex flex-col items-end gap-0.5 text-right text-xs">
+            {actualMin > 0 && (
+              <div className="font-semibold text-neutral-900">
+                {(actualMin / 60).toFixed(1)}h
+              </div>
+            )}
+            {plannedMin > 0 && (
+              <div className="text-neutral-500">
+                {plannedMin > actualMin ? "+" : ""}
+                {((plannedMin - actualMin) / 60).toFixed(1)}h
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </button>
-  );
-}
-
-/** Kompakter Eintrag in der Tageszelle: absolviert = gefüllt, geplant = Umriss. */
-function Chip({ item }: { item: CalendarItem }) {
-  const color = sportColor(item.sport);
-  const done = item.kind === "actual" || item.status === "completed";
-  return (
-    <div
-      className="flex items-center gap-1 truncate rounded px-1 py-0.5 text-[10px]"
-      style={
-        done
-          ? { backgroundColor: `${color}22`, color: "#1d1d1f" }
-          : { border: `1px solid ${color}55`, color: "#6e6e73" }
-      }
-    >
-      <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ backgroundColor: color }} />
-      <span className="truncate">
-        {abbr(item.sport)} {item.durationMin}′
-      </span>
-    </div>
   );
 }
 
@@ -478,15 +572,3 @@ function DetailRow({
   );
 }
 
-function Legend() {
-  return (
-    <div className="mt-3 flex items-center gap-4 text-[11px] text-neutral-500">
-      <span className="flex items-center gap-1.5">
-        <span className="h-3 w-3 rounded border border-neutral-300" /> geplant
-      </span>
-      <span className="flex items-center gap-1.5">
-        <span className="h-3 w-3 rounded bg-neutral-200" /> absolviert
-      </span>
-    </div>
-  );
-}
