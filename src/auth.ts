@@ -39,7 +39,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       authorize: async (credentials, request) => {
         const email = credentials?.email as string | undefined;
         const password = credentials?.password as string | undefined;
-        if (!email || !password || password.length < 8) return null;
+        if (!email || !password) return null;
 
         // Brute-Force-Schutz: pro IP UND pro E-Mail begrenzen, damit weder ein
         // einzelner Angreifer noch ein Credential-Stuffing über viele IPs
