@@ -70,7 +70,7 @@ export async function importActivitiesFromIntervals(
       userId,
       source: "intervals",
       externalId: a.id,
-      date: a.start_date_local ? new Date(a.start_date_local) : new Date(),
+      date: a.start_date_local ? new Date(a.start_date_local) : today,
       sport: intervalsTypeToSport(a.type),
       durationMin:
         typeof a.moving_time === "number"

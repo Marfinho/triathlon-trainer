@@ -95,8 +95,8 @@ export function DailyLog({
                 ) : null}
                 <span className="text-neutral-400"> · {log.quantityG} g</span>
               </span>
-              <span className="flex items-center gap-2">
-                <span className="text-neutral-500">{Math.round(log.kcal)} kcal</span>
+              <span className="flex shrink-0 items-center gap-2">
+                <span className="whitespace-nowrap text-neutral-500">{Math.round(log.kcal)} kcal</span>
                 <button
                   onClick={() => remove(log.id)}
                   disabled={deletingId === log.id}

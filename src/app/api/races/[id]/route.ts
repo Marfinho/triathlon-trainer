@@ -60,6 +60,10 @@ export async function DELETE(
   if (!existing) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
-  await prisma.raceEvent.delete({ where: { id } }).catch(() => {});
+  try {
+    await prisma.raceEvent.delete({ where: { id } });
+  } catch {
+    return NextResponse.json({ ok: false, error: "Löschen fehlgeschlagen." }, { status: 500 });
+  }
   return NextResponse.json({ ok: true });
 }

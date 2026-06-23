@@ -1,8 +1,8 @@
 /**
  * Seed-Daten für die lokale Entwicklung.
  *
- * Legt ein Athleten-Profil, ein Beispielrennen sowie ein paar geplante Workouts
- * und Ist-Aktivitäten an, damit das Dashboard direkt etwas anzeigt. Idempotent:
+ * Legt mehrere Demo-User mit Athleten-Profil, Rennen, geplanten Workouts und
+ * Ist-Aktivitäten an, damit das Dashboard direkt etwas anzeigt. Idempotent:
  * vorhandene Daten werden vorher gelöscht.
  */
 import { PrismaClient } from "@prisma/client";
@@ -17,32 +17,93 @@ function daysFromNow(offset: number): Date {
   return d;
 }
 
-async function main() {
-  // Aufräumen: User-Löschung kaskadiert auf alle Domänen-Tabellen.
-  await prisma.user.deleteMany();
+type UserSeed = {
+  email: string;
+  name: string;
+  role: "admin" | "user";
+  weightKg: number;
+  heightCm: number;
+  ftpWatts: number;
+  thresholdHr: number;
+  thresholdPaceSecPerKm: number;
+  thresholdSwimPer100m: number;
+  primarySports: string[];
+  raceName: string;
+  raceType: "triathlon" | "run" | "bike" | "swim";
+  raceDistance: string;
+};
 
+const USERS: UserSeed[] = [
+  {
+    email: "demo@localhub.app",
+    name: "Sven",
+    role: "admin",
+    weightKg: 76,
+    heightCm: 182,
+    ftpWatts: 240,
+    thresholdHr: 168,
+    thresholdPaceSecPerKm: 255,
+    thresholdSwimPer100m: 95,
+    primarySports: ["run", "bike", "swim"],
+    raceName: "Ironman 70.3 Beispielstadt",
+    raceType: "triathlon",
+    raceDistance: "70.3",
+  },
+  {
+    email: "mara@localhub.app",
+    name: "Mara",
+    role: "user",
+    weightKg: 61,
+    heightCm: 168,
+    ftpWatts: 190,
+    thresholdHr: 178,
+    thresholdPaceSecPerKm: 240,
+    thresholdSwimPer100m: 105,
+    primarySports: ["run", "swim"],
+    raceName: "Berlin Marathon",
+    raceType: "run",
+    raceDistance: "marathon",
+  },
+  {
+    email: "tom@localhub.app",
+    name: "Tom",
+    role: "user",
+    weightKg: 82,
+    heightCm: 188,
+    ftpWatts: 280,
+    thresholdHr: 162,
+    thresholdPaceSecPerKm: 270,
+    thresholdSwimPer100m: 110,
+    primarySports: ["bike", "run"],
+    raceName: "Alpen-Radmarathon",
+    raceType: "bike",
+    raceDistance: "olympic",
+  },
+];
+
+async function seedUser(spec: UserSeed) {
   const user = await prisma.user.create({
     data: {
-      email: "demo@localhub.app",
-      name: "Sven",
+      email: spec.email,
+      name: spec.name,
       passwordHash: await bcrypt.hash("password123", 10),
       provider: "credentials",
-      role: "admin",
+      role: spec.role,
     },
   });
 
   await prisma.athleteProfile.create({
     data: {
       userId: user.id,
-      name: "Sven",
-      heightCm: 182,
-      weightKg: 76,
-      ftpWatts: 240,
-      thresholdHr: 168,
-      thresholdPaceSecPerKm: 255,
-      thresholdSwimPer100m: 95,
+      name: spec.name,
+      heightCm: spec.heightCm,
+      weightKg: spec.weightKg,
+      ftpWatts: spec.ftpWatts,
+      thresholdHr: spec.thresholdHr,
+      thresholdPaceSecPerKm: spec.thresholdPaceSecPerKm,
+      thresholdSwimPer100m: spec.thresholdSwimPer100m,
       trainingLevel: "intermediate",
-      primarySports: ["run", "bike", "swim"],
+      primarySports: spec.primarySports,
       knownLimiters: ["achilles", "swim_technique"],
       equipment: { bike: "road", powerMeter: true, pool: "25m" },
     },
@@ -51,10 +112,10 @@ async function main() {
   await prisma.raceEvent.create({
     data: {
       userId: user.id,
-      name: "Ironman 70.3 Beispielstadt",
+      name: spec.raceName,
       date: daysFromNow(120),
-      type: "triathlon",
-      distance: "70.3",
+      type: spec.raceType,
+      distance: spec.raceDistance,
       priority: "A",
       notes: "Saisonhighlight",
     },
@@ -94,7 +155,7 @@ async function main() {
           distanceM: null,
           intensity: "warmup",
           targetType: "power",
-          targetValue: 130,
+          targetValue: Math.round(spec.ftpWatts * 0.55),
           targetValueTo: null,
           cadenceNote: "90-95 rpm",
           rpeTarget: 2,
@@ -107,8 +168,8 @@ async function main() {
             distanceM: null,
             intensity: "vo2max",
             targetType: "power",
-            targetValue: 270,
-            targetValueTo: 285,
+            targetValue: Math.round(spec.ftpWatts * 1.1),
+            targetValueTo: Math.round(spec.ftpWatts * 1.15),
             cadenceNote: "95-100 rpm",
             rpeTarget: 9,
             description: `Intervall ${n}/4 – konstant hart, gleichmäßig`,
@@ -119,7 +180,7 @@ async function main() {
             distanceM: null,
             intensity: "recovery",
             targetType: "power",
-            targetValue: 120,
+            targetValue: Math.round(spec.ftpWatts * 0.5),
             targetValueTo: null,
             cadenceNote: "locker",
             rpeTarget: 2,
@@ -132,7 +193,7 @@ async function main() {
           distanceM: null,
           intensity: "cooldown",
           targetType: "power",
-          targetValue: 110,
+          targetValue: Math.round(spec.ftpWatts * 0.45),
           targetValueTo: null,
           cadenceNote: "ruhig ausdrehen",
           rpeTarget: 1,
@@ -307,7 +368,7 @@ async function main() {
       data: {
         userId: user.id,
         date: daysFromNow(-i),
-        weightKg: Math.round((76 - i * 0.05) * 10) / 10,
+        weightKg: Math.round((spec.weightKg - i * 0.05) * 10) / 10,
         restingHr: 48 + (i % 3),
       },
     });
@@ -321,6 +382,18 @@ async function main() {
       { userId: user.id, sport: "run", weeklyTargetMin: 180 },
     ],
   });
+
+  return user;
+}
+
+async function main() {
+  // Aufräumen: User-Löschung kaskadiert auf alle Domänen-Tabellen.
+  await prisma.user.deleteMany();
+
+  for (const spec of USERS) {
+    const user = await seedUser(spec);
+    console.log(`Seed: ${user.email} (${spec.role}) angelegt.`);
+  }
 
   console.log("Seed abgeschlossen.");
 }

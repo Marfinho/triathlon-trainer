@@ -81,10 +81,13 @@ describe("GET /api/nutrition/balance/today", () => {
 describe("GET /api/nutrition/balance/forecast", () => {
   it("schätzt den Energiebedarf geplanter Einheiten mit Quelle+Konfidenz", async () => {
     await db.athleteProfile.create({ data: { userId, name: "Test", weightKg: 70, ftpWatts: 250 } });
+    const tomorrow = new Date();
+    tomorrow.setUTCHours(0, 0, 0, 0);
+    tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
     await db.plannedWorkout.create({
       data: {
         userId,
-        date: new Date("2026-06-22T00:00:00.000Z"),
+        date: tomorrow,
         sport: "run",
         plannedDurationMin: 60,
         title: "Long Run",

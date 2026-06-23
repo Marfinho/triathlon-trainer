@@ -365,7 +365,7 @@ export function matchRacePrediction(
 ): { label: string; totalSec: number | null } | null {
   const d = (distance ?? "").toLowerCase().trim();
   const tri = TRI_DISTANCES.find((t) => t.key === d || t.label.toLowerCase().includes(d));
-  if ((type === "triathlon" || tri) && tri) {
+  if (type === "triathlon" && tri) {
     const p = predictTriathlon(tri, profile);
     return { label: tri.label, totalSec: p.totalSec };
   }

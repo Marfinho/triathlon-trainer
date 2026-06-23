@@ -147,7 +147,7 @@ export function efficiencyTrend(activities: AnalyticsActivity[]): EfficiencyPoin
       ef = Math.round((a.avgPower / a.avgHr) * 100) / 100;
     } else if (a.distanceKm != null && a.durationMin != null && a.durationMin > 0) {
       const kmh = a.distanceKm / (a.durationMin / 60);
-      ef = Math.round((kmh / a.avgHr) * 100 * 100) / 100;
+      ef = Math.round((kmh / a.avgHr) * 100) / 100;
     }
     if (ef != null && Number.isFinite(ef)) {
       points.push({ date: iso(a.date), ef });
