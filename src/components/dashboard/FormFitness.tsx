@@ -124,7 +124,7 @@ export function FormFitness({
           {form.label}
         </span>
       </div>
-      <div className="text-neutral-300">
+      <div className="text-neutral-500">
         <LineChart labels={labels} series={lineSeries} height={200} showZeroLine />
       </div>
 
@@ -135,7 +135,7 @@ export function FormFitness({
           </h3>
           <ChartLegend items={barSeries} />
         </div>
-        <div className="text-neutral-300">
+        <div className="text-neutral-500">
           <StackedBarChart
             labels={weekLabels}
             series={barSeries}

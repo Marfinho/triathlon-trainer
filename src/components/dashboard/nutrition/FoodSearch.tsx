@@ -197,7 +197,7 @@ export function FoodSearch({ onLogged }: { onLogged: () => void }) {
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && search()}
           placeholder="Barcode (EAN) oder Produktname…"
-          className="min-w-0 flex-1 rounded-lg border border-neutral-300 bg-white px-2 py-1.5 text-sm"
+          className="min-w-[160px] flex-1 rounded-lg border border-neutral-300 bg-white px-2 py-1.5 text-sm"
         />
         <button
           onClick={search}

@@ -270,6 +270,14 @@ export function Sparkline({
   const x = (i: number) => (n <= 1 ? width / 2 : (i / (n - 1)) * width);
   const y = (v: number) =>
     max === min ? height / 2 : height - ((v - min) / (max - min)) * height;
+  if (nums.length === 1) {
+    const i = values.findIndex((v) => v != null);
+    return (
+      <svg viewBox={`0 0 ${width} ${height}`} width="100%" height={height} role="img">
+        <circle cx={x(i)} cy={y(nums[0])} r={2} fill={color} />
+      </svg>
+    );
+  }
   return (
     <svg viewBox={`0 0 ${width} ${height}`} width="100%" height={height} role="img">
       <polyline
@@ -320,9 +328,10 @@ function EmptyChart({ height }: { height: number }) {
 
 function labelIndices(n: number, max: number): number[] {
   if (n <= max) return Array.from({ length: n }, (_, i) => i);
-  const step = Math.ceil(n / max);
-  const out: number[] = [];
-  for (let i = 0; i < n; i += step) out.push(i);
-  if (out[out.length - 1] !== n - 1) out.push(n - 1);
-  return out;
+  if (max <= 1) return [n - 1];
+  const out = new Set<number>();
+  for (let i = 0; i < max; i++) {
+    out.add(Math.round((i * (n - 1)) / (max - 1)));
+  }
+  return Array.from(out).sort((a, b) => a - b);
 }

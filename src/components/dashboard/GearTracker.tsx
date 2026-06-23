@@ -275,17 +275,17 @@ function GearRow({
         isComponent ? "bg-neutral-50/60" : "bg-white"
       } p-3`}
     >
-      <div className="flex items-start justify-between gap-3">
+      <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <span className="truncate text-sm font-medium text-neutral-900">
+            <span className="min-w-0 flex-1 truncate text-sm font-medium text-neutral-900">
               {gear.name}
             </span>
-            <span className="rounded-full bg-neutral-100 px-1.5 py-0.5 text-[10px] text-neutral-500">
+            <span className="shrink-0 rounded-full bg-neutral-100 px-1.5 py-0.5 text-[10px] text-neutral-500">
               {TYPE_LABEL[gear.type] ?? gear.type}
             </span>
             <span
-              className={`rounded-full px-1.5 py-0.5 text-[10px] font-medium ${STATUS[gear.usage.status].bg}`}
+              className={`shrink-0 rounded-full px-1.5 py-0.5 text-[10px] font-medium ${STATUS[gear.usage.status].bg}`}
             >
               {STATUS[gear.usage.status].label}
             </span>

@@ -123,8 +123,8 @@ export function TrainingZones({
         </div>
       ) : null}
 
-      <div className="mb-3 flex items-center justify-between">
-        <div className="inline-flex rounded-lg border border-neutral-200 bg-neutral-50 p-0.5">
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+        <div className="inline-flex flex-wrap rounded-lg border border-neutral-200 bg-neutral-50 p-0.5">
           {tabs.map((t) => (
             <button
               key={t.id}
@@ -156,8 +156,8 @@ export function TrainingZones({
               className="h-2.5 w-2.5 shrink-0 rounded-full"
               style={{ backgroundColor: z.color }}
             />
-            <span className="w-40 shrink-0 text-sm text-neutral-700">{z.name}</span>
-            <span className="text-sm tabular-nums text-neutral-900">
+            <span className="w-36 shrink-0 text-sm text-neutral-700">{z.name}</span>
+            <span className="shrink-0 whitespace-nowrap text-sm tabular-nums text-neutral-900">
               {isPace
                 ? `${fmt(z.hi)} – ${fmt(z.lo)}`
                 : `${fmt(z.lo)} – ${fmt(z.hi)}`}{" "}

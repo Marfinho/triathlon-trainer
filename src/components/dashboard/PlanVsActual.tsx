@@ -106,8 +106,8 @@ export function PlanVsActual({
       {rows.length === 0 ? (
         <p className="text-sm text-neutral-400">Keine Daten im Zeitraum.</p>
       ) : (
-        <div className="max-h-72 overflow-y-auto">
-          <table className="w-full text-left text-sm">
+        <div className="max-h-72 overflow-x-auto overflow-y-auto">
+          <table className="w-full min-w-[480px] text-left text-sm">
             <thead className="sticky top-0 bg-white">
               <tr className="text-xs uppercase tracking-wide text-neutral-400">
                 <th className="py-2 pr-3 font-medium">Datum</th>
