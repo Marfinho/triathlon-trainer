@@ -24,8 +24,8 @@ export default function LoginForm({ showRegisterLink = true }: LoginFormProps) {
     e.preventDefault();
     setError(null);
 
-    if (password.length < 8) {
-      setError("Passwort muss mindestens 8 Zeichen lang sein.");
+    if (!password) {
+      setError("Bitte Passwort eingeben.");
       return;
     }
 
