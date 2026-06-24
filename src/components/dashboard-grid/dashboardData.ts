@@ -77,6 +77,11 @@ export interface DashboardData {
     planned: DashboardPlannedWorkout | null;
     actual: DashboardActualActivity | null;
   };
+  week: {
+    weekStart: string;
+    weekEnd: string;
+    planned: DashboardPlannedWorkout[];
+  };
   training: {
     recentActivities: DashboardActualActivity[];
     loadSeries: LoadSeries;

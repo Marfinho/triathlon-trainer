@@ -3,9 +3,15 @@ import type { WidgetSize } from "./types";
 import { TodayWorkout } from "./widgets/TodayWorkout";
 import { FormGauge } from "./widgets/FormGauge";
 import { ReadinessCheckin } from "./widgets/ReadinessCheckin";
+import { WeekCalendar } from "./widgets/WeekCalendar";
+import { Compliance } from "./widgets/Compliance";
+import { VolumeByDiscipline } from "./widgets/VolumeByDiscipline";
 
 export const WIDGET_COMPONENTS: Record<string, ComponentType<{ size: WidgetSize }>> = {
   TodayWorkout,
   FormGauge,
   ReadinessCheckin,
+  WeekCalendar,
+  Compliance,
+  VolumeByDiscipline,
 };

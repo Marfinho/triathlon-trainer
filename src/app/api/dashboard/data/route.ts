@@ -1,7 +1,7 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
-import { formatIsoDate, addDays } from "@/domain/training/dates";
+import { formatIsoDate, addDays, mondayOfIso } from "@/domain/training/dates";
 import {
   buildLoadSeries,
   buildWeeklyVolume,
@@ -28,10 +28,15 @@ export async function GET(req: NextRequest) {
     const todayStart = new Date(`${formatIsoDate(now)}T00:00:00.000Z`);
     const todayEnd = new Date(`${formatIsoDate(now)}T23:59:59.999Z`);
     const loadWindowStart = addDays(now, -90);
+    const weekStart = mondayOfIso(now);
+    const weekEnd = formatIsoDate(addDays(new Date(`${weekStart}T00:00:00.000Z`), 6));
+    const weekStartDate = new Date(`${weekStart}T00:00:00.000Z`);
+    const weekEndDate = new Date(`${weekEnd}T23:59:59.999Z`);
 
     const [
       todayPlanned,
       todayActual,
+      weekPlanned,
       recentActivities,
       recentReadiness,
       latestBodyMetric,
@@ -42,6 +47,10 @@ export async function GET(req: NextRequest) {
       }),
       prisma.actualActivity.findFirst({
         where: { userId: user.id, date: { gte: todayStart, lte: todayEnd } },
+      }),
+      prisma.plannedWorkout.findMany({
+        where: { userId: user.id, date: { gte: weekStartDate, lte: weekEndDate } },
+        orderBy: { date: "asc" },
       }),
       prisma.actualActivity.findMany({
         where: { userId: user.id, date: { gte: loadWindowStart } },
@@ -72,6 +81,11 @@ export async function GET(req: NextRequest) {
         dateIso: formatIsoDate(now),
         planned: todayPlanned,
         actual: todayActual,
+      },
+      week: {
+        weekStart,
+        weekEnd,
+        planned: weekPlanned,
       },
       training: {
         recentActivities,
