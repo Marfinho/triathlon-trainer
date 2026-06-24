@@ -1,6 +1,10 @@
 import type { FormState, LoadSeries, WeeklyVolume } from "@/domain/training/trainingLoad";
 import type { PredictionProfile } from "@/domain/training/prediction";
 import type { FormForecast } from "@/domain/training/formForecast";
+import type { IntensityDistribution } from "@/domain/training/analytics";
+import type { SeasonStats } from "@/domain/training/stats";
+import type { TrainingRecommendation } from "@/domain/training/loadAdvisor";
+import type { GearNode } from "@/domain/training/gear";
 
 export interface DashboardPlannedWorkout {
   id: string;
@@ -113,14 +117,23 @@ export interface DashboardData {
     form: { state: FormState; label: string };
     weeklyVolume: WeeklyVolume[];
   };
+  analysis: {
+    intensity: IntensityDistribution;
+    seasonStats: SeasonStats;
+    coachRecommendation: TrainingRecommendation;
+  };
   readiness: {
     latest: DashboardReadinessSnapshot | null;
     history: DashboardReadinessSnapshot[];
   };
   body: {
     latestMetric: DashboardBodyMetric | null;
+    history: DashboardBodyMetric[];
   };
   goals: {
     active: DashboardTrainingGoal[];
+  };
+  gear: {
+    tree: GearNode[];
   };
 }

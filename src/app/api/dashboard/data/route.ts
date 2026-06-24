@@ -16,6 +16,10 @@ import {
   type PredictionProfile,
 } from "@/domain/training/prediction";
 import { forecastForm } from "@/domain/training/formForecast";
+import { intensityDistribution } from "@/domain/training/analytics";
+import { buildSeasonStats } from "@/domain/training/stats";
+import { recommendTraining } from "@/domain/training/loadAdvisor";
+import { buildGearTree } from "@/domain/training/gear";
 
 export async function GET(req: NextRequest) {
   try {
@@ -49,10 +53,13 @@ export async function GET(req: NextRequest) {
       recentActivities,
       recentReadiness,
       latestBodyMetric,
+      bodyHistory,
       activeGoals,
       athlete,
       raceEvents,
       futurePlanned,
+      gearItems,
+      gearActivities,
     ] = await Promise.all([
       prisma.plannedWorkout.findFirst({
         where: { userId: user.id, date: { gte: todayStart, lte: todayEnd } },
@@ -78,6 +85,11 @@ export async function GET(req: NextRequest) {
         where: { userId: user.id },
         orderBy: { date: "desc" },
       }),
+      prisma.bodyMetric.findMany({
+        where: { userId: user.id },
+        orderBy: { date: "desc" },
+        take: 30,
+      }),
       prisma.trainingGoal.findMany({
         where: { userId: user.id },
         take: 5,
@@ -99,6 +111,14 @@ export async function GET(req: NextRequest) {
         orderBy: { date: "asc" },
         select: { date: true, sport: true, plannedDurationMin: true, rpe: true },
         take: 200,
+      }),
+      prisma.gearItem.findMany({
+        where: { userId: user.id },
+        orderBy: { createdAt: "asc" },
+      }),
+      prisma.actualActivity.findMany({
+        where: { userId: user.id },
+        select: { date: true, sport: true, distanceKm: true, durationMin: true },
       }),
     ]);
 
@@ -163,6 +183,15 @@ export async function GET(req: NextRequest) {
       plannedLoads,
     });
 
+    const intensity = intensityDistribution(recentActivities);
+    const seasonStats = buildSeasonStats(recentActivities, { today: now });
+    const coachRecommendation = recommendTraining(
+      loadSeries.current.tsb,
+      loadSeries.current.acwr,
+      form.state,
+    );
+    const gearTree = buildGearTree(gearItems, gearActivities);
+
     return NextResponse.json({
       today: {
         dateIso: formatIsoDate(now),
@@ -186,15 +215,24 @@ export async function GET(req: NextRequest) {
         form,
         weeklyVolume,
       },
+      analysis: {
+        intensity,
+        seasonStats,
+        coachRecommendation,
+      },
       readiness: {
         latest: recentReadiness[0] || null,
         history: recentReadiness,
       },
       body: {
         latestMetric: latestBodyMetric,
+        history: bodyHistory,
       },
       goals: {
         active: activeGoals,
+      },
+      gear: {
+        tree: gearTree,
       },
     });
   } catch (error) {
