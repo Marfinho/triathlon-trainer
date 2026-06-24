@@ -1,6 +1,19 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
+import { UserRolesManager } from "@/components/admin/UserRolesManager";
+import { SyncQueueMonitor } from "@/components/admin/SyncQueueMonitor";
+import { SystemLogsViewer } from "@/components/admin/SystemLogsViewer";
+import { PlanLimitsEditor } from "@/components/admin/PlanLimitsEditor";
+import { IntegrationsAdmin } from "@/components/admin/IntegrationsAdmin";
+import {
+  getEffectiveLimits,
+  defaultLimits,
+  knownTiers,
+  toJsonSafeLimits,
+  type PlanOverrideSettings,
+} from "@/lib/plan-config";
+import { listIntegrationConfigViews } from "@/lib/integration-config";
 
 export const dynamic = "force-dynamic";
 
@@ -10,7 +23,7 @@ export default async function AdminPage() {
     redirect("/dashboard");
   }
 
-  const [totalUsers, paidUsers, activeIntegrations, dailyActiveUsers, recentSignups] =
+  const [totalUsers, paidUsers, activeIntegrations, dailyActiveUsers, recentSignups, tiers, integrations] =
     await Promise.all([
       prisma.user.count(),
       prisma.user.count({ where: { plan: "paid" } }),
@@ -28,6 +41,27 @@ export default async function AdminPage() {
         orderBy: { createdAt: "desc" },
         take: 10,
       }),
+      (async () => {
+        const tiersList = knownTiers();
+        const overrides = await prisma.planOverride.findMany();
+        const overrideByTier = new Map(overrides.map((o) => [o.tier, o]));
+
+        return Promise.all(
+          tiersList.map(async (tier) => {
+            const effective = await getEffectiveLimits(tier);
+            const row = overrideByTier.get(tier);
+            return {
+              tier,
+              defaults: toJsonSafeLimits(defaultLimits(tier)),
+              effective: toJsonSafeLimits(effective),
+              override: (row?.settingsJson as PlanOverrideSettings | undefined) ?? null,
+              updatedAt: row?.updatedAt ?? null,
+              updatedBy: row?.updatedBy ?? null,
+            };
+          }),
+        );
+      })(),
+      listIntegrationConfigViews(),
     ]);
 
   return (
@@ -97,20 +131,26 @@ export default async function AdminPage() {
           </div>
         </div>
 
-        {/* Info Box */}
-        <div className="rounded-2xl border border-blue-200 bg-blue-50 p-6">
-          <h3 className="font-semibold text-blue-900">Weitere Admin-Funktionen</h3>
-          <ul className="mt-3 space-y-2 text-sm text-blue-800">
-            <li>• Nutzer-Rollen verwalten</li>
-            <li>• Plan-Limits pro Tarif konfigurieren</li>
-            <li>• OAuth-Provider aktivieren/deaktivieren</li>
-            <li>• Sync-Queue überwachen</li>
-            <li>• System-Logs ansehen</li>
-          </ul>
-          <p className="mt-4 text-xs text-blue-700">
-            Diese Funktionen werden in zukünftigen Updates hinzugefügt.
-          </p>
+        {/* Plan Limits */}
+        <div>
+          <h2 className="mb-4 text-lg font-semibold text-neutral-900">Plan-Limits pro Tarif</h2>
+          <PlanLimitsEditor initialTiers={tiers} />
         </div>
+
+        {/* Integrations */}
+        <div>
+          <h2 className="mb-4 text-lg font-semibold text-neutral-900">OAuth-Provider verwalten</h2>
+          <IntegrationsAdmin initial={integrations} />
+        </div>
+
+        {/* User Roles */}
+        <UserRolesManager />
+
+        {/* Sync Queue */}
+        <SyncQueueMonitor />
+
+        {/* System Logs */}
+        <SystemLogsViewer />
       </div>
     </main>
   );
