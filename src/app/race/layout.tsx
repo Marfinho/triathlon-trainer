@@ -5,7 +5,7 @@ import Sidebar from "@/components/navigation/Sidebar";
 import BottomNav from "@/components/navigation/BottomNav";
 import { ToastProvider } from "@/components/ui/Toast";
 
-export default async function DashboardLayout({
+export default async function RaceLayout({
   children,
 }: {
   children: ReactNode;
