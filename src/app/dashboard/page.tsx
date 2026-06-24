@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
 import { DashboardGrid } from "@/components/dashboard-grid/DashboardGrid";
+import { DashboardDataProvider } from "@/components/dashboard-grid/DashboardDataProvider";
 import { parseWidgetLayout, type WidgetInstance } from "@/components/dashboard-grid/types";
 
 export const dynamic = "force-dynamic";
@@ -32,7 +33,9 @@ export default async function DashboardPage() {
           Heute
         </h1>
       </header>
-      <DashboardGrid initialWidgets={widgets} />
+      <DashboardDataProvider>
+        <DashboardGrid initialWidgets={widgets} />
+      </DashboardDataProvider>
     </main>
   );
 }

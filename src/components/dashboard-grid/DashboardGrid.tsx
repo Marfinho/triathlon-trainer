@@ -2,15 +2,11 @@
 
 import { useState } from "react";
 import { useToast } from "@/components/ui/Toast";
+import { catalogEntry } from "./catalog";
 import { EditModeToolbar } from "./EditModeToolbar";
 import { WidgetCard } from "./WidgetCard";
+import { WidgetGallery } from "./WidgetGallery";
 import type { WidgetInstance, WidgetSize } from "./types";
-
-const WIDGET_LABEL: Record<string, string> = {
-  TodayWorkout: "Heutiges Training",
-  FormGauge: "Form",
-  ReadinessCheckin: "Readiness-Check-in",
-};
 
 export function DashboardGrid({ initialWidgets }: { initialWidgets: WidgetInstance[] }) {
   const { toast } = useToast();
@@ -18,6 +14,7 @@ export function DashboardGrid({ initialWidgets }: { initialWidgets: WidgetInstan
   const [widgets, setWidgets] = useState(initialWidgets);
   const [editMode, setEditMode] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [galleryOpen, setGalleryOpen] = useState(false);
 
   const dirty = JSON.stringify(widgets) !== JSON.stringify(savedWidgets);
 
@@ -27,6 +24,16 @@ export function DashboardGrid({ initialWidgets }: { initialWidgets: WidgetInstan
 
   function removeWidget(id: string) {
     setWidgets((prev) => prev.filter((w) => w.id !== id));
+  }
+
+  function addWidget(type: string) {
+    const entry = catalogEntry(type);
+    if (!entry) return;
+    setWidgets((prev) => [
+      ...prev,
+      { id: `${type}-${crypto.randomUUID()}`, type, size: entry.defaultSize },
+    ]);
+    setGalleryOpen(false);
   }
 
   function handleCancel() {
@@ -62,12 +69,13 @@ export function DashboardGrid({ initialWidgets }: { initialWidgets: WidgetInstan
         onToggleEdit={() => setEditMode((v) => !v)}
         onSave={handleSave}
         onCancel={handleCancel}
+        onAddWidget={() => setGalleryOpen(true)}
       />
       <div className="grid grid-cols-1 gap-4 md:grid-cols-4 md:gap-5">
         {widgets.map((widget) => (
           <WidgetCard
             key={widget.id}
-            title={WIDGET_LABEL[widget.type] ?? widget.type}
+            title={catalogEntry(widget.type)?.label ?? widget.type}
             size={widget.size}
             editMode={editMode}
             onSizeChange={(size) => updateSize(widget.id, size)}
@@ -80,11 +88,17 @@ export function DashboardGrid({ initialWidgets }: { initialWidgets: WidgetInstan
         ))}
         {widgets.length === 0 && (
           <p className="col-span-1 text-sm text-neutral-500 md:col-span-4">
-            Keine Widgets. Im Bearbeitungsmodus kannst du sie später aus der
-            Galerie hinzufügen.
+            Keine Widgets. Über &quot;Widget hinzufügen&quot; im Bearbeitungsmodus
+            kannst du dein Dashboard zusammenstellen.
           </p>
         )}
       </div>
+      <WidgetGallery
+        open={galleryOpen}
+        existingTypes={widgets.map((w) => w.type)}
+        onAdd={addWidget}
+        onClose={() => setGalleryOpen(false)}
+      />
     </div>
   );
 }

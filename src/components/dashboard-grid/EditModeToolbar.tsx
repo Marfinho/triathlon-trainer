@@ -7,6 +7,7 @@ export function EditModeToolbar({
   onToggleEdit,
   onSave,
   onCancel,
+  onAddWidget,
 }: {
   editMode: boolean;
   dirty: boolean;
@@ -14,6 +15,7 @@ export function EditModeToolbar({
   onToggleEdit: () => void;
   onSave: () => void;
   onCancel: () => void;
+  onAddWidget: () => void;
 }) {
   return (
     <div className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-neutral-200/80 bg-white px-4 py-2.5">
@@ -23,6 +25,15 @@ export function EditModeToolbar({
           : "Dein Dashboard, individuell anpassbar."}
       </p>
       <div className="flex items-center gap-2">
+        {editMode && (
+          <button
+            type="button"
+            onClick={onAddWidget}
+            className="flex h-11 items-center justify-center rounded-full border border-neutral-200 px-4 text-sm font-medium text-neutral-600 transition hover:border-neutral-300 hover:text-neutral-900"
+          >
+            Widget hinzufügen
+          </button>
+        )}
         {editMode && (
           <button
             type="button"
