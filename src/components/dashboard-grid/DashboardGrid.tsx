@@ -1,10 +1,25 @@
 "use client";
 
 import { useState } from "react";
+import {
+  DndContext,
+  KeyboardSensor,
+  PointerSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  arrayMove,
+  rectSortingStrategy,
+  sortableKeyboardCoordinates,
+} from "@dnd-kit/sortable";
 import { useToast } from "@/components/ui/Toast";
 import { catalogEntry } from "./catalog";
 import { EditModeToolbar } from "./EditModeToolbar";
-import { WidgetCard } from "./WidgetCard";
+import { SortableWidgetCard } from "./SortableWidgetCard";
 import { WidgetGallery } from "./WidgetGallery";
 import { WIDGET_COMPONENTS } from "./widgetRegistry";
 import type { WidgetInstance, WidgetSize } from "./types";
@@ -16,6 +31,11 @@ export function DashboardGrid({ initialWidgets }: { initialWidgets: WidgetInstan
   const [editMode, setEditMode] = useState(false);
   const [saving, setSaving] = useState(false);
   const [galleryOpen, setGalleryOpen] = useState(false);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
 
   const dirty = JSON.stringify(widgets) !== JSON.stringify(savedWidgets);
 
@@ -35,6 +55,17 @@ export function DashboardGrid({ initialWidgets }: { initialWidgets: WidgetInstan
       { id: `${type}-${crypto.randomUUID()}`, type, size: entry.defaultSize },
     ]);
     setGalleryOpen(false);
+  }
+
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    setWidgets((prev) => {
+      const oldIndex = prev.findIndex((w) => w.id === active.id);
+      const newIndex = prev.findIndex((w) => w.id === over.id);
+      if (oldIndex === -1 || newIndex === -1) return prev;
+      return arrayMove(prev, oldIndex, newIndex);
+    });
   }
 
   function handleCancel() {
@@ -72,35 +103,40 @@ export function DashboardGrid({ initialWidgets }: { initialWidgets: WidgetInstan
         onCancel={handleCancel}
         onAddWidget={() => setGalleryOpen(true)}
       />
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-4 md:gap-5">
-        {widgets.map((widget) => {
-          const Content = WIDGET_COMPONENTS[widget.type];
-          return (
-            <WidgetCard
-              key={widget.id}
-              title={catalogEntry(widget.type)?.label ?? widget.type}
-              size={widget.size}
-              editMode={editMode}
-              onSizeChange={(size) => updateSize(widget.id, size)}
-              onRemove={() => removeWidget(widget.id)}
-            >
-              {Content ? (
-                <Content size={widget.size} />
-              ) : (
-                <div className="flex h-24 items-center justify-center rounded-xl border border-dashed border-neutral-200 text-xs text-neutral-400">
-                  Platzhalter
-                </div>
-              )}
-            </WidgetCard>
-          );
-        })}
-        {widgets.length === 0 && (
-          <p className="col-span-1 text-sm text-neutral-500 md:col-span-4">
-            Keine Widgets. Über &quot;Widget hinzufügen&quot; im Bearbeitungsmodus
-            kannst du dein Dashboard zusammenstellen.
-          </p>
-        )}
-      </div>
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+        <SortableContext items={widgets.map((w) => w.id)} strategy={rectSortingStrategy}>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-4 md:gap-5">
+            {widgets.map((widget) => {
+              const Content = WIDGET_COMPONENTS[widget.type];
+              return (
+                <SortableWidgetCard
+                  key={widget.id}
+                  id={widget.id}
+                  title={catalogEntry(widget.type)?.label ?? widget.type}
+                  size={widget.size}
+                  editMode={editMode}
+                  onSizeChange={(size) => updateSize(widget.id, size)}
+                  onRemove={() => removeWidget(widget.id)}
+                >
+                  {Content ? (
+                    <Content size={widget.size} />
+                  ) : (
+                    <div className="flex h-24 items-center justify-center rounded-xl border border-dashed border-neutral-200 text-xs text-neutral-400">
+                      Platzhalter
+                    </div>
+                  )}
+                </SortableWidgetCard>
+              );
+            })}
+            {widgets.length === 0 && (
+              <p className="col-span-1 text-sm text-neutral-500 md:col-span-4">
+                Keine Widgets. Über &quot;Widget hinzufügen&quot; im Bearbeitungsmodus
+                kannst du dein Dashboard zusammenstellen.
+              </p>
+            )}
+          </div>
+        </SortableContext>
+      </DndContext>
       <WidgetGallery
         open={galleryOpen}
         existingTypes={widgets.map((w) => w.type)}
