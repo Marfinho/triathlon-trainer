@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
+import { signOut } from "next-auth/react";
+import type { Session } from "next-auth";
 
 type NavItem = {
   href: string;
@@ -58,11 +60,56 @@ const items: NavItem[] = [
   },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ session }: { session: Session | null }) {
   const pathname = usePathname();
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const isAdmin = session?.user?.role === "admin";
+
+  const initials = (session?.user?.name || "U").split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
 
   return (
-    <aside className="hidden w-60 border-r border-gray-200 bg-white md:fixed md:inset-y-0 md:left-0 md:flex md:flex-col md:pt-16">
+    <aside className="hidden w-60 border-r border-gray-200 bg-white md:fixed md:inset-y-0 md:left-0 md:flex md:flex-col">
+      {/* User Header */}
+      <div className="border-b border-gray-200 p-4">
+        <div className="relative">
+          <button
+            onClick={() => setDropdownOpen(!dropdownOpen)}
+            className="flex w-full items-center gap-3 rounded-lg px-2 py-2 hover:bg-gray-50"
+          >
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-600 text-sm font-semibold text-white">
+              {initials}
+            </div>
+            <div className="flex-1 text-left">
+              <p className="text-sm font-medium text-gray-900 truncate">{session?.user?.name || "Nutzer"}</p>
+              <p className="text-xs text-gray-500 truncate">{session?.user?.email}</p>
+            </div>
+            <svg className={`h-4 w-4 text-gray-400 transition ${dropdownOpen ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+            </svg>
+          </button>
+
+          {dropdownOpen && (
+            <div className="absolute top-full left-0 right-0 mt-1 rounded-lg border border-gray-200 bg-white shadow-lg z-50">
+              <Link href="/profile" className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 rounded-t-lg">
+                Profil
+              </Link>
+              {isAdmin && (
+                <Link href="/admin" className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 border-t border-gray-100">
+                  Admin
+                </Link>
+              )}
+              <button
+                onClick={() => signOut({ redirectTo: "/auth/login" })}
+                className="block w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 border-t border-gray-100 rounded-b-lg"
+              >
+                Abmelden
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Navigation */}
       <nav className="flex-1 space-y-1 px-3 py-6">
         {items.map((item) => {
           const isActive = pathname === item.href || pathname.startsWith(item.href + "/");

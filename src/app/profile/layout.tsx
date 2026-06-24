@@ -5,7 +5,7 @@ import Sidebar from "@/components/navigation/Sidebar";
 import BottomNav from "@/components/navigation/BottomNav";
 import { ToastProvider } from "@/components/ui/Toast";
 
-export default async function WeekLayout({
+export default async function ProfileLayout({
   children,
 }: {
   children: ReactNode;
@@ -16,16 +16,10 @@ export default async function WeekLayout({
   return (
     <ToastProvider>
       <div className="flex min-h-screen flex-col bg-gray-50 md:flex-row">
-        {/* Sidebar for desktop */}
         <Sidebar session={session} />
-
-        {/* Main content area */}
         <main className="flex-1 md:ml-60">
-          {/* Content */}
           <div className="pb-[80px] md:pb-0">{children}</div>
         </main>
-
-        {/* Bottom nav for mobile */}
         <BottomNav session={session} />
       </div>
     </ToastProvider>

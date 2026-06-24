@@ -25,6 +25,17 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     updateAge: 60 * 60 * 24,
   },
   useSecureCookies: process.env.NODE_ENV === "production",
+  callbacks: {
+    ...authConfig.callbacks,
+    jwt: async ({ token, user }) => {
+      if (user) {
+        token.id = user.id;
+        const dbUser = await prisma.user.findUnique({ where: { id: user.id } });
+        token.role = dbUser?.role ?? "user";
+      }
+      return token;
+    },
+  },
   providers: [
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID,

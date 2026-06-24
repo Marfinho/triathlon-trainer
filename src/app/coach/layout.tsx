@@ -17,7 +17,7 @@ export default async function CoachLayout({
     <ToastProvider>
       <div className="flex min-h-screen flex-col bg-gray-50 md:flex-row">
         {/* Sidebar for desktop */}
-        <Sidebar />
+        <Sidebar session={session} />
 
         {/* Main content area */}
         <main className="flex-1 md:ml-60">
@@ -26,7 +26,7 @@ export default async function CoachLayout({
         </main>
 
         {/* Bottom nav for mobile */}
-        <BottomNav />
+        <BottomNav session={session} />
       </div>
     </ToastProvider>
   );

@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
+import { signOut } from "next-auth/react";
+import type { Session } from "next-auth";
 
 type NavItem = {
   href: string;
@@ -58,8 +60,11 @@ const items: NavItem[] = [
   },
 ];
 
-export default function BottomNav() {
+export default function BottomNav({ session }: { session: Session | null }) {
   const pathname = usePathname();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const isAdmin = session?.user?.role === "admin";
+  const initials = (session?.user?.name || "U").split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-gray-200 bg-white md:hidden">
@@ -82,6 +87,44 @@ export default function BottomNav() {
             </Link>
           );
         })}
+        {/* User menu */}
+        <div className="relative">
+          <button
+            onClick={() => setMenuOpen(!menuOpen)}
+            className="flex flex-col items-center justify-center gap-1 px-3 py-2 text-[11px] font-medium transition-colors text-gray-600 hover:text-gray-900"
+            aria-label="Menü"
+          >
+            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-[9px] font-semibold text-white">
+              {initials}
+            </div>
+            <span>Menü</span>
+          </button>
+
+          {menuOpen && (
+            <div className="absolute bottom-full right-0 mb-1 w-48 rounded-lg border border-gray-200 bg-white shadow-lg">
+              <Link
+                href="/profile"
+                className="block w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 rounded-t-lg"
+              >
+                Profil
+              </Link>
+              {isAdmin && (
+                <Link
+                  href="/admin"
+                  className="block w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 border-t border-gray-100"
+                >
+                  Admin
+                </Link>
+              )}
+              <button
+                onClick={() => signOut({ redirectTo: "/auth/login" })}
+                className="block w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 border-t border-gray-100 rounded-b-lg"
+              >
+                Abmelden
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </nav>
   );
