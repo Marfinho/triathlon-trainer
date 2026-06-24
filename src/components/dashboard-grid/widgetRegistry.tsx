@@ -6,6 +6,10 @@ import { ReadinessCheckin } from "./widgets/ReadinessCheckin";
 import { WeekCalendar } from "./widgets/WeekCalendar";
 import { Compliance } from "./widgets/Compliance";
 import { VolumeByDiscipline } from "./widgets/VolumeByDiscipline";
+import { NextRace } from "./widgets/NextRace";
+import { TaperForecast } from "./widgets/TaperForecast";
+import { RacePrediction } from "./widgets/RacePrediction";
+import { RaceWeather } from "./widgets/RaceWeather";
 
 export const WIDGET_COMPONENTS: Record<string, ComponentType<{ size: WidgetSize }>> = {
   TodayWorkout,
@@ -14,4 +18,8 @@ export const WIDGET_COMPONENTS: Record<string, ComponentType<{ size: WidgetSize 
   WeekCalendar,
   Compliance,
   VolumeByDiscipline,
+  NextRace,
+  TaperForecast,
+  RacePrediction,
+  RaceWeather,
 };

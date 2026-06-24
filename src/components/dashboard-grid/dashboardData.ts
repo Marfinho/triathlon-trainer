@@ -1,4 +1,6 @@
 import type { FormState, LoadSeries, WeeklyVolume } from "@/domain/training/trainingLoad";
+import type { PredictionProfile } from "@/domain/training/prediction";
+import type { FormForecast } from "@/domain/training/formForecast";
 
 export interface DashboardPlannedWorkout {
   id: string;
@@ -71,6 +73,23 @@ export interface DashboardTrainingGoal {
   updatedAt: string;
 }
 
+export interface DashboardRace {
+  id: string;
+  name: string;
+  date: string;
+  type: string;
+  distance: string | null;
+  priority: string | null;
+  notes: string | null;
+  completed: boolean;
+  resultSeconds: number | null;
+  resultPlacement: number | null;
+  resultNote: string | null;
+  locationName: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface DashboardData {
   today: {
     dateIso: string;
@@ -82,6 +101,12 @@ export interface DashboardData {
     weekEnd: string;
     planned: DashboardPlannedWorkout[];
   };
+  races: {
+    upcoming: DashboardRace[];
+    nextRace: DashboardRace | null;
+  };
+  predictionProfile: PredictionProfile;
+  taper: FormForecast | null;
   training: {
     recentActivities: DashboardActualActivity[];
     loadSeries: LoadSeries;
