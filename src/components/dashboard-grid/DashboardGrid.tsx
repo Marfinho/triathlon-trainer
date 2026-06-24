@@ -6,6 +6,7 @@ import { catalogEntry } from "./catalog";
 import { EditModeToolbar } from "./EditModeToolbar";
 import { WidgetCard } from "./WidgetCard";
 import { WidgetGallery } from "./WidgetGallery";
+import { WIDGET_COMPONENTS } from "./widgetRegistry";
 import type { WidgetInstance, WidgetSize } from "./types";
 
 export function DashboardGrid({ initialWidgets }: { initialWidgets: WidgetInstance[] }) {
@@ -72,20 +73,27 @@ export function DashboardGrid({ initialWidgets }: { initialWidgets: WidgetInstan
         onAddWidget={() => setGalleryOpen(true)}
       />
       <div className="grid grid-cols-1 gap-4 md:grid-cols-4 md:gap-5">
-        {widgets.map((widget) => (
-          <WidgetCard
-            key={widget.id}
-            title={catalogEntry(widget.type)?.label ?? widget.type}
-            size={widget.size}
-            editMode={editMode}
-            onSizeChange={(size) => updateSize(widget.id, size)}
-            onRemove={() => removeWidget(widget.id)}
-          >
-            <div className="flex h-24 items-center justify-center rounded-xl border border-dashed border-neutral-200 text-xs text-neutral-400">
-              Platzhalter
-            </div>
-          </WidgetCard>
-        ))}
+        {widgets.map((widget) => {
+          const Content = WIDGET_COMPONENTS[widget.type];
+          return (
+            <WidgetCard
+              key={widget.id}
+              title={catalogEntry(widget.type)?.label ?? widget.type}
+              size={widget.size}
+              editMode={editMode}
+              onSizeChange={(size) => updateSize(widget.id, size)}
+              onRemove={() => removeWidget(widget.id)}
+            >
+              {Content ? (
+                <Content size={widget.size} />
+              ) : (
+                <div className="flex h-24 items-center justify-center rounded-xl border border-dashed border-neutral-200 text-xs text-neutral-400">
+                  Platzhalter
+                </div>
+              )}
+            </WidgetCard>
+          );
+        })}
         {widgets.length === 0 && (
           <p className="col-span-1 text-sm text-neutral-500 md:col-span-4">
             Keine Widgets. Über &quot;Widget hinzufügen&quot; im Bearbeitungsmodus
