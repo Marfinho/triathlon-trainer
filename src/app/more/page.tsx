@@ -114,8 +114,12 @@ export default async function MorePage() {
   );
 
   const [pending, processing, failed, success, synced] = syncCounts;
+  const intervalsIntegration = await prisma.userIntegration.findFirst({
+    where: { userId, provider: "intervals", enabled: true },
+  });
   const intervalsConfigured = Boolean(
-    process.env.INTERVALS_ATHLETE_ID && process.env.INTERVALS_API_KEY,
+    intervalsIntegration ||
+    (process.env.INTERVALS_ATHLETE_ID && process.env.INTERVALS_API_KEY),
   );
 
   let backupCooldownActive = false;
