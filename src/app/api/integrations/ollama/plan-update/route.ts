@@ -6,9 +6,8 @@
 
 import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
-import { addDays, formatIsoDate } from "@/domain/training/dates";
-import { syncPlannedWorkout } from "@/integrations/intervals/syncPlannedWorkout";
-import { createIntervalsClientForUser } from "@/integrations/intervals/userClient";
+import { formatIsoDate } from "@/domain/training/dates";
+import { syncToIntervals } from "@/lib/workout-sync-helper";
 
 interface WorkoutUpdate {
   action: "create" | "update" | "delete";
@@ -69,22 +68,18 @@ export async function POST(req: Request) {
           });
 
           // Sync to Intervals
-          const intervalsClient = await createIntervalsClientForUser(userId);
-          if (intervalsClient) {
-            await syncPlannedWorkout(workout.id, {
-              db: prisma,
-              client: intervalsClient,
-              userId,
-              triggeredBy: "ollama",
-            });
-          }
+          const syncResult = await syncToIntervals({
+            userId,
+            workoutIds: [workout.id],
+            triggeredBy: "ollama",
+          });
 
           results.push({
             action: "create",
             date: update.date,
             sport: update.sport,
             workoutId: workout.id,
-            synced: !!intervalsClient,
+            synced: syncResult.synced > 0,
           });
         } else if (update.action === "update" && update.workoutId) {
           const updateData: Record<string, unknown> = {};
@@ -109,20 +104,16 @@ export async function POST(req: Request) {
             });
 
             // Sync to Intervals
-            const intervalsClient = await createIntervalsClientForUser(userId);
-            if (intervalsClient) {
-              await syncPlannedWorkout(update.workoutId, {
-                db: prisma,
-                client: intervalsClient,
-                userId,
-                triggeredBy: "ollama",
-              });
-            }
+            const syncResult = await syncToIntervals({
+              userId,
+              workoutIds: [update.workoutId],
+              triggeredBy: "ollama",
+            });
 
             results.push({
               action: "update",
               workoutId: update.workoutId,
-              synced: !!intervalsClient,
+              synced: syncResult.synced > 0,
             });
           }
         } else if (update.action === "delete" && update.workoutId) {
