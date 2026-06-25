@@ -64,6 +64,27 @@ export function UserRolesManager() {
     }
   }
 
+  async function updatePlan(userId: string, newPlan: string) {
+    setUpdating(userId);
+    setMsg(null);
+    try {
+      const res = await fetch("/api/admin/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, plan: newPlan }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setUsers(users.map((u) => (u.id === userId ? { ...u, plan: newPlan } : u)));
+        setMsg({ ok: true, text: "Tarif aktualisiert." });
+      } else {
+        setMsg({ ok: false, text: data.error ?? "Fehler beim Aktualisieren." });
+      }
+    } finally {
+      setUpdating(null);
+    }
+  }
+
   const totalPages = Math.ceil(total / limit);
   const currentPage = Math.floor(offset / limit) + 1;
 
@@ -103,15 +124,17 @@ export function UserRolesManager() {
                       </span>
                     </td>
                     <td className="px-4 py-3">
-                      <span
-                        className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+                      <button
+                        onClick={() => updatePlan(user.id, user.plan === "paid" ? "free" : "paid")}
+                        disabled={updating === user.id}
+                        className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold transition ${
                           user.plan === "paid"
-                            ? "bg-emerald-100 text-emerald-800"
-                            : "bg-neutral-100 text-neutral-700"
-                        }`}
+                            ? "bg-emerald-100 text-emerald-800 hover:bg-emerald-200"
+                            : "bg-neutral-100 text-neutral-700 hover:bg-neutral-200"
+                        } disabled:opacity-50 disabled:cursor-not-allowed`}
                       >
                         {user.plan === "paid" ? "Bezahlt" : "Kostenlos"}
-                      </span>
+                      </button>
                     </td>
                     <td className="px-4 py-3">
                       {user.role === "admin" ? (
