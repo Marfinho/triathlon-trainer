@@ -35,7 +35,7 @@ function IntegrationCard({ initial }: { initial: IntegrationView }) {
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const [testing, setTesting] = useState(false);
-  const [testMsg, setTestMsg] = useState<{ ok: boolean; text: string } | null>(null);
+  const [testMsg, setTestMsg] = useState<{ ok: boolean; text: string; hint?: string } | null>(null);
   const [ollamaModels, setOllamaModels] = useState<string[]>([]);
   const [loadingModels, setLoadingModels] = useState(false);
 
@@ -86,16 +86,21 @@ function IntegrationCard({ initial }: { initial: IntegrationView }) {
         setOllamaModels(data.models ?? []);
         setTestMsg({
           ok: true,
-          text: `✓ Verbunden. ${data.models?.length ?? 0} Modell(e) verfügbar.`,
+          text: data.message || `✓ Verbunden. ${data.models?.length ?? 0} Modell(e) verfügbar.`,
         });
       } else {
         setTestMsg({
           ok: false,
           text: data.error ?? "Verbindungsfehler.",
+          hint: data.hint,
         });
       }
     } catch (error) {
-      setTestMsg({ ok: false, text: "Netzwerkfehler." });
+      setTestMsg({
+        ok: false,
+        text: "Netzwerkfehler beim Verbindungstest.",
+        hint: "Überprüfe deine Netzwerkverbindung und ob die Basis-URL erreichbar ist",
+      });
     } finally {
       setTesting(false);
       setLoadingModels(false);
@@ -237,6 +242,28 @@ function IntegrationCard({ initial }: { initial: IntegrationView }) {
                   </span>
                 )}
               </div>
+              {testMsg && (
+                <div
+                  className={`rounded-lg border p-3 text-xs ${
+                    testMsg.ok
+                      ? "border-emerald-200 bg-emerald-50"
+                      : "border-red-200 bg-red-50"
+                  }`}
+                >
+                  <p
+                    className={`font-medium ${
+                      testMsg.ok ? "text-emerald-800" : "text-red-800"
+                    }`}
+                  >
+                    {testMsg.text}
+                  </p>
+                  {testMsg.hint && (
+                    <p className={`mt-1 ${testMsg.ok ? "text-emerald-700" : "text-red-700"}`}>
+                      💡 {testMsg.hint}
+                    </p>
+                  )}
+                </div>
+              )}
               {ollamaModels.length > 0 && (
                 <label className="block text-xs text-neutral-500">
                   Verfügbare Modelle
