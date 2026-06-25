@@ -36,6 +36,8 @@ function IntegrationCard({ initial }: { initial: IntegrationView }) {
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const [testing, setTesting] = useState(false);
   const [testMsg, setTestMsg] = useState<{ ok: boolean; text: string } | null>(null);
+  const [ollamaModels, setOllamaModels] = useState<string[]>([]);
+  const [loadingModels, setLoadingModels] = useState(false);
 
   const isOAuth = initial.kind === "oauth";
   const isOllama = initial.provider === "ollama";
@@ -73,12 +75,15 @@ function IntegrationCard({ initial }: { initial: IntegrationView }) {
   async function testConnection() {
     setTesting(true);
     setTestMsg(null);
+    setOllamaModels([]);
+    setLoadingModels(true);
     try {
       const res = await fetch("/api/integrations/ollama/test", {
         method: "POST",
       });
       const data = await res.json().catch(() => ({}));
       if (res.ok && data.ok) {
+        setOllamaModels(data.models ?? []);
         setTestMsg({
           ok: true,
           text: `✓ Verbunden. ${data.models?.length ?? 0} Modell(e) verfügbar.`,
@@ -93,6 +98,7 @@ function IntegrationCard({ initial }: { initial: IntegrationView }) {
       setTestMsg({ ok: false, text: "Netzwerkfehler." });
     } finally {
       setTesting(false);
+      setLoadingModels(false);
     }
   }
 
@@ -216,18 +222,38 @@ function IntegrationCard({ initial }: { initial: IntegrationView }) {
             )}
           </div>
           {isOllama && enabled && clientId && hasSecret && (
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => testConnection()}
-                disabled={testing}
-                className="rounded-lg bg-neutral-600 px-3.5 py-1.5 text-sm font-medium text-white hover:bg-neutral-500 disabled:opacity-40"
-              >
-                {testing ? "…" : "Verbindung testen"}
-              </button>
-              {testMsg && (
-                <span className={`text-xs ${testMsg.ok ? "text-emerald-600" : "text-red-600"}`}>
-                  {testMsg.text}
-                </span>
+            <div className="space-y-3">
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => testConnection()}
+                  disabled={testing}
+                  className="rounded-lg bg-neutral-600 px-3.5 py-1.5 text-sm font-medium text-white hover:bg-neutral-500 disabled:opacity-40"
+                >
+                  {testing ? "…" : "Verbindung testen"}
+                </button>
+                {testMsg && (
+                  <span className={`text-xs ${testMsg.ok ? "text-emerald-600" : "text-red-600"}`}>
+                    {testMsg.text}
+                  </span>
+                )}
+              </div>
+              {ollamaModels.length > 0 && (
+                <label className="block text-xs text-neutral-500">
+                  Verfügbare Modelle
+                  <select
+                    value={clientSecret}
+                    onChange={(e) => setClientSecret(e.target.value)}
+                    disabled={loadingModels}
+                    className="mt-1 block w-full rounded-lg border border-neutral-300 bg-white px-2.5 py-1.5 text-sm disabled:bg-neutral-100"
+                  >
+                    <option value="">Modell wählen…</option>
+                    {ollamaModels.map((model) => (
+                      <option key={model} value={model}>
+                        {model}
+                      </option>
+                    ))}
+                  </select>
+                </label>
               )}
             </div>
           )}
