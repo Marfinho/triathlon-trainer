@@ -25,7 +25,9 @@ import { forecastForm } from "@/domain/training/formForecast";
 import { bestRunReference } from "@/domain/training/prediction";
 import { buildPlanVsActual, summarizeWeeklyCompliance } from "@/domain/training/planVsActual";
 import { isLlmConfigured } from "@/integrations/llm/client";
+import { isOllamaConfigured } from "@/integrations/ollama/isConfigured";
 import { ChatGptExchange } from "@/components/dashboard/ChatGptExchange";
+import { OllamaChat } from "@/components/dashboard/OllamaChat";
 import { FormForecastCard } from "@/components/dashboard/FormForecastCard";
 import { TrainingInsights } from "@/components/dashboard/TrainingInsights";
 import { ReadinessPain } from "@/components/dashboard/ReadinessPain";
@@ -39,6 +41,7 @@ export default async function CoachPage() {
   const userId = session.user.id;
 
   const now = new Date();
+  const ollamaConfigured = await isOllamaConfigured();
   const loadWindowStart = addDays(now, -365);
 
   const [athlete, loadActivities, races, readiness, pain, bodyMetrics] =
@@ -180,7 +183,25 @@ export default async function CoachPage() {
         </h1>
       </header>
       <div className="space-y-5">
-        <ChatGptExchange llmConfigured={isLlmConfigured()} />
+        {ollamaConfigured ? (
+          <OllamaChat
+            athleteName={session.user.name || "Athlet"}
+            contextData={{
+              weight: bodySummary.weightKg,
+              restingHr: bodySummary.restingHr,
+              hrv: bodySummary.hrv,
+              thisWeekLoad: loadSeries.current.atl,
+              formStatus: form.state,
+              recentActivities: analyticsActs.slice(-5).map((a) => ({
+                date: formatIsoDate(a.date),
+                sport: a.sport,
+                durationMin: a.durationMin,
+              })),
+            }}
+          />
+        ) : (
+          <ChatGptExchange llmConfigured={isLlmConfigured()} />
+        )}
         <FormForecastCard
           series={forecast.series}
           raceDay={forecast.raceDay}
