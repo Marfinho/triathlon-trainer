@@ -33,6 +33,26 @@ const SPORT_ICON: Record<string, string> = {
   rest: "😴",
 };
 
+const SPORT_ABBR: Record<string, string> = {
+  swim: "Schwimmen",
+  bike: "Rad",
+  run: "Lauf",
+  strength: "Kraft",
+  brick: "Brick",
+  mobility: "Mobility",
+  walk: "Walk",
+  cross_training: "Cross",
+  other: "Sonstiges",
+  rest: "Ruhe",
+};
+
+const MONTH_ABBR = [
+  "Jan", "Feb", "Mär", "Apr", "Mai", "Jun",
+  "Jul", "Aug", "Sep", "Okt", "Nov", "Dez",
+];
+
+const WEEKDAYS = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"];
+
 const STATUS_LABEL: Record<string, string> = {
   planned: "geplant",
   synced: "synchronisiert",
@@ -147,8 +167,13 @@ export function TrainingCalendar({
         </div>
       )}
 
-      {/* Weeks List */}
-      <div className="space-y-5">
+      {/* Desktop: Month Grid */}
+      <div className="hidden lg:block">
+        <DesktopMonthGrid grid={grid} onOpen={setOpenDay} />
+      </div>
+
+      {/* Mobile/Tablet: Weeks List */}
+      <div className="space-y-5 lg:hidden">
         {grid.map((week, wi) => {
           const sumKind = (kind: "actual" | "planned") =>
             week.reduce(
@@ -221,6 +246,7 @@ function DayRow({ day, onOpen }: { day: CalendarDay; onOpen: () => void }) {
 
   const hasItems = day.items.length > 0;
   const hasBoth = planned.length > 0 && actual.length > 0;
+  const diff = plannedMin - actualMin;
 
   return (
     <button
@@ -298,19 +324,111 @@ function DayRow({ day, onOpen }: { day: CalendarDay; onOpen: () => void }) {
           <div className="flex flex-col items-end gap-0.5 text-right text-xs">
             {actualMin > 0 && (
               <div className="font-semibold text-neutral-900">
-                {(actualMin / 60).toFixed(1)}h
+                {fmtDuration(actualMin)}
               </div>
             )}
             {plannedMin > 0 && (
               <div className="text-neutral-500">
-                {plannedMin > actualMin ? "+" : ""}
-                {((plannedMin - actualMin) / 60).toFixed(1)}h
+                {diff > 0 ? "+" : diff < 0 ? "−" : ""}
+                {fmtDuration(Math.abs(diff))}
               </div>
             )}
           </div>
         )}
       </div>
     </button>
+  );
+}
+
+/** Desktop-Monatsraster: 7-Spalten-Grid mit Sport-Chips je Tag statt nur einem Emoji. */
+function DesktopMonthGrid({
+  grid,
+  onOpen,
+}: {
+  grid: CalendarDay[][];
+  onOpen: (day: CalendarDay) => void;
+}) {
+  return (
+    <div className="overflow-hidden rounded-xl border border-neutral-200">
+      <div className="grid grid-cols-7 gap-px bg-neutral-200">
+        {WEEKDAYS.map((wd) => (
+          <div
+            key={wd}
+            className="bg-neutral-50 px-2 py-1.5 text-center text-[10px] font-semibold uppercase tracking-wide text-neutral-500"
+          >
+            {wd}
+          </div>
+        ))}
+        {grid.flat().map((day) => (
+          <DayCell key={day.date} day={day} onOpen={() => onOpen(day)} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function DayCell({ day, onOpen }: { day: CalendarDay; onOpen: () => void }) {
+  const d = new Date(`${day.date}T00:00:00Z`);
+  const dayNum = d.getUTCDate();
+  const isFirstOfMonth = dayNum === 1;
+
+  const actual = day.items.filter((it) => it.kind === "actual");
+  const planned = day.items.filter((it) => it.kind === "planned");
+  const items = [...actual, ...planned];
+  const hasItems = items.length > 0;
+  const visible = items.slice(0, 3);
+  const overflow = items.length - visible.length;
+
+  return (
+    <button
+      type="button"
+      onClick={hasItems ? onOpen : undefined}
+      disabled={!hasItems}
+      className={`flex min-h-[96px] flex-col gap-1 bg-white p-1.5 text-left transition ${
+        day.isToday
+          ? "bg-blue-50/50 ring-2 ring-inset ring-blue-400"
+          : day.inPast
+            ? "bg-neutral-50/50"
+            : ""
+      } ${hasItems ? "cursor-pointer hover:bg-neutral-50" : "cursor-default"}`}
+    >
+      <div className="flex items-center justify-between">
+        <span
+          className={`text-xs font-semibold ${day.isToday ? "text-blue-600" : "text-neutral-700"}`}
+        >
+          {dayNum}
+        </span>
+        {isFirstOfMonth && (
+          <span className="text-[10px] font-medium uppercase text-neutral-400">
+            {MONTH_ABBR[d.getUTCMonth()]}
+          </span>
+        )}
+      </div>
+      <div className="flex flex-col gap-1">
+        {visible.map((it, i) => (
+          <Chip key={i} item={it} />
+        ))}
+        {overflow > 0 && (
+          <span className="text-[10px] text-neutral-400">+{overflow} mehr</span>
+        )}
+      </div>
+    </button>
+  );
+}
+
+function Chip({ item }: { item: CalendarItem }) {
+  const color = sportColor(item.sport);
+  const isPlanned = item.kind === "planned";
+  return (
+    <div
+      className={`flex items-center justify-between gap-1 rounded px-1 py-0.5 text-[10px] font-medium ${
+        isPlanned ? "border bg-white" : "text-white"
+      }`}
+      style={isPlanned ? { borderColor: color, color } : { backgroundColor: color }}
+    >
+      <span className="truncate">{SPORT_ABBR[item.sport] ?? item.sport}</span>
+      <span className="shrink-0">{item.durationMin}′</span>
+    </div>
   );
 }
 
@@ -410,11 +528,11 @@ function DaySummary({
     <div className="grid grid-cols-3 gap-1.5">
       <Stat
         label="Geplant"
-        value={planned.length ? `${planned.length} · ${Math.round((plannedMin / 60) * 10) / 10} h` : "—"}
+        value={planned.length ? `${planned.length} · ${fmtDuration(plannedMin)}` : "—"}
       />
       <Stat
         label="Absolviert"
-        value={actual.length ? `${actual.length} · ${Math.round((actualMin / 60) * 10) / 10} h` : "—"}
+        value={actual.length ? `${actual.length} · ${fmtDuration(actualMin)}` : "—"}
       />
       <Stat label="Load" value={actualLoad > 0 ? String(Math.round(actualLoad)) : "—"} />
     </div>

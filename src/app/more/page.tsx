@@ -2,12 +2,9 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
 import { getEffectiveLimits } from "@/lib/plan-config";
-import { addDays, formatIsoDate } from "@/domain/training/dates";
 import { buildSeasonStats } from "@/domain/training/stats";
 import { buildGearTree } from "@/domain/training/gear";
 import { summarizeBody } from "@/domain/training/body";
-import type { TimelineSegmentInput } from "@/integrations/trainer/workoutPlayer";
-import { TrainerControl, type TrainerWorkout } from "@/components/dashboard/TrainerControl";
 import { TrainingZones } from "@/components/dashboard/TrainingZones";
 import { TrainingCalculators } from "@/components/dashboard/TrainingCalculators";
 import { GearTracker, type Gear } from "@/components/dashboard/GearTracker";
@@ -33,10 +30,8 @@ export default async function MorePage() {
   const limits = await getEffectiveLimits(dbUser?.plan ?? "free");
 
   const now = new Date();
-  const windowEnd = addDays(now, 21);
 
   const [
-    bikeWorkouts,
     athlete,
     loadActivities,
     gearItems,
@@ -46,16 +41,6 @@ export default async function MorePage() {
     syncCounts,
     syncLogs,
   ] = await Promise.all([
-    prisma.plannedWorkout.findMany({
-      where: {
-        userId,
-        sport: { in: ["bike", "brick"] },
-        status: { in: ["planned", "synced"] },
-        date: { gte: addDays(now, -1), lte: windowEnd },
-      },
-      orderBy: { date: "asc" },
-      take: 10,
-    }),
     prisma.athleteProfile.findFirst({
       where: { userId },
       orderBy: { createdAt: "asc" },
@@ -93,19 +78,6 @@ export default async function MorePage() {
       take: 5,
     }),
   ]);
-
-  const trainerWorkouts: TrainerWorkout[] = bikeWorkouts.map((w) => {
-    const segments = Array.isArray(w.segmentsJson)
-      ? (w.segmentsJson as unknown as TimelineSegmentInput[])
-      : [];
-    return {
-      id: w.id,
-      date: formatIsoDate(w.date),
-      title: w.title,
-      plannedDurationMin: w.plannedDurationMin,
-      segments,
-    };
-  });
 
   const gearTree = buildGearTree(gearItems, gearActivities) as unknown as Gear[];
   const seasonStats = buildSeasonStats(loadActivities, { today: now });
@@ -151,7 +123,6 @@ export default async function MorePage() {
         </h1>
       </header>
       <div className="space-y-5">
-        <TrainerControl workouts={trainerWorkouts} defaultFtp={athlete?.ftpWatts ?? 200} />
         <TrainingZones
           ftp={athlete?.ftpWatts ?? null}
           thresholdHr={athlete?.thresholdHr ?? null}

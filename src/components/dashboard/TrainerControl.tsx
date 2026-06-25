@@ -85,6 +85,16 @@ export function TrainerControl({
   const [saving, setSaving] = useState(false);
   const [savedMsg, setSavedMsg] = useState<string | null>(null);
   const [savedActivityId, setSavedActivityId] = useState<string | null>(null);
+  const [fullscreen, setFullscreen] = useState(false);
+
+  useEffect(() => {
+    if (!fullscreen) return;
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") setFullscreen(false);
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [fullscreen]);
 
   useEffect(() => {
     const stored = window.localStorage.getItem("localhub_ftp");
@@ -303,6 +313,13 @@ export function TrainerControl({
           >
             {STATUS_LABEL[status]}
           </span>
+          <button
+            onClick={() => setFullscreen(true)}
+            disabled={!connected}
+            className="rounded-lg border border-neutral-300 px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-100 disabled:opacity-40"
+          >
+            Vollbild
+          </button>
           {connected ? (
             <button
               onClick={disconnect}
@@ -563,7 +580,176 @@ export function TrainerControl({
           ) : null}
         </p>
       ) : null}
+
+      {fullscreen ? (
+        <FullscreenView
+          live={live}
+          target={currentTarget}
+          elapsed={elapsed}
+          totalDurationSec={timeline.totalDurationSec}
+          secondsRemainingInStep={active.secondsRemainingInStep}
+          activeLabel={active.step ? active.step.label : "Workout abgeschlossen"}
+          progressPct={progressPct}
+          running={running}
+          connected={connected}
+          recording={recording}
+          recSec={recSecRef.current}
+          onStart={startPlayer}
+          onPause={pausePlayer}
+          onStop={stopPlayer}
+          onExit={() => setFullscreen(false)}
+        />
+      ) : null}
     </Card>
+  );
+}
+
+/** Vollbild-Liveansicht für den Einsatz auf der Radrolle: große Kennzahlen, minimale Bedienung. */
+function FullscreenView({
+  live,
+  target,
+  elapsed,
+  totalDurationSec,
+  secondsRemainingInStep,
+  activeLabel,
+  progressPct,
+  running,
+  connected,
+  recording,
+  recSec,
+  onStart,
+  onPause,
+  onStop,
+  onExit,
+}: {
+  live: IndoorBikeData;
+  target: number;
+  elapsed: number;
+  totalDurationSec: number;
+  secondsRemainingInStep: number;
+  activeLabel: string;
+  progressPct: number;
+  running: boolean;
+  connected: boolean;
+  recording: boolean;
+  recSec: number;
+  onStart: () => void;
+  onPause: () => void;
+  onStop: () => void;
+  onExit: () => void;
+}) {
+  return (
+    <div className="fixed inset-0 z-[100] flex flex-col bg-neutral-950 p-6 text-white">
+      <div className="flex items-center justify-between">
+        <span className="text-sm font-medium uppercase tracking-wide text-neutral-400">
+          {activeLabel}
+        </span>
+        <div className="flex items-center gap-3">
+          {recording ? (
+            <span className="flex items-center gap-1.5 text-xs font-medium text-rose-400">
+              <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-rose-500" />
+              REC {fmt(recSec)}
+            </span>
+          ) : null}
+          <button
+            onClick={onExit}
+            className="rounded-lg border border-neutral-700 px-3 py-1.5 text-xs font-medium text-neutral-300 hover:bg-neutral-800"
+          >
+            Vollbild verlassen
+          </button>
+        </div>
+      </div>
+
+      <div className="grid flex-1 grid-cols-2 items-center gap-4 py-6 sm:grid-cols-4">
+        <BigMetric label="Ziel" value={`${target} W`} color="text-blue-400" />
+        <BigMetric
+          label="Leistung"
+          value={live.instantaneousPowerW != null ? `${live.instantaneousPowerW} W` : "—"}
+          color="text-emerald-400"
+        />
+        <BigMetric
+          label="Trittfrequenz"
+          value={
+            live.instantaneousCadenceRpm != null
+              ? `${Math.round(live.instantaneousCadenceRpm)} rpm`
+              : "—"
+          }
+        />
+        <BigMetric
+          label="Herzfrequenz"
+          value={live.heartRateBpm != null ? `${live.heartRateBpm} bpm` : "—"}
+        />
+      </div>
+
+      {totalDurationSec > 0 ? (
+        <div>
+          <div className="mb-2 flex items-center justify-between text-sm text-neutral-400">
+            <span>
+              {fmt(elapsed)} / {fmt(totalDurationSec)}
+            </span>
+            <span>{fmt(secondsRemainingInStep)} verbleibend</span>
+          </div>
+          <div className="h-3 w-full overflow-hidden rounded-full bg-neutral-800">
+            <div
+              className="h-full bg-blue-500 transition-all"
+              style={{ width: `${progressPct}%` }}
+            />
+          </div>
+        </div>
+      ) : null}
+
+      <div className="mt-6 flex justify-center gap-3">
+        {running ? (
+          <FsButton onClick={onPause} label="Pause" />
+        ) : (
+          <FsButton onClick={onStart} label="Start" disabled={!connected} primary />
+        )}
+        <FsButton onClick={onStop} label="Stop" disabled={!connected} />
+      </div>
+    </div>
+  );
+}
+
+function BigMetric({
+  label,
+  value,
+  color,
+}: {
+  label: string;
+  value: string;
+  color?: string;
+}) {
+  return (
+    <div className="text-center">
+      <p className="text-xs uppercase tracking-wide text-neutral-500">{label}</p>
+      <p className={`mt-1 text-4xl font-bold sm:text-5xl ${color ?? "text-white"}`}>{value}</p>
+    </div>
+  );
+}
+
+function FsButton({
+  onClick,
+  label,
+  disabled,
+  primary,
+}: {
+  onClick: () => void;
+  label: string;
+  disabled?: boolean;
+  primary?: boolean;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className={`rounded-xl px-6 py-3 text-sm font-medium disabled:opacity-40 ${
+        primary
+          ? "bg-emerald-600 text-white hover:bg-emerald-500"
+          : "border border-neutral-700 text-neutral-200 hover:bg-neutral-800"
+      }`}
+    >
+      {label}
+    </button>
   );
 }
 

@@ -16,23 +16,55 @@ export const INTERVALS_TYPE_TO_SPORT: Record<string, string> = {
   Run: "run",
   TrailRun: "run",
   Treadmill: "run",
+  VirtualRun: "run",
   Ride: "bike",
   VirtualRide: "bike",
   GravelRide: "bike",
   MountainBikeRide: "bike",
+  EBikeRide: "bike",
+  EMountainBikeRide: "bike",
+  Velomobile: "bike",
+  Handcycle: "bike",
   Swim: "swim",
   OpenWaterSwim: "swim",
   "Weight Training": "strength",
   WeightTraining: "strength",
+  Crossfit: "strength",
+  HighIntensityIntervalTraining: "strength",
   Workout: "cross_training",
+  Elliptical: "cross_training",
+  StairStepper: "cross_training",
+  Rowing: "cross_training",
+  VirtualRow: "cross_training",
   Walk: "walk",
   Hike: "walk",
+  Snowshoe: "walk",
   Yoga: "mobility",
+  Pilates: "mobility",
 };
 
+/**
+ * Intervals.icu nutzt Strava-kompatible Typstrings, von denen es weit mehr
+ * Varianten gibt (VirtualRun, EBikeRide, …) als in der exakten Lookup-Tabelle
+ * gepflegt werden können. Eine Aktivität, die auf intervals.icu korrekt als
+ * "Run" angezeigt wird, kann technisch z.B. "VirtualRun" heißen – fällt sie
+ * durch die exakte Tabelle, greift dieser Substring-Fallback statt "other".
+ */
 export function intervalsTypeToSport(type?: string | null): string {
   if (!type) return "other";
-  return INTERVALS_TYPE_TO_SPORT[type] ?? "other";
+  const direct = INTERVALS_TYPE_TO_SPORT[type];
+  if (direct) return direct;
+
+  const lower = type.toLowerCase();
+  if (lower.includes("run")) return "run";
+  if (lower.includes("ride") || lower.includes("bike") || lower.includes("cycle")) return "bike";
+  if (lower.includes("swim")) return "swim";
+  if (lower.includes("walk") || lower.includes("hike")) return "walk";
+  if (lower.includes("weight") || lower.includes("strength") || lower.includes("crossfit")) {
+    return "strength";
+  }
+  if (lower.includes("yoga") || lower.includes("pilates")) return "mobility";
+  return "other";
 }
 
 export interface ImportActivitiesResult {

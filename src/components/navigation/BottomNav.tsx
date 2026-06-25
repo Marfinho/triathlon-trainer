@@ -50,6 +50,17 @@ const items: NavItem[] = [
     ),
   },
   {
+    href: "/trainer",
+    label: "Trainer",
+    icon: (
+      <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <circle cx="6" cy="17" r="3" strokeWidth={2} />
+        <circle cx="18" cy="17" r="3" strokeWidth={2} />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 17l4-7h4l4 7M10 10l2-3h3" />
+      </svg>
+    ),
+  },
+  {
     href: "/more",
     label: "Mehr",
     icon: (
