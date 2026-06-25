@@ -71,11 +71,10 @@ export async function POST(req: Request) {
           // Sync to Intervals
           const intervalsClient = await createIntervalsClientForUser(userId);
           if (intervalsClient) {
-            await syncPlannedWorkout({
+            await syncPlannedWorkout(workout.id, {
               db: prisma,
               client: intervalsClient,
               userId,
-              workoutId: workout.id,
               triggeredBy: "ollama",
             });
           }
@@ -112,11 +111,10 @@ export async function POST(req: Request) {
             // Sync to Intervals
             const intervalsClient = await createIntervalsClientForUser(userId);
             if (intervalsClient) {
-              await syncPlannedWorkout({
+              await syncPlannedWorkout(update.workoutId, {
                 db: prisma,
                 client: intervalsClient,
                 userId,
-                workoutId: update.workoutId,
                 triggeredBy: "ollama",
               });
             }
