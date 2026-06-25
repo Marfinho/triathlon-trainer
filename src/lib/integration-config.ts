@@ -49,6 +49,12 @@ export const INTEGRATION_PROVIDERS: IntegrationProviderMeta[] = [
     kind: "oauth",
     description: "OAuth2 – Client-ID & Secret aus dem Withings-Developer-Portal erforderlich.",
   },
+  {
+    provider: "ollama",
+    label: "Ollama",
+    kind: "apikey",
+    description: "Lokaler LLM-Service. Basis-URL und Modellname müssen konfiguriert werden.",
+  },
 ];
 
 const PROVIDER_BY_ID = new Map(INTEGRATION_PROVIDERS.map((p) => [p.provider, p]));
@@ -66,6 +72,8 @@ function envCredentials(provider: string): { clientId?: string; clientSecret?: s
       return { clientId: process.env.WAHOO_CLIENT_ID, clientSecret: process.env.WAHOO_CLIENT_SECRET };
     case "withings":
       return { clientId: process.env.WITHINGS_CLIENT_ID, clientSecret: process.env.WITHINGS_CLIENT_SECRET };
+    case "ollama":
+      return { clientId: process.env.OLLAMA_BASE_URL, clientSecret: process.env.OLLAMA_MODEL };
     default:
       return {};
   }
