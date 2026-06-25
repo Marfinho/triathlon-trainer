@@ -61,6 +61,15 @@ const items: NavItem[] = [
     ),
   },
   {
+    href: "/body",
+    label: "Körper",
+    icon: (
+      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm6 7a1 1 0 11-2 0 1 1 0 012 0zM7 20h10a2 2 0 002-2v-6a2 2 0 00-2-2H7a2 2 0 00-2 2v6a2 2 0 002 2z" />
+      </svg>
+    ),
+  },
+  {
     href: "/more",
     label: "Mehr",
     icon: (
