@@ -11,7 +11,8 @@ export interface TierConfig {
   defaults: LimitsMap;
   effective: LimitsMap;
   override: Record<string, unknown> | null;
-  updatedAt: string | null;
+  // Vom Server als Date übergeben, nach dem Speichern im Client als ISO-String.
+  updatedAt: string | Date | null;
   updatedBy: string | null;
 }
 
@@ -61,7 +62,7 @@ function TierEditor({ config }: { config: TierConfig }) {
   const [values, setValues] = useState<LimitsMap>(() => ({ ...config.effective }));
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
-  const [updatedAt, setUpdatedAt] = useState<string | null>(config.updatedAt);
+  const [updatedAt, setUpdatedAt] = useState<string | Date | null>(config.updatedAt);
 
   function setField(key: string, value: Json) {
     setValues((prev) => ({ ...prev, [key]: value }));

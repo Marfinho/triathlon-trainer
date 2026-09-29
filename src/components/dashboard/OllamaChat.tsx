@@ -23,7 +23,7 @@ export interface OllamaChatProps {
     weight?: number | null;
     restingHr?: number | null;
     hrv?: number | null;
-    recentActivities?: Array<{ date: string; sport: string; durationMin: number }>;
+    recentActivities?: Array<{ date: string; sport: string; durationMin: number | null }>;
     thisWeekLoad?: number;
     formStatus?: string;
   };
@@ -249,7 +249,7 @@ function buildSystemPrompt(athleteName: string, contextData: OllamaChatProps["co
   if (contextData.recentActivities && contextData.recentActivities.length > 0) {
     lines.push(`- Letzte Aktivitäten:`);
     contextData.recentActivities.slice(0, 5).forEach((act) => {
-      lines.push(`  - ${act.date}: ${act.sport} (${act.durationMin} min)`);
+      lines.push(`  - ${act.date}: ${act.sport} (${act.durationMin ?? "?"} min)`);
     });
   }
 
