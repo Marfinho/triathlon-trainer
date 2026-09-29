@@ -25,7 +25,7 @@ export const WidgetCard = forwardRef<
     <div
       ref={ref}
       style={style}
-      className={`${SIZE_SPAN_CLASS[size]} ${className ?? ""} rounded-2xl border border-neutral-200/80 bg-white p-4 shadow-[0_1px_2px_rgba(0,0,0,0.04)]`}
+      className={`${SIZE_SPAN_CLASS[size]} ${className ?? ""} card-neon rounded-3xl p-4`}
     >
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
         <div className="flex min-w-0 items-center gap-1.5">

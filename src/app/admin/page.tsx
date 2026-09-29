@@ -76,26 +76,26 @@ export default async function AdminPage() {
       <div className="space-y-6">
         {/* Stats */}
         <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-          <div className="rounded-2xl border border-neutral-200/80 bg-white p-6 shadow-sm">
+          <div className="card-neon rounded-3xl p-6">
             <p className="text-xs font-medium text-neutral-600 uppercase tracking-wide">Alle Nutzer</p>
             <p className="mt-2 text-3xl font-semibold text-neutral-900">{totalUsers}</p>
           </div>
-          <div className="rounded-2xl border border-neutral-200/80 bg-white p-6 shadow-sm">
+          <div className="card-neon rounded-3xl p-6">
             <p className="text-xs font-medium text-neutral-600 uppercase tracking-wide">Bezahlende Nutzer</p>
             <p className="mt-2 text-3xl font-semibold text-neutral-900">{paidUsers}</p>
           </div>
-          <div className="rounded-2xl border border-neutral-200/80 bg-white p-6 shadow-sm">
+          <div className="card-neon rounded-3xl p-6">
             <p className="text-xs font-medium text-neutral-600 uppercase tracking-wide">Aktive Integrationen</p>
             <p className="mt-2 text-3xl font-semibold text-neutral-900">{activeIntegrations}</p>
           </div>
-          <div className="rounded-2xl border border-neutral-200/80 bg-white p-6 shadow-sm">
+          <div className="card-neon rounded-3xl p-6">
             <p className="text-xs font-medium text-neutral-600 uppercase tracking-wide">Aktiv heute (24h)</p>
             <p className="mt-2 text-3xl font-semibold text-neutral-900">{dailyActiveUsers}</p>
           </div>
         </div>
 
         {/* Recent Signups */}
-        <div className="rounded-2xl border border-neutral-200/80 bg-white p-6 shadow-sm">
+        <div className="card-neon rounded-3xl p-6">
           <h2 className="mb-4 text-lg font-semibold text-neutral-900">Neue Registrierungen (7 Tage)</h2>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">

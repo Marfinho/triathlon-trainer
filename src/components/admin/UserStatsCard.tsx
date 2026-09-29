@@ -39,7 +39,7 @@ export function UserStatsCard({ users }: { users: UserStats }) {
               title={`${PLAN_LABELS[plan] ?? plan}: ${count}`}
               style={{
                 width: `${(count / total) * 100}%`,
-                backgroundColor: plan === "paid" ? "#16a34a" : "#94a3b8",
+                backgroundColor: plan === "paid" ? "#39FF88" : "#A9A9C4",
               }}
             />
           ))}
@@ -49,7 +49,7 @@ export function UserStatsCard({ users }: { users: UserStats }) {
             <span key={plan} className="flex items-center gap-1.5 text-xs text-neutral-500">
               <span
                 className="h-2 w-2 rounded-full"
-                style={{ backgroundColor: plan === "paid" ? "#16a34a" : "#94a3b8" }}
+                style={{ backgroundColor: plan === "paid" ? "#39FF88" : "#A9A9C4" }}
               />
               {PLAN_LABELS[plan] ?? plan}: {formatNumber(count)}
             </span>

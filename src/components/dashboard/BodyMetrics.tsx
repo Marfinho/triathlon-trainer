@@ -126,7 +126,7 @@ export function BodyMetrics({
             ) : null}
           </p>
           <div className="mt-1 text-blue-500">
-            <Sparkline values={summary.weights} color="#0a84ff" height={32} />
+            <Sparkline values={summary.weights} color="#00E5FF" height={32} />
           </div>
         </div>
         <div className="rounded-xl border border-neutral-200 p-3">
@@ -149,7 +149,7 @@ export function BodyMetrics({
             {summary.latestRestingHr != null ? `${summary.latestRestingHr} bpm` : "—"}
           </p>
           <div className="mt-1 text-rose-400">
-            <Sparkline values={summary.restingHrs} color="#ff3b30" height={32} />
+            <Sparkline values={summary.restingHrs} color="#FF3864" height={32} />
           </div>
         </div>
         <div className="rounded-xl border border-neutral-200 p-3">
@@ -172,7 +172,7 @@ export function BodyMetrics({
             {summary.latestHrv != null ? `${summary.latestHrv} ms` : "—"}
           </p>
           <div className="mt-1 text-emerald-500">
-            <Sparkline values={summary.hrvs} color="#34c759" height={32} />
+            <Sparkline values={summary.hrvs} color="#39FF88" height={32} />
           </div>
         </div>
       </div>

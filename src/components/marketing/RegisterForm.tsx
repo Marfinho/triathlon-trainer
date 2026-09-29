@@ -86,7 +86,7 @@ export default function RegisterForm({ showLoginLink = true }: RegisterFormProps
       <div className="flex flex-col gap-1.5">
         <label
           htmlFor="reg-name"
-          className="font-display text-xs uppercase tracking-wider text-[#94A3B8]"
+          className="font-display text-xs uppercase tracking-wider text-[#A9A9C4]"
         >
           Name
         </label>
@@ -98,14 +98,14 @@ export default function RegisterForm({ showLoginLink = true }: RegisterFormProps
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="Dein Name"
-          className="w-full rounded-lg border border-[#334155] bg-[#0B1120] px-3 py-2.5 text-[#F8FAFC] placeholder:text-[#475569] outline-none transition focus:border-[#F0A500] focus:ring-1 focus:ring-[#F0A500]"
+          className="w-full rounded-lg border border-[#34344D] bg-[#07070D] px-3 py-2.5 text-[#F1F1FB] placeholder:text-[#6B6B8A] outline-none transition focus:border-[#FF2BD6] focus:ring-1 focus:ring-[#FF2BD6]"
         />
       </div>
 
       <div className="flex flex-col gap-1.5">
         <label
           htmlFor="reg-email"
-          className="font-display text-xs uppercase tracking-wider text-[#94A3B8]"
+          className="font-display text-xs uppercase tracking-wider text-[#A9A9C4]"
         >
           E-Mail
         </label>
@@ -117,14 +117,14 @@ export default function RegisterForm({ showLoginLink = true }: RegisterFormProps
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="du@example.com"
-          className="w-full rounded-lg border border-[#334155] bg-[#0B1120] px-3 py-2.5 text-[#F8FAFC] placeholder:text-[#475569] outline-none transition focus:border-[#F0A500] focus:ring-1 focus:ring-[#F0A500]"
+          className="w-full rounded-lg border border-[#34344D] bg-[#07070D] px-3 py-2.5 text-[#F1F1FB] placeholder:text-[#6B6B8A] outline-none transition focus:border-[#FF2BD6] focus:ring-1 focus:ring-[#FF2BD6]"
         />
       </div>
 
       <div className="flex flex-col gap-1.5">
         <label
           htmlFor="reg-password"
-          className="font-display text-xs uppercase tracking-wider text-[#94A3B8]"
+          className="font-display text-xs uppercase tracking-wider text-[#A9A9C4]"
         >
           Passwort
         </label>
@@ -137,14 +137,14 @@ export default function RegisterForm({ showLoginLink = true }: RegisterFormProps
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="Mindestens 8 Zeichen"
-          className="w-full rounded-lg border border-[#334155] bg-[#0B1120] px-3 py-2.5 text-[#F8FAFC] placeholder:text-[#475569] outline-none transition focus:border-[#F0A500] focus:ring-1 focus:ring-[#F0A500]"
+          className="w-full rounded-lg border border-[#34344D] bg-[#07070D] px-3 py-2.5 text-[#F1F1FB] placeholder:text-[#6B6B8A] outline-none transition focus:border-[#FF2BD6] focus:ring-1 focus:ring-[#FF2BD6]"
         />
       </div>
 
       <div className="flex flex-col gap-1.5">
         <label
           htmlFor="reg-confirm"
-          className="font-display text-xs uppercase tracking-wider text-[#94A3B8]"
+          className="font-display text-xs uppercase tracking-wider text-[#A9A9C4]"
         >
           Passwort bestätigen
         </label>
@@ -156,12 +156,12 @@ export default function RegisterForm({ showLoginLink = true }: RegisterFormProps
           value={confirm}
           onChange={(e) => setConfirm(e.target.value)}
           placeholder="••••••••"
-          className="w-full rounded-lg border border-[#334155] bg-[#0B1120] px-3 py-2.5 text-[#F8FAFC] placeholder:text-[#475569] outline-none transition focus:border-[#F0A500] focus:ring-1 focus:ring-[#F0A500]"
+          className="w-full rounded-lg border border-[#34344D] bg-[#07070D] px-3 py-2.5 text-[#F1F1FB] placeholder:text-[#6B6B8A] outline-none transition focus:border-[#FF2BD6] focus:ring-1 focus:ring-[#FF2BD6]"
         />
       </div>
 
       {error && (
-        <p role="alert" className="text-sm text-[#F87171]">
+        <p role="alert" className="text-sm text-[#FF6B8B]">
           {error}
         </p>
       )}
@@ -169,29 +169,29 @@ export default function RegisterForm({ showLoginLink = true }: RegisterFormProps
       <button
         type="submit"
         disabled={loading}
-        className="mt-1 w-full rounded-lg bg-[#F0A500] px-4 py-2.5 font-medium text-[#0B1120] transition hover:bg-[#ffb81f] disabled:cursor-not-allowed disabled:opacity-60"
+        className="mt-1 w-full rounded-lg bg-[#FF2BD6] px-4 py-2.5 font-medium text-[#07070D] transition hover:bg-[#FF5FE0] disabled:cursor-not-allowed disabled:opacity-60"
       >
         {loading ? "Konto wird erstellt…" : "Konto erstellen"}
       </button>
 
       <div className="flex items-center gap-3 py-1">
-        <span className="h-px flex-1 bg-[#1E293B]" />
-        <span className="font-display text-xs text-[#94A3B8]">oder</span>
-        <span className="h-px flex-1 bg-[#1E293B]" />
+        <span className="h-px flex-1 bg-[#1C1C2D]" />
+        <span className="font-display text-xs text-[#A9A9C4]">oder</span>
+        <span className="h-px flex-1 bg-[#1C1C2D]" />
       </div>
 
       <button
         type="button"
         onClick={() => signIn("google", { redirectTo: "/dashboard" })}
-        className="w-full rounded-lg border border-[#334155] bg-[#111827] px-4 py-2.5 font-medium text-[#F8FAFC] transition hover:border-[#475569]"
+        className="w-full rounded-lg border border-[#34344D] bg-[#11111B] px-4 py-2.5 font-medium text-[#F1F1FB] transition hover:border-[#6B6B8A]"
       >
         Mit Google
       </button>
 
       {showLoginLink && (
-        <p className="pt-1 text-center text-sm text-[#94A3B8]">
+        <p className="pt-1 text-center text-sm text-[#A9A9C4]">
           Bereits ein Konto?{" "}
-          <Link href="/auth/login" className="text-[#F0A500] hover:underline">
+          <Link href="/auth/login" className="text-[#FF2BD6] hover:underline">
             Anmelden
           </Link>
         </p>

@@ -125,7 +125,7 @@ export default function BottomNav({ session }: { session: Session | null }) {
       href: "/profile",
       label: "Profil",
       icon: (
-        <div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-[9px] font-semibold text-white">
+        <div className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-[#00E5FF] to-[#FF2BD6] text-[9px] font-bold text-[#07070d]">
           {initials}
         </div>
       ),
@@ -147,7 +147,7 @@ export default function BottomNav({ session }: { session: Session | null }) {
 
   const tabClass = (active: boolean) =>
     `flex min-w-0 flex-1 flex-col items-center justify-center gap-0.5 py-1.5 text-[11px] font-medium transition-colors ${
-      active ? "text-blue-600" : "text-gray-600 active:text-gray-900"
+      active ? "text-[#00E5FF] [&_svg]:drop-shadow-[0_0_6px_rgba(0,229,255,0.9)]" : "text-gray-500 active:text-gray-900"
     }`;
 
   return (
@@ -156,11 +156,11 @@ export default function BottomNav({ session }: { session: Session | null }) {
         <div className="fixed inset-0 z-40 md:hidden" role="dialog" aria-modal="true" aria-label="Weitere Seiten">
           <button
             type="button"
-            className="absolute inset-0 bg-black/30"
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
             aria-label="Schließen"
             onClick={() => setSheetOpen(false)}
           />
-          <div className="absolute inset-x-0 bottom-0 rounded-t-2xl bg-white px-4 pt-3 shadow-xl pb-[calc(76px+env(safe-area-inset-bottom))]">
+          <div className="absolute inset-x-0 bottom-0 rounded-t-3xl border-t border-white/10 bg-[#11111b]/95 px-4 pt-3 shadow-2xl backdrop-blur-xl pb-[calc(76px+env(safe-area-inset-bottom))]">
             <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-gray-300" />
             <div className="grid grid-cols-3 gap-2">
               {sheetLinks.map((item) => {
@@ -170,7 +170,7 @@ export default function BottomNav({ session }: { session: Session | null }) {
                     key={item.href}
                     href={item.href}
                     className={`flex flex-col items-center gap-1.5 rounded-xl px-2 py-3 text-xs font-medium ${
-                      active ? "bg-blue-50 text-blue-600" : "text-gray-700 active:bg-gray-100"
+                      active ? "bg-[#00E5FF]/10 text-[#7af1ff] ring-1 ring-[#00E5FF]/40" : "bg-white/[0.03] text-gray-700 active:bg-white/10"
                     }`}
                   >
                     <div className="h-6 w-6">{item.icon}</div>
@@ -182,7 +182,7 @@ export default function BottomNav({ session }: { session: Session | null }) {
             <button
               type="button"
               onClick={() => signOut({ redirectTo: "/auth/login" })}
-              className="mt-3 w-full rounded-xl border border-gray-200 py-2.5 text-sm font-medium text-gray-700 active:bg-gray-100"
+              className="mt-3 w-full rounded-xl border border-[#FF3864]/40 py-2.5 text-sm font-medium text-[#FF6B8B] active:bg-[#FF3864]/10"
             >
               Abmelden
             </button>
@@ -191,7 +191,7 @@ export default function BottomNav({ session }: { session: Session | null }) {
       )}
 
       <nav
-        className="fixed bottom-0 left-0 right-0 z-50 border-t border-gray-200 bg-white pb-[env(safe-area-inset-bottom)] md:hidden"
+        className="fixed bottom-0 left-0 right-0 z-50 border-t border-white/10 bg-[#0b0b14]/85 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl md:hidden"
         aria-label="Hauptnavigation"
       >
         <div className="flex h-[60px] items-stretch">

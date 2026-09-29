@@ -55,7 +55,7 @@ export function DashboardTabs({ tabs }: { tabs: DashboardTab[] }) {
   return (
     <div>
       <nav
-        className="sticky top-0 z-10 -mx-6 mb-6 border-b border-neutral-200/70 bg-[#f5f5f7]/85 px-6 py-2.5 backdrop-blur"
+        className="sticky top-0 z-10 -mx-6 mb-6 border-b border-neutral-200/70 bg-[#07070D]/85 px-6 py-2.5 backdrop-blur"
         aria-label="Dashboard-Bereiche"
       >
         <div

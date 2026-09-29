@@ -12,9 +12,9 @@ const MODEL_LABEL: Record<string, string> = {
 };
 
 const BAND_COLOR: Record<string, string> = {
-  easy: "#34c759",
-  moderate: "#ff9f0a",
-  hard: "#ff3b30",
+  easy: "#39FF88",
+  moderate: "#FF9F1C",
+  hard: "#FF3864",
 };
 
 export function IntensityDistribution({ size }: { size: WidgetSize }) {

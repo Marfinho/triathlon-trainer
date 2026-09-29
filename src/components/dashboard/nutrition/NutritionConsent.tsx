@@ -30,7 +30,7 @@ export function NutritionConsent({ onGranted }: { onGranted: () => void }) {
   }
 
   return (
-    <div className="rounded-2xl border border-neutral-200/80 bg-white p-6 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
+    <div className="card-neon rounded-3xl p-6">
       <h2 className="text-[15px] font-semibold tracking-tight text-neutral-900">
         Einwilligung zur Ernährungs-Erfassung
       </h2>

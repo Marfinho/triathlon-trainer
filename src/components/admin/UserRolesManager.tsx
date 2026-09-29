@@ -89,7 +89,7 @@ export function UserRolesManager() {
   const currentPage = Math.floor(offset / limit) + 1;
 
   return (
-    <div className="rounded-2xl border border-neutral-200/80 bg-white p-6 shadow-sm">
+    <div className="card-neon rounded-3xl p-6">
       <h2 className="mb-4 text-lg font-semibold text-neutral-900">Nutzer-Rollen verwalten</h2>
 
       {loading ? (

@@ -12,10 +12,10 @@ export function Card({
   actions?: ReactNode;
 }) {
   return (
-    <section className="rounded-2xl border border-neutral-200/80 bg-white p-6 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
+    <section className="card-neon animate-rise rounded-3xl p-5 md:p-6">
       <div className="mb-4 flex items-start justify-between gap-3">
         <div>
-          <h2 className="text-[15px] font-semibold tracking-tight text-neutral-900">
+          <h2 className="text-base font-semibold tracking-tight text-neutral-900">
             {title}
           </h2>
           {subtitle ? (
@@ -48,14 +48,14 @@ export function sportLabel(sport: string): string {
 
 /** Einheitliche, dezente Farbzuordnung je Disziplin (für Graphen/Badges). */
 export const SPORT_COLORS: Record<string, string> = {
-  swim: "#0a84ff",
-  bike: "#30b0c7",
-  run: "#ff9f0a",
-  strength: "#bf5af2",
-  brick: "#5e5ce6",
-  other: "#8e8e93",
+  swim: "#00E5FF",
+  bike: "#00FFD1",
+  run: "#FF9F1C",
+  strength: "#B026FF",
+  brick: "#7C4DFF",
+  other: "#8E8EAB",
 };
 
 export function sportColor(sport: string): string {
-  return SPORT_COLORS[sport] ?? "#8e8e93";
+  return SPORT_COLORS[sport] ?? "#8E8EAB";
 }

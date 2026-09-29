@@ -117,7 +117,7 @@ export function ReadinessCheckin({ size }: { size: WidgetSize }) {
               .slice()
               .reverse()
               .map((h) => h.subjectiveFatigue)}
-            color="#0a84ff"
+            color="#00E5FF"
             height={32}
           />
         </div>

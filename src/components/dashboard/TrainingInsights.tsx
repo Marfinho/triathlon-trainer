@@ -170,7 +170,7 @@ export function TrainingInsights(props: TrainingInsightsProps) {
           {efficiencyValues.length < 2 ? (
             <p className="text-sm text-neutral-400">Zu wenige HF-Daten.</p>
           ) : (
-            <Sparkline values={efficiencyValues} color="#30b0c7" height={40} />
+            <Sparkline values={efficiencyValues} color="#00FFD1" height={40} />
           )}
         </div>
       </div>

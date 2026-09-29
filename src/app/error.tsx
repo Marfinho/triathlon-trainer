@@ -21,7 +21,7 @@ export default function Error({
 
   return (
     <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 px-6 text-center">
-      <div className="rounded-2xl border border-neutral-200 bg-white p-8 shadow-sm">
+      <div className="card-neon rounded-3xl p-8">
         <h1 className="text-lg font-semibold text-neutral-900">
           Etwas ist schiefgelaufen
         </h1>

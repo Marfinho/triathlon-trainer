@@ -22,7 +22,7 @@ export default async function AppShell({
 
   return (
     <ToastProvider>
-      <div className="flex min-h-screen flex-col bg-gray-50 md:flex-row">
+      <div className="app-shell flex min-h-screen flex-col md:flex-row">
         <Sidebar session={session} />
         <main className="flex-1 md:ml-60">
           <div className="pb-[calc(80px+env(safe-area-inset-bottom))] md:pb-0">{children}</div>

@@ -46,22 +46,22 @@ export default async function Home() {
   if (session?.user) redirect("/dashboard");
 
   return (
-    <div className="min-h-screen bg-white text-[#1d1d1f]">
+    <div className="min-h-screen bg-transparent text-[#F1F1FB]">
       {/* Nav */}
-      <header className="sticky top-0 z-50 border-b border-[#e8e8ed] bg-white/80 backdrop-blur-xl">
+      <header className="sticky top-0 z-50 border-b border-[#27273B] bg-white/80 backdrop-blur-xl">
         <nav className="mx-auto flex max-w-5xl items-center justify-between px-6 py-3.5">
           <Link href="/" className="flex items-center gap-1.5 text-[17px] font-semibold tracking-tight">
             LocalHub
-            <span className="h-1.5 w-1.5 rounded-full bg-[#0071e3]" />
+            <span className="h-1.5 w-1.5 rounded-full bg-[#00E5FF]" />
           </Link>
-          <div className="flex items-center gap-7 text-[13px] text-[#6e6e73]">
-            <a href="#features" className="hidden transition hover:text-[#1d1d1f] sm:block">
+          <div className="flex items-center gap-7 text-[13px] text-[#9A9AB8]">
+            <a href="#features" className="hidden transition hover:text-[#F1F1FB] sm:block">
               Features
             </a>
-            <a href="#pricing" className="hidden transition hover:text-[#1d1d1f] sm:block">
+            <a href="#pricing" className="hidden transition hover:text-[#F1F1FB] sm:block">
               Preise
             </a>
-            <Link href="/auth/login" className="transition hover:text-[#1d1d1f]">
+            <Link href="/auth/login" className="transition hover:text-[#F1F1FB]">
               Anmelden
             </Link>
           </div>
@@ -73,9 +73,9 @@ export default async function Home() {
         <h1 className="mx-auto max-w-3xl text-5xl font-semibold leading-[1.05] tracking-tight sm:text-6xl">
           Deine Trainingsdaten.
           <br />
-          <span className="text-[#6e6e73]">An einem Ort.</span>
+          <span className="bg-gradient-to-r from-[#00E5FF] via-[#7C4DFF] to-[#FF2BD6] bg-clip-text text-transparent">An einem Ort.</span>
         </h1>
-        <p className="mx-auto mt-6 max-w-xl text-lg leading-relaxed text-[#6e6e73]">
+        <p className="mx-auto mt-6 max-w-xl text-lg leading-relaxed text-[#9A9AB8]">
           LocalHub bündelt Schwimmen, Rad und Lauf in einer Datendrehscheibe.
           Verfolge Form &amp; Belastung, erhalte Wettkampf-Vorhersagen — und
           behalte die volle Kontrolle über deine Daten.
@@ -83,13 +83,13 @@ export default async function Home() {
         <div className="mt-9 flex flex-col items-center justify-center gap-4 sm:flex-row">
           <Link
             href="/auth/register"
-            className="rounded-full bg-[#0071e3] px-7 py-3 text-[15px] font-medium text-white transition hover:bg-[#0077ed]"
+            className="rounded-full bg-[#00E5FF] px-7 py-3 text-[15px] font-medium text-white transition hover:bg-[#00C8FF]"
           >
             Kostenlos starten
           </Link>
           <a
             href="#features"
-            className="text-[15px] font-medium text-[#0071e3] transition hover:underline"
+            className="text-[15px] font-medium text-[#00E5FF] transition hover:underline"
           >
             Mehr erfahren ›
           </a>
@@ -101,28 +101,28 @@ export default async function Home() {
       </section>
 
       {/* Features */}
-      <section id="features" className="scroll-mt-16 bg-[#f5f5f7]">
+      <section id="features" className="scroll-mt-16 bg-[#07070D]">
         <div className="mx-auto max-w-5xl px-6 py-24">
           <h2 className="text-center text-4xl font-semibold tracking-tight">
             Alles für dein Training
           </h2>
-          <p className="mx-auto mt-4 max-w-xl text-center text-lg text-[#6e6e73]">
+          <p className="mx-auto mt-4 max-w-xl text-center text-lg text-[#9A9AB8]">
             Von der Synchronisation bis zur Prognose. Modular und ohne
             Abhängigkeiten.
           </p>
 
-          <div className="mt-14 grid grid-cols-1 gap-px overflow-hidden rounded-2xl border border-[#e8e8ed] bg-[#e8e8ed] sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-14 grid grid-cols-1 gap-px overflow-hidden rounded-2xl border border-[#27273B] bg-[#27273B] sm:grid-cols-2 lg:grid-cols-3">
             {features.map((f) => (
               <div key={f.title} className="bg-white p-7">
                 <div className="flex items-center gap-2">
                   <h3 className="text-lg font-semibold tracking-tight">{f.title}</h3>
                   {f.paid && (
-                    <span className="rounded-full bg-[#f5f5f7] px-2 py-0.5 text-[11px] font-medium text-[#6e6e73]">
+                    <span className="rounded-full bg-[#07070D] px-2 py-0.5 text-[11px] font-medium text-[#9A9AB8]">
                       Pro
                     </span>
                   )}
                 </div>
-                <p className="mt-2 text-[15px] leading-relaxed text-[#6e6e73]">{f.desc}</p>
+                <p className="mt-2 text-[15px] leading-relaxed text-[#9A9AB8]">{f.desc}</p>
               </div>
             ))}
           </div>
@@ -132,7 +132,7 @@ export default async function Home() {
       {/* Integrations */}
       <section className="mx-auto max-w-5xl px-6 py-24 text-center">
         <h2 className="text-4xl font-semibold tracking-tight">Verbunden mit allem</h2>
-        <p className="mx-auto mt-4 max-w-xl text-lg text-[#6e6e73]">
+        <p className="mx-auto mt-4 max-w-xl text-lg text-[#9A9AB8]">
           Direkt angebunden — und über Intervals.icu erreichst du Garmin, Apple
           Health, Polar, COROS und mehr.
         </p>
@@ -140,7 +140,7 @@ export default async function Home() {
           {activeIntegrations.map((name) => (
             <span
               key={name}
-              className="rounded-full border border-[#d2d2d7] px-5 py-2 text-[15px] font-medium text-[#1d1d1f]"
+              className="rounded-full border border-[#34344D] px-5 py-2 text-[15px] font-medium text-[#F1F1FB]"
             >
               {name}
             </span>
@@ -149,10 +149,10 @@ export default async function Home() {
       </section>
 
       {/* Pricing */}
-      <section id="pricing" className="scroll-mt-16 bg-[#f5f5f7]">
+      <section id="pricing" className="scroll-mt-16 bg-[#07070D]">
         <div className="mx-auto max-w-5xl px-6 py-24">
           <h2 className="text-center text-4xl font-semibold tracking-tight">Preise</h2>
-          <p className="mx-auto mt-4 max-w-xl text-center text-lg text-[#6e6e73]">
+          <p className="mx-auto mt-4 max-w-xl text-center text-lg text-[#9A9AB8]">
             Starte kostenlos. Upgrade, wenn du mehr willst. Jederzeit
             exportierbar.
           </p>
@@ -167,19 +167,19 @@ export default async function Home() {
         <h2 className="text-4xl font-semibold tracking-tight sm:text-5xl">
           Jetzt loslegen
         </h2>
-        <p className="mx-auto mt-4 max-w-lg text-lg text-[#6e6e73]">
+        <p className="mx-auto mt-4 max-w-lg text-lg text-[#9A9AB8]">
           Erstelle in unter einer Minute dein kostenloses Konto.
         </p>
         <div className="mt-9 flex flex-col items-center justify-center gap-4 sm:flex-row">
           <Link
             href="/auth/register"
-            className="rounded-full bg-[#0071e3] px-7 py-3 text-[15px] font-medium text-white transition hover:bg-[#0077ed]"
+            className="rounded-full bg-[#00E5FF] px-7 py-3 text-[15px] font-medium text-white transition hover:bg-[#00C8FF]"
           >
             Kostenlos starten
           </Link>
           <Link
             href="/auth/login"
-            className="text-[15px] font-medium text-[#0071e3] transition hover:underline"
+            className="text-[15px] font-medium text-[#00E5FF] transition hover:underline"
           >
             Anmelden ›
           </Link>
@@ -187,25 +187,25 @@ export default async function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-[#e8e8ed]">
+      <footer className="border-t border-[#27273B]">
         <div className="mx-auto flex max-w-5xl flex-col items-center justify-between gap-5 px-6 py-10 sm:flex-row">
           <Link href="/" className="flex items-center gap-1.5 text-[15px] font-semibold tracking-tight">
             LocalHub
-            <span className="h-1.5 w-1.5 rounded-full bg-[#0071e3]" />
+            <span className="h-1.5 w-1.5 rounded-full bg-[#00E5FF]" />
           </Link>
-          <div className="flex flex-wrap items-center justify-center gap-6 text-[13px] text-[#6e6e73]">
-            <Link href="/legal/impressum" className="transition hover:text-[#1d1d1f]">
+          <div className="flex flex-wrap items-center justify-center gap-6 text-[13px] text-[#9A9AB8]">
+            <Link href="/legal/impressum" className="transition hover:text-[#F1F1FB]">
               Impressum
             </Link>
-            <Link href="/legal/datenschutz" className="transition hover:text-[#1d1d1f]">
+            <Link href="/legal/datenschutz" className="transition hover:text-[#F1F1FB]">
               Datenschutz
             </Link>
-            <a href="mailto:svenmeendermann@gmail.com" className="transition hover:text-[#1d1d1f]">
+            <a href="mailto:svenmeendermann@gmail.com" className="transition hover:text-[#F1F1FB]">
               Kontakt
             </a>
           </div>
         </div>
-        <p className="pb-10 text-center text-[12px] text-[#a1a1a6]">
+        <p className="pb-10 text-center text-[12px] text-[#A9A9C4]">
           © {new Date().getFullYear()} LocalHub. Deine Daten gehören dir.
         </p>
       </footer>

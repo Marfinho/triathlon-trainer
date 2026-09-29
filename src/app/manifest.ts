@@ -13,8 +13,8 @@ export default function manifest(): MetadataRoute.Manifest {
       "Datendrehscheibe für Triathlon-/Ausdauertraining: Plan, Form, Analyse.",
     start_url: "/dashboard",
     display: "standalone",
-    background_color: "#f5f5f7",
-    theme_color: "#0a84ff",
+    background_color: "#07070D",
+    theme_color: "#00E5FF",
     lang: "de",
     icons: [
       {
