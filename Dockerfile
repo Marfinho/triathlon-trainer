@@ -44,6 +44,8 @@ COPY --from=build /app/.next ./.next
 COPY --from=build /app/public ./public
 COPY package.json next.config.ts ./
 COPY prisma ./prisma
+# Der Admin-Seed importiert die Betreiber-Konstante.
+COPY src/lib/owner.ts ./src/lib/owner.ts
 COPY docker-entrypoint.sh ./
 RUN chmod +x docker-entrypoint.sh
 

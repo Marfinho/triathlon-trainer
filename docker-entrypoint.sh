@@ -15,11 +15,10 @@ until npx prisma migrate deploy; do
   sleep 2
 done
 
-# Optionales Seeding beim ersten Start (per Umgebungsvariable steuerbar).
-if [ "${SEED_ON_START}" = "true" ]; then
-  echo "[localhub] Seede Demodaten…"
-  npx prisma db seed || echo "[localhub] Seed übersprungen/fehlgeschlagen (ggf. bereits Daten vorhanden)."
-fi
+# Betreiber-Admin sicherstellen (idempotent: legt ihn nur an, falls er fehlt,
+# und ersetzt ein altes Standardpasswort). Läuft bei jedem Start.
+echo "[localhub] Stelle Admin-Account sicher…"
+npx prisma db seed || echo "[localhub] Admin-Seed fehlgeschlagen – Start wird fortgesetzt."
 
 echo "[localhub] Starte Anwendung auf Port ${PORT:-3000}…"
 exec "$@"

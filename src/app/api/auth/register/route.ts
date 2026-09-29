@@ -6,6 +6,7 @@ import { validatePasswordStrength } from "@/domain/auth/password";
 import { sanitizeOptionalText } from "@/domain/security/sanitize";
 import { recordAudit } from "@/lib/audit";
 import { blockedResponse } from "@/lib/security/taunt";
+import { isOwnerEmail } from "@/lib/owner";
 
 const BCRYPT_ROUNDS = 12;
 
@@ -48,7 +49,9 @@ export async function POST(request: Request) {
   }
 
   const existing = await prisma.user.findUnique({ where: { email } });
-  if (existing) {
+  // Der Betreiber-Account wird automatisch Admin – er darf daher nie über die
+  // (unverifizierte) Registrierung angelegt werden.
+  if (existing || isOwnerEmail(email)) {
     return NextResponse.json({ error: "EMAIL_TAKEN" }, { status: 409 });
   }
 
