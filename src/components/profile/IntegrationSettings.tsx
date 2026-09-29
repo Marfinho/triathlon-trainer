@@ -74,7 +74,7 @@ export function IntegrationSettings({
       {connected && !editing ? (
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <p className="text-sm text-neutral-900">
+            <p className="text-sm text-neutral-900 dark:text-neutral-100">
               Verbunden · Athlete-ID <span className="font-mono">{athleteId}</span>
             </p>
             <p className="mt-0.5 text-xs text-neutral-400">API-Key ist verschlüsselt gespeichert.</p>
@@ -82,14 +82,14 @@ export function IntegrationSettings({
           <div className="flex gap-2">
             <button
               onClick={() => setEditing(true)}
-              className="rounded-lg border border-neutral-300 px-3 py-1.5 text-sm font-medium text-neutral-700 hover:border-neutral-400"
+              className="rounded-lg border border-neutral-300 dark:border-neutral-700 px-3 py-1.5 text-sm font-medium text-neutral-700 dark:text-neutral-300 hover:border-neutral-400 dark:hover:border-neutral-600"
             >
               Ändern
             </button>
             <button
               onClick={disconnect}
               disabled={saving}
-              className="rounded-lg border border-red-200 px-3 py-1.5 text-sm font-medium text-red-600 hover:border-red-300 disabled:opacity-40"
+              className="rounded-lg border border-red-200 dark:border-red-800 px-3 py-1.5 text-sm font-medium text-red-600 dark:text-red-400 hover:border-red-300 dark:hover:border-red-700 disabled:opacity-40"
             >
               Trennen
             </button>
@@ -98,30 +98,30 @@ export function IntegrationSettings({
       ) : (
         <div>
           {atLimit ? (
-            <p className="mb-3 text-sm text-amber-700">
+            <p className="mb-3 text-sm text-amber-700 dark:text-amber-300">
               Dein Tier erlaubt {maxActiveIntegrations} aktive Integration
               {maxActiveIntegrations === 1 ? "" : "en"}. Upgrade für weitere.
             </p>
           ) : null}
           <div className="flex flex-wrap items-end gap-2">
-            <label className="text-xs text-neutral-500">
+            <label className="text-xs text-neutral-500 dark:text-neutral-400">
               Athlete-ID
               <input
                 type="text"
                 value={athleteIdValue}
                 onChange={(e) => setAthleteIdValue(e.target.value)}
                 placeholder="i123456"
-                className="mt-1 block w-36 rounded-lg border border-neutral-300 bg-white px-2.5 py-1.5 text-sm"
+                className="mt-1 block w-36 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-2.5 py-1.5 text-sm"
               />
             </label>
-            <label className="text-xs text-neutral-500">
+            <label className="text-xs text-neutral-500 dark:text-neutral-400">
               API-Key
               <input
                 type="password"
                 value={apiKey}
                 onChange={(e) => setApiKey(e.target.value)}
                 placeholder="••••••••"
-                className="mt-1 block w-48 rounded-lg border border-neutral-300 bg-white px-2.5 py-1.5 text-sm"
+                className="mt-1 block w-48 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-2.5 py-1.5 text-sm"
               />
             </label>
             <button
@@ -138,7 +138,7 @@ export function IntegrationSettings({
                   setApiKey("");
                   setMsg(null);
                 }}
-                className="rounded-lg px-3 py-1.5 text-sm text-neutral-500 hover:text-neutral-800"
+                className="rounded-lg px-3 py-1.5 text-sm text-neutral-500 dark:text-neutral-400 hover:text-neutral-800 dark:hover:text-neutral-200"
               >
                 Abbrechen
               </button>
@@ -147,7 +147,7 @@ export function IntegrationSettings({
         </div>
       )}
       {msg && (
-        <p className={`mt-3 text-xs ${msg.ok ? "text-emerald-600" : "text-red-600"}`}>{msg.text}</p>
+        <p className={`mt-3 text-xs ${msg.ok ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400"}`}>{msg.text}</p>
       )}
     </Card>
   );

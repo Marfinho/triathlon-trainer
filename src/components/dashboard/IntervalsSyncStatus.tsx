@@ -95,7 +95,7 @@ export function IntervalsSyncStatus({ initial }: { initial: SyncState }) {
       }
     >
       {!state.configured ? (
-        <p className="mb-3 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-700">
+        <p className="mb-3 rounded-lg bg-amber-50 dark:bg-amber-950/40 px-3 py-2 text-xs text-amber-700 dark:text-amber-300">
           Intervals.icu ist nicht konfiguriert. Setze INTERVALS_ATHLETE_ID und
           INTERVALS_API_KEY in <code>.env</code>.
         </p>
@@ -110,18 +110,18 @@ export function IntervalsSyncStatus({ initial }: { initial: SyncState }) {
       </dl>
 
       {message ? (
-        <p className="mt-3 text-xs text-neutral-500">{message}</p>
+        <p className="mt-3 text-xs text-neutral-500 dark:text-neutral-400">{message}</p>
       ) : null}
 
       {state.recentLogs && state.recentLogs.length > 0 ? (
-        <div className="mt-4 border-t border-neutral-100 pt-3">
+        <div className="mt-4 border-t border-neutral-100 dark:border-neutral-800 pt-3">
           <p className="mb-1.5 text-[11px] uppercase tracking-wide text-neutral-400">
             Letzte Sync-Ereignisse
           </p>
           <ul className="space-y-1">
             {state.recentLogs.map((l, i) => (
               <li key={i} className="flex items-center justify-between text-xs">
-                <span className="flex items-center gap-1.5 text-neutral-600">
+                <span className="flex items-center gap-1.5 text-neutral-600 dark:text-neutral-400">
                   <span
                     className={`h-1.5 w-1.5 rounded-full ${
                       l.success ? "bg-emerald-500" : "bg-rose-500"
@@ -159,13 +159,13 @@ function Stat({
   const color =
     tone === "error"
       ? value > 0
-        ? "text-rose-600"
-        : "text-neutral-800"
+        ? "text-rose-600 dark:text-rose-400"
+        : "text-neutral-800 dark:text-neutral-200"
       : tone === "ok"
-        ? "text-emerald-600"
-        : "text-neutral-800";
+        ? "text-emerald-600 dark:text-emerald-400"
+        : "text-neutral-800 dark:text-neutral-200";
   return (
-    <div className="rounded-xl border border-neutral-200 bg-neutral-50 px-3 py-2">
+    <div className="rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-800/60 px-3 py-2">
       <dt className="text-[11px] uppercase tracking-wide text-neutral-400">
         {label}
       </dt>

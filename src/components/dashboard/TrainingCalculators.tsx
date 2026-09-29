@@ -44,38 +44,38 @@ export function TrainingCalculators() {
             CSS (Schwimmen)
           </h3>
           <div className="flex flex-wrap items-end gap-2">
-            <label className="text-xs text-neutral-500">
+            <label className="text-xs text-neutral-500 dark:text-neutral-400">
               400 m
               <input
                 value={t400}
                 onChange={(e) => setT400(e.target.value)}
-                className="mt-1 block w-20 rounded-lg border border-neutral-300 bg-white px-2 py-1.5 text-sm"
+                className="mt-1 block w-20 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-2 py-1.5 text-sm"
               />
             </label>
-            <label className="text-xs text-neutral-500">
+            <label className="text-xs text-neutral-500 dark:text-neutral-400">
               200 m
               <input
                 value={t200}
                 onChange={(e) => setT200(e.target.value)}
-                className="mt-1 block w-20 rounded-lg border border-neutral-300 bg-white px-2 py-1.5 text-sm"
+                className="mt-1 block w-20 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-2 py-1.5 text-sm"
               />
             </label>
           </div>
-          <p className="mt-3 text-sm text-neutral-700">
+          <p className="mt-3 text-sm text-neutral-700 dark:text-neutral-300">
             CSS-Pace:{" "}
-            <span className="font-semibold text-neutral-900">
+            <span className="font-semibold text-neutral-900 dark:text-neutral-100">
               {css != null ? `${formatClock(css)} /100m` : "—"}
             </span>
           </p>
           <button
             onClick={saveCss}
             disabled={css == null}
-            className="mt-2 rounded-lg border border-neutral-300 px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-100 disabled:opacity-40"
+            className="mt-2 rounded-lg border border-neutral-300 dark:border-neutral-700 px-3 py-1.5 text-xs font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 disabled:opacity-40"
           >
             Ins Profil übernehmen
           </button>
           {savedMsg ? (
-            <p className="mt-1 text-xs text-emerald-600">{savedMsg}</p>
+            <p className="mt-1 text-xs text-emerald-600 dark:text-emerald-400">{savedMsg}</p>
           ) : null}
         </div>
 
@@ -83,17 +83,17 @@ export function TrainingCalculators() {
           <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-neutral-400">
             Pace ↔ Geschwindigkeit
           </h3>
-          <label className="text-xs text-neutral-500">
+          <label className="text-xs text-neutral-500 dark:text-neutral-400">
             Pace (min/km)
             <input
               value={pace}
               onChange={(e) => setPace(e.target.value)}
-              className="mt-1 block w-24 rounded-lg border border-neutral-300 bg-white px-2 py-1.5 text-sm"
+              className="mt-1 block w-24 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-2 py-1.5 text-sm"
             />
           </label>
-          <p className="mt-3 text-sm text-neutral-700">
+          <p className="mt-3 text-sm text-neutral-700 dark:text-neutral-300">
             Geschwindigkeit:{" "}
-            <span className="font-semibold text-neutral-900">
+            <span className="font-semibold text-neutral-900 dark:text-neutral-100">
               {speed != null ? `${speed} km/h` : "—"}
             </span>
           </p>

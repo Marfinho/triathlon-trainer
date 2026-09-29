@@ -5,10 +5,10 @@ import type {
 } from "@/domain/training/planVsActual";
 
 const STATUS_BADGE: Record<string, { label: string; cls: string }> = {
-  completed: { label: "erledigt", cls: "bg-emerald-50 text-emerald-700" },
-  missed: { label: "verpasst", cls: "bg-rose-50 text-rose-700" },
-  upcoming: { label: "geplant", cls: "bg-neutral-100 text-neutral-600" },
-  unplanned: { label: "ungeplant", cls: "bg-amber-50 text-amber-700" },
+  completed: { label: "erledigt", cls: "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300" },
+  missed: { label: "verpasst", cls: "bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300" },
+  upcoming: { label: "geplant", cls: "bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400" },
+  unplanned: { label: "ungeplant", cls: "bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300" },
 };
 
 function fmtWeek(iso: string): string {
@@ -48,7 +48,7 @@ export function PlanVsActual({
                 backgroundColor: `${complianceColor(overall)}11`,
               }}
             >
-              <span className="text-sm font-medium text-neutral-800">
+              <span className="text-sm font-medium text-neutral-800 dark:text-neutral-200">
                 Compliance (4 Wochen)
               </span>
               <span
@@ -70,7 +70,7 @@ export function PlanVsActual({
           {weeks.slice(-4).map((w) => (
             <div
               key={w.weekStart}
-              className="rounded-xl border border-neutral-200 bg-neutral-50 p-3"
+              className="rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-800/60 p-3"
             >
               <p className="text-[11px] uppercase tracking-wide text-neutral-400">
                 KW ab {fmtWeek(w.weekStart)}
@@ -82,11 +82,11 @@ export function PlanVsActual({
                 >
                   {w.compliancePct}%
                 </span>
-                <span className="text-xs text-neutral-500">
+                <span className="text-xs text-neutral-500 dark:text-neutral-400">
                   {w.completed}/{w.planned}
                 </span>
               </div>
-              <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-neutral-200">
+              <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-700">
                 <div
                   className="h-full rounded-full"
                   style={{
@@ -95,7 +95,7 @@ export function PlanVsActual({
                   }}
                 />
               </div>
-              <p className="mt-2 text-[11px] text-neutral-500">
+              <p className="mt-2 text-[11px] text-neutral-500 dark:text-neutral-400">
                 {Math.round(w.actualMin)}′ / {w.plannedMin}′ geplant
               </p>
             </div>
@@ -108,7 +108,7 @@ export function PlanVsActual({
       ) : (
         <div className="max-h-72 overflow-x-auto overflow-y-auto">
           <table className="w-full min-w-[480px] text-left text-sm">
-            <thead className="sticky top-0 bg-white">
+            <thead className="sticky top-0 bg-white dark:bg-neutral-900">
               <tr className="text-xs uppercase tracking-wide text-neutral-400">
                 <th className="py-2 pr-3 font-medium">Datum</th>
                 <th className="py-2 pr-3 font-medium">Geplant</th>
@@ -116,18 +116,18 @@ export function PlanVsActual({
                 <th className="py-2 font-medium">Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-neutral-100">
+            <tbody className="divide-y divide-neutral-100 dark:divide-neutral-800">
               {rows.map((r, i) => {
                 const badge = STATUS_BADGE[r.status];
                 return (
                   <tr key={`${r.date}-${i}`}>
-                    <td className="py-2 pr-3 text-neutral-500">{r.date}</td>
-                    <td className="py-2 pr-3 text-neutral-800">
+                    <td className="py-2 pr-3 text-neutral-500 dark:text-neutral-400">{r.date}</td>
+                    <td className="py-2 pr-3 text-neutral-800 dark:text-neutral-200">
                       {r.planned
                         ? `${sportLabel(r.planned.sport)} · ${r.planned.title} (${r.planned.plannedDurationMin}′)`
                         : "—"}
                     </td>
-                    <td className="py-2 pr-3 text-neutral-800">
+                    <td className="py-2 pr-3 text-neutral-800 dark:text-neutral-200">
                       {r.actual
                         ? `${sportLabel(r.actual.sport)}${
                             r.actual.durationMin

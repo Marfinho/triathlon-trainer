@@ -46,13 +46,13 @@ function NumberField({
   onChange: (v: number | null) => void;
 }) {
   return (
-    <label className="text-xs text-neutral-500">
+    <label className="text-xs text-neutral-500 dark:text-neutral-400">
       {label} <span className="text-neutral-400">({unit})</span>
       <input
         type="number"
         value={value ?? ""}
         onChange={(e) => onChange(e.target.value === "" ? null : Number(e.target.value))}
-        className="mt-1 block w-full rounded-lg border border-neutral-300 bg-white px-2.5 py-1.5 text-sm"
+        className="mt-1 block w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-2.5 py-1.5 text-sm"
       />
     </label>
   );
@@ -101,21 +101,21 @@ export function AthleteDataForm({ initial }: { initial: AthleteDataInitial }) {
   return (
     <Card title="Athletendaten" subtitle="Stammdaten, Schwellenwerte und Trainingsprofil">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <label className="text-xs text-neutral-500">
+        <label className="text-xs text-neutral-500 dark:text-neutral-400">
           Profilname
           <input
             type="text"
             value={form.name}
             onChange={(e) => setField("name", e.target.value)}
-            className="mt-1 block w-full rounded-lg border border-neutral-300 bg-white px-2.5 py-1.5 text-sm"
+            className="mt-1 block w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-2.5 py-1.5 text-sm"
           />
         </label>
-        <label className="text-xs text-neutral-500">
+        <label className="text-xs text-neutral-500 dark:text-neutral-400">
           Trainingslevel
           <select
             value={form.trainingLevel ?? ""}
             onChange={(e) => setField("trainingLevel", e.target.value || null)}
-            className="mt-1 block w-full rounded-lg border border-neutral-300 bg-white px-2.5 py-1.5 text-sm"
+            className="mt-1 block w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-2.5 py-1.5 text-sm"
           >
             <option value="">— wählen —</option>
             {TRAINING_LEVELS.map((l) => (
@@ -149,8 +149,8 @@ export function AthleteDataForm({ initial }: { initial: AthleteDataInitial }) {
         />
       </div>
 
-      <div className="mt-5 border-t border-neutral-100 pt-4">
-        <p className="mb-2 text-xs font-medium text-neutral-600">Hauptsportarten</p>
+      <div className="mt-5 border-t border-neutral-100 dark:border-neutral-800 pt-4">
+        <p className="mb-2 text-xs font-medium text-neutral-600 dark:text-neutral-400">Hauptsportarten</p>
         <div className="flex flex-wrap gap-2">
           {SPORT_OPTIONS.map((s) => {
             const active = form.primarySports.includes(s.id);
@@ -161,8 +161,8 @@ export function AthleteDataForm({ initial }: { initial: AthleteDataInitial }) {
                 onClick={() => toggleSport(s.id)}
                 className={`rounded-full border px-3 py-1 text-xs font-medium transition ${
                   active
-                    ? "border-blue-200 bg-blue-50 text-blue-700"
-                    : "border-neutral-200 text-neutral-500 hover:border-neutral-300"
+                    ? "border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300"
+                    : "border-neutral-200 dark:border-neutral-800 text-neutral-500 dark:text-neutral-400 hover:border-neutral-300 dark:hover:border-neutral-700"
                 }`}
               >
                 {s.label}
@@ -172,9 +172,9 @@ export function AthleteDataForm({ initial }: { initial: AthleteDataInitial }) {
         </div>
       </div>
 
-      <div className="mt-4 grid grid-cols-1 gap-4 border-t border-neutral-100 pt-4 sm:grid-cols-2">
+      <div className="mt-4 grid grid-cols-1 gap-4 border-t border-neutral-100 dark:border-neutral-800 pt-4 sm:grid-cols-2">
         <div>
-          <p className="mb-1.5 text-xs font-medium text-neutral-600">Bekannte Limiter</p>
+          <p className="mb-1.5 text-xs font-medium text-neutral-600 dark:text-neutral-400">Bekannte Limiter</p>
           <TagInput
             values={form.knownLimiters}
             onChange={(v) => setField("knownLimiters", v)}
@@ -182,7 +182,7 @@ export function AthleteDataForm({ initial }: { initial: AthleteDataInitial }) {
           />
         </div>
         <div>
-          <p className="mb-1.5 text-xs font-medium text-neutral-600">Ausrüstung</p>
+          <p className="mb-1.5 text-xs font-medium text-neutral-600 dark:text-neutral-400">Ausrüstung</p>
           <TagInput
             values={form.equipment}
             onChange={(v) => setField("equipment", v)}
@@ -191,7 +191,7 @@ export function AthleteDataForm({ initial }: { initial: AthleteDataInitial }) {
         </div>
       </div>
 
-      <div className="mt-5 flex items-center gap-3 border-t border-neutral-100 pt-4">
+      <div className="mt-5 flex items-center gap-3 border-t border-neutral-100 dark:border-neutral-800 pt-4">
         <button
           onClick={save}
           disabled={saving}
@@ -199,7 +199,7 @@ export function AthleteDataForm({ initial }: { initial: AthleteDataInitial }) {
         >
           {saving ? "Speichern…" : "Speichern"}
         </button>
-        {msg && <span className="text-xs text-neutral-500">{msg}</span>}
+        {msg && <span className="text-xs text-neutral-500 dark:text-neutral-400">{msg}</span>}
       </div>
     </Card>
   );

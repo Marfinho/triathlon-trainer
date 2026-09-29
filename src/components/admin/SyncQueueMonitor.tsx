@@ -75,8 +75,8 @@ export function SyncQueueMonitor() {
   const displayJobs = filter === "all" ? jobs : jobs.filter((j) => j.status === filter);
 
   return (
-    <div className="rounded-2xl border border-neutral-200/80 bg-white p-6 shadow-sm">
-      <h2 className="mb-4 text-lg font-semibold text-neutral-900">Sync-Queue überwachen</h2>
+    <div className="rounded-2xl border border-neutral-200/80 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-6 shadow-sm">
+      <h2 className="mb-4 text-lg font-semibold text-neutral-900 dark:text-neutral-100">Sync-Queue überwachen</h2>
 
       <div className="mb-4 flex flex-wrap gap-2">
         {["all", "pending", "processing", "success", "failed"].map((status) => (
@@ -89,7 +89,7 @@ export function SyncQueueMonitor() {
             className={`rounded-full px-3 py-1 text-xs font-medium transition ${
               filter === status
                 ? "bg-blue-600 text-white"
-                : "border border-neutral-200 text-neutral-600 hover:border-neutral-300"
+                : "border border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-400 hover:border-neutral-300 dark:hover:border-neutral-700"
             }`}
           >
             {status === "all"
@@ -100,38 +100,38 @@ export function SyncQueueMonitor() {
       </div>
 
       {loading ? (
-        <p className="text-sm text-neutral-500">Laden…</p>
+        <p className="text-sm text-neutral-500 dark:text-neutral-400">Laden…</p>
       ) : displayJobs.length === 0 ? (
-        <p className="text-sm text-neutral-500">Keine Jobs gefunden.</p>
+        <p className="text-sm text-neutral-500 dark:text-neutral-400">Keine Jobs gefunden.</p>
       ) : (
         <div className="space-y-3">
           {displayJobs.map((job) => (
             <div
               key={job.id}
-              className="rounded-lg border border-neutral-100 bg-neutral-50 p-3"
+              className="rounded-lg border border-neutral-100 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-800/60 p-3"
             >
               <div className="mb-2 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <code className="text-[11px] text-neutral-500">{job.id.slice(0, 8)}</code>
+                  <code className="text-[11px] text-neutral-500 dark:text-neutral-400">{job.id.slice(0, 8)}</code>
                   <span
                     className={`inline-block rounded-full px-2 py-0.5 text-[11px] font-semibold ${
                       job.status === "pending"
-                        ? "bg-yellow-100 text-yellow-800"
+                        ? "bg-yellow-100 dark:bg-yellow-900/40 text-yellow-800 dark:text-yellow-200"
                         : job.status === "processing"
-                          ? "bg-blue-100 text-blue-800"
+                          ? "bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-200"
                           : job.status === "success"
-                            ? "bg-emerald-100 text-emerald-800"
-                            : "bg-red-100 text-red-800"
+                            ? "bg-emerald-100 dark:bg-emerald-900/40 text-emerald-800 dark:text-emerald-200"
+                            : "bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-200"
                     }`}
                   >
                     {job.status}
                   </span>
                 </div>
-                <span className="text-[11px] text-neutral-500">
+                <span className="text-[11px] text-neutral-500 dark:text-neutral-400">
                   {new Date(job.createdAt).toLocaleString("de-DE")}
                 </span>
               </div>
-              <div className="mb-2 text-xs text-neutral-700">
+              <div className="mb-2 text-xs text-neutral-700 dark:text-neutral-300">
                 <p>
                   <strong>Action:</strong> {job.action}
                 </p>
@@ -145,7 +145,7 @@ export function SyncQueueMonitor() {
                   </p>
                 )}
                 {job.errorMessage && (
-                  <p className="mt-1 text-red-600">
+                  <p className="mt-1 text-red-600 dark:text-red-400">
                     <strong>Fehler:</strong> {job.errorMessage}
                   </p>
                 )}
@@ -155,7 +155,7 @@ export function SyncQueueMonitor() {
                   <button
                     onClick={() => handleAction(job.id, "retry")}
                     disabled={actioning === job.id}
-                    className="text-[11px] text-blue-600 hover:text-blue-800 disabled:opacity-50"
+                    className="text-[11px] text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 disabled:opacity-50"
                   >
                     Wiederholen
                   </button>
@@ -163,7 +163,7 @@ export function SyncQueueMonitor() {
                 <button
                   onClick={() => handleAction(job.id, "cancel")}
                   disabled={actioning === job.id}
-                  className="text-[11px] text-red-600 hover:text-red-800 disabled:opacity-50"
+                  className="text-[11px] text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-200 disabled:opacity-50"
                 >
                   Stornieren
                 </button>
@@ -174,7 +174,7 @@ export function SyncQueueMonitor() {
       )}
 
       {msg && (
-        <p className={`mt-4 text-xs ${msg.ok ? "text-emerald-600" : "text-red-600"}`}>
+        <p className={`mt-4 text-xs ${msg.ok ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400"}`}>
           {msg.text}
         </p>
       )}

@@ -11,16 +11,16 @@ function fmtPace(secPerKm: number): string {
 }
 
 const REC_STYLE: Record<string, string> = {
-  go_hard: "bg-emerald-50 text-emerald-700",
-  steady: "bg-blue-50 text-blue-700",
-  easy: "bg-amber-50 text-amber-700",
-  recover: "bg-rose-50 text-rose-700",
+  go_hard: "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300",
+  steady: "bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300",
+  easy: "bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300",
+  recover: "bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300",
 };
 
 const RISK_STYLE: Record<RiskLevel, string> = {
-  low: "bg-emerald-50 text-emerald-700",
-  ok: "bg-neutral-100 text-neutral-500",
-  high: "bg-rose-50 text-rose-700",
+  low: "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300",
+  ok: "bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400",
+  high: "bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300",
 };
 
 export interface TrainingInsightsProps {
@@ -57,7 +57,7 @@ export function TrainingInsights(props: TrainingInsightsProps) {
   return (
     <Card title="Trainings-Analyse" subtitle="Auswertung deiner Ist-Daten">
       {/* Empfehlung */}
-      <div className={`mb-4 rounded-xl px-4 py-3 ${REC_STYLE[recommendation.level] ?? "bg-neutral-100"}`}>
+      <div className={`mb-4 rounded-xl px-4 py-3 ${REC_STYLE[recommendation.level] ?? "bg-neutral-100 dark:bg-neutral-800"}`}>
         <p className="text-sm font-semibold">{recommendation.headline}</p>
         <p className="mt-0.5 text-xs">{recommendation.detail}</p>
       </div>
@@ -89,7 +89,7 @@ export function TrainingInsights(props: TrainingInsightsProps) {
           <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-neutral-400">
             Intensitätsverteilung
             {intensity.model !== "unklar" ? (
-              <span className="ml-2 rounded-full bg-neutral-100 px-2 py-0.5 text-[10px] font-medium normal-case text-neutral-600">
+              <span className="ml-2 rounded-full bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 text-[10px] font-medium normal-case text-neutral-600 dark:text-neutral-400">
                 {intensity.model}
               </span>
             ) : null}
@@ -103,7 +103,7 @@ export function TrainingInsights(props: TrainingInsightsProps) {
                 <span style={{ width: `${intensity.moderatePct}%` }} className="bg-amber-400" />
                 <span style={{ width: `${intensity.hardPct}%` }} className="bg-rose-400" />
               </div>
-              <div className="mt-1.5 flex justify-between text-[11px] text-neutral-500">
+              <div className="mt-1.5 flex justify-between text-[11px] text-neutral-500 dark:text-neutral-400">
                 <span>easy {intensity.easyPct}%</span>
                 <span>moderat {intensity.moderatePct}%</span>
                 <span>hart {intensity.hardPct}%</span>
@@ -123,18 +123,18 @@ export function TrainingInsights(props: TrainingInsightsProps) {
             <div className="space-y-1.5">
               {sportShares.map((s) => (
                 <div key={s.sport} className="flex items-center gap-2">
-                  <span className="w-16 text-xs text-neutral-600">{sportLabel(s.sport)}</span>
-                  <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-neutral-100">
+                  <span className="w-16 text-xs text-neutral-600 dark:text-neutral-400">{sportLabel(s.sport)}</span>
+                  <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-neutral-100 dark:bg-neutral-800">
                     <div
                       className="h-full rounded-full"
                       style={{ width: `${s.pct}%`, backgroundColor: sportColor(s.sport) }}
                     />
                   </div>
-                  <span className="w-9 text-right text-xs text-neutral-500">{s.pct}%</span>
+                  <span className="w-9 text-right text-xs text-neutral-500 dark:text-neutral-400">{s.pct}%</span>
                 </div>
               ))}
               {sportWarning ? (
-                <p className="mt-1 text-[11px] text-amber-600">{sportWarning}</p>
+                <p className="mt-1 text-[11px] text-amber-600 dark:text-amber-400">{sportWarning}</p>
               ) : null}
             </div>
           )}
@@ -151,8 +151,8 @@ export function TrainingInsights(props: TrainingInsightsProps) {
             <ul className="space-y-1 text-sm">
               {bestPaces.map((b) => (
                 <li key={b.sport} className="flex justify-between">
-                  <span className="text-neutral-500">{sportLabel(b.sport)}</span>
-                  <span className="font-medium text-neutral-800">
+                  <span className="text-neutral-500 dark:text-neutral-400">{sportLabel(b.sport)}</span>
+                  <span className="font-medium text-neutral-800 dark:text-neutral-200">
                     {fmtPace(b.secPerKm)}{" "}
                     <span className="text-[11px] text-neutral-400">({b.distanceKm} km)</span>
                   </span>
@@ -214,9 +214,9 @@ function Tile({
   badgeClass?: string;
 }) {
   return (
-    <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-3">
+    <div className="rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-800/60 p-3">
       <p className="text-[11px] uppercase tracking-wide text-neutral-400">{label}</p>
-      <p className="mt-0.5 text-xl font-semibold text-neutral-900">{value}</p>
+      <p className="mt-0.5 text-xl font-semibold text-neutral-900 dark:text-neutral-100">{value}</p>
       <p className={`mt-0.5 inline-block rounded-full px-1.5 text-[10px] ${badgeClass ?? "text-neutral-400"}`}>
         {hint}
       </p>

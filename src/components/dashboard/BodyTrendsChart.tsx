@@ -31,16 +31,16 @@ export function BodyTrendsChart({
         {/* Gewicht */}
         {weightKgs.some((w) => w !== null) && (
           <div>
-            <h3 className="mb-3 text-sm font-semibold text-neutral-900">Gewicht</h3>
+            <h3 className="mb-3 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Gewicht</h3>
             <div className="space-y-2">
               {last30
                 .filter((m) => m.weightKg !== null)
                 .map((metric, idx) => (
                   <div key={idx} className="flex items-center justify-between text-xs">
-                    <span className="w-24 text-neutral-600">
+                    <span className="w-24 text-neutral-600 dark:text-neutral-400">
                       {metric.date.toLocaleDateString("de-DE")}
                     </span>
-                    <div className="flex-1 mx-3 h-6 bg-neutral-100 rounded relative overflow-hidden">
+                    <div className="flex-1 mx-3 h-6 bg-neutral-100 dark:bg-neutral-800 rounded relative overflow-hidden">
                       <div
                         className="h-full bg-gradient-to-r from-blue-400 to-blue-600"
                         style={{
@@ -52,7 +52,7 @@ export function BodyTrendsChart({
                         }}
                       />
                     </div>
-                    <span className="w-12 text-right font-semibold text-neutral-900">
+                    <span className="w-12 text-right font-semibold text-neutral-900 dark:text-neutral-100">
                       {metric.weightKg?.toFixed(1)} kg
                     </span>
                   </div>
@@ -64,16 +64,16 @@ export function BodyTrendsChart({
         {/* Ruhepuls */}
         {restingHrs.some((hr) => hr !== null) && (
           <div>
-            <h3 className="mb-3 text-sm font-semibold text-neutral-900">Ruhepuls</h3>
+            <h3 className="mb-3 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Ruhepuls</h3>
             <div className="space-y-2">
               {last30
                 .filter((m) => m.restingHr !== null)
                 .map((metric, idx) => (
                   <div key={idx} className="flex items-center justify-between text-xs">
-                    <span className="w-24 text-neutral-600">
+                    <span className="w-24 text-neutral-600 dark:text-neutral-400">
                       {metric.date.toLocaleDateString("de-DE")}
                     </span>
-                    <div className="flex-1 mx-3 h-6 bg-neutral-100 rounded relative overflow-hidden">
+                    <div className="flex-1 mx-3 h-6 bg-neutral-100 dark:bg-neutral-800 rounded relative overflow-hidden">
                       <div
                         className="h-full bg-gradient-to-r from-orange-400 to-orange-600"
                         style={{
@@ -81,7 +81,7 @@ export function BodyTrendsChart({
                         }}
                       />
                     </div>
-                    <span className="w-12 text-right font-semibold text-neutral-900">
+                    <span className="w-12 text-right font-semibold text-neutral-900 dark:text-neutral-100">
                       {metric.restingHr} bpm
                     </span>
                   </div>
@@ -93,16 +93,16 @@ export function BodyTrendsChart({
         {/* HRV */}
         {hrvs.some((h) => h !== null) && (
           <div>
-            <h3 className="mb-3 text-sm font-semibold text-neutral-900">HRV</h3>
+            <h3 className="mb-3 text-sm font-semibold text-neutral-900 dark:text-neutral-100">HRV</h3>
             <div className="space-y-2">
               {last30
                 .filter((m) => m.hrv !== null)
                 .map((metric, idx) => (
                   <div key={idx} className="flex items-center justify-between text-xs">
-                    <span className="w-24 text-neutral-600">
+                    <span className="w-24 text-neutral-600 dark:text-neutral-400">
                       {metric.date.toLocaleDateString("de-DE")}
                     </span>
-                    <div className="flex-1 mx-3 h-6 bg-neutral-100 rounded relative overflow-hidden">
+                    <div className="flex-1 mx-3 h-6 bg-neutral-100 dark:bg-neutral-800 rounded relative overflow-hidden">
                       <div
                         className="h-full bg-gradient-to-r from-emerald-400 to-emerald-600"
                         style={{
@@ -114,7 +114,7 @@ export function BodyTrendsChart({
                         }}
                       />
                     </div>
-                    <span className="w-12 text-right font-semibold text-neutral-900">
+                    <span className="w-12 text-right font-semibold text-neutral-900 dark:text-neutral-100">
                       {metric.hrv}
                     </span>
                   </div>

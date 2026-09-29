@@ -42,16 +42,16 @@ export function OAuthIntegrations({
           return (
             <div
               key={p.provider}
-              className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-neutral-200 px-4 py-3"
+              className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-neutral-200 dark:border-neutral-800 px-4 py-3"
             >
               <div>
-                <p className="text-sm font-medium text-neutral-900">{p.label}</p>
+                <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">{p.label}</p>
                 {p.connected ? (
                   <p className="mt-0.5 text-xs text-neutral-400">
                     Verbunden{p.externalId ? ` · ID ${p.externalId}` : ""}
                   </p>
                 ) : atLimit ? (
-                  <p className="mt-0.5 text-xs text-amber-700">
+                  <p className="mt-0.5 text-xs text-amber-700 dark:text-amber-300">
                     Limit erreicht – Upgrade für weitere Integrationen.
                   </p>
                 ) : (
@@ -62,7 +62,7 @@ export function OAuthIntegrations({
                 <button
                   onClick={() => disconnect(p.provider)}
                   disabled={disconnecting === p.provider}
-                  className="rounded-lg border border-red-200 px-3 py-1.5 text-sm font-medium text-red-600 hover:border-red-300 disabled:opacity-40"
+                  className="rounded-lg border border-red-200 dark:border-red-800 px-3 py-1.5 text-sm font-medium text-red-600 dark:text-red-400 hover:border-red-300 dark:hover:border-red-700 disabled:opacity-40"
                 >
                   {disconnecting === p.provider ? "…" : "Trennen"}
                 </button>
@@ -71,7 +71,7 @@ export function OAuthIntegrations({
                   href={atLimit ? undefined : `/api/integrations/${p.provider}/connect`}
                   aria-disabled={atLimit}
                   className={`rounded-lg px-3 py-1.5 text-sm font-medium text-white ${
-                    atLimit ? "cursor-not-allowed bg-neutral-300" : "bg-emerald-600 hover:bg-emerald-500"
+                    atLimit ? "cursor-not-allowed bg-neutral-300 dark:bg-neutral-600" : "bg-emerald-600 hover:bg-emerald-500"
                   }`}
                 >
                   Verbinden
@@ -80,8 +80,8 @@ export function OAuthIntegrations({
             </div>
           );
         })}
-        <div className="rounded-lg border border-dashed border-neutral-200 px-4 py-3">
-          <p className="text-sm font-medium text-neutral-500">Garmin</p>
+        <div className="rounded-lg border border-dashed border-neutral-200 dark:border-neutral-800 px-4 py-3">
+          <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Garmin</p>
           <p className="mt-0.5 text-xs text-neutral-400">
             Garmin bietet keine Self-Service-API – Aktivitäten lassen sich stattdessen über
             Intervals.icu importieren, das Garmin bereits anbindet.

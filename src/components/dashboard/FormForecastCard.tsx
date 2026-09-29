@@ -9,10 +9,10 @@ export interface ForecastPointView {
 }
 
 const VERDICT_STYLE: Record<string, { label: string; cls: string }> = {
-  optimal: { label: "Optimaler Taper", cls: "bg-emerald-50 text-emerald-700" },
-  zu_muede: { label: "Noch zu müde", cls: "bg-amber-50 text-amber-700" },
-  zu_frisch: { label: "Zu stark getapert", cls: "bg-blue-50 text-blue-700" },
-  kein_renntag: { label: "Kein Renntag", cls: "bg-neutral-100 text-neutral-500" },
+  optimal: { label: "Optimaler Taper", cls: "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300" },
+  zu_muede: { label: "Noch zu müde", cls: "bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300" },
+  zu_frisch: { label: "Zu stark getapert", cls: "bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300" },
+  kein_renntag: { label: "Kein Renntag", cls: "bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400" },
 };
 
 function fmtDate(iso: string): string {
@@ -114,11 +114,11 @@ function Metric({
   return (
     <div
       className={`rounded-xl border p-3 ${
-        highlight ? "border-emerald-200 bg-emerald-50/50" : "border-neutral-200 bg-neutral-50"
+        highlight ? "border-emerald-200 dark:border-emerald-800 bg-emerald-50/50 dark:bg-emerald-950/40" : "border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-800/60"
       }`}
     >
       <p className="text-[11px] uppercase tracking-wide text-neutral-400">{label}</p>
-      <p className="mt-0.5 text-2xl font-semibold text-neutral-900">{value}</p>
+      <p className="mt-0.5 text-2xl font-semibold text-neutral-900 dark:text-neutral-100">{value}</p>
       <p className="text-[11px] text-neutral-400">{hint}</p>
     </div>
   );

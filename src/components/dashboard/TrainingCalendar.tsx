@@ -130,8 +130,8 @@ export function TrainingCalendar({
     >
       {/* Next Workouts Preview */}
       {nextWorkouts.length > 0 && (
-        <div className="mb-4 rounded-xl bg-gradient-to-br from-blue-50 to-blue-100/50 p-4">
-          <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-blue-600">
+        <div className="mb-4 rounded-xl bg-gradient-to-br from-blue-50 dark:from-blue-950/40 to-blue-100/50 dark:to-blue-900/40 p-4">
+          <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-blue-600 dark:text-blue-400">
             Nächste Trainings
           </h3>
           <div className="space-y-2">
@@ -144,19 +144,19 @@ export function TrainingCalendar({
               return (
                 <div
                   key={i}
-                  className="flex items-center gap-3 rounded-lg bg-white px-3 py-2 text-sm"
+                  className="flex items-center gap-3 rounded-lg bg-white dark:bg-neutral-900 px-3 py-2 text-sm"
                 >
                   <span className="text-lg">{SPORT_ICON[item.sport] ?? "⚽"}</span>
                   <div className="flex-1 min-w-0">
-                    <div className="font-medium text-neutral-900">
+                    <div className="font-medium text-neutral-900 dark:text-neutral-100">
                       {item.label || sportLabel(item.sport)}
                     </div>
-                    <div className="text-xs text-neutral-500">
+                    <div className="text-xs text-neutral-500 dark:text-neutral-400">
                       {isToday ? "Heute" : isTomorrow ? "Morgen" : day.date} • {item.durationMin} min
                     </div>
                   </div>
                   {item.distanceKm && (
-                    <span className="text-xs font-medium text-neutral-600">
+                    <span className="text-xs font-medium text-neutral-600 dark:text-neutral-400">
                       {item.distanceKm.toFixed(1)} km
                     </span>
                   )}
@@ -196,10 +196,10 @@ export function TrainingCalendar({
                   isCurrentWeek ? "" : ""
                 }`}
               >
-                <h3 className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
+                <h3 className="text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
                   {fmtWeekRange(week)}
                 </h3>
-                <div className="flex gap-3 text-[11px] text-neutral-600">
+                <div className="flex gap-3 text-[11px] text-neutral-600 dark:text-neutral-400">
                   <span>
                     <span className="font-medium">{(actualMin / 60).toFixed(1)} h</span>
                     <span className="text-neutral-400"> absolviert</span>
@@ -255,19 +255,19 @@ function DayRow({ day, onOpen }: { day: CalendarDay; onOpen: () => void }) {
       disabled={!hasItems}
       className={`w-full rounded-xl border p-3 text-left transition ${
         day.isToday
-          ? "border-blue-400 bg-gradient-to-r from-blue-50 to-blue-50/40 shadow-sm"
+          ? "border-blue-400 bg-gradient-to-r from-blue-50 dark:from-blue-950/40 to-blue-50/40 dark:to-blue-950/40 shadow-sm"
           : day.inPast
-            ? "border-neutral-100 bg-neutral-50/50"
-            : "border-neutral-200 bg-white hover:border-neutral-300 hover:shadow-sm"
+            ? "border-neutral-100 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-800/30"
+            : "border-neutral-200 bg-white dark:bg-neutral-900 hover:border-neutral-300 dark:hover:border-neutral-700 hover:shadow-sm"
       } ${hasItems ? "cursor-pointer" : "cursor-default opacity-50"}`}
     >
       <div className="flex items-start justify-between gap-3">
         {/* Date */}
         <div className="min-w-0">
-          <div className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
+          <div className="text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
             {weekday}
           </div>
-          <div className="text-lg font-bold text-neutral-900">{dayNum}</div>
+          <div className="text-lg font-bold text-neutral-900 dark:text-neutral-100">{dayNum}</div>
         </div>
 
         {/* Sports & Status */}
@@ -284,7 +284,7 @@ function DayRow({ day, onOpen }: { day: CalendarDay; onOpen: () => void }) {
                     {planned.map((it, i) => (
                       <div
                         key={i}
-                        className="flex items-center gap-1 rounded-full border border-neutral-300 bg-white px-2 py-0.5 text-xs text-neutral-600"
+                        className="flex items-center gap-1 rounded-full border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-2 py-0.5 text-xs text-neutral-600 dark:text-neutral-400"
                       >
                         <span>{SPORT_ICON[it.sport] ?? "⚽"}</span>
                         <span className="font-medium">{it.durationMin}′</span>
@@ -323,12 +323,12 @@ function DayRow({ day, onOpen }: { day: CalendarDay; onOpen: () => void }) {
         {hasItems && (
           <div className="flex flex-col items-end gap-0.5 text-right text-xs">
             {actualMin > 0 && (
-              <div className="font-semibold text-neutral-900">
+              <div className="font-semibold text-neutral-900 dark:text-neutral-100">
                 {fmtDuration(actualMin)}
               </div>
             )}
             {plannedMin > 0 && (
-              <div className="text-neutral-500">
+              <div className="text-neutral-500 dark:text-neutral-400">
                 {diff > 0 ? "+" : diff < 0 ? "−" : ""}
                 {fmtDuration(Math.abs(diff))}
               </div>
@@ -349,12 +349,12 @@ function DesktopMonthGrid({
   onOpen: (day: CalendarDay) => void;
 }) {
   return (
-    <div className="overflow-hidden rounded-xl border border-neutral-200">
-      <div className="grid grid-cols-7 gap-px bg-neutral-200">
+    <div className="overflow-hidden rounded-xl border border-neutral-200 dark:border-neutral-800">
+      <div className="grid grid-cols-7 gap-px bg-neutral-200 dark:bg-neutral-700">
         {WEEKDAYS.map((wd) => (
           <div
             key={wd}
-            className="bg-neutral-50 px-2 py-1.5 text-center text-[10px] font-semibold uppercase tracking-wide text-neutral-500"
+            className="bg-neutral-50 dark:bg-neutral-800/60 px-2 py-1.5 text-center text-[10px] font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400"
           >
             {wd}
           </div>
@@ -384,17 +384,17 @@ function DayCell({ day, onOpen }: { day: CalendarDay; onOpen: () => void }) {
       type="button"
       onClick={hasItems ? onOpen : undefined}
       disabled={!hasItems}
-      className={`flex min-h-[96px] flex-col gap-1 bg-white p-1.5 text-left transition ${
+      className={`flex min-h-[96px] flex-col gap-1 bg-white dark:bg-neutral-900 p-1.5 text-left transition ${
         day.isToday
-          ? "bg-blue-50/50 ring-2 ring-inset ring-blue-400"
+          ? "bg-blue-50/50 dark:bg-blue-950/40 ring-2 ring-inset ring-blue-400"
           : day.inPast
-            ? "bg-neutral-50/50"
+            ? "bg-neutral-50/50 dark:bg-neutral-800/30"
             : ""
-      } ${hasItems ? "cursor-pointer hover:bg-neutral-50" : "cursor-default"}`}
+      } ${hasItems ? "cursor-pointer hover:bg-neutral-50 dark:hover:bg-neutral-800/60" : "cursor-default"}`}
     >
       <div className="flex items-center justify-between">
         <span
-          className={`text-xs font-semibold ${day.isToday ? "text-blue-600" : "text-neutral-700"}`}
+          className={`text-xs font-semibold ${day.isToday ? "text-blue-600 dark:text-blue-400" : "text-neutral-700 dark:text-neutral-300"}`}
         >
           {dayNum}
         </span>
@@ -422,7 +422,7 @@ function Chip({ item }: { item: CalendarItem }) {
   return (
     <div
       className={`flex items-center justify-between gap-1 rounded px-1 py-0.5 text-[10px] font-medium ${
-        isPlanned ? "border bg-white" : "text-white"
+        isPlanned ? "border bg-white dark:bg-neutral-900" : "text-white"
       }`}
       style={isPlanned ? { borderColor: color, color } : { backgroundColor: color }}
     >
@@ -460,18 +460,18 @@ function DayModal({
       onClick={onClose}
     >
       <div
-        className="max-h-[85vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-5 shadow-xl"
+        className="max-h-[85vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white dark:bg-neutral-900 p-5 shadow-xl"
         role="dialog"
         aria-modal="true"
         aria-label={`Trainingsdetails ${fmtFullDate(day.date)}`}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mb-4 flex items-start justify-between gap-3">
-          <h3 className="text-sm font-semibold text-neutral-900">{fmtFullDate(day.date)}</h3>
+          <h3 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">{fmtFullDate(day.date)}</h3>
           <button
             onClick={onClose}
             aria-label="Schließen"
-            className="rounded-lg px-2 py-0.5 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-700"
+            className="rounded-lg px-2 py-0.5 text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-neutral-700 dark:hover:text-neutral-300"
           >
             ✕
           </button>
@@ -541,9 +541,9 @@ function DaySummary({
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-lg bg-neutral-50 px-2 py-1.5">
+    <div className="rounded-lg bg-neutral-50 dark:bg-neutral-800/60 px-2 py-1.5">
       <div className="text-[10px] uppercase tracking-wide text-neutral-400">{label}</div>
-      <div className="text-sm font-medium text-neutral-800">{value}</div>
+      <div className="text-sm font-medium text-neutral-800 dark:text-neutral-200">{value}</div>
     </div>
   );
 }
@@ -648,18 +648,18 @@ function DetailRow({
       : null;
 
   return (
-    <li className="rounded-xl border border-neutral-200 p-3">
+    <li className="rounded-xl border border-neutral-200 dark:border-neutral-800 p-3">
       <div className="flex items-center gap-2">
         <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: color }} />
-        <span className="text-sm font-medium text-neutral-900">
+        <span className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
           {item.kind === "planned" ? item.label : sportLabel(item.sport)}
         </span>
         {item.kind === "planned" && item.status ? (
-          <span className="ml-auto rounded-full bg-neutral-100 px-2 py-0.5 text-[10px] text-neutral-500">
+          <span className="ml-auto rounded-full bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 text-[10px] text-neutral-500 dark:text-neutral-400">
             {STATUS_LABEL[item.status] ?? item.status}
           </span>
         ) : sourceLabel ? (
-          <span className="ml-auto rounded-full bg-neutral-100 px-2 py-0.5 text-[10px] text-neutral-500">
+          <span className="ml-auto rounded-full bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 text-[10px] text-neutral-500 dark:text-neutral-400">
             {sourceLabel}
           </span>
         ) : null}
@@ -672,11 +672,11 @@ function DetailRow({
       </div>
 
       {item.description ? (
-        <p className="mt-2 text-xs text-neutral-500">{item.description}</p>
+        <p className="mt-2 text-xs text-neutral-500 dark:text-neutral-400">{item.description}</p>
       ) : null}
 
       {item.kind === "actual" && item.notes ? (
-        <p className="mt-2 rounded-lg bg-neutral-50 px-2 py-1.5 text-xs italic text-neutral-500">
+        <p className="mt-2 rounded-lg bg-neutral-50 dark:bg-neutral-800/60 px-2 py-1.5 text-xs italic text-neutral-500 dark:text-neutral-400">
           {item.notes}
         </p>
       ) : null}

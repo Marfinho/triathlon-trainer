@@ -88,20 +88,20 @@ export default function Sidebar({ session }: { session: Session | null }) {
   const initials = (session?.user?.name || "U").split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
 
   return (
-    <aside className="hidden w-60 border-r border-gray-200 bg-white md:fixed md:inset-y-0 md:left-0 md:flex md:flex-col">
+    <aside className="hidden w-60 border-r border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 md:fixed md:inset-y-0 md:left-0 md:flex md:flex-col">
       {/* User Header */}
-      <div className="border-b border-gray-200 p-4">
+      <div className="border-b border-gray-200 dark:border-neutral-800 p-4">
         <div className="relative">
           <button
             onClick={() => setDropdownOpen(!dropdownOpen)}
-            className="flex w-full items-center gap-3 rounded-lg px-2 py-2 hover:bg-gray-50"
+            className="flex w-full items-center gap-3 rounded-lg px-2 py-2 hover:bg-gray-50 dark:hover:bg-neutral-800/60"
           >
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-600 text-sm font-semibold text-white">
               {initials}
             </div>
             <div className="flex-1 text-left">
-              <p className="text-sm font-medium text-gray-900 truncate">{session?.user?.name || "Nutzer"}</p>
-              <p className="text-xs text-gray-500 truncate">{session?.user?.email}</p>
+              <p className="text-sm font-medium text-gray-900 dark:text-neutral-100 truncate">{session?.user?.name || "Nutzer"}</p>
+              <p className="text-xs text-gray-500 dark:text-neutral-400 truncate">{session?.user?.email}</p>
             </div>
             <svg className={`h-4 w-4 text-gray-400 transition ${dropdownOpen ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
@@ -109,18 +109,18 @@ export default function Sidebar({ session }: { session: Session | null }) {
           </button>
 
           {dropdownOpen && (
-            <div className="absolute top-full left-0 right-0 mt-1 rounded-lg border border-gray-200 bg-white shadow-lg z-50">
-              <Link href="/profile" className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 rounded-t-lg">
+            <div className="absolute top-full left-0 right-0 mt-1 rounded-lg border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-lg z-50">
+              <Link href="/profile" className="block px-4 py-2.5 text-sm text-gray-700 dark:text-neutral-300 hover:bg-gray-50 dark:hover:bg-neutral-800/60 rounded-t-lg">
                 Profil
               </Link>
               {isAdmin && (
-                <Link href="/admin" className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 border-t border-gray-100">
+                <Link href="/admin" className="block px-4 py-2.5 text-sm text-gray-700 dark:text-neutral-300 hover:bg-gray-50 dark:hover:bg-neutral-800/60 border-t border-gray-100 dark:border-neutral-800">
                   Admin
                 </Link>
               )}
               <button
                 onClick={() => signOut({ redirectTo: "/auth/login" })}
-                className="block w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 border-t border-gray-100 rounded-b-lg"
+                className="block w-full text-left px-4 py-2.5 text-sm text-gray-700 dark:text-neutral-300 hover:bg-gray-50 dark:hover:bg-neutral-800/60 border-t border-gray-100 dark:border-neutral-800 rounded-b-lg"
               >
                 Abmelden
               </button>
@@ -139,8 +139,8 @@ export default function Sidebar({ session }: { session: Session | null }) {
               href={item.href}
               className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
                 isActive
-                  ? "bg-blue-50 text-blue-600"
-                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                  ? "bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400"
+                  : "text-gray-600 dark:text-neutral-400 hover:bg-gray-50 dark:hover:bg-neutral-800/60 hover:text-gray-900 dark:hover:text-neutral-100"
               }`}
             >
               <div className="h-5 w-5 flex-shrink-0">{item.icon}</div>

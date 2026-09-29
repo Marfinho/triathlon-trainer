@@ -121,7 +121,7 @@ function IntegrationCard({ initial }: { initial: IntegrationView }) {
             aria-checked={enabled}
             onClick={() => setEnabled((v) => !v)}
             className={`relative h-6 w-11 rounded-full transition ${
-              enabled ? "bg-emerald-600" : "bg-neutral-300"
+              enabled ? "bg-emerald-600" : "bg-neutral-300 dark:bg-neutral-600"
             }`}
           >
             <span
@@ -130,42 +130,42 @@ function IntegrationCard({ initial }: { initial: IntegrationView }) {
               }`}
             />
           </button>
-          <span className="text-sm font-medium text-neutral-900">
+          <span className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
             {enabled ? "Aktiviert" : "Deaktiviert"}
           </span>
         </label>
 
         {isOAuth ? (
           <div className="space-y-3">
-            <label className="block text-xs text-neutral-500">
+            <label className="block text-xs text-neutral-500 dark:text-neutral-400">
               Client-ID
               <input
                 type="text"
                 value={clientId}
                 onChange={(e) => setClientId(e.target.value)}
                 placeholder="z.B. 12345"
-                className="mt-1 block w-full rounded-lg border border-neutral-300 bg-white px-2.5 py-1.5 text-sm"
+                className="mt-1 block w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-2.5 py-1.5 text-sm"
               />
             </label>
-            <label className="block text-xs text-neutral-500">
+            <label className="block text-xs text-neutral-500 dark:text-neutral-400">
               Client-Secret
               <input
                 type="password"
                 value={clientSecret}
                 onChange={(e) => setClientSecret(e.target.value)}
                 placeholder={hasSecret ? "•••••••• (gesetzt – leer lassen zum Behalten)" : "Secret eingeben"}
-                className="mt-1 block w-full rounded-lg border border-neutral-300 bg-white px-2.5 py-1.5 text-sm"
+                className="mt-1 block w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-2.5 py-1.5 text-sm"
               />
             </label>
             <div className="flex flex-wrap items-center gap-3 text-xs text-neutral-400">
               <span>{hasSecret ? "Secret gespeichert ✓" : "Kein Secret gesetzt"}</span>
-              {usesEnvFallback && <span className="text-amber-600">aus Env-Variable</span>}
+              {usesEnvFallback && <span className="text-amber-600 dark:text-amber-400">aus Env-Variable</span>}
               {hasSecret && (
                 <button
                   type="button"
                   onClick={() => save(true)}
                   disabled={saving}
-                  className="text-red-500 hover:text-red-600 disabled:opacity-40"
+                  className="text-red-500 hover:text-red-600 dark:hover:text-red-400 disabled:opacity-40"
                 >
                   Secret entfernen
                 </button>
@@ -174,24 +174,24 @@ function IntegrationCard({ initial }: { initial: IntegrationView }) {
           </div>
         ) : isOllama ? (
           <div className="space-y-3">
-            <label className="block text-xs text-neutral-500">
+            <label className="block text-xs text-neutral-500 dark:text-neutral-400">
               Basis-URL
               <input
                 type="text"
                 value={clientId}
                 onChange={(e) => setClientId(e.target.value)}
                 placeholder="z.B. http://localhost:11434"
-                className="mt-1 block w-full rounded-lg border border-neutral-300 bg-white px-2.5 py-1.5 text-sm"
+                className="mt-1 block w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-2.5 py-1.5 text-sm"
               />
             </label>
-            <label className="block text-xs text-neutral-500">
+            <label className="block text-xs text-neutral-500 dark:text-neutral-400">
               Standard-Modell
               <input
                 type="text"
                 value={clientSecret}
                 onChange={(e) => setClientSecret(e.target.value)}
                 placeholder={hasSecret ? "•••••••• (gesetzt – leer lassen zum Behalten)" : "z.B. llama2, mistral"}
-                className="mt-1 block w-full rounded-lg border border-neutral-300 bg-white px-2.5 py-1.5 text-sm"
+                className="mt-1 block w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-2.5 py-1.5 text-sm"
               />
             </label>
             <div className="flex flex-wrap items-center gap-3 text-xs text-neutral-400">
@@ -199,14 +199,14 @@ function IntegrationCard({ initial }: { initial: IntegrationView }) {
             </div>
           </div>
         ) : (
-          <p className="rounded-lg bg-neutral-50 px-3 py-2 text-xs text-neutral-500">
+          <p className="rounded-lg bg-neutral-50 dark:bg-neutral-800/60 px-3 py-2 text-xs text-neutral-500 dark:text-neutral-400">
             Keine globalen Zugangsdaten nötig. Nutzer hinterlegen ihren eigenen
             API-Key im Profil, sobald die Integration aktiviert ist.
           </p>
         )}
 
         {configIncomplete && (
-          <p className="text-xs text-amber-700">
+          <p className="text-xs text-amber-700 dark:text-amber-300">
             Aktiviert, aber Konfiguration unvollständig – bitte Basis-URL{isOAuth && "/Client-ID"} und {isOAuth ? "Client-Secret" : "Modell"} setzen.
           </p>
         )}
@@ -221,7 +221,7 @@ function IntegrationCard({ initial }: { initial: IntegrationView }) {
               {saving ? "…" : "Speichern"}
             </button>
             {msg && (
-              <span className={`text-xs ${msg.ok ? "text-emerald-600" : "text-red-600"}`}>
+              <span className={`text-xs ${msg.ok ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400"}`}>
                 {msg.text}
               </span>
             )}
@@ -237,7 +237,7 @@ function IntegrationCard({ initial }: { initial: IntegrationView }) {
                   {testing ? "…" : "Verbindung testen"}
                 </button>
                 {testMsg && (
-                  <span className={`text-xs ${testMsg.ok ? "text-emerald-600" : "text-red-600"}`}>
+                  <span className={`text-xs ${testMsg.ok ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400"}`}>
                     {testMsg.text}
                   </span>
                 )}
@@ -246,32 +246,32 @@ function IntegrationCard({ initial }: { initial: IntegrationView }) {
                 <div
                   className={`rounded-lg border p-3 text-xs ${
                     testMsg.ok
-                      ? "border-emerald-200 bg-emerald-50"
-                      : "border-red-200 bg-red-50"
+                      ? "border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/40"
+                      : "border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/40"
                   }`}
                 >
                   <p
                     className={`font-medium ${
-                      testMsg.ok ? "text-emerald-800" : "text-red-800"
+                      testMsg.ok ? "text-emerald-800 dark:text-emerald-200" : "text-red-800 dark:text-red-200"
                     }`}
                   >
                     {testMsg.text}
                   </p>
                   {testMsg.hint && (
-                    <p className={`mt-1 ${testMsg.ok ? "text-emerald-700" : "text-red-700"}`}>
+                    <p className={`mt-1 ${testMsg.ok ? "text-emerald-700 dark:text-emerald-300" : "text-red-700 dark:text-red-300"}`}>
                       💡 {testMsg.hint}
                     </p>
                   )}
                 </div>
               )}
               {ollamaModels.length > 0 && (
-                <label className="block text-xs text-neutral-500">
+                <label className="block text-xs text-neutral-500 dark:text-neutral-400">
                   Verfügbare Modelle
                   <select
                     value={clientSecret}
                     onChange={(e) => setClientSecret(e.target.value)}
                     disabled={loadingModels}
-                    className="mt-1 block w-full rounded-lg border border-neutral-300 bg-white px-2.5 py-1.5 text-sm disabled:bg-neutral-100"
+                    className="mt-1 block w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-2.5 py-1.5 text-sm disabled:bg-neutral-100 dark:disabled:bg-neutral-800"
                   >
                     <option value="">Modell wählen…</option>
                     {ollamaModels.map((model) => (

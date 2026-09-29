@@ -15,7 +15,7 @@ export default async function MoreLayout({
 
   return (
     <ToastProvider>
-      <div className="flex min-h-screen flex-col bg-gray-50 md:flex-row">
+      <div className="flex min-h-screen flex-col bg-gray-50 dark:bg-neutral-950 md:flex-row">
         {/* Sidebar for desktop */}
         <Sidebar session={session} />
 

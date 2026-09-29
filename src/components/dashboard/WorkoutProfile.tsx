@@ -39,10 +39,10 @@ export function WorkoutProfile({
   return (
     <div>
       {/* Balken-Profil */}
-      <div className="relative h-24 w-full rounded-lg border border-neutral-200 bg-neutral-50 p-1">
+      <div className="relative h-24 w-full rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-800/60 p-1">
         {/* 100%-FTP-Referenzlinie */}
         <div
-          className="pointer-events-none absolute inset-x-1 border-t border-dashed border-neutral-300"
+          className="pointer-events-none absolute inset-x-1 border-t border-dashed border-neutral-300 dark:border-neutral-700"
           style={{ bottom: `${(1 / maxPct) * 100}%` }}
           title="100 % FTP"
         />
@@ -70,7 +70,7 @@ export function WorkoutProfile({
               className="h-2 w-2 shrink-0 rounded-full"
               style={{ backgroundColor: b.color }}
             />
-            <span className="font-medium text-neutral-700">{b.label}</span>
+            <span className="font-medium text-neutral-700 dark:text-neutral-300">{b.label}</span>
             <span className="text-neutral-400">
               {[fmtDur(b.durationSec), b.distanceM ? `${b.distanceM} m` : "", targetText(b)]
                 .filter(Boolean)

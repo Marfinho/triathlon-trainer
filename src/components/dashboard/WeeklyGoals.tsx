@@ -64,13 +64,13 @@ export function WeeklyGoals({ initial }: { initial: GoalProgress[] }) {
       }
     >
       {editing ? (
-        <div className="mb-4 flex flex-wrap items-end gap-2 rounded-xl border border-neutral-200 bg-neutral-50 p-3">
-          <label className="text-xs text-neutral-500">
+        <div className="mb-4 flex flex-wrap items-end gap-2 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-800/60 p-3">
+          <label className="text-xs text-neutral-500 dark:text-neutral-400">
             Disziplin
             <select
               value={form.sport}
               onChange={(e) => setForm({ ...form, sport: e.target.value })}
-              className="mt-1 block rounded-lg border border-neutral-300 bg-white px-2 py-1.5 text-sm"
+              className="mt-1 block rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-2 py-1.5 text-sm"
             >
               {SPORTS.map((s) => (
                 <option key={s} value={s}>
@@ -79,7 +79,7 @@ export function WeeklyGoals({ initial }: { initial: GoalProgress[] }) {
               ))}
             </select>
           </label>
-          <label className="text-xs text-neutral-500">
+          <label className="text-xs text-neutral-500 dark:text-neutral-400">
             Stunden / Woche
             <input
               type="number"
@@ -87,7 +87,7 @@ export function WeeklyGoals({ initial }: { initial: GoalProgress[] }) {
               step={0.5}
               value={form.hours}
               onChange={(e) => setForm({ ...form, hours: Number(e.target.value) || 0 })}
-              className="mt-1 block w-24 rounded-lg border border-neutral-300 bg-white px-2 py-1.5 text-sm"
+              className="mt-1 block w-24 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-2 py-1.5 text-sm"
             />
           </label>
           <button
@@ -105,17 +105,17 @@ export function WeeklyGoals({ initial }: { initial: GoalProgress[] }) {
             const actualMin = goals.reduce((s, g) => s + g.actualMin, 0);
             const pct = targetMin ? Math.round((actualMin / targetMin) * 100) : 0;
             return (
-              <div className="mb-4 rounded-xl border border-neutral-200 bg-neutral-50 p-3">
+              <div className="mb-4 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-800/60 p-3">
                 <div className="flex items-baseline justify-between text-sm">
-                  <span className="font-medium text-neutral-800">Gesamt diese Woche</span>
-                  <span className="text-neutral-500">
+                  <span className="font-medium text-neutral-800 dark:text-neutral-200">Gesamt diese Woche</span>
+                  <span className="text-neutral-500 dark:text-neutral-400">
                     {(actualMin / 60).toFixed(1)} / {(targetMin / 60).toFixed(1)} h ·{" "}
-                    <span className={pct >= 100 ? "font-semibold text-emerald-600" : ""}>
+                    <span className={pct >= 100 ? "font-semibold text-emerald-600 dark:text-emerald-400" : ""}>
                       {pct}%
                     </span>
                   </span>
                 </div>
-                <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-neutral-200">
+                <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-700">
                   <div
                     className="h-full rounded-full"
                     style={{
@@ -141,12 +141,12 @@ export function WeeklyGoals({ initial }: { initial: GoalProgress[] }) {
             return (
               <li key={g.sport}>
                 <div className="mb-1 flex items-center justify-between text-sm">
-                  <span className="flex items-center gap-2 font-medium text-neutral-800">
+                  <span className="flex items-center gap-2 font-medium text-neutral-800 dark:text-neutral-200">
                     <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: color }} />
                     {sportLabel(g.sport)}
                   </span>
-                  <span className="flex items-center gap-2 text-neutral-500">
-                    <span className={reached ? "font-semibold text-emerald-600" : ""}>
+                  <span className="flex items-center gap-2 text-neutral-500 dark:text-neutral-400">
+                    <span className={reached ? "font-semibold text-emerald-600 dark:text-emerald-400" : ""}>
                       {(g.actualMin / 60).toFixed(1)} / {(g.targetMin / 60).toFixed(1)} h
                       {!reached && g.targetMin > g.actualMin ? (
                         <span className="ml-1 text-[11px] text-neutral-400">
@@ -163,7 +163,7 @@ export function WeeklyGoals({ initial }: { initial: GoalProgress[] }) {
                     </button>
                   </span>
                 </div>
-                <div className="h-2 w-full overflow-hidden rounded-full bg-neutral-100">
+                <div className="h-2 w-full overflow-hidden rounded-full bg-neutral-100 dark:bg-neutral-800">
                   <div
                     className="h-full rounded-full transition-all"
                     style={{

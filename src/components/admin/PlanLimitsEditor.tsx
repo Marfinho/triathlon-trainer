@@ -125,7 +125,7 @@ function TierEditor({ config }: { config: TierConfig }) {
         <button
           type="button"
           onClick={resetToDefaults}
-          className="rounded-full border border-neutral-200 px-3 py-1 text-xs font-medium text-neutral-500 transition hover:border-neutral-300 hover:text-neutral-800"
+          className="rounded-full border border-neutral-200 dark:border-neutral-800 px-3 py-1 text-xs font-medium text-neutral-500 dark:text-neutral-400 transition hover:border-neutral-300 dark:hover:border-neutral-700 hover:text-neutral-800 dark:hover:text-neutral-200"
         >
           Auf Standard
         </button>
@@ -137,7 +137,7 @@ function TierEditor({ config }: { config: TierConfig }) {
           const isUnlimited = raw === null;
           return (
             <div key={f.key} className="flex items-center justify-between gap-3">
-              <label className="text-sm text-neutral-700">
+              <label className="text-sm text-neutral-700 dark:text-neutral-300">
                 {f.label}
                 <span className="ml-1 text-[11px] text-neutral-400">({f.unit})</span>
               </label>
@@ -150,10 +150,10 @@ function TierEditor({ config }: { config: TierConfig }) {
                   onChange={(e) =>
                     setField(f.key, e.target.value === "" ? 0 : Number(e.target.value))
                   }
-                  className="w-24 rounded-lg border border-neutral-200 px-2.5 py-1.5 text-right text-sm tabular-nums text-neutral-900 disabled:bg-neutral-50 disabled:text-neutral-300"
+                  className="w-24 rounded-lg border border-neutral-200 dark:border-neutral-800 px-2.5 py-1.5 text-right text-sm tabular-nums text-neutral-900 dark:text-neutral-100 disabled:bg-neutral-50 dark:disabled:bg-neutral-800/60 disabled:text-neutral-300"
                 />
                 {f.allowUnlimited && (
-                  <label className="flex items-center gap-1 text-[11px] text-neutral-500">
+                  <label className="flex items-center gap-1 text-[11px] text-neutral-500 dark:text-neutral-400">
                     <input
                       type="checkbox"
                       checked={isUnlimited}
@@ -168,8 +168,8 @@ function TierEditor({ config }: { config: TierConfig }) {
         })}
       </div>
 
-      <div className="mt-5 border-t border-neutral-100 pt-4">
-        <p className="mb-2 text-xs font-medium text-neutral-600">
+      <div className="mt-5 border-t border-neutral-100 dark:border-neutral-800 pt-4">
+        <p className="mb-2 text-xs font-medium text-neutral-600 dark:text-neutral-400">
           Vorhersage-Sportarten
         </p>
         <div className="flex flex-wrap gap-2">
@@ -182,8 +182,8 @@ function TierEditor({ config }: { config: TierConfig }) {
                 onClick={() => toggleSport(sport)}
                 className={`rounded-full border px-3 py-1 text-xs font-medium transition ${
                   active
-                    ? "border-blue-200 bg-blue-50 text-blue-700"
-                    : "border-neutral-200 text-neutral-500 hover:border-neutral-300"
+                    ? "border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300"
+                    : "border-neutral-200 dark:border-neutral-800 text-neutral-500 dark:text-neutral-400 hover:border-neutral-300 dark:hover:border-neutral-700"
                 }`}
               >
                 {SPORT_LABELS[sport] ?? sport}
@@ -193,9 +193,9 @@ function TierEditor({ config }: { config: TierConfig }) {
         </div>
       </div>
 
-      <div className="mt-4 flex items-center justify-between border-t border-neutral-100 pt-4">
+      <div className="mt-4 flex items-center justify-between border-t border-neutral-100 dark:border-neutral-800 pt-4">
         <div>
-          <p className="text-sm font-medium text-neutral-700">Wochenbericht</p>
+          <p className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Wochenbericht</p>
           <p className="text-[11px] text-neutral-400">Pay-Feature (weeklyReport)</p>
         </div>
         <button
@@ -204,7 +204,7 @@ function TierEditor({ config }: { config: TierConfig }) {
           aria-checked={weeklyReport}
           onClick={() => setField("weeklyReport", !weeklyReport)}
           className={`relative h-6 w-11 rounded-full transition ${
-            weeklyReport ? "bg-green-500" : "bg-neutral-200"
+            weeklyReport ? "bg-green-500" : "bg-neutral-200 dark:bg-neutral-700"
           }`}
         >
           <span
@@ -215,18 +215,18 @@ function TierEditor({ config }: { config: TierConfig }) {
         </button>
       </div>
 
-      <div className="mt-5 flex items-center gap-3 border-t border-neutral-100 pt-4">
+      <div className="mt-5 flex items-center gap-3 border-t border-neutral-100 dark:border-neutral-800 pt-4">
         <button
           type="button"
           onClick={save}
           disabled={saving}
-          className="rounded-full bg-neutral-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-neutral-700 disabled:opacity-50"
+          className="rounded-full bg-neutral-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-neutral-700 dark:bg-neutral-100 dark:text-neutral-900 dark:hover:bg-neutral-300 disabled:opacity-50"
         >
           {saving ? "Speichern…" : "Speichern"}
         </button>
         {msg && (
           <span
-            className={`text-xs ${msg.ok ? "text-green-600" : "text-red-600"}`}
+            className={`text-xs ${msg.ok ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}
           >
             {msg.text}
           </span>

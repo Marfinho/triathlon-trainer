@@ -79,20 +79,20 @@ export default async function ProfilePage({
     <main className="mx-auto max-w-4xl px-6 py-10">
       <header className="mb-10">
         <div className="flex items-center justify-between gap-4">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-600">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-600 dark:text-blue-400">
             LocalHub
           </p>
           <a
             href="/dashboard"
-            className="rounded-full border border-neutral-200 bg-white px-3.5 py-1.5 text-xs font-medium text-neutral-600 transition hover:border-neutral-300 hover:text-neutral-900"
+            className="rounded-full border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 px-3.5 py-1.5 text-xs font-medium text-neutral-600 dark:text-neutral-400 transition hover:border-neutral-300 dark:hover:border-neutral-700 hover:text-neutral-900 dark:hover:text-neutral-100"
           >
             Zurück zum Dashboard
           </a>
         </div>
-        <h1 className="mt-1.5 text-3xl font-semibold tracking-tight text-neutral-900">
+        <h1 className="mt-1.5 text-3xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">
           Profil & Einstellungen
         </h1>
-        <p className="mt-2 max-w-2xl text-sm text-neutral-500">
+        <p className="mt-2 max-w-2xl text-sm text-neutral-500 dark:text-neutral-400">
           Account, Athletendaten, Integrationen und Tarif an einem Ort.
         </p>
       </header>
@@ -101,8 +101,8 @@ export default async function ProfilePage({
         <div
           className={`mb-6 rounded-lg border px-4 py-3 text-sm ${
             connected
-              ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-              : "border-red-200 bg-red-50 text-red-700"
+              ? "border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300"
+              : "border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300"
           }`}
         >
           {connected
@@ -154,7 +154,7 @@ export default async function ProfilePage({
         )}
 
         {!anyIntegrationEnabled && (
-          <div className="rounded-xl border border-neutral-200 bg-neutral-50 px-5 py-4 text-sm text-neutral-500">
+          <div className="rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-800/60 px-5 py-4 text-sm text-neutral-500 dark:text-neutral-400">
             Aktuell sind keine Integrationen freigeschaltet. Frag deinen
             Administrator, um Quellen wie Intervals.icu, Strava, Wahoo oder
             Withings zu aktivieren.

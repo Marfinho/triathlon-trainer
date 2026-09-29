@@ -26,14 +26,14 @@ function NumberField({
   onChange: (v: number | null) => void;
 }) {
   return (
-    <label className="text-xs text-neutral-500">
+    <label className="text-xs text-neutral-500 dark:text-neutral-400">
       {label}
       <input
         type="number"
         min={0}
         value={value ?? ""}
         onChange={(e) => onChange(e.target.value === "" ? null : Number(e.target.value))}
-        className="mt-1 block w-full rounded-lg border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900"
+        className="mt-1 block w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-2 py-1.5 text-sm text-neutral-900 dark:text-neutral-100"
       />
     </label>
   );
@@ -140,28 +140,28 @@ export function RaceNutritionPanel({ raceId, raceType }: { raceId: string; raceT
 
   if (loading) {
     return (
-      <div className="mt-2 rounded-xl border border-neutral-200 bg-neutral-50 p-3">
+      <div className="mt-2 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-800/60 p-3">
         <SkeletonLines lines={4} />
       </div>
     );
   }
 
   return (
-    <div className="mt-2 rounded-xl border border-neutral-200 bg-neutral-50 p-3">
+    <div className="mt-2 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-800/60 p-3">
       <div className="flex flex-wrap items-end gap-2">
-        <label className="text-xs text-neutral-500">
+        <label className="text-xs text-neutral-500 dark:text-neutral-400">
           Geschätzte Dauer (min)
           <input
             type="number"
             min={1}
             value={durationMin}
             onChange={(e) => setDurationMin(Number(e.target.value))}
-            className="mt-1 block w-24 rounded-lg border border-neutral-300 bg-white px-2 py-1.5 text-sm"
+            className="mt-1 block w-24 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-2 py-1.5 text-sm"
           />
         </label>
         <button
           onClick={applySuggestion}
-          className="rounded-lg border border-neutral-300 px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-100"
+          className="rounded-lg border border-neutral-300 dark:border-neutral-700 px-3 py-1.5 text-xs font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800"
         >
           Vorschlag berechnen
         </button>
@@ -176,13 +176,13 @@ export function RaceNutritionPanel({ raceId, raceType }: { raceId: string; raceT
         <NumberField label="Carbs Lauf (g/h)" value={runCarbsGPerHour} onChange={setRunCarbsGPerHour} />
       </div>
 
-      <label className="mt-3 block text-xs text-neutral-500">
+      <label className="mt-3 block text-xs text-neutral-500 dark:text-neutral-400">
         Notizen
         <textarea
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
           rows={2}
-          className="mt-1 block w-full rounded-lg border border-neutral-300 bg-white px-2 py-1.5 text-sm"
+          className="mt-1 block w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-2 py-1.5 text-sm"
         />
       </label>
 
@@ -199,7 +199,7 @@ export function RaceNutritionPanel({ raceId, raceType }: { raceId: string; raceT
                 onChange={() => toggleItem(i)}
                 className="h-4 w-4 accent-blue-600"
               />
-              <span className={item.done ? "text-neutral-400 line-through" : "text-neutral-700"}>
+              <span className={item.done ? "text-neutral-400 line-through" : "text-neutral-700 dark:text-neutral-300"}>
                 {item.label}
               </span>
               <button
@@ -217,11 +217,11 @@ export function RaceNutritionPanel({ raceId, raceType }: { raceId: string; raceT
             value={newItem}
             onChange={(e) => setNewItem(e.target.value)}
             placeholder="Neuer Punkt…"
-            className="flex-1 rounded-lg border border-neutral-300 bg-white px-2 py-1.5 text-sm"
+            className="flex-1 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-2 py-1.5 text-sm"
           />
           <button
             onClick={addItem}
-            className="rounded-lg border border-neutral-300 px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-100"
+            className="rounded-lg border border-neutral-300 dark:border-neutral-700 px-3 py-1.5 text-xs font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800"
           >
             Hinzufügen
           </button>

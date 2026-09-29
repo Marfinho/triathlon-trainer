@@ -55,11 +55,11 @@ export function DashboardTabs({ tabs }: { tabs: DashboardTab[] }) {
   return (
     <div>
       <nav
-        className="sticky top-0 z-10 -mx-6 mb-6 border-b border-neutral-200/70 bg-[#f5f5f7]/85 px-6 py-2.5 backdrop-blur"
+        className="sticky top-0 z-10 -mx-6 mb-6 border-b border-neutral-200/70 dark:border-neutral-800 bg-[#f5f5f7]/85 dark:bg-neutral-950/85 px-6 py-2.5 backdrop-blur"
         aria-label="Dashboard-Bereiche"
       >
         <div
-          className="inline-flex flex-wrap gap-0.5 rounded-xl border border-neutral-200 bg-white p-0.5"
+          className="inline-flex flex-wrap gap-0.5 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-0.5"
           role="tablist"
         >
           {tabs.map((t, i) => (
@@ -71,8 +71,8 @@ export function DashboardTabs({ tabs }: { tabs: DashboardTab[] }) {
               title={`${t.label} (Taste ${i + 1})`}
               className={`rounded-lg px-3.5 py-1.5 text-sm font-medium transition-colors ${
                 current?.id === t.id
-                  ? "bg-neutral-900 text-white"
-                  : "text-neutral-500 hover:text-neutral-900"
+                  ? "bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-900"
+                  : "text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100"
               }`}
             >
               {t.label}

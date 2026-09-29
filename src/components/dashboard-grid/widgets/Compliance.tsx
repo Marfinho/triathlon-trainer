@@ -12,7 +12,7 @@ const STATUS_LABEL: Record<string, string> = {
 };
 
 const STATUS_COLOR: Record<string, string> = {
-  completed: "text-emerald-600",
+  completed: "text-emerald-600 dark:text-emerald-400",
   skipped: "text-rose-500",
 };
 
@@ -34,7 +34,7 @@ export function Compliance({ size }: { size: WidgetSize }) {
 
   if (size === "S") {
     return (
-      <p className="text-sm text-neutral-700">
+      <p className="text-sm text-neutral-700 dark:text-neutral-300">
         {completed}/{total} Einheiten <span className="text-neutral-400">({percent}%)</span>
       </p>
     );
@@ -48,24 +48,24 @@ export function Compliance({ size }: { size: WidgetSize }) {
   return (
     <div className="space-y-3">
       <div>
-        <p className="text-sm font-medium text-neutral-800">
+        <p className="text-sm font-medium text-neutral-800 dark:text-neutral-200">
           {completed}/{total} Einheiten erfüllt ({percent}%)
         </p>
-        <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-neutral-100">
+        <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-neutral-100 dark:bg-neutral-800">
           <div
             className="h-full rounded-full bg-emerald-500"
             style={{ width: `${percent}%` }}
           />
         </div>
       </div>
-      <p className="text-xs text-neutral-500">
+      <p className="text-xs text-neutral-500 dark:text-neutral-400">
         {completedMin} von {plannedMin} geplanten Minuten
       </p>
       {size === "L" && (
         <ul className="space-y-1 text-xs">
           {planned.map((p) => (
             <li key={p.id} className="flex items-center justify-between gap-2">
-              <span className="truncate text-neutral-600">{p.title}</span>
+              <span className="truncate text-neutral-600 dark:text-neutral-400">{p.title}</span>
               <span className={STATUS_COLOR[p.status] ?? "text-neutral-400"}>
                 {STATUS_LABEL[p.status] ?? p.status}
               </span>

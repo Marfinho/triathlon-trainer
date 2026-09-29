@@ -12,14 +12,14 @@ export function Card({
   actions?: ReactNode;
 }) {
   return (
-    <section className="rounded-2xl border border-neutral-200/80 bg-white p-6 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
+    <section className="rounded-2xl border border-neutral-200/80 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-6 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
       <div className="mb-4 flex items-start justify-between gap-3">
         <div>
-          <h2 className="text-[15px] font-semibold tracking-tight text-neutral-900">
+          <h2 className="text-[15px] font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">
             {title}
           </h2>
           {subtitle ? (
-            <p className="mt-0.5 text-xs text-neutral-500">{subtitle}</p>
+            <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">{subtitle}</p>
           ) : null}
         </div>
         {actions}

@@ -118,13 +118,13 @@ export function OllamaChat({ athleteName, contextData }: OllamaChatProps) {
     <Card title="Ollama Coach" subtitle="Direkter Austausch mit deinem lokalen LLM">
       <div className="flex flex-col gap-4 h-full">
         {messages.length === 0 && (
-          <div className="rounded-lg bg-blue-50 border border-blue-200 p-3 text-xs text-blue-700">
+          <div className="rounded-lg bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 p-3 text-xs text-blue-700 dark:text-blue-300">
             💡 Du kannst den Trainer fragen, deinen Plan anzupassen. Beispiel: "Füge einen 10er Lauf für Mittwoch ein" oder "Verkürze das Sonntags-Bike auf 90 Minuten". Ollama wird die Änderungen automatisch zu Intervals.icu synchronisieren.
           </div>
         )}
-        <div className="flex-1 min-h-[300px] max-h-[500px] overflow-y-auto rounded-lg border border-neutral-200 bg-neutral-50 p-4 space-y-3">
+        <div className="flex-1 min-h-[300px] max-h-[500px] overflow-y-auto rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-800/60 p-4 space-y-3">
           {messages.length === 0 && (
-            <div className="text-center text-sm text-neutral-500 py-8">
+            <div className="text-center text-sm text-neutral-500 dark:text-neutral-400 py-8">
               Starten Sie ein Gespräch. Ollama hat Zugriff auf Ihre Trainingsdaten.
             </div>
           )}
@@ -137,7 +137,7 @@ export function OllamaChat({ athleteName, contextData }: OllamaChatProps) {
                   className={`max-w-xs px-3 py-2 rounded-lg text-sm ${
                     msg.role === "user"
                       ? "bg-blue-600 text-white"
-                      : "bg-white text-neutral-900 border border-neutral-200"
+                      : "bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 border border-neutral-200 dark:border-neutral-800"
                   }`}
                 >
                   {/* Remove JSON block from display */}
@@ -146,13 +146,13 @@ export function OllamaChat({ athleteName, contextData }: OllamaChatProps) {
               </div>
               {msg.planUpdates && msg.planUpdates.length > 0 && (
                 <div className="pl-3 border-l-2 border-emerald-500 space-y-1">
-                  <p className="text-xs font-semibold text-emerald-700">
+                  <p className="text-xs font-semibold text-emerald-700 dark:text-emerald-300">
                     Plan aktualisiert:
                   </p>
                   {msg.planUpdates.map((update, i) => (
                     <div
                       key={i}
-                      className="text-xs text-emerald-600 bg-emerald-50 px-2 py-1 rounded"
+                      className="text-xs text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-1 rounded"
                     >
                       {update.action === "create" && (
                         <>
@@ -168,7 +168,7 @@ export function OllamaChat({ athleteName, contextData }: OllamaChatProps) {
                       )}
                       {update.action === "delete" && <>✓ Training gelöscht</>}
                       {update.error && (
-                        <span className="text-red-600">Fehler: {update.error}</span>
+                        <span className="text-red-600 dark:text-red-400">Fehler: {update.error}</span>
                       )}
                     </div>
                   ))}
@@ -178,7 +178,7 @@ export function OllamaChat({ athleteName, contextData }: OllamaChatProps) {
           ))}
           {loading && (
             <div className="flex justify-start">
-              <div className="bg-white text-neutral-900 border border-neutral-200 px-3 py-2 rounded-lg">
+              <div className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 border border-neutral-200 dark:border-neutral-800 px-3 py-2 rounded-lg">
                 <div className="flex gap-1">
                   <div className="w-2 h-2 bg-neutral-400 rounded-full animate-bounce" />
                   <div className="w-2 h-2 bg-neutral-400 rounded-full animate-bounce" style={{ animationDelay: "0.1s" }} />
@@ -191,7 +191,7 @@ export function OllamaChat({ athleteName, contextData }: OllamaChatProps) {
         </div>
 
         {error && (
-          <div className="rounded-lg bg-red-50 border border-red-200 p-3 text-sm text-red-700">
+          <div className="rounded-lg bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 p-3 text-sm text-red-700 dark:text-red-300">
             {error}
           </div>
         )}
@@ -209,12 +209,12 @@ export function OllamaChat({ athleteName, contextData }: OllamaChatProps) {
             }}
             placeholder="Frage zu deinem Training…"
             disabled={loading}
-            className="flex-1 rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm disabled:bg-neutral-100 disabled:text-neutral-500"
+            className="flex-1 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm disabled:bg-neutral-100 dark:disabled:bg-neutral-800 disabled:text-neutral-500 dark:disabled:text-neutral-400"
           />
           <button
             onClick={handleSend}
             disabled={loading || !input.trim()}
-            className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-500 disabled:bg-neutral-300 disabled:cursor-not-allowed"
+            className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-500 disabled:bg-neutral-300 dark:disabled:bg-neutral-600 disabled:cursor-not-allowed"
           >
             {loading ? "…" : "Senden"}
           </button>

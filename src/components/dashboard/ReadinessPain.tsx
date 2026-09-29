@@ -116,13 +116,13 @@ export function ReadinessPain({
       }
     >
       {open ? (
-        <div className="mb-4 grid grid-cols-2 gap-3 rounded-xl border border-neutral-200 bg-neutral-50 p-3 sm:grid-cols-3">
-          <label className="text-xs text-neutral-500">
+        <div className="mb-4 grid grid-cols-2 gap-3 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-800/60 p-3 sm:grid-cols-3">
+          <label className="text-xs text-neutral-500 dark:text-neutral-400">
             Readiness
             <select
               value={f.status}
               onChange={(e) => setF({ ...f, status: e.target.value })}
-              className="mt-1 block w-full rounded-lg border border-neutral-300 bg-white px-2 py-1.5 text-sm"
+              className="mt-1 block w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-2 py-1.5 text-sm"
             >
               <option value="green">grün</option>
               <option value="amber">gelb</option>
@@ -134,12 +134,12 @@ export function ReadinessPain({
             value={f.subjectiveFatigue}
             onChange={(v) => setF({ ...f, subjectiveFatigue: v })}
           />
-          <label className="text-xs text-neutral-500">
+          <label className="text-xs text-neutral-500 dark:text-neutral-400">
             Schlaf
             <select
               value={f.sleepTrend}
               onChange={(e) => setF({ ...f, sleepTrend: e.target.value })}
-              className="mt-1 block w-full rounded-lg border border-neutral-300 bg-white px-2 py-1.5 text-sm"
+              className="mt-1 block w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-2 py-1.5 text-sm"
             >
               <option value="">— keine Angabe —</option>
               <option value="besser">besser</option>
@@ -172,13 +172,13 @@ export function ReadinessPain({
             value={f.back}
             onChange={(v) => setF({ ...f, back: v })}
           />
-          <label className="col-span-2 text-xs text-neutral-500 sm:col-span-3">
+          <label className="col-span-2 text-xs text-neutral-500 dark:text-neutral-400 sm:col-span-3">
             Notizen
             <textarea
               value={f.notes}
               onChange={(e) => setF({ ...f, notes: e.target.value })}
               rows={2}
-              className="mt-1 block w-full rounded-lg border border-neutral-300 bg-white px-2 py-1.5 text-sm"
+              className="mt-1 block w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-2 py-1.5 text-sm"
             />
           </label>
           <div className="flex items-end">
@@ -205,7 +205,7 @@ export function ReadinessPain({
               {readiness?.status ? (
                 <span
                   className={`inline-block h-2.5 w-2.5 rounded-full ${
-                    READINESS_DOT[readiness.status] ?? "bg-neutral-300"
+                    READINESS_DOT[readiness.status] ?? "bg-neutral-300 dark:bg-neutral-600"
                   }`}
                 />
               ) : null}
@@ -231,7 +231,7 @@ export function ReadinessPain({
               </dl>
             ) : null}
             {readiness?.notes ? (
-              <p className="mt-2 text-xs italic text-neutral-500">{readiness.notes}</p>
+              <p className="mt-2 text-xs italic text-neutral-500 dark:text-neutral-400">{readiness.notes}</p>
             ) : null}
             <div className="mt-2 text-blue-500">
               <p className="mb-0.5 text-[11px] text-neutral-400">Müdigkeit (Verlauf)</p>
@@ -252,8 +252,8 @@ export function ReadinessPain({
                   ["Rücken", pain.back],
                 ].map(([label, val]) => (
                   <div key={label as string} className="flex items-center gap-2">
-                    <span className="w-20 text-sm text-neutral-500">{label}</span>
-                    <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-neutral-100">
+                    <span className="w-20 text-sm text-neutral-500 dark:text-neutral-400">{label}</span>
+                    <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-neutral-100 dark:bg-neutral-800">
                       <div
                         className="h-full rounded-full"
                         style={{
@@ -262,7 +262,7 @@ export function ReadinessPain({
                         }}
                       />
                     </div>
-                    <span className="w-6 text-right text-sm text-neutral-700">
+                    <span className="w-6 text-right text-sm text-neutral-700 dark:text-neutral-300">
                       {val ?? "—"}
                     </span>
                   </div>
@@ -291,13 +291,13 @@ function Row({
 }) {
   return (
     <div className="flex justify-between">
-      <dt className="text-neutral-500">{label}</dt>
-      <dd className="font-medium text-neutral-800">
+      <dt className="text-neutral-500 dark:text-neutral-400">{label}</dt>
+      <dd className="font-medium text-neutral-800 dark:text-neutral-200">
         {value}
         {auto ? (
           <span
             title="Automatisch aus den Körpermetriken berechnet"
-            className="ml-1.5 rounded-full bg-blue-50 px-1.5 py-0.5 text-[10px] font-normal text-blue-500"
+            className="ml-1.5 rounded-full bg-blue-50 dark:bg-blue-950/40 px-1.5 py-0.5 text-[10px] font-normal text-blue-500"
           >
             auto
           </span>
@@ -317,7 +317,7 @@ function RangeField({
   onChange: (v: number) => void;
 }) {
   return (
-    <label className="text-xs text-neutral-500">
+    <label className="text-xs text-neutral-500 dark:text-neutral-400">
       {label}
       <input
         type="range"

@@ -72,16 +72,16 @@ export function BillingSection({
       title="Tarif & Abrechnung"
       subtitle={isPaid ? "Du bist auf dem Pro-Tarif" : "Du nutzt den kostenlosen Free-Tarif"}
     >
-      <div className="mb-4 flex items-center gap-3 rounded-xl bg-neutral-50 px-4 py-3">
+      <div className="mb-4 flex items-center gap-3 rounded-xl bg-neutral-50 dark:bg-neutral-800/60 px-4 py-3">
         <span
           className={`rounded-full px-2.5 py-1 text-xs font-semibold uppercase tracking-wide ${
-            isPaid ? "bg-emerald-100 text-emerald-700" : "bg-neutral-200 text-neutral-600"
+            isPaid ? "bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300" : "bg-neutral-200 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-400"
           }`}
         >
           {isPaid ? "Pro" : "Free"}
         </span>
         {isPaid && planInterval && (
-          <span className="text-sm text-neutral-600">
+          <span className="text-sm text-neutral-600 dark:text-neutral-400">
             {planInterval === "monthly" && "Monatliches Abo"}
             {planInterval === "yearly" && "Jährliches Abo"}
             {planInterval === "lifetime" && "Lifetime-Zugang"}
@@ -99,7 +99,7 @@ export function BillingSection({
           <button
             onClick={manageSubscription}
             disabled={loading !== null}
-            className="rounded-lg border border-neutral-300 px-4 py-2 text-sm font-medium text-neutral-700 hover:border-neutral-400 disabled:opacity-40"
+            className="rounded-lg border border-neutral-300 dark:border-neutral-700 px-4 py-2 text-sm font-medium text-neutral-700 dark:text-neutral-300 hover:border-neutral-400 dark:hover:border-neutral-600 disabled:opacity-40"
           >
             {loading === "portal" ? "…" : "Abo verwalten"}
           </button>
@@ -107,10 +107,10 @@ export function BillingSection({
       ) : (
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           {OPTIONS.map((o) => (
-            <div key={o.id} className="rounded-xl border border-neutral-200 p-4">
-              <p className="text-sm font-medium text-neutral-900">{o.label}</p>
+            <div key={o.id} className="rounded-xl border border-neutral-200 dark:border-neutral-800 p-4">
+              <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">{o.label}</p>
               <p className="mt-2 flex items-baseline gap-1">
-                <span className="text-2xl font-semibold text-neutral-900">{o.price}</span>
+                <span className="text-2xl font-semibold text-neutral-900 dark:text-neutral-100">{o.price}</span>
                 <span className="text-xs text-neutral-400">{o.period}</span>
               </p>
               <button
@@ -124,7 +124,7 @@ export function BillingSection({
           ))}
         </div>
       )}
-      {error && <p className="mt-3 text-xs text-red-600">{error}</p>}
+      {error && <p className="mt-3 text-xs text-red-600 dark:text-red-400">{error}</p>}
     </Card>
   );
 }

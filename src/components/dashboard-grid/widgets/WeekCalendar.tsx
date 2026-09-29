@@ -30,7 +30,7 @@ export function WeekCalendar({ size }: { size: WidgetSize }) {
   if (size === "S") {
     const count = planned.length;
     return (
-      <p className="text-sm text-neutral-700">
+      <p className="text-sm text-neutral-700 dark:text-neutral-300">
         {count} Einheit{count === 1 ? "" : "en"} diese Woche
       </p>
     );
@@ -41,7 +41,7 @@ export function WeekCalendar({ size }: { size: WidgetSize }) {
       {days.map((day, i) => (
         <div
           key={i}
-          className="flex flex-col items-center gap-1 rounded-lg bg-neutral-50 py-1.5"
+          className="flex flex-col items-center gap-1 rounded-lg bg-neutral-50 dark:bg-neutral-800/60 py-1.5"
         >
           <span className="text-[10px] font-medium text-neutral-400">{WEEKDAY_LABEL[i]}</span>
           <span
@@ -50,7 +50,7 @@ export function WeekCalendar({ size }: { size: WidgetSize }) {
             title={day ? sportLabel(day.sport) : undefined}
           />
           {size === "L" && (
-            <span className="text-[9px] text-neutral-500">
+            <span className="text-[9px] text-neutral-500 dark:text-neutral-400">
               {day ? `${day.plannedDurationMin}'` : "—"}
             </span>
           )}

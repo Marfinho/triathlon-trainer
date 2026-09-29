@@ -78,7 +78,7 @@ export function RecentActivities({
             }}
             placeholder="Suchen (Sport, Datum, Quelle)…"
             aria-label="Aktivitäten durchsuchen"
-            className="flex-1 rounded-lg border border-neutral-300 bg-white px-2.5 py-1.5 text-sm"
+            className="flex-1 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-2.5 py-1.5 text-sm"
           />
           <select
             value={sportFilter}
@@ -87,7 +87,7 @@ export function RecentActivities({
               setVisible(PAGE_SIZE);
             }}
             aria-label="Nach Sportart filtern"
-            className="rounded-lg border border-neutral-300 bg-white px-2.5 py-1.5 text-sm"
+            className="rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-2.5 py-1.5 text-sm"
           >
             <option value="">Alle Sportarten</option>
             {sports.map((s) => (
@@ -108,7 +108,7 @@ export function RecentActivities({
         <EmptyState title="Keine Treffer" hint="Passe Suche oder Filter an." />
       ) : (
         <>
-          <ul className="divide-y divide-neutral-100">
+          <ul className="divide-y divide-neutral-100 dark:divide-neutral-800">
             {shown.map((a) => (
               <li key={a.id} className="flex items-center justify-between gap-3 py-3">
                 <div className="flex items-center gap-3">
@@ -117,10 +117,10 @@ export function RecentActivities({
                     style={{ backgroundColor: sportColor(a.sport) }}
                   />
                   <div>
-                    <p className="text-sm font-medium text-neutral-900">
+                    <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
                       {sportLabel(a.sport)}
                     </p>
-                    <p className="text-xs text-neutral-500">
+                    <p className="text-xs text-neutral-500 dark:text-neutral-400">
                       {a.date} ·{" "}
                       {a.durationMin ? `${Math.round(a.durationMin)} min` : "—"}
                       {a.distanceKm ? ` · ${a.distanceKm.toFixed(1)} km` : ""}
@@ -136,7 +136,7 @@ export function RecentActivities({
           {visible < filtered.length ? (
             <button
               onClick={() => setVisible((v) => v + PAGE_SIZE)}
-              className="mt-3 w-full rounded-lg border border-neutral-300 py-2 text-xs font-medium text-neutral-600 hover:bg-neutral-100"
+              className="mt-3 w-full rounded-lg border border-neutral-300 dark:border-neutral-700 py-2 text-xs font-medium text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800"
             >
               Mehr laden ({filtered.length - visible} weitere)
             </button>
@@ -149,9 +149,9 @@ export function RecentActivities({
 
 function SummaryTile({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-xl border border-neutral-200 bg-neutral-50 px-2 py-2 text-center">
+    <div className="rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-800/60 px-2 py-2 text-center">
       <p className="text-[10px] uppercase tracking-wide text-neutral-400">{label}</p>
-      <p className="mt-0.5 text-base font-semibold text-neutral-900">{value}</p>
+      <p className="mt-0.5 text-base font-semibold text-neutral-900 dark:text-neutral-100">{value}</p>
     </div>
   );
 }

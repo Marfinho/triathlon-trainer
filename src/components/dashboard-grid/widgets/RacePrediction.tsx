@@ -26,7 +26,7 @@ export function RacePrediction({ size }: { size: WidgetSize }) {
   if (size === "S") {
     const best = predictions.find((p) => p.tri.key === "olympic") ?? predictions[0];
     return (
-      <p className="text-sm text-neutral-700">
+      <p className="text-sm text-neutral-700 dark:text-neutral-300">
         {best.tri.label}: {formatDuration(best.prediction.totalSec)}
       </p>
     );
@@ -36,19 +36,19 @@ export function RacePrediction({ size }: { size: WidgetSize }) {
     <div className="space-y-1.5">
       {predictions.map(({ tri, prediction }) => (
         <div key={tri.key} className="flex items-center justify-between gap-2 text-sm">
-          <span className="text-neutral-600">{tri.label}</span>
-          <span className="font-medium text-neutral-900">
+          <span className="text-neutral-600 dark:text-neutral-400">{tri.label}</span>
+          <span className="font-medium text-neutral-900 dark:text-neutral-100">
             {formatDuration(prediction.totalSec)}
           </span>
         </div>
       ))}
       {size === "L" && (
-        <div className="mt-2 space-y-2 border-t border-neutral-100 pt-2">
+        <div className="mt-2 space-y-2 border-t border-neutral-100 dark:border-neutral-800 pt-2">
           {predictions
             .filter((p) => p.prediction.totalSec != null)
             .map(({ tri, prediction }) => (
-              <div key={tri.key} className="text-xs text-neutral-500">
-                <p className="font-medium text-neutral-700">{tri.label}</p>
+              <div key={tri.key} className="text-xs text-neutral-500 dark:text-neutral-400">
+                <p className="font-medium text-neutral-700 dark:text-neutral-300">{tri.label}</p>
                 <p>
                   Schwimmen {formatDuration(prediction.swimSec)} · Rad{" "}
                   {formatDuration(prediction.bikeSec)} · Laufen{" "}

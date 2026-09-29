@@ -43,7 +43,7 @@ export function SortableWidgetCard({
           <button
             type="button"
             aria-label={`${title} verschieben`}
-            className="flex h-11 w-11 shrink-0 cursor-grab touch-none items-center justify-center rounded-lg text-neutral-400 transition hover:bg-neutral-100 hover:text-neutral-600 active:cursor-grabbing"
+            className="flex h-11 w-11 shrink-0 cursor-grab touch-none items-center justify-center rounded-lg text-neutral-400 transition hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-neutral-600 dark:hover:text-neutral-400 active:cursor-grabbing"
             {...attributes}
             {...listeners}
           >

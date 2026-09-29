@@ -10,9 +10,9 @@ export interface PlannedItem {
 }
 
 const STATUS_STYLES: Record<string, string> = {
-  planned: "bg-neutral-100 text-neutral-600",
-  synced: "bg-emerald-50 text-emerald-700",
-  completed: "bg-blue-50 text-blue-700",
+  planned: "bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400",
+  synced: "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300",
+  completed: "bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300",
 };
 
 function relativeDay(iso: string): { label: string; highlight: boolean } {
@@ -35,7 +35,7 @@ export function CurrentPlan({ items }: { items: PlannedItem[] }) {
           Keine offenen geplanten Workouts. Importiere einen Plan, um zu starten.
         </p>
       ) : (
-        <ul className="divide-y divide-neutral-100">
+        <ul className="divide-y divide-neutral-100 dark:divide-neutral-800">
           {items.map((w) => {
             const rel = relativeDay(w.date);
             return (
@@ -46,11 +46,11 @@ export function CurrentPlan({ items }: { items: PlannedItem[] }) {
                   style={{ backgroundColor: sportColor(w.sport) }}
                 />
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-medium text-neutral-900">
+                  <p className="truncate text-sm font-medium text-neutral-900 dark:text-neutral-100">
                     {w.title}
                   </p>
-                  <p className="text-xs text-neutral-500">
-                    <span className={rel.highlight ? "font-semibold text-blue-600" : ""}>
+                  <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                    <span className={rel.highlight ? "font-semibold text-blue-600 dark:text-blue-400" : ""}>
                       {rel.label}
                     </span>{" "}
                     · {sportLabel(w.sport)} ·{" "}
@@ -60,7 +60,7 @@ export function CurrentPlan({ items }: { items: PlannedItem[] }) {
               </div>
               <span
                 className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-medium ${
-                  STATUS_STYLES[w.status] ?? "bg-neutral-100 text-neutral-600"
+                  STATUS_STYLES[w.status] ?? "bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400"
                 }`}
               >
                 {w.status}

@@ -16,7 +16,7 @@ export default async function AdminLayout({
 
   return (
     <ToastProvider>
-      <div className="flex min-h-screen flex-col bg-gray-50 md:flex-row">
+      <div className="flex min-h-screen flex-col bg-gray-50 dark:bg-neutral-950 md:flex-row">
         <Sidebar session={session} />
         <main className="flex-1 md:ml-60">
           <div className="pb-[80px] md:pb-0">{children}</div>

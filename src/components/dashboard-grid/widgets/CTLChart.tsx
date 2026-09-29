@@ -18,7 +18,7 @@ export function CTLChart({ size }: { size: WidgetSize }) {
   if (size === "S") {
     return (
       <div className="flex items-center justify-between gap-2">
-        <p className="text-sm text-neutral-700">CTL {current.ctl.toFixed(0)}</p>
+        <p className="text-sm text-neutral-700 dark:text-neutral-300">CTL {current.ctl.toFixed(0)}</p>
         <Sparkline values={loadSeries.ctl.slice(-30)} color="#0a84ff" width={80} height={28} />
       </div>
     );
@@ -30,15 +30,15 @@ export function CTLChart({ size }: { size: WidgetSize }) {
       <div className="space-y-2">
         <div className="grid grid-cols-3 gap-2 text-center text-xs">
           <div>
-            <p className="text-base font-semibold text-neutral-900">{current.ctl.toFixed(0)}</p>
+            <p className="text-base font-semibold text-neutral-900 dark:text-neutral-100">{current.ctl.toFixed(0)}</p>
             <p className="text-neutral-400">CTL</p>
           </div>
           <div>
-            <p className="text-base font-semibold text-neutral-900">{current.atl.toFixed(0)}</p>
+            <p className="text-base font-semibold text-neutral-900 dark:text-neutral-100">{current.atl.toFixed(0)}</p>
             <p className="text-neutral-400">ATL</p>
           </div>
           <div>
-            <p className="text-base font-semibold text-neutral-900">
+            <p className="text-base font-semibold text-neutral-900 dark:text-neutral-100">
               {current.tsb > 0 ? "+" : ""}
               {current.tsb.toFixed(0)}
             </p>
@@ -55,22 +55,22 @@ export function CTLChart({ size }: { size: WidgetSize }) {
     <div className="space-y-3">
       <div className="grid grid-cols-4 gap-2 text-center text-xs">
         <div>
-          <p className="text-base font-semibold text-neutral-900">{current.ctl.toFixed(0)}</p>
+          <p className="text-base font-semibold text-neutral-900 dark:text-neutral-100">{current.ctl.toFixed(0)}</p>
           <p className="text-neutral-400">CTL</p>
         </div>
         <div>
-          <p className="text-base font-semibold text-neutral-900">{current.atl.toFixed(0)}</p>
+          <p className="text-base font-semibold text-neutral-900 dark:text-neutral-100">{current.atl.toFixed(0)}</p>
           <p className="text-neutral-400">ATL</p>
         </div>
         <div>
-          <p className="text-base font-semibold text-neutral-900">
+          <p className="text-base font-semibold text-neutral-900 dark:text-neutral-100">
             {current.tsb > 0 ? "+" : ""}
             {current.tsb.toFixed(0)}
           </p>
           <p className="text-neutral-400">TSB</p>
         </div>
         <div>
-          <p className="text-base font-semibold text-neutral-900">{current.acwr ?? "—"}</p>
+          <p className="text-base font-semibold text-neutral-900 dark:text-neutral-100">{current.acwr ?? "—"}</p>
           <p className="text-neutral-400">ACWR</p>
         </div>
       </div>

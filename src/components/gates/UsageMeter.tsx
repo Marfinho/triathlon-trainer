@@ -19,14 +19,14 @@ export function UsageMeter({
   const reached = current >= limit;
 
   return (
-    <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-3">
+    <div className="rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-800/60 p-3">
       <div className="mb-1 flex items-center justify-between text-xs">
-        <span className="font-medium text-neutral-700">{label}</span>
-        <span className={warn ? "font-semibold text-[#b07700]" : "text-neutral-500"}>
+        <span className="font-medium text-neutral-700 dark:text-neutral-300">{label}</span>
+        <span className={warn ? "font-semibold text-[#b07700] dark:text-[#f0a500]" : "text-neutral-500 dark:text-neutral-400"}>
           {current} / {limit}
         </span>
       </div>
-      <div className="h-2 w-full overflow-hidden rounded-full bg-neutral-200">
+      <div className="h-2 w-full overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-700">
         <div
           className="h-full rounded-full transition-all"
           style={{
@@ -36,9 +36,9 @@ export function UsageMeter({
         />
       </div>
       {reached ? (
-        <p className="mt-2 text-[11px] text-neutral-500">
+        <p className="mt-2 text-[11px] text-neutral-500 dark:text-neutral-400">
           Free-Limit erreicht ·{" "}
-          <Link href="/#pricing" className="font-medium text-[#b07700] hover:underline">
+          <Link href="/#pricing" className="font-medium text-[#b07700] dark:text-[#f0a500] hover:underline">
             Upgrade auf Pro
           </Link>
         </p>

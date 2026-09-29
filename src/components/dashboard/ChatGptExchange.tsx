@@ -35,10 +35,10 @@ const ACTION_LABEL: Record<PreviewDay["action"], string> = {
 };
 
 const ACTION_CLASS: Record<PreviewDay["action"], string> = {
-  create: "bg-blue-50 text-blue-700",
-  replace: "bg-amber-50 text-amber-700",
-  protected: "bg-rose-50 text-rose-700",
-  rest: "bg-neutral-100 text-neutral-500",
+  create: "bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300",
+  replace: "bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300",
+  protected: "bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300",
+  rest: "bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400",
 };
 
 function tomorrowIso(): string {
@@ -176,16 +176,16 @@ export function ChatGptExchange({ llmConfigured }: { llmConfigured?: boolean }) 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Export */}
         <div>
-          <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-neutral-500">
+          <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
             1 · CoachSummary exportieren
           </h3>
           <div className="flex flex-wrap items-end gap-2">
-            <label className="text-xs text-neutral-500">
+            <label className="text-xs text-neutral-500 dark:text-neutral-400">
               Zweck
               <select
                 value={purpose}
                 onChange={(e) => setPurpose(e.target.value)}
-                className="mt-1 block rounded-lg border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900"
+                className="mt-1 block rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-2 py-1.5 text-sm text-neutral-900 dark:text-neutral-100"
               >
                 {PURPOSES.map((p) => (
                   <option key={p.value} value={p.value}>
@@ -194,16 +194,16 @@ export function ChatGptExchange({ llmConfigured }: { llmConfigured?: boolean }) 
                 ))}
               </select>
             </label>
-            <label className="text-xs text-neutral-500">
+            <label className="text-xs text-neutral-500 dark:text-neutral-400">
               Start
               <input
                 type="date"
                 value={planStart}
                 onChange={(e) => setPlanStart(e.target.value)}
-                className="mt-1 block rounded-lg border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900"
+                className="mt-1 block rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-2 py-1.5 text-sm text-neutral-900 dark:text-neutral-100"
               />
             </label>
-            <label className="text-xs text-neutral-500">
+            <label className="text-xs text-neutral-500 dark:text-neutral-400">
               Tage
               <input
                 type="number"
@@ -211,7 +211,7 @@ export function ChatGptExchange({ llmConfigured }: { llmConfigured?: boolean }) 
                 max={28}
                 value={planDays}
                 onChange={(e) => setPlanDays(Number(e.target.value))}
-                className="mt-1 block w-20 rounded-lg border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900"
+                className="mt-1 block w-20 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-2 py-1.5 text-sm text-neutral-900 dark:text-neutral-100"
               />
             </label>
             <button
@@ -234,7 +234,7 @@ export function ChatGptExchange({ llmConfigured }: { llmConfigured?: boolean }) 
           </div>
 
           {generateError ? (
-            <p className="mt-2 rounded-lg bg-rose-50 px-3 py-2 text-xs text-rose-700">
+            <p className="mt-2 rounded-lg bg-rose-50 dark:bg-rose-950/40 px-3 py-2 text-xs text-rose-700 dark:text-rose-300">
               {generateError}
             </p>
           ) : null}
@@ -244,7 +244,7 @@ export function ChatGptExchange({ llmConfigured }: { llmConfigured?: boolean }) 
               <div className="mb-1 flex justify-end">
                 <button
                   onClick={copySummary}
-                  className="rounded-lg border border-neutral-300 px-2 py-1 text-[11px] text-neutral-700 hover:bg-neutral-100"
+                  className="rounded-lg border border-neutral-300 dark:border-neutral-700 px-2 py-1 text-[11px] text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800"
                 >
                   {copyLabel}
                 </button>
@@ -252,7 +252,7 @@ export function ChatGptExchange({ llmConfigured }: { llmConfigured?: boolean }) 
               <textarea
                 readOnly
                 value={summaryJson}
-                className="h-56 w-full rounded-lg border border-neutral-200 bg-white p-2 font-mono text-[11px] text-neutral-700"
+                className="h-56 w-full rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-2 font-mono text-[11px] text-neutral-700 dark:text-neutral-300"
               />
             </div>
           ) : null}
@@ -260,20 +260,20 @@ export function ChatGptExchange({ llmConfigured }: { llmConfigured?: boolean }) 
 
         {/* Import */}
         <div>
-          <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-neutral-500">
+          <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
             2 · localhub_plan importieren
           </h3>
           <textarea
             value={planInput}
             onChange={(e) => setPlanInput(e.target.value)}
             placeholder='localhub_plan JSON hier einfügen…'
-            className="h-56 w-full rounded-lg border border-neutral-200 bg-white p-2 font-mono text-[11px] text-neutral-700"
+            className="h-56 w-full rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-2 font-mono text-[11px] text-neutral-700 dark:text-neutral-300"
           />
           <div className="mt-2 flex gap-2">
             <button
               onClick={() => submitPlan("validate")}
               disabled={importing || !planInput.trim()}
-              className="rounded-lg border border-neutral-300 px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-100 disabled:opacity-40"
+              className="rounded-lg border border-neutral-300 dark:border-neutral-700 px-3 py-1.5 text-xs font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 disabled:opacity-40"
             >
               Validieren
             </button>
@@ -287,12 +287,12 @@ export function ChatGptExchange({ llmConfigured }: { llmConfigured?: boolean }) 
           </div>
 
           {info ? (
-            <p className="mt-2 rounded-lg bg-emerald-50 px-3 py-2 text-xs text-emerald-700">
+            <p className="mt-2 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 px-3 py-2 text-xs text-emerald-700 dark:text-emerald-300">
               {info}
             </p>
           ) : null}
           {errors.length > 0 ? (
-            <ul className="mt-2 space-y-1 rounded-lg bg-rose-50 px-3 py-2 text-xs text-rose-700">
+            <ul className="mt-2 space-y-1 rounded-lg bg-rose-50 dark:bg-rose-950/40 px-3 py-2 text-xs text-rose-700 dark:text-rose-300">
               {errors.map((e, i) => (
                 <li key={i}>
                   <span className="font-mono text-[10px] text-rose-500">
@@ -306,13 +306,13 @@ export function ChatGptExchange({ llmConfigured }: { llmConfigured?: boolean }) 
           ) : null}
 
           {previewDays.length > 0 ? (
-            <div className="mt-3 max-h-56 overflow-y-auto rounded-lg border border-neutral-200">
+            <div className="mt-3 max-h-56 overflow-y-auto rounded-lg border border-neutral-200 dark:border-neutral-800">
               <table className="w-full text-xs">
                 <tbody>
                   {previewDays.map((d) => (
-                    <tr key={d.date} className="border-b border-neutral-100 last:border-0">
-                      <td className="px-2 py-1.5 text-neutral-500">{d.date}</td>
-                      <td className="px-2 py-1.5 text-neutral-700">{d.entry.title}</td>
+                    <tr key={d.date} className="border-b border-neutral-100 dark:border-neutral-800 last:border-0">
+                      <td className="px-2 py-1.5 text-neutral-500 dark:text-neutral-400">{d.date}</td>
+                      <td className="px-2 py-1.5 text-neutral-700 dark:text-neutral-300">{d.entry.title}</td>
                       <td className="px-2 py-1.5">
                         <span
                           className={`rounded-full px-1.5 py-0.5 text-[10px] font-medium ${ACTION_CLASS[d.action]}`}

@@ -48,18 +48,18 @@ export function BarcodeScannerModal({
       onClick={onClose}
     >
       <div
-        className="flex max-h-[90vh] w-full flex-col overflow-hidden rounded-t-2xl bg-white shadow-xl sm:max-w-md sm:rounded-2xl"
+        className="flex max-h-[90vh] w-full flex-col overflow-hidden rounded-t-2xl bg-white dark:bg-neutral-900 shadow-xl sm:max-w-md sm:rounded-2xl"
         role="dialog"
         aria-modal="true"
         aria-label="Barcode scannen"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between gap-3 border-b border-neutral-100 p-4">
-          <h3 className="text-sm font-semibold text-neutral-900">Barcode scannen</h3>
+        <div className="flex items-center justify-between gap-3 border-b border-neutral-100 dark:border-neutral-800 p-4">
+          <h3 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">Barcode scannen</h3>
           <button
             onClick={onClose}
             aria-label="Schließen"
-            className="rounded-lg px-2 py-1 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-700"
+            className="rounded-lg px-2 py-1 text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-neutral-700 dark:hover:text-neutral-300"
           >
             ✕
           </button>
@@ -69,22 +69,22 @@ export function BarcodeScannerModal({
           <div ref={containerRef} className="absolute inset-0 h-full w-full overflow-hidden" />
           {status === "scanning" || status === "starting" ? (
             <div className="pointer-events-none absolute inset-0 flex items-center justify-center p-10">
-              <div className="h-28 w-full max-w-xs rounded-xl border-2 border-white/80" />
+              <div className="h-28 w-full max-w-xs rounded-xl border-2 border-white/80 dark:border-neutral-900/80" />
             </div>
           ) : null}
         </div>
 
         <div className="p-4 text-center">
           {status === "error" ? (
-            <p className="text-sm font-medium text-rose-600" role="alert">
+            <p className="text-sm font-medium text-rose-600 dark:text-rose-400" role="alert">
               {errorMessage ?? "Scanner nicht verfügbar."}
             </p>
           ) : (
-            <p className="text-sm text-neutral-600">{STATUS_LABEL[status]}</p>
+            <p className="text-sm text-neutral-600 dark:text-neutral-400">{STATUS_LABEL[status]}</p>
           )}
           <button
             onClick={onClose}
-            className="mt-3 w-full rounded-lg border border-neutral-300 px-4 py-2.5 text-sm font-medium text-neutral-700 hover:bg-neutral-100 sm:w-auto"
+            className="mt-3 w-full rounded-lg border border-neutral-300 dark:border-neutral-700 px-4 py-2.5 text-sm font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 sm:w-auto"
           >
             Abbrechen
           </button>

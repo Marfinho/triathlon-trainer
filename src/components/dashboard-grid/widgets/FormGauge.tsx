@@ -29,8 +29,8 @@ export function FormGauge({ size }: { size: WidgetSize }) {
     return (
       <div className="flex items-center gap-2">
         <span className="inline-block h-2.5 w-2.5 rounded-full" style={{ backgroundColor: color }} />
-        <p className="text-sm font-medium text-neutral-800">{form.label}</p>
-        <p className="ml-auto text-sm text-neutral-500">TSB {current.tsb}</p>
+        <p className="text-sm font-medium text-neutral-800 dark:text-neutral-200">{form.label}</p>
+        <p className="ml-auto text-sm text-neutral-500 dark:text-neutral-400">TSB {current.tsb}</p>
       </div>
     );
   }
@@ -39,20 +39,20 @@ export function FormGauge({ size }: { size: WidgetSize }) {
     <div className="space-y-3">
       <div className="flex items-center gap-2">
         <span className="inline-block h-2.5 w-2.5 rounded-full" style={{ backgroundColor: color }} />
-        <p className="text-sm font-medium text-neutral-800">{form.label}</p>
+        <p className="text-sm font-medium text-neutral-800 dark:text-neutral-200">{form.label}</p>
       </div>
       <dl className="grid grid-cols-3 gap-2 text-center text-sm">
         <div>
           <dt className="text-xs text-neutral-400">CTL</dt>
-          <dd className="font-semibold text-neutral-900">{current.ctl}</dd>
+          <dd className="font-semibold text-neutral-900 dark:text-neutral-100">{current.ctl}</dd>
         </div>
         <div>
           <dt className="text-xs text-neutral-400">ATL</dt>
-          <dd className="font-semibold text-neutral-900">{current.atl}</dd>
+          <dd className="font-semibold text-neutral-900 dark:text-neutral-100">{current.atl}</dd>
         </div>
         <div>
           <dt className="text-xs text-neutral-400">TSB</dt>
-          <dd className="font-semibold text-neutral-900">{current.tsb}</dd>
+          <dd className="font-semibold text-neutral-900 dark:text-neutral-100">{current.tsb}</dd>
         </div>
       </dl>
       {size === "L" && (
@@ -61,7 +61,7 @@ export function FormGauge({ size }: { size: WidgetSize }) {
             <p className="mb-0.5 text-[11px] text-neutral-400">TSB-Verlauf (30 Tage)</p>
             <Sparkline values={loadSeries.tsb.slice(-30)} color="#0a84ff" height={36} />
           </div>
-          <p className="text-xs text-neutral-500">
+          <p className="text-xs text-neutral-500 dark:text-neutral-400">
             ACWR {current.acwr ?? "—"} · {interpretAcwr(current.acwr).label}
           </p>
         </>

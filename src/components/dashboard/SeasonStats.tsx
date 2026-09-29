@@ -46,7 +46,7 @@ export function SeasonStatsCard({ stats }: { stats: SeasonStats }) {
           </div>
           <div className="mt-1.5 flex flex-wrap gap-x-4 gap-y-1">
             {stats.bySport.map((s) => (
-              <span key={s.sport} className="flex items-center gap-1.5 text-xs text-neutral-500">
+              <span key={s.sport} className="flex items-center gap-1.5 text-xs text-neutral-500 dark:text-neutral-400">
                 <span className="h-2 w-2 rounded-full" style={{ backgroundColor: sportColor(s.sport) }} />
                 {sportLabel(s.sport)}
               </span>
@@ -71,7 +71,7 @@ export function SeasonStatsCard({ stats }: { stats: SeasonStats }) {
                 <th className="py-2 font-medium">Max Load</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-neutral-100">
+            <tbody className="divide-y divide-neutral-100 dark:divide-neutral-800">
               {stats.bySport.map((s) => (
                 <tr key={s.sport}>
                   <td className="py-2 pr-3">
@@ -83,14 +83,14 @@ export function SeasonStatsCard({ stats }: { stats: SeasonStats }) {
                       {sportLabel(s.sport)}
                     </span>
                   </td>
-                  <td className="py-2 pr-3 tabular-nums text-neutral-700">{s.sessions}</td>
-                  <td className="py-2 pr-3 tabular-nums text-neutral-700">
+                  <td className="py-2 pr-3 tabular-nums text-neutral-700 dark:text-neutral-300">{s.sessions}</td>
+                  <td className="py-2 pr-3 tabular-nums text-neutral-700 dark:text-neutral-300">
                     {(s.totalMin / 60).toFixed(1)}
                   </td>
-                  <td className="py-2 pr-3 tabular-nums text-neutral-700">{s.totalKm}</td>
-                  <td className="py-2 pr-3 tabular-nums text-neutral-700">{s.longestMin}′</td>
-                  <td className="py-2 pr-3 tabular-nums text-neutral-700">{s.farthestKm} km</td>
-                  <td className="py-2 tabular-nums text-neutral-700">{s.highestLoad}</td>
+                  <td className="py-2 pr-3 tabular-nums text-neutral-700 dark:text-neutral-300">{s.totalKm}</td>
+                  <td className="py-2 pr-3 tabular-nums text-neutral-700 dark:text-neutral-300">{s.longestMin}′</td>
+                  <td className="py-2 pr-3 tabular-nums text-neutral-700 dark:text-neutral-300">{s.farthestKm} km</td>
+                  <td className="py-2 tabular-nums text-neutral-700 dark:text-neutral-300">{s.highestLoad}</td>
                 </tr>
               ))}
             </tbody>
@@ -103,12 +103,12 @@ export function SeasonStatsCard({ stats }: { stats: SeasonStats }) {
 
 function Kpi({ label, value, sub }: { label: string; value: string; sub?: string }) {
   return (
-    <div className="rounded-xl border border-neutral-200 bg-neutral-50 px-3 py-2">
+    <div className="rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-800/60 px-3 py-2">
       <p className="text-[11px] uppercase tracking-wide text-neutral-400">
         {label}
         {sub ? ` · ${sub}` : ""}
       </p>
-      <p className="mt-0.5 text-xl font-semibold text-neutral-900">{value}</p>
+      <p className="mt-0.5 text-xl font-semibold text-neutral-900 dark:text-neutral-100">{value}</p>
     </div>
   );
 }

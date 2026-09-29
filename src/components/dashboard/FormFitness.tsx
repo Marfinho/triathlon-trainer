@@ -89,12 +89,12 @@ export function FormFitness({
           color={current.rampRate > 8 ? "#ff9f0a" : "#0a84ff"}
         />
       </div>
-      <div className="mb-5 flex flex-wrap gap-3 text-xs text-neutral-500">
-        <span className="rounded-lg bg-neutral-50 px-2.5 py-1">
-          Load 7 Tage: <span className="font-semibold text-neutral-800">{load7d}</span>
+      <div className="mb-5 flex flex-wrap gap-3 text-xs text-neutral-500 dark:text-neutral-400">
+        <span className="rounded-lg bg-neutral-50 dark:bg-neutral-800/60 px-2.5 py-1">
+          Load 7 Tage: <span className="font-semibold text-neutral-800 dark:text-neutral-200">{load7d}</span>
         </span>
-        <span className="rounded-lg bg-neutral-50 px-2.5 py-1">
-          Load 28 Tage: <span className="font-semibold text-neutral-800">{load28d}</span>
+        <span className="rounded-lg bg-neutral-50 dark:bg-neutral-800/60 px-2.5 py-1">
+          Load 28 Tage: <span className="font-semibold text-neutral-800 dark:text-neutral-200">{load28d}</span>
         </span>
         {(() => {
           const prev = series.tsb[series.tsb.length - 8];
@@ -102,9 +102,9 @@ export function FormFitness({
           const delta = Math.round((current.tsb - prev) * 10) / 10;
           const up = delta >= 0;
           return (
-            <span className="rounded-lg bg-neutral-50 px-2.5 py-1">
+            <span className="rounded-lg bg-neutral-50 dark:bg-neutral-800/60 px-2.5 py-1">
               Form-Trend (7 d):{" "}
-              <span className={`font-semibold ${up ? "text-emerald-600" : "text-amber-600"}`}>
+              <span className={`font-semibold ${up ? "text-emerald-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400"}`}>
                 {up ? "▲" : "▼"} {up ? "+" : ""}
                 {delta}
               </span>
@@ -124,7 +124,7 @@ export function FormFitness({
           {form.label}
         </span>
       </div>
-      <div className="text-neutral-500">
+      <div className="text-neutral-500 dark:text-neutral-400">
         <LineChart labels={labels} series={lineSeries} height={200} showZeroLine />
       </div>
 
@@ -135,7 +135,7 @@ export function FormFitness({
           </h3>
           <ChartLegend items={barSeries} />
         </div>
-        <div className="text-neutral-500">
+        <div className="text-neutral-500 dark:text-neutral-400">
           <StackedBarChart
             labels={weekLabels}
             series={barSeries}
@@ -161,7 +161,7 @@ function Stat({
   color: string;
 }) {
   return (
-    <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-3">
+    <div className="rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-800/60 p-3">
       <p className="text-[11px] uppercase tracking-wide text-neutral-400">
         {label} · {sub}
       </p>

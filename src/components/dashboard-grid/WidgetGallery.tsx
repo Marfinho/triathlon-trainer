@@ -38,21 +38,21 @@ export function WidgetGallery({
         onClick={onClose}
         className="absolute inset-0 bg-black/30"
       />
-      <div className="relative z-10 max-h-[85vh] w-full overflow-y-auto rounded-t-2xl bg-white p-5 shadow-xl md:max-h-[80vh] md:w-full md:max-w-lg md:rounded-2xl">
+      <div className="relative z-10 max-h-[85vh] w-full overflow-y-auto rounded-t-2xl bg-white dark:bg-neutral-900 p-5 shadow-xl md:max-h-[80vh] md:w-full md:max-w-lg md:rounded-2xl">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-base font-semibold text-neutral-900">Widget hinzufügen</h2>
+          <h2 className="text-base font-semibold text-neutral-900 dark:text-neutral-100">Widget hinzufügen</h2>
           <button
             type="button"
             onClick={onClose}
             aria-label="Schließen"
-            className="flex h-11 w-11 items-center justify-center rounded-lg text-neutral-400 transition hover:bg-neutral-100 hover:text-neutral-700"
+            className="flex h-11 w-11 items-center justify-center rounded-lg text-neutral-400 transition hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-neutral-700 dark:hover:text-neutral-300"
           >
             ✕
           </button>
         </div>
 
         {grouped.size === 0 ? (
-          <p className="text-sm text-neutral-500">
+          <p className="text-sm text-neutral-500 dark:text-neutral-400">
             Alle verfügbaren Widgets sind bereits auf deinem Dashboard.
           </p>
         ) : (
@@ -68,12 +68,12 @@ export function WidgetGallery({
                       key={entry.type}
                       type="button"
                       onClick={() => onAdd(entry.type)}
-                      className="flex min-h-[44px] w-full flex-col items-start gap-0.5 rounded-xl border border-neutral-200 px-4 py-2.5 text-left transition hover:border-blue-300 hover:bg-blue-50"
+                      className="flex min-h-[44px] w-full flex-col items-start gap-0.5 rounded-xl border border-neutral-200 dark:border-neutral-800 px-4 py-2.5 text-left transition hover:border-blue-300 dark:hover:border-blue-700 hover:bg-blue-50 dark:hover:bg-blue-950/40"
                     >
-                      <span className="text-sm font-medium text-neutral-900">
+                      <span className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
                         {entry.label}
                       </span>
-                      <span className="text-xs text-neutral-500">{entry.description}</span>
+                      <span className="text-xs text-neutral-500 dark:text-neutral-400">{entry.description}</span>
                     </button>
                   ))}
                 </div>

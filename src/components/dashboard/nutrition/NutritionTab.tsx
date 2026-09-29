@@ -91,7 +91,7 @@ export function NutritionTab() {
   if (state === "error" || !balance) {
     return (
       <Card title="Ernährung">
-        <p className="text-sm text-rose-600">
+        <p className="text-sm text-rose-600 dark:text-rose-400">
           Daten konnten nicht geladen werden.{" "}
           <button onClick={loadData} className="underline">
             Erneut versuchen

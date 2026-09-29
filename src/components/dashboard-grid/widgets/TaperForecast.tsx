@@ -6,9 +6,9 @@ import type { WidgetSize } from "../types";
 import { WidgetEmpty, WidgetError, WidgetSkeleton } from "./WidgetStates";
 
 const VERDICT_STYLE: Record<string, { label: string; className: string }> = {
-  optimal: { label: "Optimaler Taper", className: "text-emerald-600" },
-  zu_muede: { label: "Noch zu müde", className: "text-amber-600" },
-  zu_frisch: { label: "Zu stark getapert", className: "text-blue-600" },
+  optimal: { label: "Optimaler Taper", className: "text-emerald-600 dark:text-emerald-400" },
+  zu_muede: { label: "Noch zu müde", className: "text-amber-600 dark:text-amber-400" },
+  zu_frisch: { label: "Zu stark getapert", className: "text-blue-600 dark:text-blue-400" },
   kein_renntag: { label: "Kein Renntag", className: "text-neutral-400" },
 };
 
@@ -38,15 +38,15 @@ export function TaperForecast({ size }: { size: WidgetSize }) {
       {raceDay && (
         <div className="grid grid-cols-3 gap-2 text-center text-xs">
           <div>
-            <p className="text-base font-semibold text-neutral-900">{raceDay.ctl.toFixed(0)}</p>
+            <p className="text-base font-semibold text-neutral-900 dark:text-neutral-100">{raceDay.ctl.toFixed(0)}</p>
             <p className="text-neutral-400">CTL</p>
           </div>
           <div>
-            <p className="text-base font-semibold text-neutral-900">{raceDay.atl.toFixed(0)}</p>
+            <p className="text-base font-semibold text-neutral-900 dark:text-neutral-100">{raceDay.atl.toFixed(0)}</p>
             <p className="text-neutral-400">ATL</p>
           </div>
           <div>
-            <p className="text-base font-semibold text-neutral-900">
+            <p className="text-base font-semibold text-neutral-900 dark:text-neutral-100">
               {raceDay.tsb > 0 ? "+" : ""}
               {raceDay.tsb.toFixed(0)}
             </p>
@@ -74,7 +74,7 @@ export function TaperForecast({ size }: { size: WidgetSize }) {
               ]}
             />
           </div>
-          <p className="mt-2 text-xs text-neutral-500">{taper.recommendation}</p>
+          <p className="mt-2 text-xs text-neutral-500 dark:text-neutral-400">{taper.recommendation}</p>
         </div>
       )}
     </div>

@@ -47,9 +47,9 @@ function parseTime(str: string): number | null {
 const HORIZON_DAYS = 182;
 
 const PRIORITY_CLS: Record<string, string> = {
-  A: "bg-rose-100 text-rose-700",
-  B: "bg-amber-100 text-amber-700",
-  C: "bg-neutral-100 text-neutral-600",
+  A: "bg-rose-100 dark:bg-rose-900/40 text-rose-700 dark:text-rose-300",
+  B: "bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300",
+  C: "bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400",
 };
 
 const PRIORITY_DOT: Record<string, string> = {
@@ -163,22 +163,22 @@ export function RacePlanner({ initialRaces }: { initialRaces: Race[] }) {
       }
     >
       {nextA ? (
-        <div className="mb-5 rounded-xl border border-neutral-200 bg-neutral-50 p-4">
+        <div className="mb-5 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-800/60 p-4">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-[11px] uppercase tracking-wide text-neutral-400">
                 Nächstes Hauptrennen
               </p>
-              <p className="mt-0.5 text-lg font-semibold text-neutral-900">
+              <p className="mt-0.5 text-lg font-semibold text-neutral-900 dark:text-neutral-100">
                 {nextA.race.name}
               </p>
-              <p className="text-xs text-neutral-500">
+              <p className="text-xs text-neutral-500 dark:text-neutral-400">
                 {fmtDate(nextA.race.date)}
                 {nextA.race.distance ? ` · ${nextA.race.distance}` : ""}
               </p>
             </div>
             <div className="text-right">
-              <p className="text-3xl font-semibold text-blue-600">
+              <p className="text-3xl font-semibold text-blue-600 dark:text-blue-400">
                 {nextA.days}
               </p>
               <p className="text-[11px] uppercase tracking-wide text-neutral-400">
@@ -186,11 +186,11 @@ export function RacePlanner({ initialRaces }: { initialRaces: Race[] }) {
               </p>
             </div>
           </div>
-          <div className="mt-3 flex items-center gap-2 border-t border-neutral-200 pt-2">
+          <div className="mt-3 flex items-center gap-2 border-t border-neutral-200 dark:border-neutral-800 pt-2">
             <span className="text-[11px] uppercase tracking-wide text-neutral-400">
               Phase
             </span>
-            <span className="rounded-full bg-blue-50 px-2 py-0.5 text-[11px] font-medium text-blue-700">
+            <span className="rounded-full bg-blue-50 dark:bg-blue-950/40 px-2 py-0.5 text-[11px] font-medium text-blue-700 dark:text-blue-300">
               {trainingPhase(nextA.days).label}
             </span>
           </div>
@@ -203,8 +203,8 @@ export function RacePlanner({ initialRaces }: { initialRaces: Race[] }) {
           <span>heute</span>
           <span>+6 Monate</span>
         </div>
-        <div className="relative h-10 rounded-lg bg-neutral-100">
-          <div className="absolute left-0 top-1/2 h-px w-full -translate-y-1/2 bg-neutral-200" />
+        <div className="relative h-10 rounded-lg bg-neutral-100 dark:bg-neutral-800">
+          <div className="absolute left-0 top-1/2 h-px w-full -translate-y-1/2 bg-neutral-200 dark:bg-neutral-700" />
           {enriched.map(({ race, days }) => {
             const pos = racePosition(days, HORIZON_DAYS);
             if (!pos.withinHorizon) return null;
@@ -216,10 +216,10 @@ export function RacePlanner({ initialRaces }: { initialRaces: Race[] }) {
                 title={`${race.name} · ${fmtDate(race.date)}`}
               >
                 <div
-                  className="h-3 w-3 rounded-full ring-2 ring-white"
+                  className="h-3 w-3 rounded-full ring-2 ring-white dark:ring-neutral-900"
                   style={{ backgroundColor: PRIORITY_DOT[race.priority ?? "C"] }}
                 />
-                <span className="pointer-events-none absolute left-1/2 top-4 hidden -translate-x-1/2 whitespace-nowrap rounded bg-neutral-900 px-1.5 py-0.5 text-[10px] text-white group-hover:block">
+                <span className="pointer-events-none absolute left-1/2 top-4 hidden -translate-x-1/2 whitespace-nowrap rounded bg-neutral-900 dark:bg-neutral-700 px-1.5 py-0.5 text-[10px] text-white group-hover:block">
                   {race.name}
                 </span>
               </div>
@@ -229,23 +229,23 @@ export function RacePlanner({ initialRaces }: { initialRaces: Race[] }) {
       </div>
 
       {open ? (
-        <div className="mb-5 grid grid-cols-2 gap-2 rounded-xl border border-neutral-200 bg-neutral-50 p-3 sm:grid-cols-3">
+        <div className="mb-5 grid grid-cols-2 gap-2 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-800/60 p-3 sm:grid-cols-3">
           <input
             placeholder="Name"
             value={form.name}
             onChange={(e) => setForm({ ...form, name: e.target.value })}
-            className="col-span-2 rounded-lg border border-neutral-300 bg-white px-2 py-1.5 text-sm sm:col-span-1"
+            className="col-span-2 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-2 py-1.5 text-sm sm:col-span-1"
           />
           <input
             type="date"
             value={form.date}
             onChange={(e) => setForm({ ...form, date: e.target.value })}
-            className="rounded-lg border border-neutral-300 bg-white px-2 py-1.5 text-sm"
+            className="rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-2 py-1.5 text-sm"
           />
           <select
             value={form.type}
             onChange={(e) => setForm({ ...form, type: e.target.value })}
-            className="rounded-lg border border-neutral-300 bg-white px-2 py-1.5 text-sm"
+            className="rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-2 py-1.5 text-sm"
           >
             <option value="triathlon">Triathlon</option>
             <option value="run">Lauf</option>
@@ -256,12 +256,12 @@ export function RacePlanner({ initialRaces }: { initialRaces: Race[] }) {
             placeholder="Distanz (z.B. 70.3)"
             value={form.distance}
             onChange={(e) => setForm({ ...form, distance: e.target.value })}
-            className="rounded-lg border border-neutral-300 bg-white px-2 py-1.5 text-sm"
+            className="rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-2 py-1.5 text-sm"
           />
           <select
             value={form.priority}
             onChange={(e) => setForm({ ...form, priority: e.target.value })}
-            className="rounded-lg border border-neutral-300 bg-white px-2 py-1.5 text-sm"
+            className="rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-2 py-1.5 text-sm"
           >
             <option value="A">Priorität A</option>
             <option value="B">Priorität B</option>
@@ -282,7 +282,7 @@ export function RacePlanner({ initialRaces }: { initialRaces: Race[] }) {
           Noch keine Wettkämpfe angelegt.
         </p>
       ) : (
-        <ul className="divide-y divide-neutral-100">
+        <ul className="divide-y divide-neutral-100 dark:divide-neutral-800">
           {enriched.map(({ race, days }) => (
             <li key={race.id} className="py-3">
               <div className="flex items-center justify-between gap-3">
@@ -295,8 +295,8 @@ export function RacePlanner({ initialRaces }: { initialRaces: Race[] }) {
                     {race.priority ?? "C"}
                   </span>
                   <div>
-                    <p className="text-sm font-medium text-neutral-900">{race.name}</p>
-                    <p className="text-xs text-neutral-500">
+                    <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">{race.name}</p>
+                    <p className="text-xs text-neutral-500 dark:text-neutral-400">
                       {fmtDate(race.date)}
                       {race.distance ? ` · ${race.distance}` : ""}
                       {race.resultSeconds != null
@@ -309,12 +309,12 @@ export function RacePlanner({ initialRaces }: { initialRaces: Race[] }) {
                   {days < 0 ? (
                     <button
                       onClick={() => enterResult(race.id, race.resultSeconds)}
-                      className="text-xs font-medium text-blue-600 hover:underline"
+                      className="text-xs font-medium text-blue-600 dark:text-blue-400 hover:underline"
                     >
                       {race.resultSeconds != null ? "Ergebnis" : "+ Ergebnis"}
                     </button>
                   ) : (
-                    <span className="text-xs text-neutral-500">
+                    <span className="text-xs text-neutral-500 dark:text-neutral-400">
                       {describeCountdown(days)}
                     </span>
                   )}
@@ -322,7 +322,7 @@ export function RacePlanner({ initialRaces }: { initialRaces: Race[] }) {
                     onClick={() =>
                       setWeatherOpenId((cur) => (cur === race.id ? null : race.id))
                     }
-                    className="text-xs font-medium text-sky-600 hover:underline"
+                    className="text-xs font-medium text-sky-600 dark:text-sky-400 hover:underline"
                   >
                     {weatherOpenId === race.id ? "Wetter ▲" : "Wetter ▼"}
                   </button>
@@ -330,7 +330,7 @@ export function RacePlanner({ initialRaces }: { initialRaces: Race[] }) {
                     onClick={() =>
                       setNutritionOpenId((cur) => (cur === race.id ? null : race.id))
                     }
-                    className="text-xs font-medium text-violet-600 hover:underline"
+                    className="text-xs font-medium text-violet-600 dark:text-violet-400 hover:underline"
                   >
                     {nutritionOpenId === race.id ? "Verpflegung ▲" : "Verpflegung ▼"}
                   </button>
