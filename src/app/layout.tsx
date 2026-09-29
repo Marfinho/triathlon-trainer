@@ -19,6 +19,8 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: "#0a84ff",
+  // Nötig, damit env(safe-area-inset-*) auf iPhones mit Home-Indicator greift.
+  viewportFit: "cover",
 };
 
 export default function RootLayout({
