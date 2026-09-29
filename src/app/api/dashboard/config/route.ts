@@ -1,22 +1,15 @@
-import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
+import { requireUser } from "@/lib/auth-guard";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(req: NextRequest) {
+/** Obergrenze für das gespeicherte Layout – schützt die DB vor Riesen-Payloads. */
+const MAX_LAYOUT_BYTES = 64 * 1024;
+
+export async function GET() {
   try {
-    const session = await auth();
-    if (!session?.user?.email) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const user = await prisma.user.findUnique({
-      where: { email: session.user.email },
-      select: { id: true },
-    });
-
-    if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
-    }
+    const { user: authed, response } = await requireUser();
+    if (response) return response;
+    const user = { id: authed.userId };
 
     let config = await prisma.dashboardConfig.findUnique({
       where: { userId: user.id },
@@ -44,24 +37,18 @@ export async function GET(req: NextRequest) {
 
 export async function PUT(req: NextRequest) {
   try {
-    const session = await auth();
-    if (!session?.user?.email) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const user = await prisma.user.findUnique({
-      where: { email: session.user.email },
-      select: { id: true },
-    });
-
-    if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
-    }
+    const { user: authed, response } = await requireUser();
+    if (response) return response;
+    const user = { id: authed.userId };
 
     const body = await req.json();
     const { layoutJson } = body;
 
-    if (!layoutJson || typeof layoutJson !== "object") {
+    if (
+      !layoutJson ||
+      typeof layoutJson !== "object" ||
+      JSON.stringify(layoutJson).length > MAX_LAYOUT_BYTES
+    ) {
       return NextResponse.json(
         { error: "Invalid layoutJson" },
         { status: 400 }
