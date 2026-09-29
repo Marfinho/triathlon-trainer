@@ -34,13 +34,8 @@ function IntegrationCard({ initial }: { initial: IntegrationView }) {
   const [usesEnvFallback, setUsesEnvFallback] = useState(initial.usesEnvFallback);
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
-  const [testing, setTesting] = useState(false);
-  const [testMsg, setTestMsg] = useState<{ ok: boolean; text: string; hint?: string } | null>(null);
-  const [ollamaModels, setOllamaModels] = useState<string[]>([]);
-  const [loadingModels, setLoadingModels] = useState(false);
 
   const isOAuth = initial.kind === "oauth";
-  const isOllama = initial.provider === "ollama";
 
   async function save(clearSecret = false) {
     setSaving(true);
@@ -52,8 +47,8 @@ function IntegrationCard({ initial }: { initial: IntegrationView }) {
         body: JSON.stringify({
           provider: initial.provider,
           enabled,
-          clientId: isOAuth || isOllama ? clientId : undefined,
-          clientSecret: (isOAuth || isOllama) && clientSecret ? clientSecret : undefined,
+          clientId: isOAuth ? clientId : undefined,
+          clientSecret: isOAuth && clientSecret ? clientSecret : undefined,
           clearSecret: clearSecret || undefined,
         }),
       });
@@ -72,44 +67,7 @@ function IntegrationCard({ initial }: { initial: IntegrationView }) {
     }
   }
 
-  async function testConnection() {
-    setTesting(true);
-    setTestMsg(null);
-    setOllamaModels([]);
-    setLoadingModels(true);
-    try {
-      const res = await fetch("/api/integrations/ollama/test", {
-        method: "POST",
-      });
-      const data = await res.json().catch(() => ({}));
-      if (res.ok && data.ok) {
-        setOllamaModels(data.models ?? []);
-        setTestMsg({
-          ok: true,
-          text: data.message || `✓ Verbunden. ${data.models?.length ?? 0} Modell(e) verfügbar.`,
-        });
-      } else {
-        setTestMsg({
-          ok: false,
-          text: data.error ?? "Verbindungsfehler.",
-          hint: data.hint,
-        });
-      }
-    } catch (error) {
-      setTestMsg({
-        ok: false,
-        text: "Netzwerkfehler beim Verbindungstest.",
-        hint: "Überprüfe deine Netzwerkverbindung und ob die Basis-URL erreichbar ist",
-      });
-    } finally {
-      setTesting(false);
-      setLoadingModels(false);
-    }
-  }
-
-  const configIncomplete =
-    (isOAuth && enabled && (!clientId || !hasSecret)) ||
-    (isOllama && enabled && (!clientId || !hasSecret));
+  const configIncomplete = isOAuth && enabled && (!clientId || !hasSecret);
 
   return (
     <Card title={initial.label} subtitle={initial.description}>
@@ -172,32 +130,6 @@ function IntegrationCard({ initial }: { initial: IntegrationView }) {
               )}
             </div>
           </div>
-        ) : isOllama ? (
-          <div className="space-y-3">
-            <label className="block text-xs text-neutral-500">
-              Basis-URL
-              <input
-                type="text"
-                value={clientId}
-                onChange={(e) => setClientId(e.target.value)}
-                placeholder="z.B. http://localhost:11434"
-                className="mt-1 block w-full rounded-lg border border-neutral-300 bg-white px-2.5 py-1.5 text-sm"
-              />
-            </label>
-            <label className="block text-xs text-neutral-500">
-              Standard-Modell
-              <input
-                type="text"
-                value={clientSecret}
-                onChange={(e) => setClientSecret(e.target.value)}
-                placeholder={hasSecret ? "•••••••• (gesetzt – leer lassen zum Behalten)" : "z.B. llama2, mistral"}
-                className="mt-1 block w-full rounded-lg border border-neutral-300 bg-white px-2.5 py-1.5 text-sm"
-              />
-            </label>
-            <div className="flex flex-wrap items-center gap-3 text-xs text-neutral-400">
-              <span>{hasSecret ? "Modell gespeichert ✓" : "Kein Modell gesetzt"}</span>
-            </div>
-          </div>
         ) : (
           <p className="rounded-lg bg-neutral-50 px-3 py-2 text-xs text-neutral-500">
             Keine globalen Zugangsdaten nötig. Nutzer hinterlegen ihren eigenen
@@ -207,82 +139,22 @@ function IntegrationCard({ initial }: { initial: IntegrationView }) {
 
         {configIncomplete && (
           <p className="text-xs text-amber-700">
-            Aktiviert, aber Konfiguration unvollständig – bitte Basis-URL{isOAuth && "/Client-ID"} und {isOAuth ? "Client-Secret" : "Modell"} setzen.
+            Aktiviert, aber Client-ID/Secret fehlen – Nutzer können sich noch nicht verbinden.
           </p>
         )}
 
-        <div className="flex flex-col gap-3">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => save(false)}
-              disabled={saving}
-              className="rounded-lg bg-blue-600 px-3.5 py-1.5 text-sm font-medium text-white hover:bg-blue-500 disabled:opacity-40"
-            >
-              {saving ? "…" : "Speichern"}
-            </button>
-            {msg && (
-              <span className={`text-xs ${msg.ok ? "text-emerald-600" : "text-red-600"}`}>
-                {msg.text}
-              </span>
-            )}
-          </div>
-          {isOllama && enabled && clientId && hasSecret && (
-            <div className="space-y-3">
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() => testConnection()}
-                  disabled={testing}
-                  className="rounded-lg bg-neutral-600 px-3.5 py-1.5 text-sm font-medium text-white hover:bg-neutral-500 disabled:opacity-40"
-                >
-                  {testing ? "…" : "Verbindung testen"}
-                </button>
-                {testMsg && (
-                  <span className={`text-xs ${testMsg.ok ? "text-emerald-600" : "text-red-600"}`}>
-                    {testMsg.text}
-                  </span>
-                )}
-              </div>
-              {testMsg && (
-                <div
-                  className={`rounded-lg border p-3 text-xs ${
-                    testMsg.ok
-                      ? "border-emerald-200 bg-emerald-50"
-                      : "border-red-200 bg-red-50"
-                  }`}
-                >
-                  <p
-                    className={`font-medium ${
-                      testMsg.ok ? "text-emerald-800" : "text-red-800"
-                    }`}
-                  >
-                    {testMsg.text}
-                  </p>
-                  {testMsg.hint && (
-                    <p className={`mt-1 ${testMsg.ok ? "text-emerald-700" : "text-red-700"}`}>
-                      💡 {testMsg.hint}
-                    </p>
-                  )}
-                </div>
-              )}
-              {ollamaModels.length > 0 && (
-                <label className="block text-xs text-neutral-500">
-                  Verfügbare Modelle
-                  <select
-                    value={clientSecret}
-                    onChange={(e) => setClientSecret(e.target.value)}
-                    disabled={loadingModels}
-                    className="mt-1 block w-full rounded-lg border border-neutral-300 bg-white px-2.5 py-1.5 text-sm disabled:bg-neutral-100"
-                  >
-                    <option value="">Modell wählen…</option>
-                    {ollamaModels.map((model) => (
-                      <option key={model} value={model}>
-                        {model}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-              )}
-            </div>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => save(false)}
+            disabled={saving}
+            className="rounded-lg bg-blue-600 px-3.5 py-1.5 text-sm font-medium text-white hover:bg-blue-500 disabled:opacity-40"
+          >
+            {saving ? "…" : "Speichern"}
+          </button>
+          {msg && (
+            <span className={`text-xs ${msg.ok ? "text-emerald-600" : "text-red-600"}`}>
+              {msg.text}
+            </span>
           )}
         </div>
       </div>

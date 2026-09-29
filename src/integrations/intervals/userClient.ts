@@ -9,7 +9,9 @@ import {
 /**
  * Liefert den Intervals.icu-Client für einen User:
  *  1. aus dessen UserIntegration (entschlüsselter API-Key),
- *  2. ersatzweise aus den Umgebungsvariablen (Single-User/Dev).
+ *  2. ersatzweise aus den Umgebungsvariablen (Single-User/Dev) – aber NUR für
+ *     Admins. Sonst würde in einer Mehrnutzer-Instanz jeder Nutzer ohne eigene
+ *     Integration auf das Intervals-Konto des Betreibers lesen und schreiben.
  * Gibt `null` zurück, wenn keine Konfiguration vorhanden ist.
  */
 export async function createIntervalsClientForUser(
@@ -31,5 +33,10 @@ export async function createIntervalsClientForUser(
     }
   }
 
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { role: true },
+  });
+  if (user?.role !== "admin") return null;
   return createIntervalsClientFromEnv();
 }
