@@ -42,15 +42,19 @@ export default async function BodyPage() {
   );
 
   const latestMetric = bodyMetrics[0] ?? null;
-  const hrvTrend = trendLabel(bodySummary.hrvs);
-  const restingHrTrend = trendLabel(bodySummary.restingHrs);
-  const weightTrend = bodySummary.weightKgs.length > 1
-    ? bodySummary.weightKgs[0] < bodySummary.weightKgs[bodySummary.weightKgs.length - 1]
-      ? "↓ abnehmend"
-      : bodySummary.weightKgs[0] > bodySummary.weightKgs[bodySummary.weightKgs.length - 1]
+  const trendText = (t: ReturnType<typeof trendLabel>) => t ?? "keine Daten";
+  const hrvTrend = trendText(trendLabel(bodySummary.hrvs));
+  const restingHrTrend = trendText(trendLabel(bodySummary.restingHrs));
+  // Reihen sind chronologisch (älteste zuerst); weightChange = neuester − ältester Wert.
+  const change = bodySummary.weightChange;
+  const weightTrend =
+    change == null
+      ? "→ keine Daten"
+      : change > 0
         ? "↑ zunehmend"
-        : "→ stabil"
-    : "→ keine Daten";
+        : change < 0
+          ? "↓ abnehmend"
+          : "→ stabil";
 
   const latestReadiness = readiness[0] ?? null;
 
@@ -86,7 +90,7 @@ export default async function BodyPage() {
         {/* Trends */}
         <BodyTrendsChart
           bodyMetrics={bodyMetrics}
-          weightKgs={bodySummary.weightKgs}
+          weightKgs={bodySummary.weights}
           restingHrs={bodySummary.restingHrs}
           hrvs={bodySummary.hrvs}
         />

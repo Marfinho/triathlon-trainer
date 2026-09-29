@@ -187,15 +187,15 @@ export default async function CoachPage() {
           <OllamaChat
             athleteName={session.user.name || "Athlet"}
             contextData={{
-              weight: bodySummary.weightKg,
-              restingHr: bodySummary.restingHr,
-              hrv: bodySummary.hrv,
+              weight: bodySummary.latestWeight,
+              restingHr: bodySummary.latestRestingHr,
+              hrv: bodySummary.latestHrv,
               thisWeekLoad: loadSeries.current.atl,
               formStatus: form.state,
               recentActivities: analyticsActs.slice(-5).map((a) => ({
                 date: formatIsoDate(a.date),
                 sport: a.sport,
-                durationMin: a.durationMin,
+                durationMin: a.durationMin ?? 0,
               })),
             }}
           />

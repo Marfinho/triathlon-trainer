@@ -55,7 +55,7 @@ export default async function AdminPage() {
               defaults: toJsonSafeLimits(defaultLimits(tier)),
               effective: toJsonSafeLimits(effective),
               override: (row?.settingsJson as PlanOverrideSettings | undefined) ?? null,
-              updatedAt: row?.updatedAt ?? null,
+              updatedAt: row?.updatedAt ? row.updatedAt.toISOString() : null,
               updatedBy: row?.updatedBy ?? null,
             };
           }),
