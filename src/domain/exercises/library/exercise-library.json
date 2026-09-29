@@ -1,0 +1,4926 @@
+[
+ {
+  "id": "bulgarian-split-squat",
+  "title": "Bulgarian Split Squat",
+  "subtitle": "Bulgarische Kniebeuge",
+  "category": "strength",
+  "why": "Bei jedem Laufschritt stehst du auf einem Bein. Diese Übung trainiert genau das: Quadrizeps, Gesäß und Beckenstabilität pro Seite, also die Kraftausdauer der Beine.",
+  "steps": [
+   "Stell dich mit dem Rücken zu einer Bank (Kniehöhe), etwa eine große Schrittlänge davor. Leg den Spann des hinteren Fußes auf die Bank.",
+   "Der vordere Fuß steht flach, das Gewicht liegt auf Mittelfuß und Ferse. Oberkörper leicht nach vorn geneigt, Brust offen.",
+   "Beug das vordere Knie und senk das hintere Knie in etwa 3 Sekunden Richtung Boden.",
+   "Das vordere Knie zeigt über die zweite Zehe. Unten kurz stabil stehen, dann über die vordere Ferse hochdrücken."
+  ],
+  "mistakes": [
+   "Schritt zu kurz: Das Knie schiebt weit über die Zehen, die Ferse hebt ab.",
+   "Das vordere Knie kippt nach innen.",
+   "Der Oberkörper klappt nach vorn oder das Becken kippt zur Seite."
+  ],
+  "dose": "3 × 8–10 pro Seite, Absenken ca. 3 s",
+  "progression": "Leichter: hinteren Fuß am Boden lassen. Schwerer: Kettlebell vor der Brust halten.",
+  "muscles": [
+   {
+    "key": "quad",
+    "label": "Quadrizeps",
+    "note": "streckt das Knie und trägt dich im vorderen Bein",
+    "level": 1,
+    "kind": "work"
+   },
+   {
+    "key": "glute",
+    "label": "Großer Gesäßmuskel",
+    "note": "streckt die Hüfte und hält das Becken stabil",
+    "level": 1,
+    "kind": "work"
+   },
+   {
+    "key": "hipfl",
+    "label": "Hüftbeuger des hinteren Beins",
+    "note": "werden dabei gedehnt",
+    "level": 2,
+    "kind": "stretch"
+   }
+  ],
+  "start": {
+   "hip": [
+    108,
+    78
+   ],
+   "lean": 3,
+   "frontView": false,
+   "torsoMuscles": [],
+   "farLimbs": [
+    {
+     "root": "hip",
+     "ik": {
+      "end": [
+       54,
+       101
+      ],
+      "bend": 1
+     },
+     "foot": {
+      "angle": 0,
+      "toeAngle": null,
+      "direction": -1,
+      "flip": true
+     },
+     "muscles": [
+      "hipfl"
+     ]
+    }
+   ],
+   "nearLimbs": [
+    {
+     "root": "hip",
+     "ik": {
+      "end": [
+       124,
+       133
+      ],
+      "bend": 1
+     },
+     "foot": {
+      "angle": 0,
+      "toeAngle": null,
+      "direction": 1,
+      "flip": false
+     },
+     "muscles": [
+      "quad",
+      "glute"
+     ]
+    },
+    {
+     "root": "neck",
+     "ik": {
+      "end": [
+       110,
+       80
+      ],
+      "bend": -1
+     },
+     "foot": null,
+     "muscles": []
+    }
+   ],
+   "props": [
+    {
+     "type": "box",
+     "x": 14,
+     "y": 104,
+     "w": 40,
+     "h": 32
+    }
+   ],
+   "annotations": []
+  },
+  "end": {
+   "hip": [
+    104,
+    102
+   ],
+   "lean": 12,
+   "frontView": false,
+   "torsoMuscles": [],
+   "farLimbs": [
+    {
+     "root": "hip",
+     "ik": {
+      "end": [
+       54,
+       101
+      ],
+      "bend": 1
+     },
+     "foot": {
+      "angle": 0,
+      "toeAngle": null,
+      "direction": -1,
+      "flip": true
+     },
+     "muscles": [
+      "hipfl"
+     ]
+    }
+   ],
+   "nearLimbs": [
+    {
+     "root": "hip",
+     "ik": {
+      "end": [
+       128,
+       133
+      ],
+      "bend": 1
+     },
+     "foot": {
+      "angle": 0,
+      "toeAngle": null,
+      "direction": 1,
+      "flip": false
+     },
+     "muscles": [
+      "quad",
+      "glute"
+     ]
+    },
+    {
+     "root": "neck",
+     "ik": {
+      "end": [
+       108,
+       100
+      ],
+      "bend": -1
+     },
+     "foot": null,
+     "muscles": []
+    }
+   ],
+   "props": [
+    {
+     "type": "box",
+     "x": 14,
+     "y": 104,
+     "w": 40,
+     "h": 32
+    }
+   ],
+   "annotations": [
+    {
+     "type": "arrow",
+     "from": [
+      160,
+      70
+     ],
+     "to": [
+      160,
+      94
+     ]
+    },
+    {
+     "type": "label",
+     "text": "runter",
+     "at": [
+      160,
+      64
+     ],
+     "anchor": "middle"
+    }
+   ]
+  },
+  "fault": null,
+  "faultCaption": null,
+  "frames": [
+   {
+    "t": 0,
+    "label": "Start: hinterer Fuß auf der Bank"
+   },
+   {
+    "t": 0.5,
+    "label": "Absenken, ca. 3 s"
+   },
+   {
+    "t": 1,
+    "label": "Unten kurz stabil"
+   },
+   {
+    "t": 0.5,
+    "label": "Über die vordere Ferse hochdrücken"
+   }
+  ],
+  "tempo": {
+   "toEndSec": 3,
+   "holdEndSec": 1,
+   "toStartSec": 1.5,
+   "holdStartSec": 0.6
+  },
+  "tempoText": "Absenken 3 s, unten kurz halten, hochdrücken in 1–2 s."
+ },
+ {
+  "id": "calf-raise-straight",
+  "title": "Wadenheben einbeinig, Knie gestreckt",
+  "subtitle": "Gastrocnemius, langsam exzentrisch",
+  "category": "strength",
+  "why": "Wade und Achillessehne müssen bei jedem Schritt ein Vielfaches des Körpergewichts abfedern und wieder abgeben. Das langsame Absenken macht Muskel und Sehne belastbarer.",
+  "steps": [
+   "Stell den Fußballen eines Fußes auf eine Stufenkante, die Ferse hängt frei. Halt dich leicht an Wand oder Geländer fest, das andere Bein ist hinten angewinkelt.",
+   "Drück dich in ca. 2 Sekunden auf die Zehenspitzen, so hoch wie möglich. Das Knie bleibt gestreckt.",
+   "Oben 1 Sekunde halten.",
+   "Senk die Ferse in ca. 3 Sekunden bis unter die Stufenkante ab. Ohne Schwung, die Ferse zeigt gerade nach hinten."
+  ],
+  "mistakes": [
+   "Zu schnell und mit Schwung, vor allem beim Absenken.",
+   "Zu kleiner Weg: Die Ferse kommt nicht unter die Stufenkante.",
+   "Der Fuß kippt nach außen oder innen weg."
+  ],
+  "dose": "3 × 10–12 pro Seite, 3 s runter",
+  "progression": "Leichter: beidbeinig hoch, einbeinig runter. Schwerer: Kettlebell in die Hand. Stechender Schmerz an der Achillessehne: abbrechen.",
+  "muscles": [
+   {
+    "key": "calf",
+    "label": "Wade (M. gastrocnemius)",
+    "note": "hebt die Ferse und federt jeden Schritt ab",
+    "level": 1,
+    "kind": "work"
+   },
+   {
+    "key": "ach",
+    "label": "Achillessehne",
+    "note": "wird durch das langsame Absenken belastbarer",
+    "level": 2,
+    "kind": "work"
+   }
+  ],
+  "start": {
+   "hip": [
+    101,
+    65.2
+   ],
+   "lean": 0,
+   "frontView": false,
+   "torsoMuscles": [],
+   "farLimbs": [
+    {
+     "root": "hip",
+     "ik": {
+      "end": [
+       83,
+       86
+      ],
+      "bend": 1
+     },
+     "foot": {
+      "angle": 35,
+      "toeAngle": null,
+      "direction": 1,
+      "flip": false
+     },
+     "muscles": []
+    }
+   ],
+   "nearLimbs": [
+    {
+     "root": "hip",
+     "ik": {
+      "end": [
+       101,
+       125.2
+      ],
+      "bend": 1
+     },
+     "foot": {
+      "angle": -22,
+      "toeAngle": 0,
+      "direction": 1,
+      "flip": false
+     },
+     "muscles": [
+      "calf",
+      "ach"
+     ]
+    },
+    {
+     "root": "neck",
+     "ik": {
+      "end": [
+       107,
+       62
+      ],
+      "bend": -1
+     },
+     "foot": null,
+     "muscles": []
+    }
+   ],
+   "props": [
+    {
+     "type": "box",
+     "x": 104,
+     "y": 125,
+     "w": 66,
+     "h": 11
+    }
+   ],
+   "annotations": [
+    {
+     "type": "label",
+     "text": "Ferse tief",
+     "at": [
+      66,
+      132
+     ],
+     "anchor": "middle"
+    }
+   ]
+  },
+  "end": {
+   "hip": [
+    105.5,
+    57.1
+   ],
+   "lean": 0,
+   "frontView": false,
+   "torsoMuscles": [],
+   "farLimbs": [
+    {
+     "root": "hip",
+     "ik": {
+      "end": [
+       87,
+       78
+      ],
+      "bend": 1
+     },
+     "foot": {
+      "angle": 35,
+      "toeAngle": null,
+      "direction": 1,
+      "flip": false
+     },
+     "muscles": []
+    }
+   ],
+   "nearLimbs": [
+    {
+     "root": "hip",
+     "ik": {
+      "end": [
+       105.5,
+       117.1
+      ],
+      "bend": 1
+     },
+     "foot": {
+      "angle": 40,
+      "toeAngle": 0,
+      "direction": 1,
+      "flip": false
+     },
+     "muscles": [
+      "calf",
+      "ach"
+     ]
+    },
+    {
+     "root": "neck",
+     "ik": {
+      "end": [
+       111.5,
+       54
+      ],
+      "bend": -1
+     },
+     "foot": null,
+     "muscles": []
+    }
+   ],
+   "props": [
+    {
+     "type": "box",
+     "x": 104,
+     "y": 125,
+     "w": 66,
+     "h": 11
+    }
+   ],
+   "annotations": [
+    {
+     "type": "arrow",
+     "from": [
+      90,
+      124
+     ],
+     "to": [
+      90,
+      106
+     ]
+    }
+   ]
+  },
+  "fault": null,
+  "faultCaption": null,
+  "frames": [
+   {
+    "t": 0,
+    "label": "Unten: Ferse unter der Stufe"
+   },
+   {
+    "t": 0.5,
+    "label": "Hochdrücken, ca. 2 s"
+   },
+   {
+    "t": 1,
+    "label": "Oben 1 s halten"
+   },
+   {
+    "t": 0.5,
+    "label": "Absenken, ca. 3 s"
+   }
+  ],
+  "tempo": {
+   "toEndSec": 2,
+   "holdEndSec": 1,
+   "toStartSec": 3,
+   "holdStartSec": 0.6
+  },
+  "tempoText": "Hochdrücken 2 s, oben 1 s halten, absenken 3 s."
+ },
+ {
+  "id": "calf-raise-bent",
+  "title": "Wadenheben einbeinig, Knie gebeugt",
+  "subtitle": "Soleus, der tiefe Wadenmuskel",
+  "category": "strength",
+  "why": "Bei gebeugtem Knie übernimmt der tiefe Wadenmuskel (Soleus) die Arbeit. Er ist beim Laufen ein wichtiger Stoßdämpfer und Vortriebsmuskel und wird mit gestreckten Knien kaum erreicht.",
+  "steps": [
+   "Gleicher Aufbau wie beim gestreckten Wadenheben: Fußballen auf der Stufenkante, Ferse frei, leicht festhalten.",
+   "Beug das Knie ca. 30–40 Grad, als würdest du dich ganz leicht setzen. Diesen Kniewinkel hältst du die ganze Zeit.",
+   "Fersen in ca. 2 Sekunden anheben, oben 1 Sekunde halten.",
+   "In ca. 3 Sekunden wieder unter die Stufenkante absenken, ohne den Kniewinkel zu verändern."
+  ],
+  "mistakes": [
+   "Das Knie wird beim Hochgehen gestreckt, dann arbeitet wieder der äußere Wadenmuskel.",
+   "Der Körper wippt mit statt die Ferse zu bewegen.",
+   "Zu wenig Absenken."
+  ],
+  "dose": "3 × 10–12 pro Seite, 3 s runter",
+  "progression": "Leichter: beidbeinig. Schwerer: Kettlebell vor der Brust oder in der Hand.",
+  "muscles": [
+   {
+    "key": "sol",
+    "label": "Tiefer Wadenmuskel (Soleus)",
+    "note": "übernimmt bei gebeugtem Knie die Hauptarbeit",
+    "level": 1,
+    "kind": "work"
+   },
+   {
+    "key": "ach",
+    "label": "Achillessehne",
+    "note": "wird mitbelastet",
+    "level": 2,
+    "kind": "work"
+   },
+   {
+    "key": "quad",
+    "label": "Quadrizeps",
+    "note": "hält den Kniewinkel konstant",
+    "level": 2,
+    "kind": "work"
+   }
+  ],
+  "start": {
+   "hip": [
+    93,
+    78.2
+   ],
+   "lean": 8,
+   "frontView": false,
+   "torsoMuscles": [],
+   "farLimbs": [
+    {
+     "root": "hip",
+     "ik": {
+      "end": [
+       75,
+       102
+      ],
+      "bend": 1
+     },
+     "foot": {
+      "angle": 35,
+      "toeAngle": null,
+      "direction": 1,
+      "flip": false
+     },
+     "muscles": []
+    }
+   ],
+   "nearLimbs": [
+    {
+     "root": "hip",
+     "ik": {
+      "end": [
+       101,
+       125.2
+      ],
+      "bend": 1
+     },
+     "foot": {
+      "angle": -22,
+      "toeAngle": 0,
+      "direction": 1,
+      "flip": false
+     },
+     "muscles": [
+      "sol",
+      "ach",
+      "quad"
+     ]
+    },
+    {
+     "root": "neck",
+     "ik": {
+      "end": [
+       109,
+       50
+      ],
+      "bend": -1
+     },
+     "foot": null,
+     "muscles": []
+    }
+   ],
+   "props": [
+    {
+     "type": "box",
+     "x": 104,
+     "y": 125,
+     "w": 66,
+     "h": 11
+    }
+   ],
+   "annotations": []
+  },
+  "end": {
+   "hip": [
+    97.5,
+    70.1
+   ],
+   "lean": 8,
+   "frontView": false,
+   "torsoMuscles": [],
+   "farLimbs": [
+    {
+     "root": "hip",
+     "ik": {
+      "end": [
+       79.5,
+       95
+      ],
+      "bend": 1
+     },
+     "foot": {
+      "angle": 35,
+      "toeAngle": null,
+      "direction": 1,
+      "flip": false
+     },
+     "muscles": []
+    }
+   ],
+   "nearLimbs": [
+    {
+     "root": "hip",
+     "ik": {
+      "end": [
+       105.5,
+       117.1
+      ],
+      "bend": 1
+     },
+     "foot": {
+      "angle": 40,
+      "toeAngle": 0,
+      "direction": 1,
+      "flip": false
+     },
+     "muscles": [
+      "sol",
+      "ach",
+      "quad"
+     ]
+    },
+    {
+     "root": "neck",
+     "ik": {
+      "end": [
+       112.5,
+       43
+      ],
+      "bend": -1
+     },
+     "foot": null,
+     "muscles": []
+    }
+   ],
+   "props": [
+    {
+     "type": "box",
+     "x": 104,
+     "y": 125,
+     "w": 66,
+     "h": 11
+    }
+   ],
+   "annotations": [
+    {
+     "type": "arrow",
+     "from": [
+      90,
+      124
+     ],
+     "to": [
+      90,
+      106
+     ]
+    }
+   ]
+  },
+  "fault": null,
+  "faultCaption": null,
+  "frames": [
+   {
+    "t": 0,
+    "label": "Unten: Knie leicht gebeugt"
+   },
+   {
+    "t": 0.5,
+    "label": "Hochdrücken, ca. 2 s"
+   },
+   {
+    "t": 1,
+    "label": "Oben 1 s halten, Kniewinkel gleich"
+   },
+   {
+    "t": 0.5,
+    "label": "Absenken, ca. 3 s"
+   }
+  ],
+  "tempo": {
+   "toEndSec": 2,
+   "holdEndSec": 1,
+   "toStartSec": 3,
+   "holdStartSec": 0.6
+  },
+  "tempoText": "Hochdrücken 2 s, oben 1 s halten, absenken 3 s."
+ },
+ {
+  "id": "spanish-squat",
+  "title": "Spanish Squat",
+  "subtitle": "Bandunterstützte Kniebeuge für die Patellasehne",
+  "category": "strength",
+  "why": "Das Band zieht die Knie nach hinten, du sitzt dagegen zurück. So bleiben die Schienbeine senkrecht: Der Quadrizeps und die Patellasehne (vorne am Knie) arbeiten stark, der Druck hinter der Kniescheibe bleibt gering.",
+  "steps": [
+   "Befestige ein kräftiges Band an einem stabilen Pfosten auf Kniehöhe. Dreh dem Pfosten den Rücken zu und leg das Band in die Kniekehlen.",
+   "Geh so weit nach vorn, dass das Band deutlich zieht. Füße etwa hüftbreit, Arme zur Balance nach vorn.",
+   "Setz dich nach hinten, als würdest du dich auf einen Stuhl setzen. Schienbeine bleiben senkrecht, der Oberkörper lehnt leicht zurück.",
+   "Geh bis etwa zur Oberschenkel-Waagerechten (nur so tief, wie es schmerzfrei bleibt) und halte die Position."
+  ],
+  "mistakes": [
+   "Band zu locker: Die Knie wandern nach vorn.",
+   "Fersen heben ab.",
+   "Rücken wird rund oder Hohlkreuz."
+  ],
+  "dose": "3 × 30–45 s halten (alternativ 3 × 10 langsam)",
+  "progression": "Leichter: weniger tief, Band lockerer. Schwerer: längere Haltezeit.",
+  "muscles": [
+   {
+    "key": "quad",
+    "label": "Quadrizeps",
+    "note": "arbeitet stark gegen den Bandzug",
+    "level": 1,
+    "kind": "work"
+   },
+   {
+    "key": "pat",
+    "label": "Patellasehne",
+    "note": "vorn am Knie, wird gezielt belastet",
+    "level": 1,
+    "kind": "work"
+   },
+   {
+    "key": "glute",
+    "label": "Großer Gesäßmuskel",
+    "note": "unterstützt beim Halten",
+    "level": 2,
+    "kind": "work"
+   }
+  ],
+  "start": {
+   "hip": [
+    98,
+    75
+   ],
+   "lean": 0,
+   "frontView": false,
+   "torsoMuscles": [],
+   "farLimbs": [
+    {
+     "root": "hip",
+     "ik": {
+      "end": [
+       92,
+       133
+      ],
+      "bend": 1
+     },
+     "foot": {
+      "angle": 0,
+      "toeAngle": null,
+      "direction": 1,
+      "flip": false
+     },
+     "muscles": []
+    }
+   ],
+   "nearLimbs": [
+    {
+     "root": "hip",
+     "ik": {
+      "end": [
+       100,
+       133
+      ],
+      "bend": 1
+     },
+     "foot": {
+      "angle": 0,
+      "toeAngle": null,
+      "direction": 1,
+      "flip": false
+     },
+     "muscles": [
+      "quad",
+      "pat",
+      "glute"
+     ]
+    },
+    {
+     "root": "neck",
+     "ik": {
+      "end": [
+       106,
+       52
+      ],
+      "bend": -1
+     },
+     "foot": null,
+     "muscles": []
+    }
+   ],
+   "props": [
+    {
+     "type": "box",
+     "x": 12,
+     "y": 58,
+     "w": 12,
+     "h": 78
+    }
+   ],
+   "band": {
+    "from": [
+     24,
+     104
+    ],
+    "nearLimb": 0
+   },
+   "annotations": []
+  },
+  "end": {
+   "hip": [
+    78,
+    103
+   ],
+   "lean": -6,
+   "frontView": false,
+   "torsoMuscles": [],
+   "farLimbs": [
+    {
+     "root": "hip",
+     "ik": {
+      "end": [
+       108,
+       133
+      ],
+      "bend": 1
+     },
+     "foot": {
+      "angle": 0,
+      "toeAngle": null,
+      "direction": 1,
+      "flip": false
+     },
+     "muscles": []
+    }
+   ],
+   "nearLimbs": [
+    {
+     "root": "hip",
+     "ik": {
+      "end": [
+       112,
+       133
+      ],
+      "bend": 1
+     },
+     "foot": {
+      "angle": 0,
+      "toeAngle": null,
+      "direction": 1,
+      "flip": false
+     },
+     "muscles": [
+      "quad",
+      "pat",
+      "glute"
+     ]
+    },
+    {
+     "root": "neck",
+     "ik": {
+      "end": [
+       100,
+       66
+      ],
+      "bend": -1
+     },
+     "foot": null,
+     "muscles": []
+    }
+   ],
+   "props": [
+    {
+     "type": "box",
+     "x": 12,
+     "y": 58,
+     "w": 12,
+     "h": 78
+    }
+   ],
+   "band": {
+    "from": [
+     24,
+     103
+    ],
+    "nearLimb": 0
+   },
+   "annotations": [
+    {
+     "type": "label",
+     "text": "Schienbein senkrecht",
+     "at": [
+      100,
+      148
+     ],
+     "anchor": "middle"
+    }
+   ]
+  },
+  "fault": null,
+  "faultCaption": null,
+  "frames": [
+   {
+    "t": 0,
+    "label": "Start: Band gespannt"
+   },
+   {
+    "t": 0.5,
+    "label": "Nach hinten setzen"
+   },
+   {
+    "t": 1,
+    "label": "Halten: Schienbein senkrecht"
+   },
+   {
+    "t": 0.5,
+    "label": "Kontrolliert aufrichten"
+   }
+  ],
+  "tempo": {
+   "toEndSec": 2,
+   "holdEndSec": 3,
+   "toStartSec": 2,
+   "holdStartSec": 0.6
+  },
+  "tempoText": "Hinsetzen 2 s, dann 30–45 s halten (hier verkürzt)."
+ },
+ {
+  "id": "step-up",
+  "title": "Step-up mit Kettlebell",
+  "subtitle": "5 kg Kettlebell vor der Brust",
+  "category": "strength",
+  "why": "Aufsteigen ist ein Laufschritt in Zeitlupe: Ein Bein trägt das ganze Gewicht, Gesäß und Oberschenkel strecken Hüfte und Knie. Das Absenken trainiert zusätzlich Kontrolle und Knieführung.",
+  "steps": [
+   "Stell dich vor eine Box oder Bank (etwa Kniehöhe, ca. 30–45 cm). Halt die Kettlebell mit beiden Händen vor der Brust.",
+   "Setz einen Fuß komplett auf die Box, die ganze Sohle hat Kontakt.",
+   "Drück dich mit diesem Bein nach oben, bis Hüfte und Knie gestreckt sind. Das andere Bein hilft nicht mit, es schwingt nur mit.",
+   "Senk dich in ca. 3 Sekunden kontrolliert wieder ab und tipp den Boden nur leicht an."
+  ],
+  "mistakes": [
+   "Abstoßen mit dem Bodenbein statt Kraft aus dem Boxbein.",
+   "Das Knie kippt nach innen.",
+   "Das Becken sackt auf einer Seite ab oder der Oberkörper fällt nach vorn."
+  ],
+  "dose": "3 × 8–10 pro Seite",
+  "progression": "Leichter: ohne Gewicht oder niedrigere Box. Schwerer: höhere Box oder mehr Gewicht.",
+  "muscles": [
+   {
+    "key": "quad",
+    "label": "Quadrizeps",
+    "note": "streckt das Knie im Boxbein",
+    "level": 1,
+    "kind": "work"
+   },
+   {
+    "key": "glute",
+    "label": "Großer Gesäßmuskel",
+    "note": "streckt die Hüfte",
+    "level": 1,
+    "kind": "work"
+   },
+   {
+    "key": "glmed",
+    "label": "Seitlicher Gesäßmuskel",
+    "note": "hält das Becken waagerecht",
+    "level": 2,
+    "kind": "work"
+   }
+  ],
+  "start": {
+   "hip": [
+    106,
+    78
+   ],
+   "lean": 8,
+   "frontView": false,
+   "torsoMuscles": [],
+   "farLimbs": [
+    {
+     "root": "hip",
+     "ik": {
+      "end": [
+       86,
+       133
+      ],
+      "bend": 1
+     },
+     "foot": {
+      "angle": 0,
+      "toeAngle": null,
+      "direction": 1,
+      "flip": false
+     },
+     "muscles": []
+    }
+   ],
+   "nearLimbs": [
+    {
+     "root": "hip",
+     "ik": {
+      "end": [
+       128,
+       105
+      ],
+      "bend": 1
+     },
+     "foot": {
+      "angle": 0,
+      "toeAngle": null,
+      "direction": 1,
+      "flip": false
+     },
+     "muscles": [
+      "quad",
+      "glute",
+      "glmed"
+     ]
+    },
+    {
+     "root": "neck",
+     "ik": {
+      "end": [
+       124,
+       54
+      ],
+      "bend": -1
+     },
+     "foot": null,
+     "muscles": []
+    }
+   ],
+   "props": [
+    {
+     "type": "box",
+     "x": 112,
+     "y": 108,
+     "w": 64,
+     "h": 28
+    }
+   ],
+   "kettlebell": {
+    "nearLimb": 1,
+    "offset": [
+     2,
+     4
+    ]
+   },
+   "annotations": []
+  },
+  "end": {
+   "hip": [
+    132,
+    45
+   ],
+   "lean": 4,
+   "frontView": false,
+   "torsoMuscles": [],
+   "farLimbs": [
+    {
+     "root": "hip",
+     "ik": {
+      "end": [
+       120,
+       74
+      ],
+      "bend": 1
+     },
+     "foot": {
+      "angle": 0,
+      "toeAngle": null,
+      "direction": 1,
+      "flip": false
+     },
+     "muscles": []
+    }
+   ],
+   "nearLimbs": [
+    {
+     "root": "hip",
+     "ik": {
+      "end": [
+       132,
+       105
+      ],
+      "bend": 1
+     },
+     "foot": {
+      "angle": 0,
+      "toeAngle": null,
+      "direction": 1,
+      "flip": false
+     },
+     "muscles": [
+      "quad",
+      "glute",
+      "glmed"
+     ]
+    },
+    {
+     "root": "neck",
+     "ik": {
+      "end": [
+       142,
+       26
+      ],
+      "bend": -1
+     },
+     "foot": null,
+     "muscles": []
+    }
+   ],
+   "props": [
+    {
+     "type": "box",
+     "x": 112,
+     "y": 108,
+     "w": 64,
+     "h": 28
+    }
+   ],
+   "kettlebell": {
+    "nearLimb": 1,
+    "offset": [
+     2,
+     4
+    ]
+   },
+   "annotations": []
+  },
+  "fault": null,
+  "faultCaption": null,
+  "frames": [
+   {
+    "t": 0,
+    "label": "Start: Fuß auf der Box"
+   },
+   {
+    "t": 0.5,
+    "label": "Hochdrücken"
+   },
+   {
+    "t": 1,
+    "label": "Oben: Bein gestreckt"
+   },
+   {
+    "t": 0.5,
+    "label": "Kontrolliert absenken, ca. 3 s"
+   }
+  ],
+  "tempo": {
+   "toEndSec": 1.6,
+   "holdEndSec": 0.6,
+   "toStartSec": 3,
+   "holdStartSec": 0.6
+  },
+  "tempoText": "Hochdrücken 1–2 s, Absenken 3 s."
+ },
+ {
+  "id": "wall-sit",
+  "title": "Wall Sit",
+  "subtitle": "Isometrisches Halten an der Wand",
+  "category": "strength",
+  "why": "Der Quadrizeps arbeitet ohne Bewegung dauerhaft gegen die Schwerkraft. Das trainiert die Kraftausdauer, die du brauchst, um im Lauf den Kniewinkel stabil zu halten.",
+  "steps": [
+   "Lehn den Rücken flach an die Wand, Füße hüftbreit.",
+   "Geh so weit nach unten, dass die Knie etwa 90 Grad haben.",
+   "Die Knie stehen genau über den Fußgelenken. Prüf das von der Seite: Von den Knien aus geht ein Lot zu den Fersen.",
+   "Hände frei lassen (vor der Brust), nicht auf den Oberschenkeln abstützen. Normal weiteratmen."
+  ],
+  "mistakes": [
+   "Füße zu nah an der Wand: Die Knie schieben vor die Zehen.",
+   "Hände drücken auf die Oberschenkel.",
+   "Zu hoch stehen, sodass die Beine kaum arbeiten."
+  ],
+  "dose": "3 × 30–45 s halten",
+  "progression": "Leichter: etwas höher stehen. Schwerer: 5–10 s länger oder einbeinig kurz abwechseln.",
+  "muscles": [
+   {
+    "key": "quad",
+    "label": "Quadrizeps",
+    "note": "hält das Knie dauerhaft gebeugt",
+    "level": 1,
+    "kind": "work"
+   },
+   {
+    "key": "glute",
+    "label": "Großer Gesäßmuskel",
+    "note": "unterstützt beim Halten",
+    "level": 2,
+    "kind": "work"
+   }
+  ],
+  "start": {
+   "hip": [
+    52,
+    74
+   ],
+   "lean": 0,
+   "frontView": false,
+   "torsoMuscles": [],
+   "farLimbs": [
+    {
+     "root": "hip",
+     "ik": {
+      "end": [
+       72,
+       133
+      ],
+      "bend": 1
+     },
+     "foot": {
+      "angle": 0,
+      "toeAngle": null,
+      "direction": 1,
+      "flip": false
+     },
+     "muscles": []
+    }
+   ],
+   "nearLimbs": [
+    {
+     "root": "hip",
+     "ik": {
+      "end": [
+       68,
+       133
+      ],
+      "bend": 1
+     },
+     "foot": {
+      "angle": 0,
+      "toeAngle": null,
+      "direction": 1,
+      "flip": false
+     },
+     "muscles": [
+      "quad",
+      "glute"
+     ]
+    },
+    {
+     "root": "neck",
+     "ik": {
+      "end": [
+       62,
+       86
+      ],
+      "bend": -1
+     },
+     "foot": null,
+     "muscles": []
+    }
+   ],
+   "props": [
+    {
+     "type": "wall",
+     "x": 40,
+     "w": 8
+    }
+   ],
+   "annotations": []
+  },
+  "end": {
+   "hip": [
+    52,
+    103
+   ],
+   "lean": 0,
+   "frontView": false,
+   "torsoMuscles": [],
+   "farLimbs": [
+    {
+     "root": "hip",
+     "ik": {
+      "end": [
+       86,
+       133
+      ],
+      "bend": 1
+     },
+     "foot": {
+      "angle": 0,
+      "toeAngle": null,
+      "direction": 1,
+      "flip": false
+     },
+     "muscles": []
+    }
+   ],
+   "nearLimbs": [
+    {
+     "root": "hip",
+     "ik": {
+      "end": [
+       82,
+       133
+      ],
+      "bend": 1
+     },
+     "foot": {
+      "angle": 0,
+      "toeAngle": null,
+      "direction": 1,
+      "flip": false
+     },
+     "muscles": [
+      "quad",
+      "glute"
+     ]
+    },
+    {
+     "root": "neck",
+     "ik": {
+      "end": [
+       70,
+       100
+      ],
+      "bend": -1
+     },
+     "foot": null,
+     "muscles": []
+    }
+   ],
+   "props": [
+    {
+     "type": "wall",
+     "x": 40,
+     "w": 8
+    }
+   ],
+   "annotations": [
+    {
+     "type": "label",
+     "text": "Knie über Fuß",
+     "at": [
+      128,
+      104
+     ],
+     "anchor": "start"
+    }
+   ]
+  },
+  "fault": {
+   "hip": [
+    52,
+    103
+   ],
+   "lean": 0,
+   "frontView": false,
+   "torsoMuscles": [],
+   "farLimbs": [
+    {
+     "root": "hip",
+     "ik": {
+      "end": [
+       64,
+       133
+      ],
+      "bend": 1
+     },
+     "foot": {
+      "angle": 0,
+      "toeAngle": null,
+      "direction": 1,
+      "flip": false
+     },
+     "muscles": []
+    }
+   ],
+   "nearLimbs": [
+    {
+     "root": "hip",
+     "ik": {
+      "end": [
+       60,
+       133
+      ],
+      "bend": 1
+     },
+     "foot": {
+      "angle": 0,
+      "toeAngle": null,
+      "direction": 1,
+      "flip": false
+     },
+     "muscles": []
+    },
+    {
+     "root": "neck",
+     "ik": {
+      "end": [
+       70,
+       100
+      ],
+      "bend": -1
+     },
+     "foot": null,
+     "muscles": []
+    }
+   ],
+   "props": [
+    {
+     "type": "wall",
+     "x": 40,
+     "w": 8
+    }
+   ],
+   "annotations": [
+    {
+     "type": "guide",
+     "from": [
+      70,
+      88
+     ],
+     "to": [
+      70,
+      136
+     ]
+    },
+    {
+     "type": "label",
+     "text": "Knie vor Zehen",
+     "at": [
+      128,
+      114
+     ],
+     "anchor": "start"
+    }
+   ]
+  },
+  "faultCaption": "Falsch: Füße zu nah, Knie schieben vor die Zehen",
+  "frames": [
+   {
+    "t": 0,
+    "label": "Start: Rücken an der Wand"
+   },
+   {
+    "t": 0.5,
+    "label": "Runtergleiten, Füße nach vorn"
+   },
+   {
+    "t": 1,
+    "label": "Halten: Knie 90 Grad"
+   },
+   {
+    "t": 0.5,
+    "label": "Nach oben schieben"
+   }
+  ],
+  "tempo": {
+   "toEndSec": 2,
+   "holdEndSec": 3,
+   "toStartSec": 2,
+   "holdStartSec": 0.6
+  },
+  "tempoText": "Runtergleiten 2 s, dann 30–45 s halten (hier verkürzt)."
+ },
+ {
+  "id": "terminal-knee-extension",
+  "title": "Terminal Knee Extension mit Band",
+  "subtitle": "Letzte Kniestreckung, innerer Oberschenkelmuskel (VMO)",
+  "category": "strength",
+  "why": "Die letzten Grad der Kniestreckung aktivieren den inneren Anteil des Quadrizeps (VMO) direkt über dem Knie. Er stabilisiert die Kniescheibe.",
+  "steps": [
+   "Befestige ein Band auf Kniehöhe vor dir. Leg die Schlaufe von vorn um die Kniekehle des Standbeins.",
+   "Geh einen Schritt zurück, bis das Band deutlich zieht und das Knie leicht gebeugt wird.",
+   "Streck das Knie gegen den Zug vollständig durch und spann den Muskel über dem Knie fest an. 2 Sekunden halten.",
+   "Lass das Knie langsam wieder leicht beugen und wiederhole."
+  ],
+  "mistakes": [
+   "Hohlkreuz, um das Knie „durchzudrücken“.",
+   "Das Knie wird hart überstreckt statt nur gestreckt.",
+   "Das Band rutscht von der Kniekehle."
+  ],
+  "dose": "2–3 × 12–15 pro Seite, 2 s halten",
+  "progression": "Leichter: weniger Bandzug. Schwerer: dickeres Band oder einbeinig stehen.",
+  "muscles": [
+   {
+    "key": "vmo",
+    "label": "Innerer Quadrizeps (VMO)",
+    "note": "streckt die letzten Grad und stabilisiert die Kniescheibe",
+    "level": 1,
+    "kind": "work"
+   },
+   {
+    "key": "quad",
+    "label": "Quadrizeps insgesamt",
+    "note": "arbeitet mit",
+    "level": 2,
+    "kind": "work"
+   }
+  ],
+  "start": {
+   "hip": [
+    86,
+    82
+   ],
+   "lean": 0,
+   "frontView": false,
+   "torsoMuscles": [],
+   "farLimbs": [
+    {
+     "root": "hip",
+     "ik": {
+      "end": [
+       92,
+       133
+      ],
+      "bend": 1
+     },
+     "foot": {
+      "angle": 0,
+      "toeAngle": null,
+      "direction": 1,
+      "flip": false
+     },
+     "muscles": []
+    }
+   ],
+   "nearLimbs": [
+    {
+     "root": "hip",
+     "ik": {
+      "end": [
+       100,
+       133
+      ],
+      "bend": 1
+     },
+     "foot": {
+      "angle": 0,
+      "toeAngle": null,
+      "direction": 1,
+      "flip": false
+     },
+     "muscles": [
+      "vmo",
+      "quad"
+     ]
+    },
+    {
+     "root": "neck",
+     "ik": {
+      "end": [
+       94,
+       80
+      ],
+      "bend": -1
+     },
+     "foot": null,
+     "muscles": []
+    }
+   ],
+   "props": [
+    {
+     "type": "box",
+     "x": 172,
+     "y": 60,
+     "w": 10,
+     "h": 76
+    }
+   ],
+   "band": {
+    "from": [
+     172,
+     104
+    ],
+    "nearLimb": 0
+   },
+   "annotations": []
+  },
+  "end": {
+   "hip": [
+    100,
+    73
+   ],
+   "lean": 0,
+   "frontView": false,
+   "torsoMuscles": [],
+   "farLimbs": [
+    {
+     "root": "hip",
+     "ik": {
+      "end": [
+       92,
+       133
+      ],
+      "bend": 1
+     },
+     "foot": {
+      "angle": 0,
+      "toeAngle": null,
+      "direction": 1,
+      "flip": false
+     },
+     "muscles": []
+    }
+   ],
+   "nearLimbs": [
+    {
+     "root": "hip",
+     "ik": {
+      "end": [
+       100,
+       133
+      ],
+      "bend": 1
+     },
+     "foot": {
+      "angle": 0,
+      "toeAngle": null,
+      "direction": 1,
+      "flip": false
+     },
+     "muscles": [
+      "vmo",
+      "quad"
+     ]
+    },
+    {
+     "root": "neck",
+     "ik": {
+      "end": [
+       108,
+       71
+      ],
+      "bend": -1
+     },
+     "foot": null,
+     "muscles": []
+    }
+   ],
+   "props": [
+    {
+     "type": "box",
+     "x": 172,
+     "y": 60,
+     "w": 10,
+     "h": 76
+    }
+   ],
+   "band": {
+    "from": [
+     172,
+     104
+    ],
+    "nearLimb": 0
+   },
+   "annotations": [
+    {
+     "type": "arrow",
+     "from": [
+      126,
+      96
+     ],
+     "to": [
+      110,
+      96
+     ]
+    }
+   ]
+  },
+  "fault": null,
+  "faultCaption": null,
+  "frames": [
+   {
+    "t": 0,
+    "label": "Start: Knie leicht gebeugt"
+   },
+   {
+    "t": 0.5,
+    "label": "Knie strecken"
+   },
+   {
+    "t": 1,
+    "label": "Ende: Knie gestreckt, 2 s anspannen"
+   },
+   {
+    "t": 0.5,
+    "label": "Langsam lösen"
+   }
+  ],
+  "tempo": {
+   "toEndSec": 1.6,
+   "holdEndSec": 2,
+   "toStartSec": 1.6,
+   "holdStartSec": 0.6
+  },
+  "tempoText": "Strecken 1–2 s, 2 s fest anspannen, langsam lösen."
+ },
+ {
+  "id": "tibialis-raise",
+  "title": "Tibialis Raise",
+  "subtitle": "Vorderer Schienbeinmuskel",
+  "category": "strength",
+  "why": "Der Schienbeinmuskel ist der Gegenspieler der Wade. Er hebt beim Laufen den Vorfuß und bremst das Aufsetzen. Ist er zu schwach, wird das Schienbein schneller überlastet.",
+  "steps": [
+   "Lehn den Rücken an die Wand, die Füße stehen etwa 30–40 cm vor der Wand, hüftbreit.",
+   "Die Fersen bleiben am Boden. Zieh beide Fußspitzen so weit wie möglich zu dir hoch.",
+   "Oben 1 Sekunde halten.",
+   "Senk die Fußspitzen langsam wieder ab."
+  ],
+  "mistakes": [
+   "Die Knie beugen oder der Po rutscht die Wand hinunter, statt die Füße zu bewegen.",
+   "Zu schnell und mit Schwung.",
+   "Zu wenig Weg: Die Zehen kommen kaum hoch."
+  ],
+  "dose": "2–3 × 15–20",
+  "progression": "Leichter: Füße näher an die Wand. Schwerer: weiter weg von der Wand oder ein Gewicht auf die Füße legen. Brennen im Schienbein ist normal.",
+  "muscles": [
+   {
+    "key": "tib",
+    "label": "Vorderer Schienbeinmuskel",
+    "note": "hebt den Vorfuß und bremst das Aufsetzen",
+    "level": 1,
+    "kind": "work"
+   }
+  ],
+  "start": {
+   "hip": [
+    50,
+    80
+   ],
+   "lean": 0,
+   "frontView": false,
+   "torsoMuscles": [],
+   "farLimbs": [
+    {
+     "root": "hip",
+     "ik": {
+      "end": [
+       74,
+       133
+      ],
+      "bend": 1
+     },
+     "foot": {
+      "angle": 0,
+      "toeAngle": null,
+      "direction": 1,
+      "flip": false
+     },
+     "muscles": [
+      "tib"
+     ]
+    }
+   ],
+   "nearLimbs": [
+    {
+     "root": "hip",
+     "ik": {
+      "end": [
+       79,
+       133
+      ],
+      "bend": 1
+     },
+     "foot": {
+      "angle": 0,
+      "toeAngle": null,
+      "direction": 1,
+      "flip": false
+     },
+     "muscles": [
+      "tib"
+     ]
+    },
+    {
+     "root": "neck",
+     "ik": {
+      "end": [
+       54,
+       82
+      ],
+      "bend": -1
+     },
+     "foot": null,
+     "muscles": []
+    }
+   ],
+   "props": [
+    {
+     "type": "wall",
+     "x": 38,
+     "w": 8
+    }
+   ],
+   "annotations": []
+  },
+  "end": {
+   "hip": [
+    50,
+    80
+   ],
+   "lean": 0,
+   "frontView": false,
+   "torsoMuscles": [],
+   "farLimbs": [
+    {
+     "root": "hip",
+     "ik": {
+      "end": [
+       74,
+       131.8
+      ],
+      "bend": 1
+     },
+     "foot": {
+      "angle": -25,
+      "toeAngle": null,
+      "direction": 1,
+      "flip": false
+     },
+     "muscles": [
+      "tib"
+     ]
+    }
+   ],
+   "nearLimbs": [
+    {
+     "root": "hip",
+     "ik": {
+      "end": [
+       79,
+       131.8
+      ],
+      "bend": 1
+     },
+     "foot": {
+      "angle": -25,
+      "toeAngle": null,
+      "direction": 1,
+      "flip": false
+     },
+     "muscles": [
+      "tib"
+     ]
+    },
+    {
+     "root": "neck",
+     "ik": {
+      "end": [
+       54,
+       82
+      ],
+      "bend": -1
+     },
+     "foot": null,
+     "muscles": []
+    }
+   ],
+   "props": [
+    {
+     "type": "wall",
+     "x": 38,
+     "w": 8
+    }
+   ],
+   "annotations": [
+    {
+     "type": "arrow",
+     "from": [
+      106,
+      128
+     ],
+     "to": [
+      106,
+      112
+     ]
+    }
+   ]
+  },
+  "fault": null,
+  "faultCaption": null,
+  "frames": [
+   {
+    "t": 0,
+    "label": "Unten: Zehen am Boden"
+   },
+   {
+    "t": 0.5,
+    "label": "Zehen hochziehen"
+   },
+   {
+    "t": 1,
+    "label": "Oben 1 s halten"
+   },
+   {
+    "t": 0.5,
+    "label": "Langsam absenken"
+   }
+  ],
+  "tempo": {
+   "toEndSec": 1.6,
+   "holdEndSec": 1,
+   "toStartSec": 2,
+   "holdStartSec": 0.6
+  },
+  "tempoText": "Hochziehen 1–2 s, 1 s halten, absenken 2 s."
+ },
+ {
+  "id": "copenhagen-plank",
+  "title": "Copenhagen Plank",
+  "subtitle": "Seitstütz mit Bein auf der Bank, Adduktoren",
+  "category": "strength",
+  "why": "Die Adduktoren (Innenseite der Oberschenkel) und das Becken stabilisieren dich in jedem Laufschritt in der Standphase. Diese Übung trainiert sie hart und ohne Impact.",
+  "steps": [
+   "Leg dich seitlich neben eine Bank, stütz den Ellenbogen unter die Schulter. Das obere Bein liegt gestreckt mit der Innenseite (Knie oder Knöchel) auf der Bank.",
+   "Heb die Hüfte, bis Körper und oberes Bein eine gerade Linie bilden. Das untere Bein hängt frei.",
+   "Wenn das stabil ist: Heb das untere Bein an das obere heran und halt die Position.",
+   "Hüfte oben halten, normal atmen, dann ohne Absacken absetzen."
+  ],
+  "mistakes": [
+   "Die Hüfte sinkt ab.",
+   "Das Becken dreht nach vorn oder hinten.",
+   "Der Ellenbogen steht nicht unter der Schulter."
+  ],
+  "dose": "3 × 15–25 s pro Seite",
+  "progression": "Leichter: nur das Knie des oberen Beins auf die Bank legen (kürzerer Hebel), unteres Bein bleibt unten. Schwerer: länger halten oder unteres Bein pumpen.",
+  "muscles": [
+   {
+    "key": "add",
+    "label": "Adduktoren (Oberschenkel-Innenseite)",
+    "note": "halten das Becken und ziehen das Bein heran",
+    "level": 1,
+    "kind": "work"
+   },
+   {
+    "key": "obl",
+    "label": "Seitliche Bauchmuskeln",
+    "note": "halten die Hüfte oben",
+    "level": 1,
+    "kind": "work"
+   }
+  ],
+  "start": {
+   "hip": [
+    92,
+    110
+   ],
+   "neck": [
+    58,
+    111
+   ],
+   "frontView": true,
+   "torsoMuscles": [
+    "obl"
+   ],
+   "farLimbs": [
+    {
+     "root": "hip",
+     "points": [
+      [
+       121,
+       109
+      ],
+      [
+       150,
+       108
+      ]
+     ],
+     "foot": null,
+     "muscles": [
+      "add"
+     ]
+    }
+   ],
+   "nearLimbs": [
+    {
+     "root": "hip",
+     "points": [
+      [
+       112,
+       128
+      ],
+      [
+       136,
+       132
+      ]
+     ],
+     "foot": null,
+     "muscles": [
+      "add"
+     ]
+    },
+    {
+     "root": "neck",
+     "points": [
+      [
+       58,
+       131
+      ],
+      [
+       78,
+       133
+      ]
+     ],
+     "foot": null,
+     "muscles": []
+    }
+   ],
+   "props": [
+    {
+     "type": "box",
+     "x": 140,
+     "y": 112,
+     "w": 56,
+     "h": 24
+    }
+   ],
+   "annotations": []
+  },
+  "end": {
+   "hip": [
+    92,
+    110
+   ],
+   "neck": [
+    58,
+    111
+   ],
+   "frontView": true,
+   "torsoMuscles": [
+    "obl"
+   ],
+   "farLimbs": [
+    {
+     "root": "hip",
+     "points": [
+      [
+       121,
+       109
+      ],
+      [
+       150,
+       108
+      ]
+     ],
+     "foot": null,
+     "muscles": [
+      "add"
+     ]
+    }
+   ],
+   "nearLimbs": [
+    {
+     "root": "hip",
+     "points": [
+      [
+       119,
+       113
+      ],
+      [
+       146,
+       116
+      ]
+     ],
+     "foot": null,
+     "muscles": [
+      "add"
+     ]
+    },
+    {
+     "root": "neck",
+     "points": [
+      [
+       58,
+       131
+      ],
+      [
+       78,
+       133
+      ]
+     ],
+     "foot": null,
+     "muscles": []
+    }
+   ],
+   "props": [
+    {
+     "type": "box",
+     "x": 140,
+     "y": 112,
+     "w": 56,
+     "h": 24
+    }
+   ],
+   "annotations": [
+    {
+     "type": "arrow",
+     "from": [
+      130,
+      132
+     ],
+     "to": [
+      130,
+      120
+     ]
+    }
+   ]
+  },
+  "fault": null,
+  "faultCaption": null,
+  "frames": [
+   {
+    "t": 0,
+    "label": "Start: Hüfte oben, unteres Bein hängt"
+   },
+   {
+    "t": 0.5,
+    "label": "Unteres Bein anheben"
+   },
+   {
+    "t": 1,
+    "label": "Halten: Beine berühren sich"
+   },
+   {
+    "t": 0.5,
+    "label": "Bein wieder senken"
+   }
+  ],
+  "tempo": {
+   "toEndSec": 1.8,
+   "holdEndSec": 3,
+   "toStartSec": 1.8,
+   "holdStartSec": 0.6
+  },
+  "tempoText": "Bein anheben 1–2 s, 15–25 s halten (hier verkürzt)."
+ },
+ {
+  "id": "single-leg-rdl",
+  "title": "Single-Leg RDL",
+  "subtitle": "Einbeiniges Kreuzheben",
+  "category": "strength",
+  "why": "Trainiert die hintere Kette (Gesäß und Beinbeuger) auf einem Bein und schult Gleichgewicht und Hüftbeugung. Genau diese Kette treibt beim Laufen die Hüfte nach vorn.",
+  "steps": [
+   "Stell dich auf ein Bein, das Standknie ist leicht gebeugt. Optional: Kettlebell in der Hand gegenüber dem Standbein.",
+   "Schieb die Hüfte nach hinten (Po zur Wand hinter dir). Der Oberkörper neigt sich, das freie Bein geht gestreckt nach hinten.",
+   "Rücken bleibt gerade, Blick ca. 1 m vor dem Fuß auf den Boden. Rücken und freies Bein bilden eine Linie.",
+   "Geh, bis du hinten in den Beinbeugern ziehst, dann richte dich über das Standbein-Gesäß wieder auf."
+  ],
+  "mistakes": [
+   "Rundrücken.",
+   "Das Becken dreht zur Seite auf.",
+   "Das Standknie ist komplett durchgedrückt oder beugt stark (dann wird es zur Kniebeuge)."
+  ],
+  "dose": "3 × 8 pro Seite",
+  "progression": "Technikhilfe: Besenstiel längs am Rücken, Kopf, Rücken und Po berühren ihn. Leichter: Fingerspitzen an einer Wand abstützen. Schwerer: Kettlebell.",
+  "muscles": [
+   {
+    "key": "ham",
+    "label": "Beinbeuger (Hamstrings)",
+    "note": "strecken die Hüfte gegen die Last",
+    "level": 1,
+    "kind": "work"
+   },
+   {
+    "key": "glute",
+    "label": "Großer Gesäßmuskel",
+    "note": "richtet dich über dem Standbein wieder auf",
+    "level": 1,
+    "kind": "work"
+   },
+   {
+    "key": "back",
+    "label": "Rückenstrecker",
+    "note": "halten den Rücken gerade",
+    "level": 2,
+    "kind": "work"
+   }
+  ],
+  "start": {
+   "hip": [
+    100,
+    73
+   ],
+   "lean": 0,
+   "frontView": false,
+   "torsoMuscles": [
+    "back"
+   ],
+   "farLimbs": [
+    {
+     "root": "hip",
+     "ik": {
+      "end": [
+       78,
+       126
+      ],
+      "bend": 1
+     },
+     "foot": {
+      "angle": 35,
+      "toeAngle": null,
+      "direction": 1,
+      "flip": false
+     },
+     "muscles": []
+    }
+   ],
+   "nearLimbs": [
+    {
+     "root": "hip",
+     "ik": {
+      "end": [
+       100,
+       133
+      ],
+      "bend": 1
+     },
+     "foot": {
+      "angle": 0,
+      "toeAngle": null,
+      "direction": 1,
+      "flip": false
+     },
+     "muscles": [
+      "ham",
+      "glute"
+     ]
+    },
+    {
+     "root": "neck",
+     "ik": {
+      "end": [
+       103,
+       78
+      ],
+      "bend": -1
+     },
+     "foot": null,
+     "muscles": []
+    }
+   ],
+   "props": [],
+   "kettlebell": {
+    "nearLimb": 1,
+    "offset": [
+     0,
+     12
+    ]
+   },
+   "annotations": []
+  },
+  "end": {
+   "hip": [
+    86,
+    84
+   ],
+   "lean": 75,
+   "frontView": false,
+   "torsoMuscles": [
+    "back"
+   ],
+   "farLimbs": [
+    {
+     "root": "hip",
+     "ik": {
+      "end": [
+       28,
+       99
+      ],
+      "bend": 1
+     },
+     "foot": {
+      "angle": 80,
+      "toeAngle": null,
+      "direction": 1,
+      "flip": false
+     },
+     "muscles": []
+    }
+   ],
+   "nearLimbs": [
+    {
+     "root": "hip",
+     "ik": {
+      "end": [
+       100,
+       133
+      ],
+      "bend": 1
+     },
+     "foot": {
+      "angle": 0,
+      "toeAngle": null,
+      "direction": 1,
+      "flip": false
+     },
+     "muscles": [
+      "ham",
+      "glute"
+     ]
+    },
+    {
+     "root": "neck",
+     "ik": {
+      "end": [
+       121,
+       110
+      ],
+      "bend": -1
+     },
+     "foot": null,
+     "muscles": []
+    }
+   ],
+   "props": [],
+   "kettlebell": {
+    "nearLimb": 1,
+    "offset": [
+     0,
+     12
+    ]
+   },
+   "annotations": [
+    {
+     "type": "guide",
+     "from": [
+      28,
+      99
+     ],
+     "to": [
+      132,
+      72
+     ]
+    }
+   ]
+  },
+  "fault": null,
+  "faultCaption": null,
+  "frames": [
+   {
+    "t": 0,
+    "label": "Start: aufrecht auf einem Bein"
+   },
+   {
+    "t": 0.5,
+    "label": "Hüfte nach hinten schieben"
+   },
+   {
+    "t": 1,
+    "label": "Unten: Rücken und Bein eine Linie"
+   },
+   {
+    "t": 0.5,
+    "label": "Über das Standbein aufrichten"
+   }
+  ],
+  "tempo": {
+   "toEndSec": 2.5,
+   "holdEndSec": 1,
+   "toStartSec": 2,
+   "holdStartSec": 0.6
+  },
+  "tempoText": "Runter 2–3 s, kurz halten, hoch 2 s."
+ },
+ {
+  "id": "glute-bridge",
+  "title": "Glute Bridge",
+  "subtitle": "Gesäßbrücke",
+  "category": "strength",
+  "why": "Das Gesäß streckt die Hüfte und trägt den Vortrieb. Wer viel sitzt, lässt es oft nicht richtig arbeiten. Die Brücke aktiviert es gezielt und entlastet die Kniestrecker.",
+  "steps": [
+   "Rückenlage, Knie gebeugt, Füße hüftbreit und nah am Po aufgestellt. Arme liegen neben dem Körper.",
+   "Drück die Fersen in den Boden und heb das Becken, bis Schulter, Hüfte und Knie eine Linie bilden.",
+   "Oben das Gesäß 1–2 Sekunden fest anspannen. Die Rippen bleiben unten, kein Hohlkreuz.",
+   "Langsam Wirbel für Wirbel absenken."
+  ],
+  "mistakes": [
+   "Hohlkreuz statt Hüftstreckung.",
+   "Die Knie fallen nach innen oder außen.",
+   "Der Druck liegt auf den Zehen statt auf den Fersen."
+  ],
+  "dose": "3 × 12–15",
+  "progression": "Schwerer: einbeinig (anderes Bein gestreckt oder angehoben) oder Kettlebell auf der Hüfte.",
+  "muscles": [
+   {
+    "key": "glute",
+    "label": "Großer Gesäßmuskel",
+    "note": "streckt die Hüfte und hebt das Becken",
+    "level": 1,
+    "kind": "work"
+   },
+   {
+    "key": "ham",
+    "label": "Beinbeuger",
+    "note": "unterstützen die Hüftstreckung",
+    "level": 2,
+    "kind": "work"
+   }
+  ],
+  "start": {
+   "hip": [
+    88,
+    131
+   ],
+   "neck": [
+    54,
+    131
+   ],
+   "headOffset": 10,
+   "frontView": false,
+   "torsoMuscles": [],
+   "farLimbs": [
+    {
+     "root": "hip",
+     "ik": {
+      "end": [
+       122,
+       133
+      ],
+      "bend": 1
+     },
+     "foot": {
+      "angle": 0,
+      "toeAngle": null,
+      "direction": 1,
+      "flip": false
+     },
+     "muscles": [
+      "glute",
+      "ham"
+     ]
+    }
+   ],
+   "nearLimbs": [
+    {
+     "root": "hip",
+     "ik": {
+      "end": [
+       118,
+       133
+      ],
+      "bend": 1
+     },
+     "foot": {
+      "angle": 0,
+      "toeAngle": null,
+      "direction": 1,
+      "flip": false
+     },
+     "muscles": [
+      "glute",
+      "ham"
+     ]
+    },
+    {
+     "root": "neck",
+     "points": [
+      [
+       69,
+       132
+      ],
+      [
+       84,
+       133
+      ]
+     ],
+     "foot": null,
+     "muscles": []
+    }
+   ],
+   "props": [],
+   "annotations": []
+  },
+  "end": {
+   "hip": [
+    82,
+    104
+   ],
+   "neck": [
+    54,
+    126
+   ],
+   "headOffset": 10,
+   "frontView": false,
+   "torsoMuscles": [],
+   "farLimbs": [
+    {
+     "root": "hip",
+     "ik": {
+      "end": [
+       122,
+       133
+      ],
+      "bend": 1
+     },
+     "foot": {
+      "angle": 0,
+      "toeAngle": null,
+      "direction": 1,
+      "flip": false
+     },
+     "muscles": [
+      "glute",
+      "ham"
+     ]
+    }
+   ],
+   "nearLimbs": [
+    {
+     "root": "hip",
+     "ik": {
+      "end": [
+       118,
+       133
+      ],
+      "bend": 1
+     },
+     "foot": {
+      "angle": 0,
+      "toeAngle": null,
+      "direction": 1,
+      "flip": false
+     },
+     "muscles": [
+      "glute",
+      "ham"
+     ]
+    },
+    {
+     "root": "neck",
+     "points": [
+      [
+       69,
+       132
+      ],
+      [
+       84,
+       133
+      ]
+     ],
+     "foot": null,
+     "muscles": []
+    }
+   ],
+   "props": [],
+   "annotations": [
+    {
+     "type": "arrow",
+     "from": [
+      82,
+      92
+     ],
+     "to": [
+      82,
+      76
+     ]
+    },
+    {
+     "type": "guide",
+     "from": [
+      54,
+      127
+     ],
+     "to": [
+      112,
+      103
+     ]
+    }
+   ]
+  },
+  "fault": null,
+  "faultCaption": null,
+  "frames": [
+   {
+    "t": 0,
+    "label": "Start: Rückenlage"
+   },
+   {
+    "t": 0.5,
+    "label": "Becken anheben"
+   },
+   {
+    "t": 1,
+    "label": "Oben: Gesäß 1–2 s anspannen"
+   },
+   {
+    "t": 0.5,
+    "label": "Wirbel für Wirbel absenken"
+   }
+  ],
+  "tempo": {
+   "toEndSec": 1.6,
+   "holdEndSec": 1.5,
+   "toStartSec": 2,
+   "holdStartSec": 0.6
+  },
+  "tempoText": "Hoch 1–2 s, oben 1–2 s halten, runter 2 s."
+ },
+ {
+  "id": "plank",
+  "title": "Plank",
+  "subtitle": "Unterarmstütz",
+  "category": "strength",
+  "why": "Der Rumpf hält Becken und Brustkorb ruhig, während die Beine arbeiten. Ein stabiler Rumpf verhindert, dass beim Laufen Energie verloren geht.",
+  "steps": [
+   "Stütz dich auf die Unterarme, Ellenbogen genau unter den Schultern, Füße hüftbreit auf den Zehen.",
+   "Bring Kopf, Rücken und Beine in eine Linie. Blick zum Boden.",
+   "Spann Bauch und Gesäß aktiv an, als würdest du das Becken leicht aufrichten.",
+   "Halten und normal weiteratmen. Wenn die Hüfte durchhängt, beende die Wiederholung."
+  ],
+  "mistakes": [
+   "Die Hüfte hängt durch (Hohlkreuz).",
+   "Das Becken ragt nach oben.",
+   "Die Schultern sinken zwischen die Schulterblätter, der Nacken hängt."
+  ],
+  "dose": "3 × 30–45 s",
+  "progression": "Leichter: Knie am Boden. Schwerer: abwechselnd ein Bein anheben.",
+  "muscles": [
+   {
+    "key": "core",
+    "label": "Bauchmuskeln (gerader und querer Bauchmuskel)",
+    "note": "halten Becken und Rippen ruhig",
+    "level": 1,
+    "kind": "work"
+   },
+   {
+    "key": "glute",
+    "label": "Großer Gesäßmuskel",
+    "note": "richtet das Becken auf",
+    "level": 2,
+    "kind": "work"
+   }
+  ],
+  "start": {
+   "hip": [
+    86,
+    120
+   ],
+   "neck": [
+    120,
+    112
+   ],
+   "frontView": false,
+   "torsoMuscles": [
+    "core"
+   ],
+   "farLimbs": [],
+   "nearLimbs": [
+    {
+     "root": "hip",
+     "points": [
+      [
+       60,
+       132
+      ],
+      [
+       32,
+       130
+      ]
+     ],
+     "foot": {
+      "angle": 35,
+      "toeAngle": null,
+      "direction": 1,
+      "flip": false
+     },
+     "muscles": [
+      "glute"
+     ]
+    },
+    {
+     "root": "neck",
+     "points": [
+      [
+       118,
+       132
+      ],
+      [
+       140,
+       133
+      ]
+     ],
+     "foot": null,
+     "muscles": []
+    }
+   ],
+   "props": [],
+   "annotations": []
+  },
+  "end": {
+   "hip": [
+    87,
+    119
+   ],
+   "neck": [
+    120,
+    112
+   ],
+   "frontView": false,
+   "torsoMuscles": [
+    "core"
+   ],
+   "farLimbs": [],
+   "nearLimbs": [
+    {
+     "root": "hip",
+     "points": [
+      [
+       57,
+       125
+      ],
+      [
+       28,
+       131
+      ]
+     ],
+     "foot": {
+      "angle": 75,
+      "toeAngle": null,
+      "direction": 1,
+      "flip": false
+     },
+     "muscles": [
+      "glute"
+     ]
+    },
+    {
+     "root": "neck",
+     "points": [
+      [
+       118,
+       132
+      ],
+      [
+       140,
+       133
+      ]
+     ],
+     "foot": null,
+     "muscles": []
+    }
+   ],
+   "props": [],
+   "annotations": []
+  },
+  "fault": {
+   "hip": [
+    87,
+    128
+   ],
+   "neck": [
+    120,
+    112
+   ],
+   "frontView": false,
+   "torsoMuscles": [],
+   "farLimbs": [],
+   "nearLimbs": [
+    {
+     "root": "hip",
+     "ik": {
+      "end": [
+       28,
+       131
+      ],
+      "bend": 1
+     },
+     "foot": {
+      "angle": 75,
+      "toeAngle": null,
+      "direction": 1,
+      "flip": false
+     },
+     "muscles": []
+    },
+    {
+     "root": "neck",
+     "points": [
+      [
+       118,
+       132
+      ],
+      [
+       140,
+       133
+      ]
+     ],
+     "foot": null,
+     "muscles": []
+    }
+   ],
+   "props": [],
+   "annotations": [
+    {
+     "type": "guide",
+     "from": [
+      28,
+      131
+     ],
+     "to": [
+      122,
+      111
+     ]
+    }
+   ]
+  },
+  "faultCaption": "Falsch: Hüfte hängt durch",
+  "frames": [
+   {
+    "t": 0,
+    "label": "Start: Unterarmstütz auf den Knien"
+   },
+   {
+    "t": 0.5,
+    "label": "Knie abheben"
+   },
+   {
+    "t": 1,
+    "label": "Halten: gerade Linie"
+   },
+   {
+    "t": 0.5,
+    "label": "Kontrolliert ablegen"
+   }
+  ],
+  "tempo": {
+   "toEndSec": 1.6,
+   "holdEndSec": 3,
+   "toStartSec": 1.6,
+   "holdStartSec": 0.6
+  },
+  "tempoText": "Aufbauen, dann 30–45 s halten (hier verkürzt)."
+ },
+ {
+  "id": "side-plank",
+  "title": "Side Plank",
+  "subtitle": "Seitstütz",
+  "category": "strength",
+  "why": "Er stärkt die seitliche Rumpfmuskulatur und die Hüftabduktoren. Sie halten das Becken beim Laufen waagerecht, wenn du auf einem Bein stehst.",
+  "steps": [
+   "Seitlage, Ellenbogen unter der Schulter, Beine gestreckt und übereinander.",
+   "Heb die Hüfte, bis Kopf, Rumpf und Beine eine Linie bilden. Der obere Arm zeigt zur Decke oder liegt an der Hüfte.",
+   "Schultern und Hüfte stehen übereinander, nichts kippt nach vorn oder hinten.",
+   "Halten, normal atmen, dann beide Seiten machen."
+  ],
+  "mistakes": [
+   "Die Hüfte sackt ab.",
+   "Der Oberkörper rollt nach vorn oder hinten.",
+   "Die Schulter „hängt“ im Gelenk."
+  ],
+  "dose": "2–3 × 20–30 s pro Seite",
+  "progression": "Leichter: unteres Knie am Boden (Beine angewinkelt). Schwerer: oberes Bein anheben.",
+  "muscles": [
+   {
+    "key": "obl",
+    "label": "Seitliche Bauchmuskeln",
+    "note": "halten den Rumpf gerade",
+    "level": 1,
+    "kind": "work"
+   },
+   {
+    "key": "glmed",
+    "label": "Seitlicher Gesäßmuskel",
+    "note": "hält das Becken oben",
+    "level": 1,
+    "kind": "work"
+   }
+  ],
+  "start": {
+   "hip": [
+    85,
+    131
+   ],
+   "neck": [
+    52,
+    112
+   ],
+   "frontView": true,
+   "torsoMuscles": [
+    "obl"
+   ],
+   "farLimbs": [
+    {
+     "root": "hip",
+     "ik": {
+      "end": [
+       143,
+       131
+      ],
+      "bend": 1
+     },
+     "foot": null,
+     "muscles": []
+    }
+   ],
+   "nearLimbs": [
+    {
+     "root": "hip",
+     "ik": {
+      "end": [
+       144,
+       132
+      ],
+      "bend": 1
+     },
+     "foot": null,
+     "muscles": [
+      "glmed"
+     ]
+    },
+    {
+     "root": "neck",
+     "points": [
+      [
+       52,
+       132
+      ],
+      [
+       64,
+       134
+      ]
+     ],
+     "foot": null,
+     "muscles": []
+    },
+    {
+     "root": "neck",
+     "points": [
+      [
+       52,
+       92
+      ],
+      [
+       52,
+       74
+      ]
+     ],
+     "foot": null,
+     "muscles": []
+    }
+   ],
+   "props": [],
+   "annotations": []
+  },
+  "end": {
+   "hip": [
+    85,
+    119
+   ],
+   "neck": [
+    52,
+    112
+   ],
+   "frontView": true,
+   "torsoMuscles": [
+    "obl"
+   ],
+   "farLimbs": [
+    {
+     "root": "hip",
+     "ik": {
+      "end": [
+       143,
+       127
+      ],
+      "bend": 1
+     },
+     "foot": null,
+     "muscles": []
+    }
+   ],
+   "nearLimbs": [
+    {
+     "root": "hip",
+     "ik": {
+      "end": [
+       144,
+       131
+      ],
+      "bend": 1
+     },
+     "foot": null,
+     "muscles": [
+      "glmed"
+     ]
+    },
+    {
+     "root": "neck",
+     "points": [
+      [
+       52,
+       132
+      ],
+      [
+       64,
+       134
+      ]
+     ],
+     "foot": null,
+     "muscles": []
+    },
+    {
+     "root": "neck",
+     "points": [
+      [
+       52,
+       92
+      ],
+      [
+       52,
+       74
+      ]
+     ],
+     "foot": null,
+     "muscles": []
+    }
+   ],
+   "props": [],
+   "annotations": []
+  },
+  "fault": {
+   "hip": [
+    85,
+    128
+   ],
+   "neck": [
+    52,
+    112
+   ],
+   "frontView": false,
+   "torsoMuscles": [],
+   "farLimbs": [
+    {
+     "root": "hip",
+     "ik": {
+      "end": [
+       143,
+       127
+      ],
+      "bend": 1
+     },
+     "foot": null,
+     "muscles": []
+    }
+   ],
+   "nearLimbs": [
+    {
+     "root": "hip",
+     "ik": {
+      "end": [
+       144,
+       131
+      ],
+      "bend": 1
+     },
+     "foot": null,
+     "muscles": []
+    },
+    {
+     "root": "neck",
+     "points": [
+      [
+       52,
+       132
+      ],
+      [
+       64,
+       134
+      ]
+     ],
+     "foot": null,
+     "muscles": []
+    },
+    {
+     "root": "neck",
+     "points": [
+      [
+       52,
+       92
+      ],
+      [
+       52,
+       74
+      ]
+     ],
+     "foot": null,
+     "muscles": []
+    }
+   ],
+   "props": [],
+   "annotations": [
+    {
+     "type": "guide",
+     "from": [
+      52,
+      112
+     ],
+     "to": [
+      144,
+      131
+     ]
+    }
+   ]
+  },
+  "faultCaption": "Falsch: Hüfte sackt ab",
+  "frames": [
+   {
+    "t": 0,
+    "label": "Start: Seitlage, Ellenbogen unter der Schulter"
+   },
+   {
+    "t": 0.5,
+    "label": "Hüfte anheben"
+   },
+   {
+    "t": 1,
+    "label": "Halten: eine Linie"
+   },
+   {
+    "t": 0.5,
+    "label": "Kontrolliert absenken"
+   }
+  ],
+  "tempo": {
+   "toEndSec": 1.6,
+   "holdEndSec": 3,
+   "toStartSec": 1.6,
+   "holdStartSec": 0.6
+  },
+  "tempoText": "Hüfte anheben, dann 20–30 s halten (hier verkürzt)."
+ },
+ {
+  "id": "dead-bug",
+  "title": "Dead Bug",
+  "subtitle": "Rumpfstabilität in Rückenlage",
+  "category": "strength",
+  "why": "Du übst, den unteren Rücken ruhig zu halten, während Arme und Beine sich bewegen. Genau das braucht der Rumpf beim Laufen: Gegenarm und Gegenbein arbeiten, der Rumpf bleibt stabil.",
+  "steps": [
+   "Rückenlage, Arme senkrecht nach oben, Hüfte und Knie 90 Grad (Tischposition). Der untere Rücken drückt leicht in den Boden.",
+   "Streck langsam einen Arm nach hinten über den Kopf und gleichzeitig das gegenüberliegende Bein nach vorn.",
+   "Atme beim Strecken aus. Sobald der Rücken vom Boden abhebt, bist du zu weit gegangen.",
+   "Zurück in die Tischposition, danach die andere Seite."
+  ],
+  "mistakes": [
+   "Hohlkreuz: Der Rücken hebt vom Boden ab.",
+   "Zu schnell und mit Schwung.",
+   "Arm und Bein derselben Seite bewegen sich zusammen statt gegengleich."
+  ],
+  "dose": "3 × 8–10 pro Seite, langsam (ca. 3 s pro Wiederholung)",
+  "progression": "Leichter: nur die Beine abwechselnd absenken. Schwerer: Widerstand mit einem leichten Gewicht in den Händen.",
+  "muscles": [
+   {
+    "key": "core",
+    "label": "Bauchmuskeln",
+    "note": "drücken den unteren Rücken in den Boden",
+    "level": 1,
+    "kind": "work"
+   },
+   {
+    "key": "hipfl",
+    "label": "Hüftbeuger",
+    "note": "halten die Beine in der Luft",
+    "level": 2,
+    "kind": "work"
+   }
+  ],
+  "start": {
+   "hip": [
+    88,
+    131
+   ],
+   "neck": [
+    54,
+    131
+   ],
+   "headOffset": 10,
+   "frontView": false,
+   "torsoMuscles": [
+    "core"
+   ],
+   "farLimbs": [
+    {
+     "root": "neck",
+     "points": [
+      [
+       58,
+       112
+      ],
+      [
+       58,
+       93
+      ]
+     ],
+     "foot": null,
+     "muscles": []
+    },
+    {
+     "root": "hip",
+     "points": [
+      [
+       92,
+       102
+      ],
+      [
+       122,
+       102
+      ]
+     ],
+     "foot": {
+      "angle": -80,
+      "toeAngle": null,
+      "direction": 1,
+      "flip": false
+     },
+     "muscles": [
+      "hipfl"
+     ]
+    }
+   ],
+   "nearLimbs": [
+    {
+     "root": "neck",
+     "points": [
+      [
+       54,
+       112
+      ],
+      [
+       54,
+       93
+      ]
+     ],
+     "foot": null,
+     "muscles": []
+    },
+    {
+     "root": "hip",
+     "points": [
+      [
+       88,
+       101
+      ],
+      [
+       118,
+       101
+      ]
+     ],
+     "foot": {
+      "angle": -80,
+      "toeAngle": null,
+      "direction": 1,
+      "flip": false
+     },
+     "muscles": [
+      "hipfl"
+     ]
+    }
+   ],
+   "props": [],
+   "annotations": []
+  },
+  "end": {
+   "hip": [
+    88,
+    131
+   ],
+   "neck": [
+    54,
+    131
+   ],
+   "headOffset": 10,
+   "frontView": false,
+   "torsoMuscles": [
+    "core"
+   ],
+   "farLimbs": [
+    {
+     "root": "neck",
+     "points": [
+      [
+       58,
+       112
+      ],
+      [
+       58,
+       93
+      ]
+     ],
+     "foot": null,
+     "muscles": []
+    },
+    {
+     "root": "hip",
+     "points": [
+      [
+       118,
+       125
+      ],
+      [
+       148,
+       121
+      ]
+     ],
+     "foot": {
+      "angle": -80,
+      "toeAngle": null,
+      "direction": 1,
+      "flip": false
+     },
+     "muscles": [
+      "hipfl"
+     ]
+    }
+   ],
+   "nearLimbs": [
+    {
+     "root": "neck",
+     "points": [
+      [
+       36,
+       119
+      ],
+      [
+       17,
+       113
+      ]
+     ],
+     "foot": null,
+     "muscles": []
+    },
+    {
+     "root": "hip",
+     "points": [
+      [
+       88,
+       101
+      ],
+      [
+       118,
+       101
+      ]
+     ],
+     "foot": {
+      "angle": -80,
+      "toeAngle": null,
+      "direction": 1,
+      "flip": false
+     },
+     "muscles": [
+      "hipfl"
+     ]
+    }
+   ],
+   "props": [],
+   "annotations": [
+    {
+     "type": "label",
+     "text": "Rücken bleibt am Boden",
+     "at": [
+      100,
+      148
+     ],
+     "anchor": "middle"
+    }
+   ]
+  },
+  "fault": null,
+  "faultCaption": null,
+  "frames": [
+   {
+    "t": 0,
+    "label": "Start: Tischposition"
+   },
+   {
+    "t": 0.5,
+    "label": "Arm und Gegenbein strecken, ausatmen"
+   },
+   {
+    "t": 1,
+    "label": "Rücken bleibt am Boden"
+   },
+   {
+    "t": 0.5,
+    "label": "Zurück in die Tischposition"
+   }
+  ],
+  "tempo": {
+   "toEndSec": 3,
+   "holdEndSec": 0.6,
+   "toStartSec": 3,
+   "holdStartSec": 0.6
+  },
+  "tempoText": "Strecken 3 s, zurück 3 s, jede Wiederholung langsam."
+ },
+ {
+  "id": "clamshell",
+  "title": "Clamshell",
+  "subtitle": "Muschel, seitliche Gesäßmuskulatur",
+  "category": "strength",
+  "why": "Der seitliche Gesäßmuskel (Gluteus medius) hält Becken und Knie beim Laufen stabil. Ist er schwach, kippt das Becken und das Knie fällt nach innen.",
+  "steps": [
+   "Seitlage, Hüfte ca. 45 Grad gebeugt, Knie ca. 90 Grad, Füße und Knie liegen aufeinander. Kopf auf dem unteren Arm.",
+   "Halt die Füße zusammen und öffne das obere Knie nach oben wie eine Muschel.",
+   "Das Becken bleibt stabil und rollt nicht nach hinten. Oben 1 Sekunde halten.",
+   "Langsam schließen. Pro Seite alle Wiederholungen, dann wechseln."
+  ],
+  "mistakes": [
+   "Das Becken rollt beim Öffnen nach hinten.",
+   "Die Füße lösen sich voneinander.",
+   "Zu schnell und mit Schwung aus dem Rücken."
+  ],
+  "dose": "2–3 × 15 pro Seite",
+  "progression": "Schwerer: Miniband oberhalb der Knie.",
+  "muscles": [
+   {
+    "key": "glmed",
+    "label": "Seitlicher Gesäßmuskel (Gluteus medius)",
+    "note": "öffnet das obere Knie und hält das Becken stabil",
+    "level": 1,
+    "kind": "work"
+   }
+  ],
+  "start": {
+   "hip": [
+    88,
+    116
+   ],
+   "neck": [
+    54,
+    116
+   ],
+   "frontView": true,
+   "torsoMuscles": [],
+   "farLimbs": [
+    {
+     "root": "hip",
+     "points": [
+      [
+       108,
+       134
+      ],
+      [
+       80,
+       132
+      ]
+     ],
+     "foot": null,
+     "muscles": []
+    }
+   ],
+   "nearLimbs": [
+    {
+     "root": "hip",
+     "points": [
+      [
+       108,
+       128
+      ],
+      [
+       80,
+       126
+      ]
+     ],
+     "foot": null,
+     "muscles": [
+      "glmed"
+     ]
+    },
+    {
+     "root": "neck",
+     "points": [
+      [
+       70,
+       104
+      ],
+      [
+       86,
+       108
+      ]
+     ],
+     "foot": null,
+     "muscles": []
+    }
+   ],
+   "props": [],
+   "annotations": []
+  },
+  "end": {
+   "hip": [
+    88,
+    116
+   ],
+   "neck": [
+    54,
+    116
+   ],
+   "frontView": true,
+   "torsoMuscles": [],
+   "farLimbs": [
+    {
+     "root": "hip",
+     "points": [
+      [
+       108,
+       134
+      ],
+      [
+       80,
+       132
+      ]
+     ],
+     "foot": null,
+     "muscles": []
+    }
+   ],
+   "nearLimbs": [
+    {
+     "root": "hip",
+     "points": [
+      [
+       114,
+       108
+      ],
+      [
+       80,
+       126
+      ]
+     ],
+     "foot": null,
+     "muscles": [
+      "glmed"
+     ]
+    },
+    {
+     "root": "neck",
+     "points": [
+      [
+       70,
+       104
+      ],
+      [
+       86,
+       108
+      ]
+     ],
+     "foot": null,
+     "muscles": []
+    }
+   ],
+   "props": [],
+   "annotations": [
+    {
+     "type": "arrow",
+     "from": [
+      128,
+      116
+     ],
+     "to": [
+      128,
+      100
+     ]
+    },
+    {
+     "type": "label",
+     "text": "Füße bleiben zusammen",
+     "at": [
+      100,
+      148
+     ],
+     "anchor": "middle"
+    }
+   ]
+  },
+  "fault": null,
+  "faultCaption": null,
+  "frames": [
+   {
+    "t": 0,
+    "label": "Start: Knie und Füße zusammen"
+   },
+   {
+    "t": 0.5,
+    "label": "Knie öffnen"
+   },
+   {
+    "t": 1,
+    "label": "Oben 1 s halten, Füße zusammen"
+   },
+   {
+    "t": 0.5,
+    "label": "Langsam schließen"
+   }
+  ],
+  "tempo": {
+   "toEndSec": 1.6,
+   "holdEndSec": 1,
+   "toStartSec": 1.6,
+   "holdStartSec": 0.6
+  },
+  "tempoText": "Öffnen 1–2 s, 1 s halten, schließen 2 s."
+ },
+ {
+  "id": "hip-flexor-stretch",
+  "title": "Hip Flexor Stretch",
+  "subtitle": "Hüftbeuger-Dehnung im Halbkniestand",
+  "category": "mobility",
+  "why": "Langes Sitzen und Autofahren verkürzen die Hüftbeuger. Sind sie kurz, kippt das Becken und der Schritt bleibt kurz. Diese Dehnung gibt der Hüfte wieder Streckung.",
+  "steps": [
+   "Halbkniestand: Ein Knie liegt auf einem Polster, der andere Fuß steht weit vorn, Knie über dem Knöchel. Oberkörper aufrecht.",
+   "Richte das Becken auf: Gesäß der hinteren Seite anspannen, Bauchnabel zur Wirbelsäule. Erst dann schiebst du die Hüfte langsam nach vorn.",
+   "Die Dehnung sitzt vorn in der Hüfte des hinteren Beins. Für mehr Wirkung den Arm dieser Seite heben und leicht zur Gegenseite neigen.",
+   "Halten und ruhig atmen."
+  ],
+  "mistakes": [
+   "Hohlkreuz: Der Rücken kippt nach hinten, das Dehnen verlagert sich in den Rücken.",
+   "Der Abstand ist zu kurz, das vordere Knie schiebt weit über die Zehen.",
+   "Der Oberkörper klappt nach vorn."
+  ],
+  "dose": "2–3 × 30–45 s pro Seite",
+  "progression": "Leichter: kleinerer Ausfallschritt. Schwerer: Arm heben und zur Gegenseite neigen.",
+  "muscles": [
+   {
+    "key": "hipfl",
+    "label": "Hüftbeuger des hinteren Beins",
+    "note": "werden gedehnt",
+    "level": 1,
+    "kind": "stretch"
+   },
+   {
+    "key": "glute",
+    "label": "Großer Gesäßmuskel (hinten)",
+    "note": "spannt an und richtet das Becken auf",
+    "level": 2,
+    "kind": "work"
+   }
+  ],
+  "start": {
+   "hip": [
+    92,
+    104
+   ],
+   "neck": [
+    90,
+    70
+   ],
+   "frontView": false,
+   "torsoMuscles": [],
+   "farLimbs": [
+    {
+     "root": "hip",
+     "points": [
+      [
+       68,
+       126
+      ],
+      [
+       38,
+       130
+      ]
+     ],
+     "foot": {
+      "angle": 0,
+      "toeAngle": null,
+      "direction": -1,
+      "flip": true
+     },
+     "muscles": [
+      "hipfl",
+      "glute"
+     ]
+    }
+   ],
+   "nearLimbs": [
+    {
+     "root": "hip",
+     "points": [
+      [
+       124,
+       103
+      ],
+      [
+       124,
+       133
+      ]
+     ],
+     "foot": {
+      "angle": 0,
+      "toeAngle": null,
+      "direction": 1,
+      "flip": false
+     },
+     "muscles": []
+    },
+    {
+     "root": "neck",
+     "points": [
+      [
+       100,
+       84
+      ],
+      [
+       106,
+       98
+      ]
+     ],
+     "foot": null,
+     "muscles": []
+    }
+   ],
+   "props": [],
+   "annotations": []
+  },
+  "end": {
+   "hip": [
+    98,
+    104
+   ],
+   "neck": [
+    96,
+    70
+   ],
+   "frontView": false,
+   "torsoMuscles": [],
+   "farLimbs": [
+    {
+     "root": "hip",
+     "points": [
+      [
+       74,
+       126
+      ],
+      [
+       44,
+       130
+      ]
+     ],
+     "foot": {
+      "angle": 0,
+      "toeAngle": null,
+      "direction": -1,
+      "flip": true
+     },
+     "muscles": [
+      "hipfl",
+      "glute"
+     ]
+    }
+   ],
+   "nearLimbs": [
+    {
+     "root": "hip",
+     "points": [
+      [
+       124,
+       103
+      ],
+      [
+       124,
+       133
+      ]
+     ],
+     "foot": {
+      "angle": 0,
+      "toeAngle": null,
+      "direction": 1,
+      "flip": false
+     },
+     "muscles": []
+    },
+    {
+     "root": "neck",
+     "points": [
+      [
+       102,
+       54
+      ],
+      [
+       104,
+       34
+      ]
+     ],
+     "foot": null,
+     "muscles": []
+    }
+   ],
+   "props": [],
+   "annotations": [
+    {
+     "type": "arrow",
+     "from": [
+      88,
+      120
+     ],
+     "to": [
+      110,
+      120
+     ]
+    },
+    {
+     "type": "label",
+     "text": "Becken nach vorn",
+     "at": [
+      100,
+      148
+     ],
+     "anchor": "middle"
+    }
+   ]
+  },
+  "fault": {
+   "hip": [
+    94,
+    104
+   ],
+   "neck": [
+    78,
+    72
+   ],
+   "frontView": false,
+   "torsoMuscles": [],
+   "farLimbs": [
+    {
+     "root": "hip",
+     "points": [
+      [
+       70,
+       127
+      ],
+      [
+       40,
+       131
+      ]
+     ],
+     "foot": {
+      "angle": 0,
+      "toeAngle": null,
+      "direction": -1,
+      "flip": true
+     },
+     "muscles": []
+    }
+   ],
+   "nearLimbs": [
+    {
+     "root": "hip",
+     "points": [
+      [
+       124,
+       103
+      ],
+      [
+       124,
+       133
+      ]
+     ],
+     "foot": {
+      "angle": 0,
+      "toeAngle": null,
+      "direction": 1,
+      "flip": false
+     },
+     "muscles": []
+    },
+    {
+     "root": "neck",
+     "points": [
+      [
+       88,
+       86
+      ],
+      [
+       97,
+       100
+      ]
+     ],
+     "foot": null,
+     "muscles": []
+    }
+   ],
+   "props": [],
+   "annotations": [
+    {
+     "type": "label",
+     "text": "Hohlkreuz",
+     "at": [
+      20,
+      50
+     ],
+     "anchor": "start"
+    }
+   ]
+  },
+  "faultCaption": "Falsch: Hohlkreuz, der Rücken kippt nach hinten",
+  "frames": [
+   {
+    "t": 0,
+    "label": "Start: Halbkniestand, Oberkörper aufrecht"
+   },
+   {
+    "t": 0.5,
+    "label": "Becken aufrichten, Arm heben"
+   },
+   {
+    "t": 1,
+    "label": "Hüfte nach vorn, halten"
+   },
+   {
+    "t": 0.5,
+    "label": "Langsam lösen"
+   }
+  ],
+  "tempo": {
+   "toEndSec": 2,
+   "holdEndSec": 3,
+   "toStartSec": 2,
+   "holdStartSec": 0.6
+  },
+  "tempoText": "Hüfte nach vorn, dann 30–45 s halten (hier verkürzt)."
+ },
+ {
+  "id": "thoracic-rotation",
+  "title": "Thoracic Rotation",
+  "subtitle": "Brustwirbelsäulen-Rotation im Vierfüßlerstand",
+  "category": "mobility",
+  "why": "Eine bewegliche Brustwirbelsäule lässt den Oberkörper beim Laufen mitschwingen. Ist sie steif, weicht die Lendenwirbelsäule aus. Sitzen macht die Brust steif.",
+  "steps": [
+   "Vierfüßlerstand: Hände unter den Schultern, Knie unter der Hüfte. Eine Hand legst du hinter den Kopf.",
+   "Führ den Ellenbogen zum Stützarm nach unten.",
+   "Dreh dann den Ellenbogen zur Decke und öffne die Brust. Der Blick folgt dem Ellenbogen. Dabei atmest du aus.",
+   "Die Hüfte bleibt ruhig und sitzt nicht auf die Fersen zurück."
+  ],
+  "mistakes": [
+   "Die Bewegung kommt aus der Lendenwirbelsäule statt aus dem Brustkorb.",
+   "Die Hüfte weicht nach hinten aus.",
+   "Ruckartig statt fließend."
+  ],
+  "dose": "2 × 8–10 pro Seite",
+  "progression": "Etwas mehr Bewegungsradius: Ellenbogen weiter nach unten und oben führen.",
+  "muscles": [
+   {
+    "key": "back",
+    "label": "Brustwirbelsäule und Rumpfdreher",
+    "note": "werden mobilisiert",
+    "level": 1,
+    "kind": "work"
+   },
+   {
+    "key": "chest",
+    "label": "Brustmuskel",
+    "note": "wird beim Öffnen gedehnt",
+    "level": 2,
+    "kind": "stretch"
+   }
+  ],
+  "start": {
+   "hip": [
+    62,
+    100
+   ],
+   "neck": [
+    96,
+    98
+   ],
+   "frontView": false,
+   "torsoMuscles": [
+    "back",
+    "chest"
+   ],
+   "farLimbs": [],
+   "nearLimbs": [
+    {
+     "root": "hip",
+     "points": [
+      [
+       62,
+       130
+      ],
+      [
+       32,
+       132
+      ]
+     ],
+     "foot": {
+      "angle": 0,
+      "toeAngle": null,
+      "direction": -1,
+      "flip": true
+     },
+     "muscles": []
+    },
+    {
+     "root": "neck",
+     "points": [
+      [
+       97,
+       115
+      ],
+      [
+       98,
+       132
+      ]
+     ],
+     "foot": null,
+     "muscles": []
+    },
+    {
+     "root": "neck",
+     "points": [
+      [
+       112,
+       112
+      ],
+      [
+       109,
+       99
+      ]
+     ],
+     "foot": null,
+     "muscles": []
+    }
+   ],
+   "props": [],
+   "annotations": []
+  },
+  "end": {
+   "hip": [
+    62,
+    100
+   ],
+   "neck": [
+    96,
+    98
+   ],
+   "frontView": false,
+   "torsoMuscles": [
+    "back",
+    "chest"
+   ],
+   "farLimbs": [],
+   "nearLimbs": [
+    {
+     "root": "hip",
+     "points": [
+      [
+       62,
+       130
+      ],
+      [
+       32,
+       132
+      ]
+     ],
+     "foot": {
+      "angle": 0,
+      "toeAngle": null,
+      "direction": -1,
+      "flip": true
+     },
+     "muscles": []
+    },
+    {
+     "root": "neck",
+     "points": [
+      [
+       97,
+       115
+      ],
+      [
+       98,
+       132
+      ]
+     ],
+     "foot": null,
+     "muscles": []
+    },
+    {
+     "root": "neck",
+     "points": [
+      [
+       100,
+       78
+      ],
+      [
+       109,
+       92
+      ]
+     ],
+     "foot": null,
+     "muscles": []
+    }
+   ],
+   "props": [],
+   "annotations": [
+    {
+     "type": "arrow",
+     "from": [
+      116,
+      112
+     ],
+     "to": [
+      104,
+      78
+     ],
+     "curve": [
+      128,
+      92
+     ]
+    }
+   ]
+  },
+  "fault": null,
+  "faultCaption": null,
+  "frames": [
+   {
+    "t": 0,
+    "label": "Start: Hand hinter dem Kopf, Ellenbogen unten"
+   },
+   {
+    "t": 0.5,
+    "label": "Ellenbogen anheben"
+   },
+   {
+    "t": 1,
+    "label": "Zur Decke öffnen, Blick folgt"
+   },
+   {
+    "t": 0.5,
+    "label": "Zurück zum Stützarm"
+   }
+  ],
+  "tempo": {
+   "toEndSec": 2,
+   "holdEndSec": 1,
+   "toStartSec": 2,
+   "holdStartSec": 0.6
+  },
+  "tempoText": "Öffnen 2 s, kurz halten, zurück 2 s, dabei beim Öffnen ausatmen."
+ },
+ {
+  "id": "knee-to-wall",
+  "title": "Knee-to-Wall",
+  "subtitle": "Sprunggelenk-Beweglichkeit, Zusatz vor dem Lauf",
+  "category": "mobility",
+  "why": "Ein Sprunggelenk, das sich nach vorn beugen kann, entlastet Achillessehne und Wade und hilft dem Fuß, sauber abzurollen.",
+  "steps": [
+   "Stell einen Fuß ca. 5–10 cm vor eine Wand, das andere Bein steht zur Stabilität hinten.",
+   "Schieb das Knie in Richtung Wand, es soll über der zweiten Zehe bleiben.",
+   "Die Ferse bleibt fest am Boden. Wenn das Knie die Wand berührt, rück den Fuß weiter weg.",
+   "Kurz halten, zurück, wiederholen."
+  ],
+  "mistakes": [
+   "Die Ferse hebt ab.",
+   "Das Knie fällt nach innen.",
+   "Ruckartiges Federn statt gleichmäßigem Vorschieben."
+  ],
+  "dose": "2 × 10 pro Seite, je 2 s halten",
+  "progression": "Steigerung: Fuß weiter von der Wand weg, solange die Ferse unten bleibt.",
+  "muscles": [
+   {
+    "key": "sol",
+    "label": "Tiefer Wadenmuskel und Achillessehne",
+    "note": "werden gedehnt",
+    "level": 1,
+    "kind": "stretch"
+   },
+   {
+    "key": "tib",
+    "label": "Schienbeinmuskel",
+    "note": "zieht den Fuß zum Schienbein",
+    "level": 2,
+    "kind": "work"
+   }
+  ],
+  "start": {
+   "hip": [
+    126,
+    90
+   ],
+   "neck": [
+    124,
+    56
+   ],
+   "frontView": false,
+   "torsoMuscles": [],
+   "farLimbs": [
+    {
+     "root": "hip",
+     "ik": {
+      "end": [
+       85,
+       131
+      ],
+      "bend": 1
+     },
+     "foot": {
+      "angle": 0,
+      "toeAngle": null,
+      "direction": 1,
+      "flip": false
+     },
+     "muscles": []
+    }
+   ],
+   "nearLimbs": [
+    {
+     "root": "hip",
+     "points": [
+      [
+       146,
+       112
+      ],
+      [
+       128,
+       132
+      ]
+     ],
+     "foot": {
+      "angle": 0,
+      "toeAngle": null,
+      "direction": 1,
+      "flip": false
+     },
+     "muscles": [
+      "sol",
+      "tib"
+     ]
+    },
+    {
+     "root": "neck",
+     "ik": {
+      "end": [
+       150,
+       66
+      ],
+      "bend": -1
+     },
+     "foot": null,
+     "muscles": []
+    }
+   ],
+   "props": [
+    {
+     "type": "wall",
+     "x": 158,
+     "w": 8
+    }
+   ],
+   "annotations": []
+  },
+  "end": {
+   "hip": [
+    132,
+    90
+   ],
+   "neck": [
+    130,
+    56
+   ],
+   "frontView": false,
+   "torsoMuscles": [],
+   "farLimbs": [
+    {
+     "root": "hip",
+     "ik": {
+      "end": [
+       89,
+       131
+      ],
+      "bend": 1
+     },
+     "foot": {
+      "angle": 0,
+      "toeAngle": null,
+      "direction": 1,
+      "flip": false
+     },
+     "muscles": []
+    }
+   ],
+   "nearLimbs": [
+    {
+     "root": "hip",
+     "points": [
+      [
+       154,
+       112
+      ],
+      [
+       130,
+       132
+      ]
+     ],
+     "foot": {
+      "angle": 0,
+      "toeAngle": null,
+      "direction": 1,
+      "flip": false
+     },
+     "muscles": [
+      "sol",
+      "tib"
+     ]
+    },
+    {
+     "root": "neck",
+     "ik": {
+      "end": [
+       156,
+       66
+      ],
+      "bend": -1
+     },
+     "foot": null,
+     "muscles": []
+    }
+   ],
+   "props": [
+    {
+     "type": "wall",
+     "x": 158,
+     "w": 8
+    }
+   ],
+   "annotations": [
+    {
+     "type": "arrow",
+     "from": [
+      138,
+      100
+     ],
+     "to": [
+      152,
+      100
+     ]
+    }
+   ]
+  },
+  "fault": {
+   "hip": [
+    132,
+    90
+   ],
+   "neck": [
+    130,
+    56
+   ],
+   "frontView": false,
+   "torsoMuscles": [],
+   "farLimbs": [
+    {
+     "root": "hip",
+     "ik": {
+      "end": [
+       89,
+       131
+      ],
+      "bend": 1
+     },
+     "foot": {
+      "angle": 0,
+      "toeAngle": null,
+      "direction": 1,
+      "flip": false
+     },
+     "muscles": []
+    }
+   ],
+   "nearLimbs": [
+    {
+     "root": "hip",
+     "points": [
+      [
+       154,
+       112
+      ],
+      [
+       132,
+       124
+      ]
+     ],
+     "foot": {
+      "angle": 55,
+      "toeAngle": 0,
+      "direction": 1,
+      "flip": false
+     },
+     "muscles": []
+    },
+    {
+     "root": "neck",
+     "ik": {
+      "end": [
+       156,
+       66
+      ],
+      "bend": -1
+     },
+     "foot": null,
+     "muscles": []
+    }
+   ],
+   "props": [
+    {
+     "type": "wall",
+     "x": 158,
+     "w": 8
+    }
+   ],
+   "annotations": [
+    {
+     "type": "label",
+     "text": "Ferse hebt ab",
+     "at": [
+      96,
+      116
+     ],
+     "anchor": "middle"
+    }
+   ]
+  },
+  "faultCaption": "Falsch: Ferse hebt ab",
+  "frames": [
+   {
+    "t": 0,
+    "label": "Start: Fuß 5–10 cm vor der Wand"
+   },
+   {
+    "t": 0.5,
+    "label": "Knie nach vorn schieben"
+   },
+   {
+    "t": 1,
+    "label": "Knie berührt die Wand, Ferse unten"
+   },
+   {
+    "t": 0.5,
+    "label": "Zurück in den Start"
+   }
+  ],
+  "tempo": {
+   "toEndSec": 1.6,
+   "holdEndSec": 2,
+   "toStartSec": 1.6,
+   "holdStartSec": 0.6
+  },
+  "tempoText": "Nach vorn 1–2 s, 2 s halten, zurück."
+ },
+ {
+  "id": "calf-stretch",
+  "title": "Wadendehnung an der Wand",
+  "subtitle": "Gastrocnemius und Soleus, Zusatz",
+  "category": "mobility",
+  "why": "Beide Wadenmuskeln plus Achillessehne sollen nachgeben, bevor sie im Lauf arbeiten. Mit gestrecktem Knie dehnst du den äußeren Muskel, mit gebeugtem den tiefen.",
+  "steps": [
+   "Stütz beide Hände an eine Wand. Ein Bein steht weit hinten, die Ferse bleibt am Boden, die Fußspitze zeigt gerade nach vorn.",
+   "Gestrecktes Knie: Schieb das Becken zur Wand, bis du eine Dehnung in der oberen Wade spürst.",
+   "Gebeugtes Knie: Geh ein Stück näher, beug das hintere Knie und lass die Ferse unten. Die Dehnung sitzt tiefer, nah an der Achillessehne.",
+   "Sanft halten, nicht wippen."
+  ],
+  "mistakes": [
+   "Die Ferse hebt ab.",
+   "Der Fuß dreht nach außen.",
+   "Zu starker Zug: Es sollte spannen, nicht stechen."
+  ],
+  "dose": "2 × 30 s pro Variante und Seite",
+  "progression": "Kein Schmerz an der Achillessehne. Bei Stechen: Position lockerer wählen.",
+  "muscles": [
+   {
+    "key": "calf",
+    "label": "Äußerer Wadenmuskel (Gastrocnemius)",
+    "note": "wird bei gestrecktem Knie gedehnt",
+    "level": 1,
+    "kind": "stretch"
+   },
+   {
+    "key": "sol",
+    "label": "Tiefer Wadenmuskel (Soleus)",
+    "note": "wird bei gebeugtem Knie gedehnt",
+    "level": 1,
+    "kind": "stretch"
+   },
+   {
+    "key": "ach",
+    "label": "Achillessehne",
+    "note": "wird sanft mitgedehnt",
+    "level": 2,
+    "kind": "stretch"
+   }
+  ],
+  "start": {
+   "hip": [
+    114,
+    86
+   ],
+   "neck": [
+    136,
+    58
+   ],
+   "frontView": false,
+   "torsoMuscles": [],
+   "farLimbs": [
+    {
+     "root": "hip",
+     "ik": {
+      "end": [
+       142,
+       133
+      ],
+      "bend": 1
+     },
+     "foot": {
+      "angle": 0,
+      "toeAngle": null,
+      "direction": 1,
+      "flip": false
+     },
+     "muscles": []
+    }
+   ],
+   "nearLimbs": [
+    {
+     "root": "hip",
+     "ik": {
+      "end": [
+       78,
+       132
+      ],
+      "bend": 1
+     },
+     "foot": {
+      "angle": 0,
+      "toeAngle": null,
+      "direction": 1,
+      "flip": false
+     },
+     "muscles": [
+      "calf",
+      "sol",
+      "ach"
+     ]
+    },
+    {
+     "root": "neck",
+     "ik": {
+      "end": [
+       172,
+       62
+      ],
+      "bend": -1
+     },
+     "foot": null,
+     "muscles": []
+    }
+   ],
+   "props": [
+    {
+     "type": "wall",
+     "x": 174,
+     "w": 8
+    }
+   ],
+   "annotations": [
+    {
+     "type": "arrow",
+     "from": [
+      70,
+      118
+     ],
+     "to": [
+      70,
+      130
+     ]
+    }
+   ]
+  },
+  "end": {
+   "hip": [
+    120,
+    98
+   ],
+   "neck": [
+    142,
+    70
+   ],
+   "frontView": false,
+   "torsoMuscles": [],
+   "farLimbs": [
+    {
+     "root": "hip",
+     "ik": {
+      "end": [
+       150,
+       133
+      ],
+      "bend": 1
+     },
+     "foot": {
+      "angle": 0,
+      "toeAngle": null,
+      "direction": 1,
+      "flip": false
+     },
+     "muscles": []
+    }
+   ],
+   "nearLimbs": [
+    {
+     "root": "hip",
+     "ik": {
+      "end": [
+       80,
+       132
+      ],
+      "bend": 1
+     },
+     "foot": {
+      "angle": 0,
+      "toeAngle": null,
+      "direction": 1,
+      "flip": false
+     },
+     "muscles": [
+      "calf",
+      "sol",
+      "ach"
+     ]
+    },
+    {
+     "root": "neck",
+     "ik": {
+      "end": [
+       172,
+       74
+      ],
+      "bend": -1
+     },
+     "foot": null,
+     "muscles": []
+    }
+   ],
+   "props": [
+    {
+     "type": "wall",
+     "x": 174,
+     "w": 8
+    }
+   ],
+   "annotations": [
+    {
+     "type": "arrow",
+     "from": [
+      72,
+      118
+     ],
+     "to": [
+      72,
+      130
+     ]
+    }
+   ]
+  },
+  "fault": null,
+  "faultCaption": null,
+  "frames": [
+   {
+    "t": 0,
+    "label": "Hinteres Knie gestreckt: äußere Wade"
+   },
+   {
+    "t": 0.5,
+    "label": "Hinteres Knie langsam beugen"
+   },
+   {
+    "t": 1,
+    "label": "Knie gebeugt: tiefe Wade"
+   },
+   {
+    "t": 0.5,
+    "label": "Wieder strecken"
+   }
+  ],
+  "tempo": {
+   "toEndSec": 2,
+   "holdEndSec": 3,
+   "toStartSec": 2,
+   "holdStartSec": 3
+  },
+  "tempoText": "Je Variante 30 s halten (hier verkürzt)."
+ },
+ {
+  "id": "cat-cow",
+  "title": "Katze und Kuh",
+  "subtitle": "Cat-Cow, Wirbelsäulen-Mobilisation",
+  "category": "mobility",
+  "why": "Ein sanfter Wechsel aus Beugung und Streckung der Wirbelsäule. Ideal zum Warmwerden, vor dem Krafttraining oder nach langem Sitzen.",
+  "steps": [
+   "Vierfüßlerstand: Hände unter den Schultern, Knie unter der Hüfte.",
+   "Kuh: Atme ein, senk den Bauch, das Brustbein schiebt nach vorn, der Blick geht nach vorn.",
+   "Katze: Atme aus, mach den Rücken rund, das Kinn geht zur Brust.",
+   "Langsam und fließend wechseln, jede Endstellung 1–2 Sekunden."
+  ],
+  "mistakes": [
+   "Zu schnell, dann fehlt die echte Bewegung.",
+   "Nur der Nacken bewegt sich statt der ganzen Wirbelsäule.",
+   "Die Arme beugen sich."
+  ],
+  "dose": "8–10 langsame Wiederholungen",
+  "progression": "Sanft: kleinerer Weg. Keine Schmerzgrenze überschreiten.",
+  "muscles": [
+   {
+    "key": "back",
+    "label": "Rückenstrecker und Wirbelsäule",
+    "note": "beugen und strecken die Wirbelsäule",
+    "level": 1,
+    "kind": "work"
+   },
+   {
+    "key": "core",
+    "label": "Bauchmuskeln",
+    "note": "runden den Rücken bei der Katze",
+    "level": 2,
+    "kind": "work"
+   }
+  ],
+  "start": {
+   "hip": [
+    66,
+    100
+   ],
+   "neck": [
+    102,
+    100
+   ],
+   "head": [
+    116,
+    88
+   ],
+   "spine": [
+    [
+     66,
+     100
+    ],
+    [
+     84,
+     118
+    ],
+    [
+     102,
+     100
+    ]
+   ],
+   "frontView": false,
+   "torsoMuscles": [
+    "back",
+    "core"
+   ],
+   "farLimbs": [],
+   "nearLimbs": [
+    {
+     "root": "hip",
+     "points": [
+      [
+       66,
+       130
+      ],
+      [
+       36,
+       132
+      ]
+     ],
+     "foot": {
+      "angle": 0,
+      "toeAngle": null,
+      "direction": -1,
+      "flip": true
+     },
+     "muscles": []
+    },
+    {
+     "root": "neck",
+     "points": [
+      [
+       102,
+       116
+      ],
+      [
+       102,
+       132
+      ]
+     ],
+     "foot": null,
+     "muscles": []
+    }
+   ],
+   "props": [],
+   "annotations": [
+    {
+     "type": "arrow",
+     "from": [
+      84,
+      82
+     ],
+     "to": [
+      84,
+      100
+     ]
+    }
+   ]
+  },
+  "end": {
+   "hip": [
+    66,
+    100
+   ],
+   "neck": [
+    102,
+    100
+   ],
+   "head": [
+    115,
+    112
+   ],
+   "spine": [
+    [
+     66,
+     100
+    ],
+    [
+     84,
+     82
+    ],
+    [
+     102,
+     100
+    ]
+   ],
+   "frontView": false,
+   "torsoMuscles": [
+    "back",
+    "core"
+   ],
+   "farLimbs": [],
+   "nearLimbs": [
+    {
+     "root": "hip",
+     "points": [
+      [
+       66,
+       130
+      ],
+      [
+       36,
+       132
+      ]
+     ],
+     "foot": {
+      "angle": 0,
+      "toeAngle": null,
+      "direction": -1,
+      "flip": true
+     },
+     "muscles": []
+    },
+    {
+     "root": "neck",
+     "points": [
+      [
+       102,
+       116
+      ],
+      [
+       102,
+       132
+      ]
+     ],
+     "foot": null,
+     "muscles": []
+    }
+   ],
+   "props": [],
+   "annotations": [
+    {
+     "type": "arrow",
+     "from": [
+      84,
+      116
+     ],
+     "to": [
+      84,
+      96
+     ]
+    }
+   ]
+  },
+  "fault": null,
+  "faultCaption": null,
+  "frames": [
+   {
+    "t": 0,
+    "label": "Kuh: einatmen, Bauch senken"
+   },
+   {
+    "t": 0.5,
+    "label": "Übergang"
+   },
+   {
+    "t": 1,
+    "label": "Katze: ausatmen, Rücken rund"
+   },
+   {
+    "t": 0.5,
+    "label": "Übergang"
+   }
+  ],
+  "tempo": {
+   "toEndSec": 2.5,
+   "holdEndSec": 0.8,
+   "toStartSec": 2.5,
+   "holdStartSec": 0.8
+  },
+  "tempoText": "Ein- und ausatmen je 2–3 s, fließender Wechsel."
+ }
+]

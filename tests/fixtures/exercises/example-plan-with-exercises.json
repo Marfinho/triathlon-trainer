@@ -1,0 +1,460 @@
+{
+ "schemaVersion": "1.1",
+ "type": "localhub_plan",
+ "planName": "Beispiel: Kraft und Mobility B",
+ "generatedAt": "2026-10-05T18:00:00Z",
+ "planStart": "2026-10-06",
+ "planDays": 2,
+ "planEnd": "2026-10-07",
+ "entries": [
+  {
+   "date": "2026-10-06",
+   "sport": "strength",
+   "title": "Kraft und Mobility B",
+   "plannedDurationMin": 35,
+   "plannedDistanceM": null,
+   "rpe": 3,
+   "description": "Laufspezifischer Rumpf- und Hüftblock (Variante B), mit Bird Dog als eigener Übung.",
+   "segments": [
+    {
+     "type": "warmup",
+     "durationSec": 240,
+     "distanceM": null,
+     "intensity": "kraft",
+     "targetType": "rpe",
+     "targetValue": 2,
+     "targetValueTo": null,
+     "cadenceNote": null,
+     "rpeTarget": 2,
+     "description": "Wirbelsäule mobilisieren",
+     "exercise": {
+      "id": "cat-cow",
+      "sets": 1,
+      "reps": 10,
+      "holdSec": null,
+      "restSec": 0,
+      "perSide": false,
+      "loadKg": null,
+      "note": null
+     }
+    },
+    {
+     "type": "other",
+     "durationSec": 360,
+     "distanceM": null,
+     "intensity": "kraft",
+     "targetType": "rpe",
+     "targetValue": 3,
+     "targetValueTo": null,
+     "cadenceNote": null,
+     "rpeTarget": 3,
+     "description": "Seitlicher Gesäßmuskel",
+     "exercise": {
+      "id": "clamshell",
+      "sets": 2,
+      "reps": 15,
+      "holdSec": null,
+      "restSec": 30,
+      "perSide": true,
+      "loadKg": null,
+      "note": null
+     }
+    },
+    {
+     "type": "other",
+     "durationSec": 420,
+     "distanceM": null,
+     "intensity": "kraft",
+     "targetType": "rpe",
+     "targetValue": 3,
+     "targetValueTo": null,
+     "cadenceNote": null,
+     "rpeTarget": 3,
+     "description": "Rumpfstabilität",
+     "exercise": {
+      "id": "dead-bug",
+      "sets": 3,
+      "reps": 8,
+      "holdSec": null,
+      "restSec": 30,
+      "perSide": true,
+      "loadKg": null,
+      "note": "Rücken bleibt am Boden"
+     }
+    },
+    {
+     "type": "other",
+     "durationSec": 360,
+     "distanceM": null,
+     "intensity": "kraft",
+     "targetType": "rpe",
+     "targetValue": 4,
+     "targetValueTo": null,
+     "cadenceNote": null,
+     "rpeTarget": 4,
+     "description": "Adduktoren",
+     "exercise": {
+      "id": "copenhagen-plank",
+      "sets": 3,
+      "reps": null,
+      "holdSec": 20,
+      "restSec": 30,
+      "perSide": true,
+      "loadKg": null,
+      "note": null
+     }
+    },
+    {
+     "type": "other",
+     "durationSec": 420,
+     "distanceM": null,
+     "intensity": "kraft",
+     "targetType": "rpe",
+     "targetValue": 3,
+     "targetValueTo": null,
+     "cadenceNote": null,
+     "rpeTarget": 3,
+     "description": "Eigene Übung aus exerciseDefinitions",
+     "exercise": {
+      "id": "bird-dog",
+      "sets": 3,
+      "reps": 8,
+      "holdSec": null,
+      "restSec": 30,
+      "perSide": true,
+      "loadKg": null,
+      "note": null
+     }
+    },
+    {
+     "type": "cooldown",
+     "durationSec": 300,
+     "distanceM": null,
+     "intensity": "kraft",
+     "targetType": "rpe",
+     "targetValue": 2,
+     "targetValueTo": null,
+     "cadenceNote": null,
+     "rpeTarget": 2,
+     "description": "Brustwirbelsäule öffnen",
+     "exercise": {
+      "id": "thoracic-rotation",
+      "sets": 2,
+      "reps": 8,
+      "holdSec": null,
+      "restSec": 0,
+      "perSide": true,
+      "loadKg": null,
+      "note": null
+     }
+    }
+   ]
+  },
+  {
+   "date": "2026-10-07",
+   "sport": "rest",
+   "title": "Ruhetag",
+   "plannedDurationMin": 0,
+   "plannedDistanceM": null,
+   "rpe": null,
+   "description": "Erholung",
+   "segments": []
+  }
+ ],
+ "planRationale": {
+  "summary": "Kurzer Block ohne Impact in der Taper-Phase.",
+  "keyAdjustments": [],
+  "riskNotes": []
+ },
+ "assumptions": [
+  "Matte und Bank vorhanden"
+ ],
+ "exerciseDefinitions": [
+  {
+   "id": "bird-dog",
+   "title": "Bird Dog",
+   "subtitle": "Vierfüßler, Arm und Gegenbein heben",
+   "category": "strength",
+   "why": "Rücken und Gesäß halten den Rumpf ruhig, während Arm und Gegenbein sich bewegen. Genau diese Stabilität braucht der Rumpf beim Laufen, wenn Arm und Gegenbein im Wechsel schwingen.",
+   "steps": [
+    "Vierfüßlerstand: Hände unter den Schultern, Knie unter der Hüfte, Rücken gerade.",
+    "Streck einen Arm nach vorn und gleichzeitig das gegenüberliegende Bein nach hinten, bis beide waagerecht sind.",
+    "Der Rumpf bleibt ruhig, das Becken kippt nicht zur Seite. 2 Sekunden halten.",
+    "Kontrolliert zurückführen, dann die andere Seite."
+   ],
+   "mistakes": [
+    "Hohlkreuz: Der Rücken sackt durch.",
+    "Das Becken dreht zur Seite auf.",
+    "Das Bein wird höher gehoben als die Hüfte."
+   ],
+   "dose": "3 × 8 pro Seite, 2 s halten",
+   "progression": "Leichter: nur das Bein oder nur den Arm heben. Schwerer: Ellenbogen und Knie unter dem Körper zusammenführen.",
+   "muscles": [
+    {
+     "key": "back",
+     "label": "Rückenstrecker",
+     "note": "halten den Rücken gerade",
+     "level": 1,
+     "kind": "work"
+    },
+    {
+     "key": "glute",
+     "label": "Großer Gesäßmuskel",
+     "note": "streckt das angehobene Bein",
+     "level": 1,
+     "kind": "work"
+    },
+    {
+     "key": "core",
+     "label": "Bauchmuskeln",
+     "note": "verhindern das Durchhängen",
+     "level": 2,
+     "kind": "work"
+    },
+    {
+     "key": "ham",
+     "label": "Beinbeuger",
+     "note": "unterstützen die Beinstreckung",
+     "level": 2,
+     "kind": "work"
+    }
+   ],
+   "start": {
+    "hip": [
+     82,
+     100
+    ],
+    "neck": [
+     116,
+     98
+    ],
+    "frontView": false,
+    "torsoMuscles": [
+     "back",
+     "core"
+    ],
+    "farLimbs": [
+     {
+      "root": "hip",
+      "points": [
+       [
+        82,
+        130
+       ],
+       [
+        52,
+        132
+       ]
+      ],
+      "foot": {
+       "angle": 0,
+       "toeAngle": null,
+       "direction": -1,
+       "flip": true
+      },
+      "muscles": [
+       "glute",
+       "ham"
+      ]
+     },
+     {
+      "root": "neck",
+      "points": [
+       [
+        117,
+        115
+       ],
+       [
+        118,
+        132
+       ]
+      ],
+      "foot": null,
+      "muscles": []
+     }
+    ],
+    "nearLimbs": [
+     {
+      "root": "hip",
+      "points": [
+       [
+        82,
+        130
+       ],
+       [
+        52,
+        132
+       ]
+      ],
+      "foot": {
+       "angle": 0,
+       "toeAngle": null,
+       "direction": -1,
+       "flip": true
+      },
+      "muscles": []
+     },
+     {
+      "root": "neck",
+      "points": [
+       [
+        117,
+        115
+       ],
+       [
+        118,
+        132
+       ]
+      ],
+      "foot": null,
+      "muscles": []
+     }
+    ],
+    "props": [],
+    "annotations": []
+   },
+   "end": {
+    "hip": [
+     82,
+     100
+    ],
+    "neck": [
+     116,
+     98
+    ],
+    "frontView": false,
+    "torsoMuscles": [
+     "back",
+     "core"
+    ],
+    "farLimbs": [
+     {
+      "root": "hip",
+      "points": [
+       [
+        52,
+        100
+       ],
+       [
+        22,
+        101
+       ]
+      ],
+      "foot": {
+       "angle": 0,
+       "toeAngle": null,
+       "direction": -1,
+       "flip": true
+      },
+      "muscles": [
+       "glute",
+       "ham"
+      ]
+     },
+     {
+      "root": "neck",
+      "points": [
+       [
+        117,
+        115
+       ],
+       [
+        118,
+        132
+       ]
+      ],
+      "foot": null,
+      "muscles": []
+     }
+    ],
+    "nearLimbs": [
+     {
+      "root": "hip",
+      "points": [
+       [
+        82,
+        130
+       ],
+       [
+        52,
+        132
+       ]
+      ],
+      "foot": {
+       "angle": 0,
+       "toeAngle": null,
+       "direction": -1,
+       "flip": true
+      },
+      "muscles": []
+     },
+     {
+      "root": "neck",
+      "points": [
+       [
+        135,
+        99
+       ],
+       [
+        152,
+        98
+       ]
+      ],
+      "foot": null,
+      "muscles": []
+     }
+    ],
+    "props": [],
+    "annotations": [
+     {
+      "type": "guide",
+      "from": [
+       152,
+       98
+      ],
+      "to": [
+       22,
+       101
+      ]
+     },
+     {
+      "type": "label",
+      "text": "eine Linie",
+      "at": [
+       90,
+       84
+      ],
+      "anchor": "middle"
+     }
+    ]
+   },
+   "fault": null,
+   "faultCaption": null,
+   "frames": [
+    {
+     "t": 0,
+     "label": "Start: Vierfüßlerstand"
+    },
+    {
+     "t": 0.5,
+     "label": "Arm und Gegenbein heben"
+    },
+    {
+     "t": 1,
+     "label": "Halten: eine Linie, 2 s"
+    },
+    {
+     "t": 0.5,
+     "label": "Kontrolliert zurück"
+    }
+   ],
+   "tempo": {
+    "toEndSec": 2,
+    "holdEndSec": 2,
+    "toStartSec": 2,
+    "holdStartSec": 0.6
+   },
+   "tempoText": "Heben 2 s, 2 s halten, zurück 2 s, dann die andere Seite."
+  }
+ ]
+}

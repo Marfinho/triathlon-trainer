@@ -1,0 +1,206 @@
+[
+ {
+  "id": "bulgarian-split-squat",
+  "title": "Bulgarian Split Squat",
+  "category": "strength",
+  "muscles": [
+   "Quadrizeps",
+   "Großer Gesäßmuskel",
+   "Hüftbeuger des hinteren Beins"
+  ],
+  "dose": "3 × 8–10 pro Seite, Absenken ca. 3 s"
+ },
+ {
+  "id": "calf-raise-straight",
+  "title": "Wadenheben einbeinig, Knie gestreckt",
+  "category": "strength",
+  "muscles": [
+   "Wade (M. gastrocnemius)",
+   "Achillessehne"
+  ],
+  "dose": "3 × 10–12 pro Seite, 3 s runter"
+ },
+ {
+  "id": "calf-raise-bent",
+  "title": "Wadenheben einbeinig, Knie gebeugt",
+  "category": "strength",
+  "muscles": [
+   "Tiefer Wadenmuskel (Soleus)",
+   "Achillessehne",
+   "Quadrizeps"
+  ],
+  "dose": "3 × 10–12 pro Seite, 3 s runter"
+ },
+ {
+  "id": "spanish-squat",
+  "title": "Spanish Squat",
+  "category": "strength",
+  "muscles": [
+   "Quadrizeps",
+   "Patellasehne",
+   "Großer Gesäßmuskel"
+  ],
+  "dose": "3 × 30–45 s halten (alternativ 3 × 10 langsam)"
+ },
+ {
+  "id": "step-up",
+  "title": "Step-up mit Kettlebell",
+  "category": "strength",
+  "muscles": [
+   "Quadrizeps",
+   "Großer Gesäßmuskel",
+   "Seitlicher Gesäßmuskel"
+  ],
+  "dose": "3 × 8–10 pro Seite"
+ },
+ {
+  "id": "wall-sit",
+  "title": "Wall Sit",
+  "category": "strength",
+  "muscles": [
+   "Quadrizeps",
+   "Großer Gesäßmuskel"
+  ],
+  "dose": "3 × 30–45 s halten"
+ },
+ {
+  "id": "terminal-knee-extension",
+  "title": "Terminal Knee Extension mit Band",
+  "category": "strength",
+  "muscles": [
+   "Innerer Quadrizeps (VMO)",
+   "Quadrizeps insgesamt"
+  ],
+  "dose": "2–3 × 12–15 pro Seite, 2 s halten"
+ },
+ {
+  "id": "tibialis-raise",
+  "title": "Tibialis Raise",
+  "category": "strength",
+  "muscles": [
+   "Vorderer Schienbeinmuskel"
+  ],
+  "dose": "2–3 × 15–20"
+ },
+ {
+  "id": "copenhagen-plank",
+  "title": "Copenhagen Plank",
+  "category": "strength",
+  "muscles": [
+   "Adduktoren (Oberschenkel-Innenseite)",
+   "Seitliche Bauchmuskeln"
+  ],
+  "dose": "3 × 15–25 s pro Seite"
+ },
+ {
+  "id": "single-leg-rdl",
+  "title": "Single-Leg RDL",
+  "category": "strength",
+  "muscles": [
+   "Beinbeuger (Hamstrings)",
+   "Großer Gesäßmuskel",
+   "Rückenstrecker"
+  ],
+  "dose": "3 × 8 pro Seite"
+ },
+ {
+  "id": "glute-bridge",
+  "title": "Glute Bridge",
+  "category": "strength",
+  "muscles": [
+   "Großer Gesäßmuskel",
+   "Beinbeuger"
+  ],
+  "dose": "3 × 12–15"
+ },
+ {
+  "id": "plank",
+  "title": "Plank",
+  "category": "strength",
+  "muscles": [
+   "Bauchmuskeln (gerader und querer Bauchmuskel)",
+   "Großer Gesäßmuskel"
+  ],
+  "dose": "3 × 30–45 s"
+ },
+ {
+  "id": "side-plank",
+  "title": "Side Plank",
+  "category": "strength",
+  "muscles": [
+   "Seitliche Bauchmuskeln",
+   "Seitlicher Gesäßmuskel"
+  ],
+  "dose": "2–3 × 20–30 s pro Seite"
+ },
+ {
+  "id": "dead-bug",
+  "title": "Dead Bug",
+  "category": "strength",
+  "muscles": [
+   "Bauchmuskeln",
+   "Hüftbeuger"
+  ],
+  "dose": "3 × 8–10 pro Seite, langsam (ca. 3 s pro Wiederholung)"
+ },
+ {
+  "id": "clamshell",
+  "title": "Clamshell",
+  "category": "strength",
+  "muscles": [
+   "Seitlicher Gesäßmuskel (Gluteus medius)"
+  ],
+  "dose": "2–3 × 15 pro Seite"
+ },
+ {
+  "id": "hip-flexor-stretch",
+  "title": "Hip Flexor Stretch",
+  "category": "mobility",
+  "muscles": [
+   "Hüftbeuger des hinteren Beins",
+   "Großer Gesäßmuskel (hinten)"
+  ],
+  "dose": "2–3 × 30–45 s pro Seite"
+ },
+ {
+  "id": "thoracic-rotation",
+  "title": "Thoracic Rotation",
+  "category": "mobility",
+  "muscles": [
+   "Brustwirbelsäule und Rumpfdreher",
+   "Brustmuskel"
+  ],
+  "dose": "2 × 8–10 pro Seite"
+ },
+ {
+  "id": "knee-to-wall",
+  "title": "Knee-to-Wall",
+  "category": "mobility",
+  "muscles": [
+   "Tiefer Wadenmuskel und Achillessehne",
+   "Schienbeinmuskel"
+  ],
+  "dose": "2 × 10 pro Seite, je 2 s halten"
+ },
+ {
+  "id": "calf-stretch",
+  "title": "Wadendehnung an der Wand",
+  "category": "mobility",
+  "muscles": [
+   "Äußerer Wadenmuskel (Gastrocnemius)",
+   "Tiefer Wadenmuskel (Soleus)",
+   "Achillessehne"
+  ],
+  "dose": "2 × 30 s pro Variante und Seite"
+ },
+ {
+  "id": "cat-cow",
+  "title": "Katze und Kuh",
+  "category": "mobility",
+  "muscles": [
+   "Rückenstrecker und Wirbelsäule",
+   "Bauchmuskeln"
+  ],
+  "dose": "8–10 langsame Wiederholungen"
+ }
+]
