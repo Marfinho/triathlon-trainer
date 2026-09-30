@@ -29,25 +29,21 @@ export async function checkRateLimit(
   const now = new Date();
   const windowStartCutoff = new Date(now.getTime() - windowMs);
   try {
-    // Atomar statt Lesen-dann-Schreiben: parallele Requests (z. B. ein
-    // Brute-Force-Burst) können sich sonst gegenseitig überholen und das
-    // Limit überschreiten.
-    const bumped = await db.rateLimitEntry.updateMany({
-      where: { key, windowStart: { gt: windowStartCutoff } },
-      data: { count: { increment: 1 } },
-    });
-
-    if (bumped.count === 0) {
-      // Kein Eintrag oder Fenster abgelaufen -> neues Fenster öffnen.
-      await db.rateLimitEntry.upsert({
-        where: { key },
-        create: { key, count: 1, windowStart: now },
-        update: { count: 1, windowStart: now },
-      });
-      return { allowed: true, remaining: limit - 1, retryAfterMs: 0 };
-    }
-
-    const entry = await db.rateLimitEntry.findUnique({ where: { key } });
+    // Ein einziges atomares Statement: Eintrag anlegen ODER hochzählen bzw.
+    // ein abgelaufenes Fenster neu starten. Postgres sperrt die Zeile beim
+    // ON CONFLICT, dadurch können sich parallele Requests (z. B. ein
+    // Brute-Force-Burst) nicht gegenseitig überholen.
+    const rows = await db.$queryRaw<{ count: number; windowStart: Date }[]>`
+      INSERT INTO "RateLimitEntry" ("key", "count", "windowStart", "updatedAt")
+      VALUES (${key}, 1, ${now}, ${now})
+      ON CONFLICT ("key") DO UPDATE SET
+        "count" = CASE WHEN "RateLimitEntry"."windowStart" <= ${windowStartCutoff}
+                       THEN 1 ELSE "RateLimitEntry"."count" + 1 END,
+        "windowStart" = CASE WHEN "RateLimitEntry"."windowStart" <= ${windowStartCutoff}
+                             THEN ${now} ELSE "RateLimitEntry"."windowStart" END,
+        "updatedAt" = ${now}
+      RETURNING "count", "windowStart"`;
+    const entry = rows[0];
     if (!entry) return { allowed: true, remaining: limit - 1, retryAfterMs: 0 };
 
     if (entry.count > limit) {
