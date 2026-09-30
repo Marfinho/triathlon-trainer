@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { auth } from "@/auth";
 import HowItWorks from "@/components/marketing/HowItWorks";
+import WeekFlow from "@/components/marketing/WeekFlow";
 import Pricing from "@/components/marketing/Pricing";
 import { Logo } from "@/components/navigation/navItems";
 
@@ -140,6 +141,11 @@ export default async function Home() {
         <div id="so-gehts" className="mt-16 scroll-mt-24">
           <HowItWorks />
         </div>
+      </section>
+
+      {/* Ablauf am Beispiel Apple Watch */}
+      <section id="ablauf" className="scroll-mt-24 px-4 pb-16 pt-4 sm:px-6">
+        <WeekFlow />
       </section>
 
       {/* Integrationen: Laufband */}
