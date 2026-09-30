@@ -117,7 +117,13 @@ export async function importActivitiesFromIntervals(
           : null,
       avgPower:
         typeof a.average_watts === "number" ? Math.round(a.average_watts) : null,
+      maxHr:
+        typeof a.max_heartrate === "number" ? Math.round(a.max_heartrate) : null,
+      elevationGainM:
+        typeof a.total_elevation_gain === "number" ? a.total_elevation_gain : null,
       rawJson: a as object,
+      // RPE nur übernehmen, wenn in Intervals erfasst – lokal gesetzte Werte bleiben.
+      ...(typeof a.icu_rpe === "number" && a.icu_rpe > 0 ? { rpe: a.icu_rpe } : {}),
     };
 
     const existing = await db.actualActivity.findUnique({

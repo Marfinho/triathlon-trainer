@@ -10,11 +10,9 @@ import {
 } from "@/domain/training/trainingLoad";
 import { daysUntilRace } from "@/domain/training/races";
 import {
-  resolveRunReference,
-  calibrateRiegelExponent,
-  bestBikeReference,
-  type PredictionProfile,
-} from "@/domain/training/prediction";
+  buildPerformanceModel,
+  perfActivityFromRow,
+} from "@/domain/training/performanceModel";
 import { forecastForm } from "@/domain/training/formForecast";
 import { intensityDistribution } from "@/domain/training/analytics";
 import { buildSeasonStats } from "@/domain/training/stats";
@@ -130,36 +128,40 @@ export async function GET(req: NextRequest) {
     );
     const nextRace = upcoming.find((r) => r.priority === "A") ?? upcoming[0] ?? null;
 
-    const predictionProfile: PredictionProfile = {
+    // Leistungsmodell für Wettkampf-Korridore: 12 Monate Ausdauer-Einheiten.
+    const performanceActivities = await prisma.actualActivity.findMany({
+      where: {
+        userId: user.id,
+        date: { gte: addDays(now, -365) },
+        sport: { in: ["run", "bike", "swim"] },
+      },
+      select: {
+        date: true,
+        sport: true,
+        durationMin: true,
+        distanceKm: true,
+        avgHr: true,
+        maxHr: true,
+        avgPower: true,
+        rpe: true,
+        elevationGainM: true,
+      },
+    });
+    const performanceModel = buildPerformanceModel({
+      activities: performanceActivities.map(perfActivityFromRow),
+      races: raceEvents.map((r) => ({
+        date: r.date,
+        type: r.type,
+        distance: r.distance,
+        resultSeconds: r.resultSeconds,
+        completed: r.completed,
+      })),
+      thresholdHr: athlete?.thresholdHr ?? null,
       thresholdPaceSecPerKm: athlete?.thresholdPaceSecPerKm ?? null,
       ftpWatts: athlete?.ftpWatts ?? null,
       cssPer100m: athlete?.thresholdSwimPer100m ?? null,
-      weightKg: athlete?.weightKg ?? null,
-      ctl: loadSeries.current.ctl,
-      runReference: resolveRunReference({
-        thresholdPaceSecPerKm: athlete?.thresholdPaceSecPerKm ?? null,
-        runs: recentActivities.map((a) => ({
-          sport: a.sport,
-          distanceKm: a.distanceKm,
-          durationMin: a.durationMin,
-        })),
-      }),
-      riegelExponent: calibrateRiegelExponent(
-        recentActivities.map((a) => ({
-          sport: a.sport,
-          distanceKm: a.distanceKm,
-          durationMin: a.durationMin,
-        })),
-      ).exponent,
-      bikeReference: bestBikeReference(
-        recentActivities.map((a) => ({
-          sport: a.sport,
-          distanceKm: a.distanceKm,
-          durationMin: a.durationMin,
-          avgPower: a.avgPower,
-        })),
-      ),
-    };
+      today: now,
+    });
 
     const plannedLoads = futurePlanned.map((w) => ({
       date: formatIsoDate(w.date),
@@ -201,7 +203,7 @@ export async function GET(req: NextRequest) {
         upcoming,
         nextRace,
       },
-      predictionProfile,
+      performanceModel,
       taper,
       training: {
         recentActivities,
