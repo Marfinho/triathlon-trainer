@@ -25,7 +25,6 @@ export const WIDGET_CATALOG: WidgetCatalogEntry[] = [
   { type: "CTLChart", label: "Fitness-Verlauf (CTL)", category: "Analyse", description: "Langzeit-Trainingsbelastung.", defaultSize: "L" },
   { type: "IntensityDistribution", label: "Intensitätsverteilung", category: "Analyse", description: "Verteilung der Trainingszonen.", defaultSize: "M" },
   { type: "SeasonStats", label: "Saison-Statistik", category: "Analyse", description: "Summen und Bestleistungen der Saison.", defaultSize: "M" },
-  { type: "CoachSummary", label: "Coach-Zusammenfassung", category: "Analyse", description: "KI-gestützte Einschätzung der letzten Tage.", defaultSize: "L" },
   { type: "IntervalsSyncStatus", label: "Intervals-Sync", category: "System", description: "Status der Intervals.icu-Synchronisierung.", defaultSize: "S" },
   { type: "BodyMetrics", label: "Körperwerte", category: "System", description: "Gewicht, Ruhepuls und HRV im Verlauf.", defaultSize: "M" },
   { type: "GearWear", label: "Material-Verschleiß", category: "System", description: "Laufleistung und Verschleiß der Ausrüstung.", defaultSize: "S" },

@@ -13,7 +13,7 @@ const scriptSrc = isDev
  * Bootstrap-Skripte und Tailwind Inline-Styles, daher 'unsafe-inline'. Der
  * Rest ist eng gefasst – `frame-ancestors 'none'` (Clickjacking-Schutz),
  * keine Objekte/Plugins, base-uri/form-action auf 'self'. Externe API-Calls
- * (LLM, Wetter, Intervals) laufen serverseitig und sind nicht CSP-relevant.
+ * (Wetter, Intervals, OAuth-Anbieter) laufen serverseitig und sind nicht CSP-relevant.
  */
 const csp = [
   "default-src 'self'",

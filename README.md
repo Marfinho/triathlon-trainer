@@ -15,15 +15,10 @@ Intervals.icu synchron.
 LocalHub übernimmt **Datenhaltung, Auswertung und Workflow**, das LLM übernimmt
 die **sportwissenschaftliche Entscheidung** (Periodisierung, Planerstellung).
 
-Der Austausch mit dem LLM funktioniert auf **zwei Wegen**:
-
-1. **Copy & Paste (Standard):** LocalHub erzeugt eine modulare `coach_summary`
-   (JSON), du fügst sie in einen LLM-Chat ein und importierst den erzeugten
-   `localhub_plan` zurück.
-2. **Direkte LLM-API (optional):** Mit hinterlegtem `ANTHROPIC_API_KEY`
-   **oder** `OPENAI_API_KEY` generiert LocalHub den Plan direkt per
-   Knopfdruck – das Ergebnis landet zur Prüfung im Importfeld und durchläuft
-   denselben harten Validierungs-Flow. Beide Wege bleiben parallel nutzbar.
+Der Austausch mit dem LLM läuft bewusst **manuell per Copy & Paste**: LocalHub
+erzeugt eine modulare `coach_summary` (JSON), du fügst sie in deinen LLM-Chat
+ein und importierst den erzeugten `localhub_plan` zurück. LocalHub selbst ruft
+keine KI-API auf.
 
 > Bewusst **kein** autonomer Coach: keine versteckte Adaptations-/Strategie-Logik.
 > Jede Planänderung ist nachvollziehbar und wird vor dem Import validiert.
@@ -93,7 +88,7 @@ Der Austausch mit dem LLM funktioniert auf **zwei Wegen**:
 - **Trainingstagebuch**, **Daten & Backup** (JSON-Backup + robuster CSV-Export).
 
 **Austausch & Sync**
-- **LLM-Austausch** – `coach_summary`-Export, optionale Direkt-Generierung,
+- **LLM-Austausch** – `coach_summary`-Export und
   Planimport mit **Tag-für-Tag-Diff-Vorschau** (neu/ersetzt/geschützt/Ruhe).
 - **Intervals.icu-Sync** – idempotente Queue, Status & letzte Ereignisse.
 
@@ -111,9 +106,9 @@ Der Austausch mit dem LLM funktioniert auf **zwei Wegen**:
 - **Prisma ORM** mit **PostgreSQL**
 - **Auth.js (NextAuth v5)** – Google OAuth + Credentials
 - **Stripe** – Abo-/Billing
-- **Vitest** – Tests (281 Tests)
+- **Vitest** – Tests
 - Integrationen: **Intervals.icu**, **Strava**, **Wahoo**, **Withings** (OAuth)
-- Optionale **LLM-API** (Anthropic/OpenAI), **Open-Meteo** (Wetter)
+- **Open-Meteo** (Wetter)
 - **Web Bluetooth / FTMS** – Smarttrainer-Steuerung
 
 ## Setup (lokale Entwicklung)
@@ -142,7 +137,7 @@ npm run test                # Vitest
 ```
 
 Die wichtigsten Variablen stehen in `.env.example` (DB, Auth-Secret,
-`ENCRYPTION_KEY`, `CRON_SECRET`, optional Stripe/Google/Integrationen/LLM-Keys).
+`ENCRYPTION_KEY`, `CRON_SECRET`, optional Stripe/Google/Integrationen).
 
 ## Docker
 
@@ -217,12 +212,12 @@ src/
     ui/                 EmptyState, Skeleton, Toast
   domain/               reine, getestete Logik (kein DB-Zugriff)
     plan-import/        validate/import + Plan-Diff-Vorschau
-    coach-summary/      buildCoachSummary, LLM-Prompt/-Extraktion
+    coach-summary/      buildCoachSummary (Export für das externe LLM)
     training/           trainingLoad, formForecast, analytics, loadAdvisor,
                         vdot, nutrition, weather, races, zones, prediction …
     auth/ security/     Passwort-Policy, Input-Sanitisierung
     export/             TCX, CSV
-  integrations/         intervals | trainer (FTMS) | oauth | llm | weather
+  integrations/         intervals | trainer (FTMS) | oauth | withings | weather
   lib/                  db, auth-guard, rate-limit, audit, stripe, crypto …
 prisma/schema.prisma    Datenmodell + Migrationen
 docs/                   CHATGPT_LOCALHUB_PROMPT.md, screenshots/
@@ -236,7 +231,7 @@ testbar; DB/Netzwerk leben in Importern, Sync, Integrationen und API-Routen.
 
 1. LocalHub sammelt Daten (Intervals.icu / manuell).
 2. LocalHub erzeugt eine modulare `coach_summary` (JSON).
-3. Plan vom LLM erzeugen lassen – per Copy & Paste **oder** direkt über die API.
+3. `coach_summary` per Copy & Paste ins LLM geben und den Plan erzeugen lassen.
 4. LocalHub validiert den `localhub_plan` **hart** und zeigt eine Diff-Vorschau.
 5. Import ersetzt **nur offene** geplante Workouts im Importzeitraum.
 6. Abgeschlossene/Ist-Aktivitäten bleiben vollständig geschützt.
