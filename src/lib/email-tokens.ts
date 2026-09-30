@@ -2,11 +2,12 @@ import { createHash, randomBytes } from "node:crypto";
 import type { PrismaClient } from "@prisma/client";
 import { prisma as defaultPrisma } from "@/lib/db";
 
-export type TokenPurpose = "verify" | "reset";
+export type TokenPurpose = "verify" | "reset" | "change";
 
 export const TOKEN_TTL_MS: Record<TokenPurpose, number> = {
   verify: 24 * 60 * 60 * 1000,
   reset: 60 * 60 * 1000,
+  change: 24 * 60 * 60 * 1000,
 };
 
 const hash = (token: string) => createHash("sha256").update(token).digest("hex");

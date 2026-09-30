@@ -48,6 +48,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     maxAge: 60 * 60 * 24 * 7,
     updateAge: 60 * 60 * 24,
   },
+  events: {
+    // OAuth-Neuanmeldung (Google): Zustimmung ist im Button-Hinweis geregelt.
+    createUser: async ({ user }) => {
+      if (user.id) {
+        await prisma.user
+          .update({ where: { id: user.id }, data: { termsAcceptedAt: new Date() } })
+          .catch(() => undefined);
+      }
+    },
+  },
   useSecureCookies: process.env.NODE_ENV === "production",
   callbacks: {
     ...authConfig.callbacks,

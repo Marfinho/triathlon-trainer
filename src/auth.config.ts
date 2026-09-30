@@ -8,6 +8,10 @@ import type { NextAuthConfig } from "next-auth";
 // signaturgeprüfte Stripe-Webhook (kann keine Session tragen).
 const PUBLIC_PREFIXES = [
   "/auth",
+  "/legal",
+  "/robots.txt",
+  "/sitemap.xml",
+  "/manifest.webmanifest",
   "/api/auth",
   "/api/cron",
   "/api/billing/webhook",

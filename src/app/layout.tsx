@@ -20,7 +20,15 @@ const dmMono = DM_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXTAUTH_URL ?? "http://localhost:3000"),
   title: "Brick",
+  openGraph: {
+    title: "Brick – Triathlon Training",
+    description: "Deine KI plant, Brick ist das Fundament für dein Training.",
+    siteName: "Brick",
+    locale: "de_DE",
+    type: "website",
+  },
   description:
     "Deine KI plant, Brick ist das Fundament: Trainingsdaten aus Intervals.icu für deine KI, ihr Plan zurück in deinen Kalender.",
   manifest: "/manifest.webmanifest",

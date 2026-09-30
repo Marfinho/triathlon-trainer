@@ -48,6 +48,12 @@ services:
       SMTP_PASS: ${SMTP_PASS:-}
       SMTP_SECURE: ${SMTP_SECURE:-}
       MAIL_FROM: ${MAIL_FROM:-}
+      LEGAL_NAME: ${LEGAL_NAME:-}
+      LEGAL_STREET: ${LEGAL_STREET:-}
+      LEGAL_CITY: ${LEGAL_CITY:-}
+      LEGAL_EMAIL: ${LEGAL_EMAIL:-}
+      LEGAL_PHONE: ${LEGAL_PHONE:-}
+      LEGAL_VAT_ID: ${LEGAL_VAT_ID:-}
     restart: unless-stopped
 
   cron:

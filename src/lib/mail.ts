@@ -197,3 +197,33 @@ export function sendPasswordResetMail(to: string, token: string): Promise<boolea
     ),
   });
 }
+
+export function sendWelcomeMail(to: string): Promise<boolean> {
+  const url = `${appUrl()}/dashboard`;
+  return sendMail({
+    to,
+    subject: "Willkommen bei Brick",
+    ...layout(
+      "Dein Konto ist aktiv",
+      "Schön, dass du da bist! Lege in deinem Profil Schwellenwerte an, trage deinen nächsten Wettkampf ein und verbinde deine Trainingsplattform.",
+      url,
+      "Zum Dashboard",
+      "Fragen? Antworte einfach auf diese Mail.",
+    ),
+  });
+}
+
+export function sendEmailChangeMail(to: string, token: string): Promise<boolean> {
+  const url = `${appUrl()}/auth/verify?type=change&token=${encodeURIComponent(token)}`;
+  return sendMail({
+    to,
+    subject: "Neue E-Mail-Adresse bestätigen",
+    ...layout(
+      "Neue E-Mail-Adresse bestätigen",
+      "Bestätige, dass diese Adresse künftig für dein Brick-Konto gelten soll. Der Link ist 24 Stunden gültig.",
+      url,
+      "Adresse bestätigen",
+      "Du hast das nicht angefordert? Dann ignoriere diese Mail.",
+    ),
+  });
+}

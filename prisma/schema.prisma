@@ -38,6 +38,10 @@ model User {
   /// (DSGVO Art. 9). `null` = noch nicht eingewilligt – alle /api/nutrition/*
   /// Routen sind dann gesperrt. Wird nie automatisch gesetzt.
   nutritionConsentAt   DateTime?
+  /// Zustimmung zu AGB/Datenschutz bei der Registrierung.
+  termsAcceptedAt      DateTime?
+  /// Gesetzt, wenn die „Erste Schritte“-Checkliste ausgeblendet wurde.
+  onboardingDismissedAt DateTime?
   createdAt            DateTime  @default(now())
   updatedAt            DateTime  @updatedAt
 

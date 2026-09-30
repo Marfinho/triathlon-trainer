@@ -141,6 +141,11 @@ export default function LoginForm({ showRegisterLink = true }: LoginFormProps) {
       >
         Mit Google
       </button>
+      <p className="-mt-2 text-center text-xs text-neutral-400">
+        Mit der Google-Anmeldung stimmst du den{" "}
+        <Link href="/legal/agb" target="_blank" className="underline">AGB</Link> und der{" "}
+        <Link href="/legal/datenschutz" target="_blank" className="underline">Datenschutzerklärung</Link> zu.
+      </p>
 
       {showRegisterLink && (
         <p className="pt-1 text-center text-sm text-neutral-500">

@@ -18,6 +18,8 @@ function mapError(code: RegisterError): string {
       return "E-Mail bereits vergeben";
     case "WEAK_PASSWORD":
       return "Passwort zu kurz";
+    case "TERMS_REQUIRED":
+      return "Bitte stimme den AGB und der Datenschutzerklärung zu.";
     case "INVALID_EMAIL":
       return "Ungültige E-Mail-Adresse";
     default:
@@ -36,6 +38,9 @@ export default function RegisterForm({ showLoginLink = true }: RegisterFormProps
   const [confirm, setConfirm] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [terms, setTerms] = useState(false);
+  const [website, setWebsite] = useState("");
+  const [resent, setResent] = useState(false);
   const [sentTo, setSentTo] = useState<string | null>(null);
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
@@ -51,12 +56,17 @@ export default function RegisterForm({ showLoginLink = true }: RegisterFormProps
       return;
     }
 
+    if (!terms) {
+      setError(mapError("TERMS_REQUIRED"));
+      return;
+    }
+
     setLoading(true);
     try {
       const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password }),
+        body: JSON.stringify({ name, email, password, acceptTerms: terms, website }),
       });
 
       if (!res.ok) {
@@ -95,6 +105,24 @@ export default function RegisterForm({ showLoginLink = true }: RegisterFormProps
           Fast geschafft! Wir haben dir eine Bestätigungsmail an <strong>{sentTo}</strong> geschickt.
         </p>
         <p>Klicke auf den Link in der Mail, um dein Konto zu aktivieren (24 Stunden gültig). Schau ggf. auch im Spam-Ordner nach.</p>
+        <button
+          type="button"
+          disabled={resent}
+          onClick={async () => {
+            await fetch("/api/auth/resend-verification", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ email: sentTo }),
+            }).catch(() => undefined);
+            setResent(true);
+          }}
+          className="text-left font-semibold text-blue-600 hover:underline disabled:text-neutral-400 disabled:no-underline"
+        >
+          {resent ? "Mail wurde erneut gesendet." : "Keine Mail erhalten? Erneut senden"}
+        </button>
+        <button type="button" onClick={() => setSentTo(null)} className="text-left text-neutral-500 hover:underline">
+          Falsche Adresse? Neu eintragen
+        </button>
         <Link href="/auth/login" className="font-semibold text-blue-600 hover:underline">Zur Anmeldung</Link>
       </div>
     );
@@ -179,6 +207,25 @@ export default function RegisterForm({ showLoginLink = true }: RegisterFormProps
         />
       </div>
 
+      {/* Honeypot – nicht ausfüllen */}
+      <div aria-hidden="true" className="absolute -left-[9999px] h-0 w-0 overflow-hidden">
+        <label>
+          Website
+          <input type="text" name="website" tabIndex={-1} autoComplete="off" value={website} onChange={(e) => setWebsite(e.target.value)} />
+        </label>
+      </div>
+
+      <label className="flex items-start gap-2.5 text-sm text-neutral-600">
+        <input type="checkbox" checked={terms} onChange={(e) => setTerms(e.target.checked)} className="mt-1" />
+        <span>
+          Ich akzeptiere die{" "}
+          <Link href="/legal/agb" target="_blank" className="font-semibold text-blue-600 hover:underline">AGB</Link>{" "}
+          und habe die{" "}
+          <Link href="/legal/datenschutz" target="_blank" className="font-semibold text-blue-600 hover:underline">Datenschutzerklärung</Link>{" "}
+          gelesen.
+        </span>
+      </label>
+
       {error && (
         <p role="alert" className="rounded-2xl bg-rose-50 px-4 py-2.5 text-sm font-medium text-rose-700">
           {error}
@@ -206,6 +253,11 @@ export default function RegisterForm({ showLoginLink = true }: RegisterFormProps
       >
         Mit Google
       </button>
+      <p className="-mt-2 text-center text-xs text-neutral-400">
+        Mit der Google-Anmeldung stimmst du den{" "}
+        <Link href="/legal/agb" target="_blank" className="underline">AGB</Link> und der{" "}
+        <Link href="/legal/datenschutz" target="_blank" className="underline">Datenschutzerklärung</Link> zu.
+      </p>
 
       {showLoginLink && (
         <p className="pt-1 text-center text-sm text-neutral-500">
