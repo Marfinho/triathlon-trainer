@@ -1,17 +1,68 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
 import { addDays, formatIsoDate } from "@/domain/training/dates";
 import type { TimelineSegmentInput } from "@/integrations/trainer/workoutPlayer";
 import { TrainerControl, type TrainerWorkout } from "@/components/dashboard/TrainerControl";
+import { StrengthWorkoutList } from "@/components/exercises/StrengthWorkoutList";
 
 export const dynamic = "force-dynamic";
 
-export default async function TrainerPage() {
+type Tab = "rolle" | "kraft";
+
+const TABS: { value: Tab; label: string; heading: string }[] = [
+  { value: "rolle", label: "Rollentrainer", heading: "Rollentrainer" },
+  { value: "kraft", label: "Kraft und Mobility", heading: "Kraft und Mobility" },
+];
+
+export default async function TrainerPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const session = await auth();
   if (!session?.user?.id) redirect("/auth/login");
   const userId = session.user.id;
+  const params = await searchParams;
+  const tab: Tab = params.tab === "kraft" ? "kraft" : "rolle";
+  const current = TABS.find((t) => t.value === tab)!;
 
+  return (
+    <main className="px-4 py-6 md:px-8 md:py-10">
+      <header className="mb-6">
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-600 dark:text-blue-400">
+          LocalHub
+        </p>
+        <h1 className="mt-1.5 text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100 md:text-3xl">
+          {current.heading}
+        </h1>
+        <nav aria-label="Trainer-Bereiche" className="mt-4 flex gap-1 border-b border-neutral-200 dark:border-neutral-800">
+          {TABS.map((t) => (
+            <Link
+              key={t.value}
+              href={t.value === "rolle" ? "/trainer" : "/trainer?tab=kraft"}
+              aria-current={t.value === tab ? "page" : undefined}
+              className={`-mb-px border-b-2 px-3 py-2 text-sm font-medium ${
+                t.value === tab
+                  ? "border-blue-600 text-blue-700 dark:border-blue-400 dark:text-blue-300"
+                  : "border-transparent text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100"
+              }`}
+            >
+              {t.label}
+            </Link>
+          ))}
+        </nav>
+      </header>
+      <div className="space-y-5">
+        {tab === "rolle" ? <BikeTrainer userId={userId} /> : <StrengthWorkoutList userId={userId} />}
+      </div>
+    </main>
+  );
+}
+
+/** Bestehende Rollentrainer-Ansicht (unverändert). */
+async function BikeTrainer({ userId }: { userId: string }) {
   const now = new Date();
   const windowEnd = addDays(now, 21);
 
@@ -45,19 +96,5 @@ export default async function TrainerPage() {
     };
   });
 
-  return (
-    <main className="px-4 py-6 md:px-8 md:py-10">
-      <header className="mb-6">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-600 dark:text-blue-400">
-          LocalHub
-        </p>
-        <h1 className="mt-1.5 text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100 md:text-3xl">
-          Rollentrainer
-        </h1>
-      </header>
-      <div className="space-y-5">
-        <TrainerControl workouts={trainerWorkouts} defaultFtp={athlete?.ftpWatts ?? 200} />
-      </div>
-    </main>
-  );
+  return <TrainerControl workouts={trainerWorkouts} defaultFtp={athlete?.ftpWatts ?? 200} />;
 }

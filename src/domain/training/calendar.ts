@@ -8,6 +8,8 @@ import type { ProfileSegmentInput } from "./workoutProfile";
  */
 
 export interface CalendarPlanned {
+  /** ID des PlannedWorkout (optional, z. B. für Links zum Kraft-Player). */
+  id?: string;
   date: Date | string;
   sport: string;
   title: string;
@@ -34,6 +36,8 @@ export interface CalendarActual {
 
 export interface CalendarItem {
   kind: "planned" | "actual";
+  /** Nur bei geplanten Einheiten: ID des PlannedWorkout. */
+  id?: string;
   sport: string;
   label: string;
   durationMin: number;
@@ -97,6 +101,7 @@ export function buildCalendar(
       for (const p of plannedByDay.get(date) ?? []) {
         items.push({
           kind: "planned",
+          ...(p.id ? { id: p.id } : {}),
           sport: p.sport,
           label: p.title,
           durationMin: p.plannedDurationMin,

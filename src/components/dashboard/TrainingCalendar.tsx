@@ -9,6 +9,9 @@ import {
 } from "@/domain/training/workoutProfile";
 import type { CalendarDay, CalendarItem } from "@/domain/training/calendar";
 import { forecastWorkoutEnergy } from "@/domain/nutrition/forecast";
+import type { WorkoutExerciseRow } from "@/domain/exercises/workoutRows";
+import { ExerciseFigure, ExercisePlaceholder } from "@/components/exercises/ExerciseFigure";
+import Link from "next/link";
 
 const FORECAST_CONFIDENCE_LABEL: Record<string, string> = {
   high: "hohe Konfidenz",
@@ -108,10 +111,13 @@ export function TrainingCalendar({
   grid,
   ftp = 200,
   weightKg = null,
+  exercisesByWorkout = {},
 }: {
   grid: CalendarDay[][];
   ftp?: number;
   weightKg?: number | null;
+  /** Übungszeilen je Workout-ID (Kraft/Mobility), serverseitig vorbereitet. */
+  exercisesByWorkout?: Record<string, WorkoutExerciseRow[]>;
 }) {
   const [openDay, setOpenDay] = useState<CalendarDay | null>(null);
 
@@ -227,7 +233,13 @@ export function TrainingCalendar({
       </div>
 
       {openDay ? (
-        <DayModal day={openDay} ftp={ftp} weightKg={weightKg} onClose={() => setOpenDay(null)} />
+        <DayModal
+          day={openDay}
+          ftp={ftp}
+          weightKg={weightKg}
+          exercisesByWorkout={exercisesByWorkout}
+          onClose={() => setOpenDay(null)}
+        />
       ) : null}
     </Card>
   );
@@ -436,11 +448,13 @@ function DayModal({
   day,
   ftp,
   weightKg,
+  exercisesByWorkout,
   onClose,
 }: {
   day: CalendarDay;
   ftp: number;
   weightKg: number | null;
+  exercisesByWorkout: Record<string, WorkoutExerciseRow[]>;
   onClose: () => void;
 }) {
   useEffect(() => {
@@ -489,7 +503,14 @@ function DayModal({
                 </h4>
                 <ul className="space-y-2">
                   {planned.map((it, i) => (
-                    <DetailRow key={i} item={it} ftp={ftp} date={day.date} weightKg={weightKg} />
+                    <DetailRow
+                      key={i}
+                      item={it}
+                      ftp={ftp}
+                      date={day.date}
+                      weightKg={weightKg}
+                      exercises={it.id ? exercisesByWorkout[it.id] : undefined}
+                    />
                   ))}
                 </ul>
               </section>
@@ -565,11 +586,13 @@ function DetailRow({
   ftp,
   date,
   weightKg,
+  exercises = [],
 }: {
   item: CalendarItem;
   ftp: number;
   date: string;
   weightKg: number | null;
+  exercises?: WorkoutExerciseRow[];
 }) {
   const color = sportColor(item.sport);
   const stats: { label: string; value: string }[] = [];
@@ -684,6 +707,54 @@ function DetailRow({
       {item.kind === "planned" && item.segments && item.segments.length > 0 ? (
         <div className="mt-3">
           <WorkoutProfile segments={item.segments} ftp={ftp} sport={item.sport} />
+        </div>
+      ) : null}
+
+      {item.kind === "planned" && exercises.length > 0 ? (
+        <div className="mt-3">
+          <ul className="space-y-1.5" aria-label="Übungen">
+            {exercises.map((ex, i) => {
+              const content = (
+                <>
+                  {ex.thumbSvg ? (
+                    <ExerciseFigure svg={ex.thumbSvg} className="w-14 shrink-0" />
+                  ) : (
+                    <div className="w-14 shrink-0">
+                      <ExercisePlaceholder id={ex.id} reason="missing" />
+                    </div>
+                  )}
+                  <span className="min-w-0">
+                    <span className="block text-sm font-medium text-neutral-900 dark:text-neutral-100">
+                      {ex.title}
+                    </span>
+                    <span className="block text-xs text-neutral-500 dark:text-neutral-400">{ex.dose}</span>
+                  </span>
+                </>
+              );
+              return (
+                <li key={i}>
+                  {ex.linkable ? (
+                    <Link
+                      href={`/trainer/uebungen/${ex.id}`}
+                      className="flex items-center gap-2.5 rounded-lg p-1 hover:bg-neutral-50 dark:hover:bg-neutral-800/60"
+                    >
+                      {content}
+                    </Link>
+                  ) : (
+                    <div className="flex items-center gap-2.5 p-1">{content}</div>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+          {item.id && (item.status === "planned" || item.status === "synced") ? (
+            <Link
+              href={`/trainer/kraft/${item.id}`}
+              className="mt-2 inline-block rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-500"
+            >
+              Einheit starten
+            </Link>
+          ) : null}
         </div>
       ) : null}
     </li>

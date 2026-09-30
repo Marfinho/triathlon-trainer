@@ -115,3 +115,127 @@ body {
     box-shadow: none !important;
   }
 }
+
+/* ---------------------------------------------------------------------------
+   Übungsfiguren (Engine-SVG). Farben aus reference/figure-colors-and-layout.css,
+   als --fig-* auf :root, Klassen auf .exfig begrenzt (keine Kollision mit der App).
+   --------------------------------------------------------------------------- */
+:root {
+  --fig-card: #ffffff;
+  --fig-ink: #10202d;
+  --fig-muted: #56656f;
+  --fig-line: #d3dce3;
+  --fig-accent: #1c6fb8;
+  --fig-grid: #e6ecf1;
+  --fig-prop: #dce4ea;
+  --fig-propline: #9fb0bd;
+  --fig-bad: #b42323;
+  --fig-tag: #e3ebf1;
+  --fig-top: #3d7ac4;
+  --fig-topF: #93b5df;
+  --fig-leg: #33465c;
+  --fig-legF: #8496aa;
+  --fig-skin: #e8bd99;
+  --fig-skinF: #d0a888;
+  --fig-shoe: #f5f3ee;
+  --fig-hair: #3b2f29;
+  --fig-outline: #111c27;
+  --fig-ghost: #3d7ac4;
+  --fig-muscle: #e5484d;
+  --fig-muscle-edge: #9f1d23;
+  --fig-stretch: #2f8fe0;
+}
+:root[data-theme="dark"] {
+  --fig-card: #152028;
+  --fig-ink: #e8eef2;
+  --fig-muted: #9aacb8;
+  --fig-line: #26343e;
+  --fig-accent: #5aa9e6;
+  --fig-grid: #1b2831;
+  --fig-prop: #22303a;
+  --fig-propline: #52667a;
+  --fig-bad: #f07878;
+  --fig-tag: #1f2c35;
+  --fig-top: #5b9be6;
+  --fig-topF: #3b5f8c;
+  --fig-leg: #5f7893;
+  --fig-legF: #3f5166;
+  --fig-skin: #e8bd99;
+  --fig-skinF: #a98468;
+  --fig-shoe: #e9eef2;
+  --fig-hair: #2b211c;
+  --fig-outline: #04080b;
+  --fig-ghost: #5aa9e6;
+  --fig-muscle: #ff6b6b;
+  --fig-muscle-edge: #8a141a;
+  --fig-stretch: #4aa3ff;
+}
+
+/* Zeichenfläche mit Raster */
+.exfig-pane {
+  background-color: var(--fig-card);
+  background-image: linear-gradient(var(--fig-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--fig-grid) 1px, transparent 1px);
+  background-size: 16px 16px;
+  border: 1px solid var(--fig-line);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.exfig svg.fig {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* SVG: Umgebung */
+.exfig .gnd { stroke: var(--fig-propline); stroke-width: 1.6; }
+.exfig .prop { fill: var(--fig-prop); stroke: var(--fig-propline); stroke-width: 1.5; }
+.exfig .hatch { stroke: var(--fig-propline); stroke-width: 1; }
+.exfig .kb { fill: var(--fig-outline); stroke: none; }
+.exfig .kbh { fill: none; stroke: var(--fig-outline); stroke-width: 2.5; stroke-linecap: round; }
+.exfig .band { fill: none; stroke: var(--fig-accent); stroke-width: 2.6; stroke-linecap: round; }
+.exfig .arr { fill: none; stroke: var(--fig-accent); stroke-width: 2.2; stroke-linecap: round; }
+.exfig .mk { fill: var(--fig-accent); }
+.exfig .ideal { fill: none; stroke: var(--fig-accent); stroke-width: 1.6; stroke-dasharray: 4 3; }
+.exfig text.t { font: 500 8.5px var(--font-inter), system-ui, sans-serif; fill: var(--fig-muted); }
+
+/* SVG: Körper */
+.exfig .bo { fill: var(--fig-outline); stroke: var(--fig-outline); stroke-width: 2.8; stroke-linejoin: round; }
+.exfig .c-top { fill: var(--fig-top); }
+.exfig .c-topF { fill: var(--fig-topF); }
+.exfig .c-leg { fill: var(--fig-leg); }
+.exfig .c-legF { fill: var(--fig-legF); }
+.exfig .c-skin { fill: var(--fig-skin); }
+.exfig .c-skinF { fill: var(--fig-skinF); }
+.exfig .c-shoe { fill: var(--fig-shoe); }
+.exfig .sole { fill: none; stroke: var(--fig-outline); stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.exfig .c-hair { fill: var(--fig-hair); }
+.exfig .gh { fill: var(--fig-ghost); stroke: var(--fig-ghost); stroke-width: 2.8; stroke-linejoin: round; opacity: 0.3; }
+.exfig .mus { fill: var(--fig-muscle); }
+.exfig .mus.stretch { fill: var(--fig-stretch); }
+.exfig .mus.l1 { opacity: 0.9; }
+.exfig .mus.l2 { opacity: 0.5; }
+.exfig .mk-c { fill: #fff; stroke: var(--fig-muscle-edge); stroke-width: 1.3; }
+.exfig .mk-c.stretch { stroke: var(--fig-stretch); }
+.exfig .mk-t { font: 700 6.4px var(--font-inter), sans-serif; fill: var(--fig-muscle-edge); text-anchor: middle; dominant-baseline: central; }
+.exfig .mk-t.stretch { fill: var(--fig-stretch); }
+
+/* Legende: nummerierte Muskelmarker */
+.exfig-num {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  flex: none;
+  border-radius: 9999px;
+  background: #fff;
+  border: 2px solid var(--fig-muscle-edge);
+  color: var(--fig-muscle-edge);
+  font: 700 12px var(--font-inter), sans-serif;
+}
+.exfig-num.stretch { border-color: var(--fig-stretch); color: var(--fig-stretch); }
+.exfig-swatch { width: 14px; height: 14px; border-radius: 9999px; border: 1.5px solid var(--fig-outline); flex: none; }
+.exfig-swatch.work { background: var(--fig-muscle); }
+.exfig-swatch.stretch { background: var(--fig-stretch); }
+.exfig-swatch.soft { background: var(--fig-muscle); opacity: 0.45; }
+.exfig-swatch.ghost { background: var(--fig-ghost); opacity: 0.35; border-style: dashed; }

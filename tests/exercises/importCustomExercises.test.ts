@@ -7,6 +7,7 @@ import {
   resolveExercisesForWorkout,
 } from "@/domain/exercises/resolve";
 import { parseIsoDate } from "@/domain/training/dates";
+import { buildWorkoutExerciseRows } from "@/domain/exercises/workoutRows";
 import examplePlan from "../fixtures/exercises/example-plan-with-exercises.json";
 import birdDog from "../fixtures/exercises/example-custom-exercise.json";
 
@@ -173,5 +174,31 @@ describe("Import eigener Übungen", () => {
     expect(result.errors.map((e) => e.code)).toEqual(["CUSTOM_EXERCISE_LIMIT"]);
     expect(await db.customExercise.count({ where: { userId } })).toBe(200);
     expect(await db.plannedWorkout.count()).toBe(0);
+  });
+
+  it("liefert Übungszeilen für den Kalender (Thumb, Titel, Dosis)", async () => {
+    await importLocalhubPlan(plan(), { db, userId });
+    const workouts = await db.plannedWorkout.findMany({ where: { userId } });
+    const rows = await buildWorkoutExerciseRows(userId, workouts, db);
+    const strength = workouts.find((w) => w.sport === "strength")!;
+    const rest = workouts.find((w) => w.sport === "rest")!;
+    expect(rows[rest.id]).toBeUndefined();
+    const list = rows[strength.id];
+    expect(list.map((r) => r.id)).toEqual([
+      "cat-cow",
+      "clamshell",
+      "dead-bug",
+      "copenhagen-plank",
+      "bird-dog",
+      "thoracic-rotation",
+    ]);
+    expect(list[1]).toMatchObject({ title: "Clamshell", dose: "2 × 15 pro Seite", linkable: true });
+    expect(list[4]).toMatchObject({ title: "Bird Dog", linkable: true });
+    expect(list[4].thumbSvg).toContain("<svg");
+
+    // Anderer Nutzer: eigene Übung von A ist dort unbekannt.
+    const userB = await otherUser();
+    const rowsB = await buildWorkoutExerciseRows(userB, [strength], db);
+    expect(rowsB[strength.id][4]).toMatchObject({ title: "bird-dog", thumbSvg: null, linkable: false });
   });
 });

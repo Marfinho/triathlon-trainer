@@ -1,3 +1,4 @@
+import { exerciseSummaryText } from "@/domain/exercises/summaryText";
 import type { PrismaClient } from "@prisma/client";
 import { formatIsoDate } from "@/domain/training/dates";
 import {
@@ -71,11 +72,17 @@ function toHashable(w: WorkoutRecord): HashableWorkout {
 }
 
 function toEventInput(w: WorkoutRecord): IntervalsEventInput {
+  // Übungen als lesbarer Text anhängen (nur wenn vorhanden). Der Hash bleibt an
+  // description und segments der DB gebunden (siehe toHashable).
+  const exercises = exerciseSummaryText(parseSegments(w.segmentsJson), w.sport);
+  const description = exercises
+    ? [w.description, exercises].filter(Boolean).join("\n\n")
+    : w.description;
   return {
     date: formatIsoDate(w.date),
     type: SPORT_TO_INTERVALS_TYPE[w.sport] ?? "Workout",
     name: w.title,
-    description: w.description,
+    description,
     durationMin: w.plannedDurationMin,
     distanceM: w.plannedDistanceM,
     externalId: `localhub:${w.id}`,

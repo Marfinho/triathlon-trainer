@@ -3,6 +3,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
 import { addDays, formatIsoDate, mondayOfIso } from "@/domain/training/dates";
 import { buildCalendar } from "@/domain/training/calendar";
+import { buildWorkoutExerciseRows } from "@/domain/exercises/workoutRows";
 import {
   buildPlanVsActual,
   summarizeWeeklyCompliance,
@@ -56,8 +57,15 @@ export default async function WeekPage() {
       prisma.trainingGoal.findMany({ where: { userId }, orderBy: { sport: "asc" } }),
     ]);
 
+  // Übungslisten (Thumb, Titel, Dosis) für Kraft/Mobility im Kalender-Detail.
+  const exercisesByWorkout = await buildWorkoutExerciseRows(
+    userId,
+    rangePlanned.filter((w) => w.sport === "strength" || w.sport === "mobility"),
+  );
+
   const calendarGrid = buildCalendar(
     rangePlanned.map((w) => ({
+      id: w.id,
       date: w.date,
       sport: w.sport,
       title: w.title,
@@ -139,6 +147,7 @@ export default async function WeekPage() {
       <div className="space-y-5">
         <TrainingCalendar
           grid={calendarGrid}
+          exercisesByWorkout={exercisesByWorkout}
           ftp={athlete?.ftpWatts ?? 200}
           weightKg={athlete?.weightKg ?? null}
         />

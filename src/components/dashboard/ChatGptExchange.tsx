@@ -3,6 +3,12 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card } from "./Card";
+import {
+  PlanExercisePreview,
+  type CustomExercisePreviewView,
+  type PlanExerciseSummaryView,
+} from "@/components/exercises/PlanExercisePreview";
+import { ExerciseSvgDefs } from "@/components/exercises/ExerciseFigure";
 
 const PURPOSES: { value: string; label: string }[] = [
   { value: "training_plan", label: "Trainingsplan" },
@@ -57,6 +63,8 @@ export function ChatGptExchange({ llmConfigured }: { llmConfigured?: boolean }) 
   const [summaryJson, setSummaryJson] = useState("");
   const [copyLabel, setCopyLabel] = useState("Kopieren");
   const [exporting, setExporting] = useState(false);
+  const [allowCustomExercises, setAllowCustomExercises] = useState(false);
+  const planExport = purpose === "training_plan" || purpose === "plan_review";
 
   // --- Direkte LLM-Generierung ---
   const [generating, setGenerating] = useState(false);
@@ -68,6 +76,9 @@ export function ChatGptExchange({ llmConfigured }: { llmConfigured?: boolean }) 
   const [info, setInfo] = useState<string | null>(null);
   const [importing, setImporting] = useState(false);
   const [previewDays, setPreviewDays] = useState<PreviewDay[]>([]);
+  const [warnings, setWarnings] = useState<ValidationError[]>([]);
+  const [exerciseSummary, setExerciseSummary] = useState<PlanExerciseSummaryView | null>(null);
+  const [customPreviews, setCustomPreviews] = useState<CustomExercisePreviewView[]>([]);
 
   async function generateSummary() {
     setExporting(true);
@@ -75,7 +86,12 @@ export function ChatGptExchange({ llmConfigured }: { llmConfigured?: boolean }) 
       const res = await fetch("/api/coach-summary", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ exportPurpose: purpose, planStart, planDays }),
+        body: JSON.stringify({
+          exportPurpose: purpose,
+          planStart,
+          planDays,
+          allowCustomExercises: planExport && allowCustomExercises,
+        }),
       });
       const data = await res.json();
       setSummaryJson(JSON.stringify(data.summary, null, 2));
@@ -91,7 +107,12 @@ export function ChatGptExchange({ llmConfigured }: { llmConfigured?: boolean }) 
       const res = await fetch("/api/coach-summary/generate-plan", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ exportPurpose: purpose, planStart, planDays }),
+        body: JSON.stringify({
+          exportPurpose: purpose,
+          planStart,
+          planDays,
+          allowCustomExercises: planExport && allowCustomExercises,
+        }),
       });
       const data = await res.json();
       if (!data.ok) {
@@ -121,7 +142,10 @@ export function ChatGptExchange({ llmConfigured }: { llmConfigured?: boolean }) 
   async function submitPlan(mode: "validate" | "import") {
     setImporting(true);
     setErrors([]);
+    setWarnings([]);
     setInfo(null);
+    setExerciseSummary(null);
+    setCustomPreviews([]);
     try {
       const res = await fetch("/api/plan-import", {
         method: "POST",
@@ -129,6 +153,11 @@ export function ChatGptExchange({ llmConfigured }: { llmConfigured?: boolean }) 
         body: JSON.stringify({ plan: planInput, mode }),
       });
       const data = await res.json();
+      setWarnings(data.warnings ?? []);
+      if (mode === "validate") {
+        setExerciseSummary(data.exercises ?? null);
+        setCustomPreviews(data.customExercisePreviews ?? []);
+      }
       if (!data.ok) {
         setErrors(data.errors ?? []);
         setInfo(null);
@@ -153,9 +182,6 @@ export function ChatGptExchange({ llmConfigured }: { llmConfigured?: boolean }) 
             }.`;
         }
         setInfo(msg);
-        if (data.warnings?.length) {
-          setErrors(data.warnings);
-        }
         setPreviewDays([]);
         router.refresh();
       }
@@ -173,6 +199,7 @@ export function ChatGptExchange({ llmConfigured }: { llmConfigured?: boolean }) 
       title="ChatGPT-Austausch"
       subtitle="CoachSummary exportieren → extern ins LLM → localhub_plan importieren"
     >
+      <ExerciseSvgDefs />
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Export */}
         <div>
@@ -232,6 +259,18 @@ export function ChatGptExchange({ llmConfigured }: { llmConfigured?: boolean }) 
               </button>
             ) : null}
           </div>
+
+          {planExport ? (
+            <label className="mt-2 flex items-center gap-2 text-xs text-neutral-600 dark:text-neutral-400">
+              <input
+                type="checkbox"
+                checked={allowCustomExercises}
+                onChange={(e) => setAllowCustomExercises(e.target.checked)}
+                className="accent-blue-600"
+              />
+              Eigene Übungen erlauben (größerer Prompt)
+            </label>
+          ) : null}
 
           {generateError ? (
             <p className="mt-2 rounded-lg bg-rose-50 dark:bg-rose-950/40 px-3 py-2 text-xs text-rose-700 dark:text-rose-300">
@@ -304,6 +343,22 @@ export function ChatGptExchange({ llmConfigured }: { llmConfigured?: boolean }) 
               ))}
             </ul>
           ) : null}
+
+          {warnings.length > 0 ? (
+            <ul className="mt-2 space-y-1 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800 dark:bg-amber-950/40 dark:text-amber-200">
+              {warnings.map((w, i) => (
+                <li key={i}>
+                  <span className="font-mono text-[10px] text-amber-600 dark:text-amber-400">
+                    {w.code}
+                    {w.path ? `@${w.path}` : ""}
+                  </span>{" "}
+                  {w.message}
+                </li>
+              ))}
+            </ul>
+          ) : null}
+
+          <PlanExercisePreview summary={exerciseSummary} customPreviews={customPreviews} />
 
           {previewDays.length > 0 ? (
             <div className="mt-3 max-h-56 overflow-y-auto rounded-lg border border-neutral-200 dark:border-neutral-800">
