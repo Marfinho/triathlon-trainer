@@ -4,10 +4,9 @@ import { prisma } from "@/lib/db";
 import { addDays } from "@/domain/training/dates";
 import { buildLoadSeries } from "@/domain/training/trainingLoad";
 import {
-  resolveRunReference,
-  calibrateRiegelExponent,
-  bestBikeReference,
-} from "@/domain/training/prediction";
+  buildPerformanceModel,
+  perfActivityFromRow,
+} from "@/domain/training/performanceModel";
 import { RacePlanner, type Race } from "@/components/dashboard/RacePlanner";
 import { RacePredictions } from "@/components/dashboard/RacePredictions";
 
@@ -39,6 +38,8 @@ export default async function RacePage() {
         rpe: true,
         avgHr: true,
         avgPower: true,
+        maxHr: true,
+        elevationGainM: true,
       },
     }),
   ]);
@@ -70,11 +71,21 @@ export default async function RacePage() {
     { days: 90, today: now, thresholdHr: athlete?.thresholdHr },
   );
 
-  const runs = loadActivities.map((a) => ({
-    sport: a.sport,
-    distanceKm: a.distanceKm,
-    durationMin: a.durationMin,
-  }));
+  const performanceModel = buildPerformanceModel({
+    activities: loadActivities.map(perfActivityFromRow),
+    races: races.map((r) => ({
+      date: r.date,
+      type: r.type,
+      distance: r.distance,
+      resultSeconds: r.resultSeconds,
+      completed: r.completed,
+    })),
+    thresholdHr: athlete?.thresholdHr ?? null,
+    thresholdPaceSecPerKm: athlete?.thresholdPaceSecPerKm ?? null,
+    ftpWatts: athlete?.ftpWatts ?? null,
+    cssPer100m: athlete?.thresholdSwimPer100m ?? null,
+    today: now,
+  });
 
   return (
     <main className="px-4 py-6 md:px-8 md:py-10">
@@ -89,26 +100,8 @@ export default async function RacePage() {
       <div className="space-y-5">
         <RacePlanner initialRaces={racesData} />
         <RacePredictions
-          profile={{
-            thresholdPaceSecPerKm: athlete?.thresholdPaceSecPerKm ?? null,
-            ftpWatts: athlete?.ftpWatts ?? null,
-            cssPer100m: athlete?.thresholdSwimPer100m ?? null,
-            weightKg: athlete?.weightKg ?? null,
-            ctl: loadSeries.current.ctl,
-            runReference: resolveRunReference({
-              thresholdPaceSecPerKm: athlete?.thresholdPaceSecPerKm ?? null,
-              runs,
-            }),
-            riegelExponent: calibrateRiegelExponent(runs).exponent,
-            bikeReference: bestBikeReference(
-              loadActivities.map((a) => ({
-                sport: a.sport,
-                distanceKm: a.distanceKm,
-                durationMin: a.durationMin,
-                avgPower: a.avgPower,
-              })),
-            ),
-          }}
+          model={performanceModel}
+          ctl={loadSeries.current.ctl}
           races={racesData.map((r) => ({
             id: r.id,
             name: r.name,

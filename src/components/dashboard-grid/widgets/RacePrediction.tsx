@@ -1,6 +1,7 @@
 "use client";
 
-import { TRI_DISTANCES, formatDuration, predictTriathlon } from "@/domain/training/prediction";
+import { formatDuration } from "@/domain/training/prediction";
+import { forecastTriathlons } from "@/domain/training/performanceModel";
 import { useDashboardData } from "../DashboardDataProvider";
 import type { WidgetSize } from "../types";
 import { WidgetEmpty, WidgetError, WidgetSkeleton } from "./WidgetStates";
@@ -12,47 +13,58 @@ export function RacePrediction({ size }: { size: WidgetSize }) {
   if (error) return <WidgetError message={error} />;
   if (!data) return null;
 
-  const { predictionProfile } = data;
-  const predictions = TRI_DISTANCES.map((tri) => ({
-    tri,
-    prediction: predictTriathlon(tri, predictionProfile),
-  }));
-  const anyConfident = predictions.some((p) => p.prediction.confidence > 0);
+  const forecasts = forecastTriathlons(data.performanceModel);
+  const anyComplete = forecasts.some((f) => f.total != null);
 
-  if (!anyConfident) {
-    return <WidgetEmpty message="Hinterlege Schwellenwerte oder Aktivitäten für eine Vorhersage." />;
+  if (!anyComplete) {
+    return (
+      <WidgetEmpty message="Für eine Prognose werden Daten in allen drei Disziplinen benötigt (Aktivitäten oder Schwellenwerte)." />
+    );
   }
 
+  const range = (fast: number, slow: number) => `${formatDuration(fast)}–${formatDuration(slow)}`;
+
   if (size === "S") {
-    const best = predictions.find((p) => p.tri.key === "olympic") ?? predictions[0];
+    const best = forecasts.find((f) => f.key === "olympic") ?? forecasts[0];
     return (
       <p className="text-sm text-neutral-700">
-        {best.tri.label}: {formatDuration(best.prediction.totalSec)}
+        {best.label}: {best.total ? range(best.total.fastSec, best.total.slowSec) : "—"}
       </p>
     );
   }
 
   return (
     <div className="space-y-1.5">
-      {predictions.map(({ tri, prediction }) => (
-        <div key={tri.key} className="flex items-center justify-between gap-2 text-sm">
-          <span className="text-neutral-600">{tri.label}</span>
-          <span className="font-medium text-neutral-900">
-            {formatDuration(prediction.totalSec)}
+      {forecasts.map((f) => (
+        <div key={f.key} className="flex items-center justify-between gap-2 text-sm">
+          <span className="text-neutral-600">{f.label}</span>
+          <span className="text-right">
+            <span className="font-medium tabular-nums text-neutral-900">
+              {formatDuration(f.total?.likelySec ?? null)}
+            </span>
+            {f.total ? (
+              <span className="ml-1.5 text-[11px] tabular-nums text-neutral-400">
+                ({range(f.total.fastSec, f.total.slowSec)})
+              </span>
+            ) : null}
           </span>
         </div>
       ))}
       {size === "L" && (
         <div className="mt-2 space-y-2 border-t border-neutral-100 pt-2">
-          {predictions
-            .filter((p) => p.prediction.totalSec != null)
-            .map(({ tri, prediction }) => (
-              <div key={tri.key} className="text-xs text-neutral-500">
-                <p className="font-medium text-neutral-700">{tri.label}</p>
+          {forecasts
+            .filter((f) => f.total != null)
+            .map((f) => (
+              <div key={f.key} className="text-xs text-neutral-500">
+                <p className="font-medium text-neutral-700">{f.label}</p>
                 <p>
-                  Schwimmen {formatDuration(prediction.swimSec)} · Rad{" "}
-                  {formatDuration(prediction.bikeSec)} · Laufen{" "}
-                  {formatDuration(prediction.runSec)}
+                  Schwimmen {formatDuration(f.swim?.likelySec ?? null)} · Rad{" "}
+                  {formatDuration(f.bike?.likelySec ?? null)}
+                  {f.bikeTarget?.watts != null ? ` (${f.bikeTarget.watts} W)` : ""} · Laufen{" "}
+                  {formatDuration(f.run?.likelySec ?? null)}
+                  {f.runPaceSecPerKm
+                    ? ` (${formatDuration(f.runPaceSecPerKm.fastSec)}–${formatDuration(f.runPaceSecPerKm.slowSec)} /km)`
+                    : ""}
                 </p>
               </div>
             ))}

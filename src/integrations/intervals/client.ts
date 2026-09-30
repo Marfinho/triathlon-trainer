@@ -39,6 +39,10 @@ export interface IntervalsActivity {
   icu_training_load?: number;
   average_heartrate?: number;
   average_watts?: number;
+  max_heartrate?: number;
+  total_elevation_gain?: number;
+  /** Subjektive Anstrengung (RPE 1–10), in Intervals.icu erfasst. */
+  icu_rpe?: number;
 }
 
 export interface IntervalsClient {

@@ -279,6 +279,9 @@ model ActualActivity {
   rpe         Float?
   avgHr       Int?
   avgPower    Int?
+  maxHr       Int?
+  /// Positive Höhenmeter (für höhenbereinigtes Tempo in der Wettkampfprognose).
+  elevationGainM Float?
   notes       String?
   rawJson     Json?
   createdAt   DateTime @default(now())

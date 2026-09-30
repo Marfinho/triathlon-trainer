@@ -83,6 +83,33 @@ describe("importActivitiesFromIntervals", () => {
     expect(run?.durationMin).toBe(52);
   });
 
+  it("übernimmt RPE, Max-HF und Höhenmeter für die Wettkampfprognose", async () => {
+    const client = new MockIntervalsClient();
+    client.activitiesList = [
+      {
+        id: "act-rpe",
+        start_date_local: "2026-06-15T07:00:00",
+        type: "Run",
+        moving_time: 3000,
+        distance: 10000,
+        max_heartrate: 181.4,
+        total_elevation_gain: 124,
+        icu_rpe: 7,
+      },
+    ];
+    await importActivitiesFromIntervals({ db, client, userId, today: new Date("2026-06-16") });
+    const run = await db.actualActivity.findFirst({ where: { externalId: "act-rpe" } });
+    expect(run?.rpe).toBe(7);
+    expect(run?.maxHr).toBe(181);
+    expect(run?.elevationGainM).toBe(124);
+
+    // Ohne RPE in Intervals bleibt ein lokal gesetzter Wert erhalten.
+    await db.actualActivity.update({ where: { id: run!.id }, data: { rpe: 8 } });
+    delete client.activitiesList[0].icu_rpe;
+    await importActivitiesFromIntervals({ db, client, userId, today: new Date("2026-06-16") });
+    expect((await db.actualActivity.findUnique({ where: { id: run!.id } }))?.rpe).toBe(8);
+  });
+
   it("berührt manuelle Aktivitäten anderer Quellen nicht", async () => {
     await db.actualActivity.create({
       data: { userId, source: "manual", externalId: "m1", date: new Date("2026-06-15"), sport: "run", durationMin: 30 },

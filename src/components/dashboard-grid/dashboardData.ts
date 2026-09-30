@@ -1,5 +1,5 @@
 import type { FormState, LoadSeries, WeeklyVolume } from "@/domain/training/trainingLoad";
-import type { PredictionProfile } from "@/domain/training/prediction";
+import type { PerformanceModel } from "@/domain/training/performanceModel";
 import type { FormForecast } from "@/domain/training/formForecast";
 import type { IntensityDistribution } from "@/domain/training/analytics";
 import type { SeasonStats } from "@/domain/training/stats";
@@ -37,6 +37,8 @@ export interface DashboardActualActivity {
   rpe: number | null;
   avgHr: number | null;
   avgPower: number | null;
+  maxHr?: number | null;
+  elevationGainM?: number | null;
   notes: string | null;
   rawJson: unknown;
   createdAt: string;
@@ -108,7 +110,7 @@ export interface DashboardData {
     upcoming: DashboardRace[];
     nextRace: DashboardRace | null;
   };
-  predictionProfile: PredictionProfile;
+  performanceModel: PerformanceModel;
   taper: FormForecast | null;
   training: {
     recentActivities: DashboardActualActivity[];
