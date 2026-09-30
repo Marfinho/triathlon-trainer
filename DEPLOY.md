@@ -46,6 +46,7 @@ Mindestens setzen (Secrets mit `openssl rand -base64 32` erzeugen):
 | `NEXTAUTH_SECRET` | zufälliges Secret |
 | `ENCRYPTION_KEY` | zufälliges Secret (für gespeicherte OAuth-Tokens) |
 | `CRON_SECRET` | zufälliges Secret (schützt `/api/cron/sync`) |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `MAIL_FROM` | optional: SMTP-Zugang für E-Mail-Bestätigung & Passwort-Reset. Ohne `SMTP_HOST` sind neue Konten sofort aktiv |
 | `TRUSTED_PROXY_HOPS` | Anzahl eigener Reverse-Proxys vor der App (Default `1`, für korrekte Client-IP im Rate-Limit) |
 
 Optional je nach genutzten Features: `GOOGLE_*`, `STRIPE_*`, `INTERVALS_*`,
