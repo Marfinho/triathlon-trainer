@@ -674,3 +674,17 @@ model CustomExercise {
   @@unique([userId, exerciseId])
   @@index([userId])
 }
+
+/// Globale SMTP-Konfiguration (ein Datensatz, id = "singleton"), vom Admin
+/// gepflegt. Felder ohne Wert fallen auf die SMTP_*-Env-Variablen zurück.
+model MailConfig {
+  id        String   @id @default("singleton")
+  host      String?
+  port      Int?
+  secure    Boolean?
+  user      String?
+  password  String? // AES-256-GCM-verschlüsselt
+  fromAddr  String?
+  updatedAt DateTime @updatedAt
+  updatedBy String?
+}

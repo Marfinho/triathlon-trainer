@@ -15,7 +15,7 @@ export async function POST(request: Request) {
   ]);
   if (!a.allowed || !b.allowed) return NextResponse.json({ error: "TOO_MANY_REQUESTS" }, { status: 429 });
 
-  if (email && isMailConfigured()) {
+  if (email && (await isMailConfigured())) {
     const user = await prisma.user.findUnique({ where: { email } });
     if (user && !user.emailVerified && user.passwordHash) {
       await sendVerificationMail(email, await createEmailToken("verify", email));

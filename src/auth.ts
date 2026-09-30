@@ -101,7 +101,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         }
 
         // Erst nach korrektem Passwort verraten, dass die Bestätigung fehlt.
-        if (isMailConfigured() && !user.emailVerified) throw new EmailNotVerifiedError();
+        if ((await isMailConfigured()) && !user.emailVerified) throw new EmailNotVerifiedError();
 
         await recordAudit({ userId: user.id, action: "login_success", ip });
         return { id: user.id, email: user.email, name: user.name ?? undefined };

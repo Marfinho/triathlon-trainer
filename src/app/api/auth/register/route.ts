@@ -55,7 +55,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "EMAIL_TAKEN" }, { status: 409 });
   }
 
-  const verificationRequired = isMailConfigured();
+  const verificationRequired = await isMailConfigured();
   const passwordHash = await bcrypt.hash(password, BCRYPT_ROUNDS);
   const user = await prisma.user.create({
     data: {
