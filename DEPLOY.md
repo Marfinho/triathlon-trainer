@@ -1,15 +1,12 @@
-# Deployment – Auto-Deploy via GitHub Actions → SSH (eigener Linux-VPS)
+# Deployment – manuell per Docker Compose (eigener Linux-VPS)
 
-Bei jedem Merge nach `main` läuft die Pipeline `.github/workflows/deploy.yml`:
+Deployt wird bewusst **manuell** auf dem Server: neuesten `main`-Stand holen und
+den Docker-Stack neu bauen. Datenbank-Migrationen laufen automatisch beim
+Container-Start (`docker-entrypoint.sh` → `prisma migrate deploy`).
 
-1. **CI-Gate:** `npm ci` → `prisma generate` → `tsc --noEmit` → Tests (gegen einen
-   Postgres-Service) → `next build`.
-2. **Deploy:** Nur bei grünem CI verbindet sich GitHub Actions per SSH zum VPS,
-   holt den neuesten `main`-Stand und startet den Stack via Docker Compose neu.
-   Datenbank-Migrationen laufen automatisch beim Container-Start
-   (`docker-entrypoint.sh` → `prisma migrate deploy`).
-
-Es geht **kein SSH-Key durch den Chat** – alles liegt in GitHub-Secrets.
+GitHub Actions (`.github/workflows/ci.yml`) prüft nur – Typecheck, Tests gegen
+einen Postgres-Service und `next build` bei jedem Push auf `main` und bei Pull
+Requests – und greift nicht auf den Server zu.
 
 ---
 
@@ -75,46 +72,23 @@ Die App lauscht intern auf Port **3000** (gemappt auf Host `3000:3000`).
 
 ---
 
-## 2. SSH-Deploy-Key (für GitHub Actions)
+## 2. Update einspielen
 
-Auf einem lokalen Rechner ein **dediziertes** Schlüsselpaar nur für Deploys
-erzeugen (kein persönlicher Key):
+Auf dem VPS im Repo-Ordner:
 
 ```bash
-ssh-keygen -t ed25519 -C "github-actions-deploy" -f deploy_key -N ""
+cd /opt/triathlon-trainer
+git pull origin main
+docker compose up -d --build
+docker image prune -f          # optional: alte Images aufräumen
+docker compose logs -f app     # Migrationen + Start beobachten
 ```
 
-- **Öffentlichen** Teil (`deploy_key.pub`) auf dem Server beim Deploy-User
-  hinterlegen:
-  ```bash
-  # auf dem VPS, als 'deploy'
-  mkdir -p ~/.ssh && chmod 700 ~/.ssh
-  echo "<INHALT VON deploy_key.pub>" >> ~/.ssh/authorized_keys
-  chmod 600 ~/.ssh/authorized_keys
-  ```
-- **Privaten** Teil (`deploy_key`) als GitHub-Secret `SSH_PRIVATE_KEY` speichern
-  (siehe unten). Danach die lokale Datei sicher löschen.
+Am besten erst deployen, wenn der CI-Lauf für den Commit auf GitHub grün ist.
 
 ---
 
-## 3. GitHub-Secrets setzen
-
-Repo → **Settings → Secrets and variables → Actions → New repository secret**:
-
-| Secret | Beispiel / Beschreibung |
-|---|---|
-| `SSH_HOST` | IP oder Hostname des VPS |
-| `SSH_USER` | `deploy` |
-| `SSH_PORT` | `22` (oder dein abweichender Port) |
-| `SSH_PRIVATE_KEY` | kompletter Inhalt von `deploy_key` |
-| `DEPLOY_PATH` | `/opt/triathlon-trainer` |
-
-Danach löst jeder Merge nach `main` automatisch den Deploy aus. Manuell:
-**Actions → CI & Deploy → Run workflow**.
-
----
-
-## 4. HTTPS / Reverse Proxy (empfohlen)
+## 3. HTTPS / Reverse Proxy (empfohlen)
 
 Die App liefert HTTP auf Port 3000. Für HTTPS einen Reverse Proxy davorsetzen –
 am einfachsten **Caddy** (automatische Let’s-Encrypt-Zertifikate). Beispiel
@@ -131,7 +105,7 @@ der öffentlichen HTTPS-URL entsprechen, sonst schlagen Auth-Redirects fehl.
 
 ---
 
-## 5. Betrieb
+## 4. Betrieb
 
 ```bash
 docker compose ps                 # Status
@@ -141,4 +115,4 @@ docker compose exec db pg_dump -U "$POSTGRES_USER" "$POSTGRES_DB" > backup.sql  
 ```
 
 Migrationen müssen nicht manuell ausgeführt werden – sie laufen idempotent bei
-jedem Container-Start. Das Postgres-Volume `localhub-db` überlebt Redeploys.
+jedem Container-Start. Das Postgres-Volume `localhub-db` überlebt Updates.
