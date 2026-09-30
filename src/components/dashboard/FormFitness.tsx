@@ -18,17 +18,17 @@ export interface FormFitnessProps {
 }
 
 const RISK_COLOR: Record<RiskLevel, string> = {
-  low: "#00E5FF",
-  ok: "#39FF88",
-  high: "#FF3864",
+  low: "#2F9BFF",
+  ok: "#1FC77E",
+  high: "#FF4D5E",
 };
 
 const FORM_COLOR: Record<FormState, string> = {
-  fresh: "#39FF88",
-  optimal: "#39FF88",
-  neutral: "#00E5FF",
-  tired: "#FF9F1C",
-  overload: "#FF3864",
+  fresh: "#1FC77E",
+  optimal: "#1FC77E",
+  neutral: "#2F9BFF",
+  tired: "#FF9500",
+  overload: "#FF4D5E",
 };
 
 function short(iso: string): string {
@@ -48,9 +48,9 @@ export function FormFitness({
 }: FormFitnessProps) {
   const labels = series.dates.map(short);
   const lineSeries = [
-    { name: "Fitness (CTL)", color: "#00E5FF", values: series.ctl },
-    { name: "Fatigue (ATL)", color: "#FF9F1C", values: series.atl },
-    { name: "Form (TSB)", color: "#39FF88", values: series.tsb },
+    { name: "Fitness (CTL)", color: "#2F9BFF", values: series.ctl },
+    { name: "Fatigue (ATL)", color: "#FF9500", values: series.atl },
+    { name: "Form (TSB)", color: "#1FC77E", values: series.tsb },
   ];
 
   const weekLabels = weeks.map((w) => short(w.weekStart));
@@ -68,8 +68,8 @@ export function FormFitness({
       subtitle="Fitness, Ermüdung und Form (CTL / ATL / TSB) sowie Wochenvolumen"
     >
       <div className="mb-5 grid grid-cols-3 gap-3 sm:grid-cols-5">
-        <Stat label="Fitness" sub="CTL" value={Math.round(current.ctl)} color="#00E5FF" />
-        <Stat label="Ermüdung" sub="ATL" value={Math.round(current.atl)} color="#FF9F1C" />
+        <Stat label="Fitness" sub="CTL" value={Math.round(current.ctl)} color="#2F9BFF" />
+        <Stat label="Ermüdung" sub="ATL" value={Math.round(current.atl)} color="#FF9500" />
         <Stat
           label="Form"
           sub="TSB"
@@ -86,7 +86,7 @@ export function FormFitness({
           label="Aufbaurate"
           sub="CTL / Woche"
           value={current.rampRate > 0 ? `+${current.rampRate}` : current.rampRate}
-          color={current.rampRate > 8 ? "#FF9F1C" : "#00E5FF"}
+          color={current.rampRate > 8 ? "#FF9500" : "#2F9BFF"}
         />
       </div>
       <div className="mb-5 flex flex-wrap gap-3 text-xs text-neutral-500">

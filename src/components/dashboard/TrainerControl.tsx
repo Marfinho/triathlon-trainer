@@ -537,7 +537,7 @@ export function TrainerControl({
             <span className="text-xs text-neutral-500">{fmt(summary.durationSec)}</span>
           </div>
           <div className="mb-3 text-blue-600">
-            <Sparkline values={powerSeries} color="#00E5FF" height={48} />
+            <Sparkline values={powerSeries} color="#2F9BFF" height={48} />
           </div>
           <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
             <Metric label="Ø Power" value={summary.avgPowerW != null ? `${summary.avgPowerW} W` : "—"} />
@@ -754,11 +754,11 @@ function FsButton({
 }
 
 function zoneColor(ratio: number): string {
-  if (ratio < 0.6) return "#00E5FF";
-  if (ratio < 0.9) return "#00FFD1";
-  if (ratio < 1.05) return "#39FF88";
-  if (ratio < 1.2) return "#FF9F1C";
-  return "#FF3864";
+  if (ratio < 0.6) return "#2F9BFF";
+  if (ratio < 0.9) return "#14C4B0";
+  if (ratio < 1.05) return "#1FC77E";
+  if (ratio < 1.2) return "#FF9500";
+  return "#FF4D5E";
 }
 
 function WorkoutProfile({

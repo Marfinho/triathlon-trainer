@@ -19,15 +19,15 @@ export default function GlobalError({
           alignItems: "center",
           justifyContent: "center",
           fontFamily: "system-ui, sans-serif",
-          background: "#07070D",
-          color: "#F1F1FB",
+          background: "#F6F3EE",
+          color: "#16131F",
         }}
       >
         <div style={{ textAlign: "center", padding: "2rem" }}>
           <h1 style={{ fontSize: "1.125rem", fontWeight: 600 }}>
             Unerwarteter Fehler
           </h1>
-          <p style={{ marginTop: "0.5rem", color: "#9A9AB8", fontSize: "0.875rem" }}>
+          <p style={{ marginTop: "0.5rem", color: "#6E6980", fontSize: "0.875rem" }}>
             Bitte lade die Seite neu.
           </p>
           <button
@@ -35,8 +35,8 @@ export default function GlobalError({
             style={{
               marginTop: "1.25rem",
               borderRadius: "0.5rem",
-              background: "#00E5FF",
-              color: "#07070D",
+              background: "#5B3DF5",
+              color: "#FFFFFF",
               padding: "0.5rem 1rem",
               fontSize: "0.875rem",
               border: "none",

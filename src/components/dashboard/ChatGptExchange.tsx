@@ -10,6 +10,18 @@ import {
 } from "@/components/exercises/PlanExercisePreview";
 import { ExerciseSvgDefs } from "@/components/exercises/ExerciseFigure";
 
+/** Obergrenze wie in /api/coach-summary. */
+const MAX_PLAN_DAYS = 90;
+
+/** Schnellwahl für die Planlänge. */
+const PLAN_LENGTHS = [
+  { days: 7, label: "1 Woche" },
+  { days: 14, label: "2 Wochen" },
+  { days: 28, label: "4 Wochen" },
+  { days: 56, label: "8 Wochen" },
+  { days: 84, label: "12 Wochen" },
+];
+
 const PURPOSES: { value: string; label: string }[] = [
   { value: "training_plan", label: "Trainingsplan" },
   { value: "plan_review", label: "Plan-Review" },
@@ -163,16 +175,35 @@ export function ChatGptExchange() {
 
   return (
     <Card
-      title="ChatGPT-Austausch"
-      subtitle="CoachSummary exportieren → extern ins LLM → localhub_plan importieren"
+      title="KI-Coach"
+      subtitle="Zusammenfassung erzeugen, in ChatGPT, Claude & Co. einfügen, Antwort der KI hier übernehmen"
     >
       <ExerciseSvgDefs />
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Export */}
         <div>
           <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-neutral-500">
-            1 · CoachSummary exportieren
+            1 · Zusammenfassung für deine KI
           </h3>
+          {planExport ? (
+            <div className="mb-3 flex flex-wrap gap-1.5" role="group" aria-label="Planlänge">
+              {PLAN_LENGTHS.map((l) => (
+                <button
+                  key={l.days}
+                  type="button"
+                  onClick={() => setPlanDays(l.days)}
+                  aria-pressed={planDays === l.days}
+                  className={`rounded-full px-3 py-1 text-xs font-semibold transition ${
+                    planDays === l.days
+                      ? "bg-neutral-900 text-neutral-50"
+                      : "bg-neutral-100 text-neutral-600 hover:bg-neutral-200"
+                  }`}
+                >
+                  {l.label}
+                </button>
+              ))}
+            </div>
+          ) : null}
           <div className="flex flex-wrap items-end gap-2">
             <label className="text-xs text-neutral-500">
               Zweck
@@ -202,9 +233,9 @@ export function ChatGptExchange() {
               <input
                 type="number"
                 min={1}
-                max={28}
+                max={MAX_PLAN_DAYS}
                 value={planDays}
-                onChange={(e) => setPlanDays(Number(e.target.value))}
+                onChange={(e) => setPlanDays(Math.min(MAX_PLAN_DAYS, Math.max(1, Number(e.target.value) || 1)))}
                 className="mt-1 block w-20 rounded-lg border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900"
               />
             </label>
@@ -251,12 +282,12 @@ export function ChatGptExchange() {
         {/* Import */}
         <div>
           <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-neutral-500">
-            2 · localhub_plan importieren
+            2 · Plan der KI einfügen
           </h3>
           <textarea
             value={planInput}
             onChange={(e) => setPlanInput(e.target.value)}
-            placeholder='localhub_plan JSON hier einfügen…'
+            placeholder='Antwort der KI hier einfügen…'
             className="h-56 w-full rounded-lg border border-neutral-200 bg-white p-2 font-mono text-[11px] text-neutral-700"
           />
           <div className="mt-2 flex gap-2">
@@ -265,14 +296,14 @@ export function ChatGptExchange() {
               disabled={importing || !planInput.trim()}
               className="rounded-lg border border-neutral-300 px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-100 disabled:opacity-40"
             >
-              Validieren
+              Prüfen
             </button>
             <button
               onClick={() => submitPlan("import")}
               disabled={importing || !planInput.trim()}
               className="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-500 disabled:opacity-40"
             >
-              {importing ? "…" : "Importieren"}
+              {importing ? "…" : "Übernehmen"}
             </button>
           </div>
 

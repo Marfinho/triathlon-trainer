@@ -1,43 +1,62 @@
 @import "tailwindcss";
 
 /*
- * Neon-Dark-Theme.
+ * „Pop"-Theme (2027): hell, freundlich, farbig – mit automatischem Dark Mode.
  *
  * Die Komponenten nutzen Tailwinds Standardfarben (bg-white, text-neutral-900,
  * blue-600 …). Statt hunderte Klassen umzuschreiben, werden die Farbskalen hier
- * zentral auf ein dunkles Neon-Schema umgelegt:
- *  - „white" ist die dunkle Kartenfläche, die Graustufen sind invertiert
- *    (neutral-900 = hellster Text, neutral-50 = dunkelste Fläche).
- *  - Bunte Skalen: 50–300 = dunkle, getönte Flächen, 500–700 = die Neonfarbe,
- *    800–950 = helle Tönungen für Text auf dunklen Tönungen.
- * Damit bleiben alle Kombinationen (Badge-Hintergrund + Text, Button + Label)
- * automatisch kontrastreich.
+ * zentral gesetzt:
+ *  - Hell (Standard): warme Neutraltöne auf Creme-Grund, „blue" ist die
+ *    Markenfarbe (Electric Violet), die übrigen Skalen bleiben Tailwind-Standard.
+ *  - Dunkel (prefers-color-scheme: dark): „white" ist die dunkle Kartenfläche,
+ *    die Graustufen sind invertiert (neutral-900 = hellster Text), bunte Skalen:
+ *    50–300 = dunkle, getönte Flächen, 500–700 = die Pop-Farbe, 800–950 = helle
+ *    Tönungen für Text. So bleiben Badge-/Button-Kombinationen in beiden Modi
+ *    kontrastreich.
  */
 
 :root {
-  --background: #07070d;
-  --surface: #11111b;
-  --foreground: #f1f1fb;
-  --muted: #8e8eab;
-  --accent: #00e5ff;
-  --accent-2: #ff2bd6;
-  --accent-3: #39ff88;
+  --background: #f6f3ee;
+  --surface: #ffffff;
+  --foreground: #16131f;
+  --muted: #6e6980;
+  --line: rgb(22 19 31 / 0.07);
 
-  /* Marketing-/Auth-Palette (Landingpage). */
-  --night: #07070d;
-  --night2: #11111b;
-  --night3: #1c1c2d;
-  --m-border: #1c1c2d;
-  --m-border2: #34344d;
-  --amber: #ff2bd6;
-  --silver: #a9a9c4;
-  --m-white: #f1f1fb;
-  --m-green: #39ff88;
+  /* Pop-Akzente */
+  --brand: #5b3df5;
+  --brand-ink: #ffffff;
+  --pop-coral: #ff6b4a;
+  --pop-lime: #c6f24e;
+  --pop-sky: #3db2ff;
+  --pop-sun: #ffcf3f;
+  --pop-pink: #ff5fa8;
+  --accent: var(--brand);
 
-  color-scheme: dark;
+  --shadow-card: 0 1px 2px rgb(22 19 31 / 0.04), 0 12px 32px -16px rgb(22 19 31 / 0.16);
+  --shadow-card-hover: 0 2px 4px rgb(22 19 31 / 0.05), 0 20px 44px -18px rgb(91 61 245 / 0.28);
+  --glass: rgb(255 255 255 / 0.72);
+
+  color-scheme: light;
 }
 
-/* DM Mono für Datenpunkte/Labels/Logo. */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0f0d16;
+    --surface: #1b1826;
+    --foreground: #f4f2f8;
+    --muted: #948ea8;
+    --line: rgb(255 255 255 / 0.07);
+    --brand: #8b78ff;
+    --brand-ink: #0f0d16;
+    --pop-lime: #d4ff5c;
+    --shadow-card: 0 1px 0 rgb(255 255 255 / 0.04) inset, 0 16px 36px -18px rgb(0 0 0 / 0.8);
+    --shadow-card-hover: 0 1px 0 rgb(255 255 255 / 0.06) inset, 0 22px 44px -18px rgb(139 120 255 / 0.35);
+    --glass: rgb(27 24 38 / 0.72);
+    color-scheme: dark;
+  }
+}
+
+/* Mono-Schrift für Datenpunkte/Labels. */
 .font-display {
   font-family: var(--font-dm-mono), ui-monospace, SFMono-Regular, monospace;
 }
@@ -46,253 +65,334 @@
   --color-background: var(--background);
   --color-surface: var(--surface);
   --color-foreground: var(--foreground);
+  --color-brand: var(--brand);
+  --color-coral: var(--pop-coral);
+  --color-lime-pop: var(--pop-lime);
+  --color-sky-pop: var(--pop-sky);
+  --color-sun: var(--pop-sun);
+  --color-bubblegum: var(--pop-pink);
+  --color-ink: #16131f;
 }
 
+/* Helle Grundpalette: warme Neutraltöne + Markenfarbe auf „blue". */
 @theme {
-  --color-white: #11111b;
-  --color-black: #000000;
-  --color-neutral-50: #161624;
-  --color-neutral-100: #1c1c2d;
-  --color-neutral-200: #27273b;
-  --color-neutral-300: #34344d;
-  --color-neutral-400: #6b6b8a;
-  --color-neutral-500: #8e8eab;
-  --color-neutral-600: #a9a9c4;
-  --color-neutral-700: #c6c6dc;
-  --color-neutral-800: #dedeef;
-  --color-neutral-900: #f1f1fb;
-  --color-neutral-950: #ffffff;
-  --color-gray-50: #161624;
-  --color-gray-100: #1c1c2d;
-  --color-gray-200: #27273b;
-  --color-gray-300: #34344d;
-  --color-gray-400: #6b6b8a;
-  --color-gray-500: #8e8eab;
-  --color-gray-600: #a9a9c4;
-  --color-gray-700: #c6c6dc;
-  --color-gray-800: #dedeef;
-  --color-gray-900: #f1f1fb;
-  --color-gray-950: #ffffff;
-  --color-slate-50: #161624;
-  --color-slate-100: #1c1c2d;
-  --color-slate-200: #27273b;
-  --color-slate-300: #34344d;
-  --color-slate-400: #6b6b8a;
-  --color-slate-500: #8e8eab;
-  --color-slate-600: #a9a9c4;
-  --color-slate-700: #c6c6dc;
-  --color-slate-800: #dedeef;
-  --color-slate-900: #f1f1fb;
-  --color-slate-950: #ffffff;
-  --color-zinc-50: #161624;
-  --color-zinc-100: #1c1c2d;
-  --color-zinc-200: #27273b;
-  --color-zinc-300: #34344d;
-  --color-zinc-400: #6b6b8a;
-  --color-zinc-500: #8e8eab;
-  --color-zinc-600: #a9a9c4;
-  --color-zinc-700: #c6c6dc;
-  --color-zinc-800: #dedeef;
-  --color-zinc-900: #f1f1fb;
-  --color-zinc-950: #ffffff;
-  --color-stone-50: #161624;
-  --color-stone-100: #1c1c2d;
-  --color-stone-200: #27273b;
-  --color-stone-300: #34344d;
-  --color-stone-400: #6b6b8a;
-  --color-stone-500: #8e8eab;
-  --color-stone-600: #a9a9c4;
-  --color-stone-700: #c6c6dc;
-  --color-stone-800: #dedeef;
-  --color-stone-900: #f1f1fb;
-  --color-stone-950: #ffffff;
-  --color-blue-50: #0a212c;
-  --color-blue-100: #092e3a;
-  --color-blue-200: #084856;
-  --color-blue-300: #06788a;
-  --color-blue-400: #02c4dc;
-  --color-blue-500: #1fe8ff;
-  --color-blue-600: #00e5ff;
-  --color-blue-700: #47ecff;
-  --color-blue-800: #7af1ff;
-  --color-blue-900: #adf7ff;
-  --color-blue-950: #ccfaff;
-  --color-sky-50: #0a1e2c;
-  --color-sky-100: #09293a;
-  --color-sky-200: #084056;
-  --color-sky-300: #066a8a;
-  --color-sky-400: #02acdc;
-  --color-sky-500: #1fcfff;
-  --color-sky-600: #00c8ff;
-  --color-sky-700: #47d7ff;
-  --color-sky-800: #7ae2ff;
-  --color-sky-900: #adedff;
-  --color-sky-950: #ccf4ff;
-  --color-cyan-50: #0a222c;
-  --color-cyan-100: #09303a;
-  --color-cyan-200: #084b56;
-  --color-cyan-300: #067e8a;
-  --color-cyan-400: #02cedc;
-  --color-cyan-500: #1ff2ff;
-  --color-cyan-600: #00f0ff;
-  --color-cyan-700: #47f4ff;
-  --color-cyan-800: #7af7ff;
-  --color-cyan-900: #adfaff;
-  --color-cyan-950: #ccfcff;
-  --color-teal-50: #0a2327;
-  --color-teal-100: #093232;
-  --color-teal-200: #084f49;
-  --color-teal-300: #068572;
-  --color-teal-400: #02dab5;
-  --color-teal-500: #1fffd7;
-  --color-teal-600: #00ffd1;
-  --color-teal-700: #47ffde;
-  --color-teal-800: #7affe7;
-  --color-teal-900: #adfff0;
-  --color-teal-950: #ccfff6;
-  --color-indigo-50: #16122c;
-  --color-indigo-100: #1d163a;
-  --color-indigo-200: #2b1d56;
-  --color-indigo-300: #442c8a;
-  --color-indigo-400: #6b43dc;
-  --color-indigo-500: #8c62ff;
-  --color-indigo-600: #7c4dff;
-  --color-indigo-700: #a17fff;
-  --color-indigo-800: #bba2ff;
-  --color-indigo-900: #d5c6ff;
-  --color-indigo-950: #e5dbff;
-  --color-violet-50: #1c0e2c;
-  --color-violet-100: #250f3a;
-  --color-violet-200: #391356;
-  --color-violet-300: #5e188a;
-  --color-violet-400: #9722dc;
-  --color-violet-500: #b940ff;
-  --color-violet-600: #b026ff;
-  --color-violet-700: #c663ff;
-  --color-violet-800: #d68eff;
-  --color-violet-900: #e6baff;
-  --color-violet-950: #efd4ff;
-  --color-purple-50: #1d102c;
-  --color-purple-100: #28133a;
-  --color-purple-200: #3e1956;
-  --color-purple-300: #66248a;
-  --color-purple-400: #a635dc;
-  --color-purple-500: #c853ff;
-  --color-purple-600: #c13cff;
-  --color-purple-700: #d273ff;
-  --color-purple-800: #df9aff;
-  --color-purple-900: #ebc1ff;
-  --color-purple-950: #f3d8ff;
-  --color-fuchsia-50: #230e27;
-  --color-fuchsia-100: #321033;
-  --color-fuchsia-200: #4f144a;
-  --color-fuchsia-300: #851b75;
-  --color-fuchsia-400: #da26b9;
-  --color-fuchsia-500: #ff44db;
-  --color-fuchsia-600: #ff2bd6;
-  --color-fuchsia-700: #ff66e1;
-  --color-fuchsia-800: #ff91ea;
-  --color-fuchsia-900: #ffbbf2;
-  --color-fuchsia-950: #ffd5f7;
-  --color-pink-50: #230e27;
-  --color-pink-100: #321033;
-  --color-pink-200: #4f144a;
-  --color-pink-300: #851b75;
-  --color-pink-400: #da26b9;
-  --color-pink-500: #ff44db;
-  --color-pink-600: #ff2bd6;
-  --color-pink-700: #ff66e1;
-  --color-pink-800: #ff91ea;
-  --color-pink-900: #ffbbf2;
-  --color-pink-950: #ffd5f7;
-  --color-emerald-50: #102320;
-  --color-emerald-100: #123227;
-  --color-emerald-200: #184f34;
-  --color-emerald-300: #22854e;
-  --color-emerald-400: #32da77;
-  --color-emerald-500: #51ff96;
-  --color-emerald-600: #39ff88;
-  --color-emerald-700: #70ffa9;
-  --color-emerald-800: #98ffc1;
-  --color-emerald-900: #c0ffd9;
-  --color-emerald-950: #d7ffe7;
-  --color-green-50: #102320;
-  --color-green-100: #123227;
-  --color-green-200: #184f34;
-  --color-green-300: #22854e;
-  --color-green-400: #32da77;
-  --color-green-500: #51ff96;
-  --color-green-600: #39ff88;
-  --color-green-700: #70ffa9;
-  --color-green-800: #98ffc1;
-  --color-green-900: #c0ffd9;
-  --color-green-950: #d7ffe7;
-  --color-lime-50: #1c2312;
-  --color-lime-100: #263211;
-  --color-lime-200: #3b4f0e;
-  --color-lime-300: #60850a;
-  --color-lime-400: #9cda03;
-  --color-lime-500: #bfff1f;
-  --color-lime-600: #b6ff00;
-  --color-lime-700: #caff47;
-  --color-lime-800: #d9ff7a;
-  --color-lime-900: #e8ffad;
-  --color-lime-950: #f0ffcc;
-  --color-amber-50: #231e12;
-  --color-amber-100: #322911;
-  --color-amber-200: #4f3f0e;
-  --color-amber-300: #85680a;
-  --color-amber-400: #daa803;
-  --color-amber-500: #ffcb1f;
-  --color-amber-600: #ffc400;
-  --color-amber-700: #ffd547;
-  --color-amber-800: #ffe07a;
-  --color-amber-900: #ffecad;
-  --color-amber-950: #fff3cc;
-  --color-yellow-50: #232112;
-  --color-yellow-100: #322e11;
-  --color-yellow-200: #4f480e;
-  --color-yellow-300: #85780a;
-  --color-yellow-400: #dac503;
-  --color-yellow-500: #ffe91f;
-  --color-yellow-600: #ffe600;
-  --color-yellow-700: #ffed47;
-  --color-yellow-800: #fff27a;
-  --color-yellow-900: #fff7ad;
-  --color-yellow-950: #fffacc;
-  --color-orange-50: #231812;
-  --color-orange-100: #321f11;
-  --color-orange-200: #4f2f0e;
-  --color-orange-300: #854a0a;
-  --color-orange-400: #da7703;
-  --color-orange-500: #ff981f;
-  --color-orange-600: #ff8a00;
-  --color-orange-700: #ffab47;
-  --color-orange-800: #ffc27a;
-  --color-orange-900: #ffdaad;
-  --color-orange-950: #ffe8cc;
-  --color-rose-50: #23101c;
-  --color-rose-100: #321221;
-  --color-rose-200: #4f182a;
-  --color-rose-300: #85223c;
-  --color-rose-400: #da3158;
-  --color-rose-500: #ff5077;
-  --color-rose-600: #ff3864;
-  --color-rose-700: #ff708f;
-  --color-rose-800: #ff98ae;
-  --color-rose-900: #ffbfcd;
-  --color-rose-950: #ffd7e0;
-  --color-red-50: #23101b;
-  --color-red-100: #321320;
-  --color-red-200: #4f1828;
-  --color-red-300: #852338;
-  --color-red-400: #da3451;
-  --color-red-500: #ff5370;
-  --color-red-600: #ff3b5c;
-  --color-red-700: #ff728a;
-  --color-red-800: #ff99aa;
-  --color-red-900: #ffc0cb;
-  --color-red-950: #ffd8de;
+  --color-white: #ffffff;
+  --color-neutral-50: #faf8f5;
+  --color-neutral-100: #f2efea;
+  --color-neutral-200: #e6e2db;
+  --color-neutral-300: #d3cec6;
+  --color-neutral-400: #a29db0;
+  --color-neutral-500: #7a7589;
+  --color-neutral-600: #5c576b;
+  --color-neutral-700: #433f50;
+  --color-neutral-800: #2b2836;
+  --color-neutral-900: #16131f;
+  --color-neutral-950: #0c0a12;
+  --color-gray-50: #faf8f5;
+  --color-gray-100: #f2efea;
+  --color-gray-200: #e6e2db;
+  --color-gray-300: #d3cec6;
+  --color-gray-400: #a29db0;
+  --color-gray-500: #7a7589;
+  --color-gray-600: #5c576b;
+  --color-gray-700: #433f50;
+  --color-gray-800: #2b2836;
+  --color-gray-900: #16131f;
+  --color-gray-950: #0c0a12;
+  --color-slate-50: #faf8f5;
+  --color-slate-100: #f2efea;
+  --color-slate-200: #e6e2db;
+  --color-slate-300: #d3cec6;
+  --color-slate-400: #a29db0;
+  --color-slate-500: #7a7589;
+  --color-slate-600: #5c576b;
+  --color-slate-700: #433f50;
+  --color-slate-800: #2b2836;
+  --color-slate-900: #16131f;
+  --color-slate-950: #0c0a12;
+  --color-zinc-50: #faf8f5;
+  --color-zinc-100: #f2efea;
+  --color-zinc-200: #e6e2db;
+  --color-zinc-300: #d3cec6;
+  --color-zinc-400: #a29db0;
+  --color-zinc-500: #7a7589;
+  --color-zinc-600: #5c576b;
+  --color-zinc-700: #433f50;
+  --color-zinc-800: #2b2836;
+  --color-zinc-900: #16131f;
+  --color-zinc-950: #0c0a12;
+  --color-stone-50: #faf8f5;
+  --color-stone-100: #f2efea;
+  --color-stone-200: #e6e2db;
+  --color-stone-300: #d3cec6;
+  --color-stone-400: #a29db0;
+  --color-stone-500: #7a7589;
+  --color-stone-600: #5c576b;
+  --color-stone-700: #433f50;
+  --color-stone-800: #2b2836;
+  --color-stone-900: #16131f;
+  --color-stone-950: #0c0a12;
+  --color-blue-50: #f1eeff;
+  --color-blue-100: #e4dfff;
+  --color-blue-200: #cac1ff;
+  --color-blue-300: #a797ff;
+  --color-blue-400: #8570ff;
+  --color-blue-500: #6b51ff;
+  --color-blue-600: #5b3df5;
+  --color-blue-700: #4a2fd6;
+  --color-blue-800: #3b26ab;
+  --color-blue-900: #2f2185;
+  --color-blue-950: #1c1352;
+}
+
+/* Dunkle Palette (invertiert, siehe Kopfkommentar). */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-white: #1b1826;
+    --color-black: #000000;
+    --color-neutral-50: #15121e;
+    --color-neutral-100: #211d2d;
+    --color-neutral-200: #2c283a;
+    --color-neutral-300: #3c374b;
+    --color-neutral-400: #6f6985;
+    --color-neutral-500: #948ea8;
+    --color-neutral-600: #b2adc2;
+    --color-neutral-700: #cbc7d8;
+    --color-neutral-800: #e1deea;
+    --color-neutral-900: #f4f2f8;
+    --color-neutral-950: #ffffff;
+    --color-gray-50: #15121e;
+    --color-gray-100: #211d2d;
+    --color-gray-200: #2c283a;
+    --color-gray-300: #3c374b;
+    --color-gray-400: #6f6985;
+    --color-gray-500: #948ea8;
+    --color-gray-600: #b2adc2;
+    --color-gray-700: #cbc7d8;
+    --color-gray-800: #e1deea;
+    --color-gray-900: #f4f2f8;
+    --color-gray-950: #ffffff;
+    --color-slate-50: #15121e;
+    --color-slate-100: #211d2d;
+    --color-slate-200: #2c283a;
+    --color-slate-300: #3c374b;
+    --color-slate-400: #6f6985;
+    --color-slate-500: #948ea8;
+    --color-slate-600: #b2adc2;
+    --color-slate-700: #cbc7d8;
+    --color-slate-800: #e1deea;
+    --color-slate-900: #f4f2f8;
+    --color-slate-950: #ffffff;
+    --color-zinc-50: #15121e;
+    --color-zinc-100: #211d2d;
+    --color-zinc-200: #2c283a;
+    --color-zinc-300: #3c374b;
+    --color-zinc-400: #6f6985;
+    --color-zinc-500: #948ea8;
+    --color-zinc-600: #b2adc2;
+    --color-zinc-700: #cbc7d8;
+    --color-zinc-800: #e1deea;
+    --color-zinc-900: #f4f2f8;
+    --color-zinc-950: #ffffff;
+    --color-stone-50: #15121e;
+    --color-stone-100: #211d2d;
+    --color-stone-200: #2c283a;
+    --color-stone-300: #3c374b;
+    --color-stone-400: #6f6985;
+    --color-stone-500: #948ea8;
+    --color-stone-600: #b2adc2;
+    --color-stone-700: #cbc7d8;
+    --color-stone-800: #e1deea;
+    --color-stone-900: #f4f2f8;
+    --color-stone-950: #ffffff;
+    --color-blue-50: #1a1633;
+    --color-blue-100: #221c45;
+    --color-blue-200: #2f2766;
+    --color-blue-300: #4a3ca3;
+    --color-blue-400: #7a66ff;
+    --color-blue-500: #9483ff;
+    --color-blue-600: #8b78ff;
+    --color-blue-700: #a597ff;
+    --color-blue-800: #bdb3ff;
+    --color-blue-900: #d6cfff;
+    --color-blue-950: #e8e4ff;
+    --color-sky-50: #0e1c2a;
+    --color-sky-100: #10263a;
+    --color-sky-200: #143a56;
+    --color-sky-300: #1b5f8a;
+    --color-sky-400: #2c9ae0;
+    --color-sky-500: #52bcff;
+    --color-sky-600: #3db2ff;
+    --color-sky-700: #75c9ff;
+    --color-sky-800: #9fd9ff;
+    --color-sky-900: #c6e9ff;
+    --color-sky-950: #def3ff;
+    --color-cyan-50: #0d1f27;
+    --color-cyan-100: #0f2b35;
+    --color-cyan-200: #12434f;
+    --color-cyan-300: #186b7d;
+    --color-cyan-400: #22b1c9;
+    --color-cyan-500: #3fd3ea;
+    --color-cyan-600: #2cc9e2;
+    --color-cyan-700: #6fdcee;
+    --color-cyan-800: #99e7f3;
+    --color-cyan-900: #c2f1f8;
+    --color-cyan-950: #dbf7fb;
+    --color-teal-50: #0d2124;
+    --color-teal-100: #0f2e30;
+    --color-teal-200: #134845;
+    --color-teal-300: #1a766a;
+    --color-teal-400: #22b8a3;
+    --color-teal-500: #3ed8c2;
+    --color-teal-600: #2dd4bb;
+    --color-teal-700: #6ee2cf;
+    --color-teal-800: #99ebdd;
+    --color-teal-900: #c2f4eb;
+    --color-teal-950: #dbf9f3;
+    --color-indigo-50: #17142e;
+    --color-indigo-100: #1e1a3d;
+    --color-indigo-200: #2c2659;
+    --color-indigo-300: #453b8f;
+    --color-indigo-400: #6c5ce0;
+    --color-indigo-500: #8d7fff;
+    --color-indigo-600: #7f6fff;
+    --color-indigo-700: #a79cff;
+    --color-indigo-800: #c0b8ff;
+    --color-indigo-900: #d9d4ff;
+    --color-indigo-950: #e9e6ff;
+    --color-violet-50: #1c1330;
+    --color-violet-100: #251841;
+    --color-violet-200: #36205f;
+    --color-violet-300: #573195;
+    --color-violet-400: #8f4fe6;
+    --color-violet-500: #b07aff;
+    --color-violet-600: #a36bff;
+    --color-violet-700: #c095ff;
+    --color-violet-800: #d4b6ff;
+    --color-violet-900: #e6d4ff;
+    --color-violet-950: #f0e5ff;
+    --color-purple-50: #1e1330;
+    --color-purple-100: #281740;
+    --color-purple-200: #3c1f5e;
+    --color-purple-300: #612e94;
+    --color-purple-400: #9f48e3;
+    --color-purple-500: #c374ff;
+    --color-purple-600: #b95cff;
+    --color-purple-700: #cf8dff;
+    --color-purple-800: #dfb1ff;
+    --color-purple-900: #eed2ff;
+    --color-purple-950: #f5e4ff;
+    --color-fuchsia-50: #25112a;
+    --color-fuchsia-100: #331437;
+    --color-fuchsia-200: #4d1a51;
+    --color-fuchsia-300: #7e2582;
+    --color-fuchsia-400: #d13fc9;
+    --color-fuchsia-500: #f56fe8;
+    --color-fuchsia-600: #f05ae2;
+    --color-fuchsia-700: #f68bec;
+    --color-fuchsia-800: #f9adf2;
+    --color-fuchsia-900: #fccff8;
+    --color-fuchsia-950: #fde2fb;
+    --color-pink-50: #261221;
+    --color-pink-100: #34152b;
+    --color-pink-200: #501a3e;
+    --color-pink-300: #842660;
+    --color-pink-400: #db4495;
+    --color-pink-500: #ff78b8;
+    --color-pink-600: #ff5fa8;
+    --color-pink-700: #ff8dc0;
+    --color-pink-800: #ffb0d4;
+    --color-pink-900: #ffd1e6;
+    --color-pink-950: #ffe3f0;
+    --color-emerald-50: #0f2219;
+    --color-emerald-100: #11301f;
+    --color-emerald-200: #154a2e;
+    --color-emerald-300: #1d7a48;
+    --color-emerald-400: #25b36a;
+    --color-emerald-500: #3ddc8a;
+    --color-emerald-600: #2fd480;
+    --color-emerald-700: #6be3a5;
+    --color-emerald-800: #97ecc0;
+    --color-emerald-900: #c1f5da;
+    --color-emerald-950: #dbfae9;
+    --color-green-50: #0f2219;
+    --color-green-100: #11301f;
+    --color-green-200: #154a2e;
+    --color-green-300: #1d7a48;
+    --color-green-400: #25b36a;
+    --color-green-500: #3ddc8a;
+    --color-green-600: #2fd480;
+    --color-green-700: #6be3a5;
+    --color-green-800: #97ecc0;
+    --color-green-900: #c1f5da;
+    --color-green-950: #dbfae9;
+    --color-lime-50: #1b2112;
+    --color-lime-100: #252e13;
+    --color-lime-200: #384816;
+    --color-lime-300: #5b7a1a;
+    --color-lime-400: #9dcc2a;
+    --color-lime-500: #cdf75a;
+    --color-lime-600: #c6f24e;
+    --color-lime-700: #d6f77f;
+    --color-lime-800: #e2faa4;
+    --color-lime-900: #eefcca;
+    --color-lime-950: #f5fddf;
+    --color-amber-50: #231c10;
+    --color-amber-100: #322711;
+    --color-amber-200: #4d3b13;
+    --color-amber-300: #806117;
+    --color-amber-400: #d19e1e;
+    --color-amber-500: #ffc94a;
+    --color-amber-600: #ffbf2e;
+    --color-amber-700: #ffd26b;
+    --color-amber-800: #ffdf95;
+    --color-amber-900: #ffecc2;
+    --color-amber-950: #fff4dc;
+    --color-yellow-50: #221f10;
+    --color-yellow-100: #312c11;
+    --color-yellow-200: #4b4413;
+    --color-yellow-300: #7d7017;
+    --color-yellow-400: #cdb71e;
+    --color-yellow-500: #ffe14a;
+    --color-yellow-600: #ffdb2e;
+    --color-yellow-700: #ffe66b;
+    --color-yellow-800: #ffed95;
+    --color-yellow-900: #fff5c2;
+    --color-yellow-950: #fff9dc;
+    --color-orange-50: #251710;
+    --color-orange-100: #341e11;
+    --color-orange-200: #512c14;
+    --color-orange-300: #86461a;
+    --color-orange-400: #db6f26;
+    --color-orange-500: #ff9a5a;
+    --color-orange-600: #ff8a42;
+    --color-orange-700: #ffac78;
+    --color-orange-800: #ffc49f;
+    --color-orange-900: #ffdcc6;
+    --color-orange-950: #ffeadd;
+    --color-rose-50: #26111a;
+    --color-rose-100: #341421;
+    --color-rose-200: #501a2d;
+    --color-rose-300: #852647;
+    --color-rose-400: #db3f67;
+    --color-rose-500: #ff6f8a;
+    --color-rose-600: #ff5a79;
+    --color-rose-700: #ff8ca1;
+    --color-rose-800: #ffafbe;
+    --color-rose-900: #ffd1da;
+    --color-rose-950: #ffe3e8;
+    --color-red-50: #26111a;
+    --color-red-100: #34141f;
+    --color-red-200: #501a28;
+    --color-red-300: #85263a;
+    --color-red-400: #db4057;
+    --color-red-500: #ff6f7d;
+    --color-red-600: #ff5a6b;
+    --color-red-700: #ff8c97;
+    --color-red-800: #ffafb7;
+    --color-red-900: #ffd1d5;
+    --color-red-950: #ffe3e6;
+  }
 }
 
 html {
@@ -305,125 +405,206 @@ body {
   color: var(--foreground);
   font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI",
     Roboto, Helvetica, Arial, sans-serif;
-  /* Dezentes „Aurora"-Leuchten im Hintergrund. */
+  /* Weiche, farbige „Mesh"-Blobs im Hintergrund. */
   background:
-    radial-gradient(60rem 40rem at 10% -10%, rgb(0 229 255 / 0.16), transparent 60%),
-    radial-gradient(50rem 35rem at 110% 10%, rgb(255 43 214 / 0.16), transparent 60%),
-    radial-gradient(45rem 30rem at 50% 120%, rgb(57 255 136 / 0.06), transparent 60%),
+    radial-gradient(42rem 30rem at 0% -5%, rgb(91 61 245 / 0.10), transparent 65%),
+    radial-gradient(36rem 26rem at 105% 0%, rgb(255 107 74 / 0.10), transparent 65%),
+    radial-gradient(40rem 28rem at 60% 110%, rgb(198 242 78 / 0.14), transparent 65%),
     var(--background);
   background-attachment: fixed;
 }
 
-/* Überschriften: Display-Schrift, leicht enger gesetzt. */
+@media (prefers-color-scheme: dark) {
+  body {
+    background:
+      radial-gradient(42rem 30rem at 0% -5%, rgb(139 120 255 / 0.16), transparent 65%),
+      radial-gradient(36rem 26rem at 105% 0%, rgb(255 107 74 / 0.10), transparent 65%),
+      radial-gradient(40rem 28rem at 60% 110%, rgb(198 242 78 / 0.06), transparent 65%),
+      var(--background);
+    background-attachment: fixed;
+  }
+}
+
+/* Überschriften: expressive Display-Schrift, eng gesetzt. */
 h1,
 h2,
 h3 {
   font-family: var(--font-display-sans), var(--font-inter), system-ui, sans-serif;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.025em;
 }
 
-/* Seitentitel mit Neon-Verlauf. */
 main h1 {
-  display: inline-block;
-  background: linear-gradient(90deg, #00e5ff 0%, #7c4dff 50%, #ff2bd6 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  font-weight: 700;
+  letter-spacing: -0.035em;
 }
 
 /* Layout-Hintergründe (bg-gray-50/bg-neutral-50 auf Seitenebene) transparent
-   lassen, damit das Aurora-Leuchten durchscheint. */
+   lassen, damit die Mesh-Blobs durchscheinen. */
 .app-shell {
   background: transparent !important;
 }
 
-/* Karten: Glas-Optik mit feiner Neon-Kante. */
+/* Karten: schwebende, weiche Flächen mit großzügigen Radien. */
 .card-neon {
   position: relative;
-  background: linear-gradient(180deg, rgb(24 24 38 / 0.82), rgb(14 14 24 / 0.82));
-  backdrop-filter: blur(14px) saturate(140%);
-  -webkit-backdrop-filter: blur(14px) saturate(140%);
-  border: 1px solid rgb(255 255 255 / 0.06);
-  box-shadow:
-    0 0 0 1px rgb(0 229 255 / 0.04) inset,
-    0 10px 30px -12px rgb(0 0 0 / 0.7);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
-}
-.card-neon::before {
-  content: "";
-  position: absolute;
-  inset: 0 16px auto 16px;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgb(0 229 255 / 0.55), rgb(255 43 214 / 0.55), transparent);
-  pointer-events: none;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-card);
+  transition:
+    box-shadow 0.25s ease,
+    transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+    border-color 0.25s ease;
 }
 .card-neon:hover {
-  border-color: rgb(0 229 255 / 0.18);
-  box-shadow:
-    0 0 0 1px rgb(0 229 255 / 0.06) inset,
-    0 14px 40px -14px rgb(0 229 255 / 0.25);
+  box-shadow: var(--shadow-card-hover);
+  border-color: rgb(91 61 245 / 0.14);
 }
 
-/* Neon-Glow-Utilities für Akzente. */
-.glow-cyan {
-  box-shadow: 0 0 18px -2px rgb(0 229 255 / 0.55);
-}
-.glow-magenta {
-  box-shadow: 0 0 18px -2px rgb(255 43 214 / 0.55);
-}
-.text-glow {
-  text-shadow: 0 0 12px rgb(0 229 255 / 0.55);
+/* Glas-Fläche für Navigation/Overlays. */
+.glass {
+  background: var(--glass);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid var(--line);
 }
 
-/* Primäre Buttons (bg-blue-600/bg-emerald-600) leuchten leicht. */
+/* Primärer Pop-Button (Pille, federnder Klick). */
+.btn-pop {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 9999px;
+  background: var(--brand);
+  color: var(--brand-ink);
+  font-weight: 600;
+  box-shadow: 0 1px 0 rgb(255 255 255 / 0.25) inset, 0 8px 20px -8px rgb(91 61 245 / 0.6);
+  transition:
+    transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.2s ease,
+    filter 0.2s ease;
+}
+.btn-pop:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.06);
+  box-shadow: 0 1px 0 rgb(255 255 255 / 0.25) inset, 0 12px 26px -10px rgb(91 61 245 / 0.7);
+}
+.btn-pop:active {
+  transform: translateY(0) scale(0.97);
+}
+.btn-pop:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Sekundärer Button: ruhige Kontur. */
+.btn-soft {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 9999px;
+  border: 1px solid var(--color-neutral-200);
+  background: var(--surface);
+  color: var(--foreground);
+  font-weight: 600;
+  transition:
+    transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+    border-color 0.2s ease,
+    background-color 0.2s ease;
+}
+.btn-soft:hover {
+  border-color: var(--color-neutral-300);
+  background: var(--color-neutral-50);
+}
+.btn-soft:active {
+  transform: scale(0.97);
+}
+
+/* Aufkleber-Chips (Landingpage/Badges). */
+.sticker {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  border-radius: 9999px;
+  padding: 0.3rem 0.8rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  border: 1px solid var(--line);
+  box-shadow: 0 6px 16px -10px rgb(22 19 31 / 0.35);
+}
+
+/* Primäre Buttons (bg-blue-600/bg-emerald-600) bekommen weiche Farbschatten. */
 .bg-blue-600 {
-  box-shadow: 0 0 18px -6px rgb(0 229 255 / 0.8);
+  box-shadow: 0 8px 20px -10px rgb(91 61 245 / 0.65);
 }
 .bg-emerald-600 {
-  box-shadow: 0 0 18px -6px rgb(57 255 136 / 0.8);
+  box-shadow: 0 8px 20px -10px rgb(16 185 129 / 0.6);
+}
+button.bg-blue-600,
+a.bg-blue-600,
+button.bg-emerald-600,
+a.bg-emerald-600 {
+  transition:
+    transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+    filter 0.2s ease,
+    background-color 0.2s ease;
+}
+button.bg-blue-600:active:not(:disabled),
+a.bg-blue-600:active,
+button.bg-emerald-600:active:not(:disabled),
+a.bg-emerald-600:active {
+  transform: scale(0.97);
 }
 
-/* Formularfelder: dunkel, Neon-Fokus. */
-input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+/* Formularfelder: weich gefüllt, Marken-Fokus. */
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]),
 select,
 textarea {
-  background-color: rgb(10 10 18 / 0.6);
+  background-color: var(--color-neutral-50);
   color: var(--foreground);
+  border-radius: 0.875rem;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    background-color 0.15s ease;
 }
 input::placeholder,
 textarea::placeholder {
-  color: #6b6b8a;
+  color: var(--color-neutral-400);
 }
 input:focus,
 select:focus,
 textarea:focus {
   outline: none;
-  border-color: rgb(0 229 255 / 0.7) !important;
-  box-shadow: 0 0 0 3px rgb(0 229 255 / 0.18);
+  background-color: var(--surface);
+  border-color: var(--brand) !important;
+  box-shadow: 0 0 0 4px rgb(91 61 245 / 0.16);
 }
 input[type="checkbox"],
 input[type="radio"],
 input[type="range"] {
-  accent-color: var(--accent);
+  accent-color: var(--brand);
 }
 
 /* Dezente Scrollbar. */
 * {
   scrollbar-width: thin;
-  scrollbar-color: #34344d transparent;
+  scrollbar-color: var(--color-neutral-300) transparent;
 }
 
 ::selection {
-  background: rgb(255 43 214 / 0.35);
-  color: #fff;
+  background: var(--pop-lime);
+  color: #16131f;
 }
 
 /* A11y: gut sichtbarer Fokusring für Tastaturnutzer (nur bei :focus-visible,
    damit Mausklicks keinen Ring hinterlassen). */
 :focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--brand);
   outline-offset: 2px;
-  border-radius: 4px;
+  border-radius: 6px;
 }
 
 /* Screenreader-only Utility. */
@@ -439,11 +620,11 @@ input[type="range"] {
   border: 0;
 }
 
-/* Sanftes Einblenden von Seiteninhalten. */
+/* Sanftes, leicht federndes Einblenden von Seiteninhalten. */
 @keyframes rise-in {
   from {
     opacity: 0;
-    transform: translateY(6px);
+    transform: translateY(10px) scale(0.99);
   }
   to {
     opacity: 1;
@@ -451,7 +632,31 @@ input[type="range"] {
   }
 }
 .animate-rise {
-  animation: rise-in 0.35s ease-out both;
+  animation: rise-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Langsam wandernde Farbflächen (Landingpage). */
+@keyframes blob-float {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(3%, -4%) scale(1.06);
+  }
+}
+.animate-blob {
+  animation: blob-float 14s ease-in-out infinite;
+}
+
+/* Endlos-Laufband (Integrationen). */
+@keyframes marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+.animate-marquee {
+  animation: marquee 28s linear infinite;
 }
 
 /* Respektiert die Systemeinstellung „Bewegung reduzieren". */
@@ -476,14 +681,9 @@ input[type="range"] {
     background: #fff;
     color: #000;
   }
-  main h1 {
-    color: #000;
-    background: none;
-  }
   .card-neon {
     background: #fff;
     box-shadow: none !important;
-    backdrop-filter: none;
   }
   .shadow-sm,
   .shadow,
@@ -494,34 +694,52 @@ input[type="range"] {
 
 /* ---------------------------------------------------------------------------
    Übungsfiguren (Engine-SVG). Farben aus reference/figure-colors-and-layout.css
-   (dunkle Variante, passend zum Neon-Dark-Theme), als --fig-* auf :root;
+   (helle Variante, dunkle per prefers-color-scheme), als --fig-* auf :root;
    Klassen auf .exfig begrenzt (keine Kollision mit der App). Bewusst feste
    Hex-Werte: die Tailwind-Skalen sind oben umgelegt.
    --------------------------------------------------------------------------- */
 :root {
-  --fig-card: #152028;
-  --fig-ink: #e8eef2;
-  --fig-muted: #9aacb8;
-  --fig-line: #26343e;
-  --fig-accent: #5aa9e6;
-  --fig-grid: #1b2831;
-  --fig-prop: #22303a;
-  --fig-propline: #52667a;
-  --fig-bad: #f07878;
-  --fig-tag: #1f2c35;
+  --fig-card: #f5f8fb;
+  --fig-ink: #1a2530;
+  --fig-muted: #5d6f7c;
+  --fig-line: #dbe3ea;
+  --fig-accent: #3f8fd8;
+  --fig-grid: #e9eff4;
+  --fig-prop: #dfe6ec;
+  --fig-propline: #8597a6;
+  --fig-bad: #e05555;
+  --fig-tag: #e6edf3;
   --fig-top: #5b9be6;
   --fig-topF: #3b5f8c;
   --fig-leg: #5f7893;
   --fig-legF: #3f5166;
   --fig-skin: #e8bd99;
   --fig-skinF: #a98468;
-  --fig-shoe: #e9eef2;
+  --fig-shoe: #ffffff;
   --fig-hair: #2b211c;
-  --fig-outline: #04080b;
-  --fig-ghost: #5aa9e6;
+  --fig-outline: #0d1419;
+  --fig-ghost: #3f8fd8;
   --fig-muscle: #ff6b6b;
   --fig-muscle-edge: #8a141a;
-  --fig-stretch: #4aa3ff;
+  --fig-stretch: #2f8cf0;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --fig-card: #152028;
+    --fig-ink: #e8eef2;
+    --fig-muted: #9aacb8;
+    --fig-line: #26343e;
+    --fig-accent: #5aa9e6;
+    --fig-grid: #1b2831;
+    --fig-prop: #22303a;
+    --fig-propline: #52667a;
+    --fig-bad: #f07878;
+    --fig-tag: #1f2c35;
+    --fig-shoe: #e9eef2;
+    --fig-outline: #04080b;
+    --fig-ghost: #5aa9e6;
+    --fig-stretch: #4aa3ff;
+  }
 }
 
 /* Zeichenfläche mit Raster */
@@ -531,7 +749,7 @@ input[type="range"] {
     linear-gradient(90deg, var(--fig-grid) 1px, transparent 1px);
   background-size: 16px 16px;
   border: 1px solid var(--fig-line);
-  border-radius: 6px;
+  border-radius: 16px;
   overflow: hidden;
 }
 .exfig svg.fig {

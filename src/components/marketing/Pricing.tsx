@@ -11,7 +11,7 @@ function Check() {
       viewBox="0 0 20 20"
       fill="none"
       aria-hidden="true"
-      className="mt-0.5 h-4 w-4 shrink-0 text-[#39FF88]"
+      className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500"
     >
       <path
         d="M4 10.5l4 4 8-9"
@@ -59,7 +59,7 @@ export default function Pricing() {
       {/* Toggle */}
       <div className="mb-12 flex items-center justify-center gap-3">
         <span
-          className={`text-sm ${billing === "monthly" ? "text-[#F1F1FB]" : "text-[#8E8EAB]"}`}
+          className={`text-sm font-semibold ${billing === "monthly" ? "text-neutral-900" : "text-neutral-400"}`}
         >
           monatlich
         </span>
@@ -69,20 +69,20 @@ export default function Pricing() {
           aria-checked={billing === "yearly"}
           aria-label="Abrechnungszeitraum umschalten"
           onClick={() => setBilling((b) => (b === "monthly" ? "yearly" : "monthly"))}
-          className="relative h-7 w-12 rounded-full bg-[#27273B] transition"
+          className={`relative h-8 w-14 rounded-full transition-colors ${billing === "yearly" ? "bg-brand" : "bg-neutral-200"}`}
         >
           <span
-            className={`absolute top-1 h-5 w-5 rounded-full bg-[#00E5FF] transition-all ${
-              billing === "yearly" ? "left-6" : "left-1"
+            className={`absolute top-1 h-6 w-6 rounded-full bg-white shadow-md transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
+              billing === "yearly" ? "left-7" : "left-1"
             }`}
           />
         </button>
         <span
-          className={`text-sm ${billing === "yearly" ? "text-[#F1F1FB]" : "text-[#8E8EAB]"}`}
+          className={`text-sm font-semibold ${billing === "yearly" ? "text-neutral-900" : "text-neutral-400"}`}
         >
           jährlich
         </span>
-        <span className="rounded-full bg-[#00E5FF]/10 px-2 py-0.5 text-xs font-medium text-[#00E5FF]">
+        <span className="-rotate-3 rounded-full bg-lime-pop px-2.5 py-1 text-xs font-bold text-ink">
           –20%
         </span>
       </div>
@@ -90,13 +90,13 @@ export default function Pricing() {
       {/* Cards */}
       <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
         {/* Free */}
-        <div className="flex flex-col rounded-2xl border border-[#27273B] bg-white p-7">
-          <h3 className="text-lg font-semibold tracking-tight">Free</h3>
+        <div className="card-neon flex flex-col rounded-[28px] p-7">
+          <h3 className="text-lg font-bold tracking-tight">Free</h3>
           <div className="mt-4 flex items-baseline gap-1">
-            <span className="text-4xl font-semibold tracking-tight">€0</span>
-            <span className="text-sm text-[#8E8EAB]">für immer</span>
+            <span className="font-[family-name:var(--font-display-sans)] text-5xl font-extrabold tracking-tight">€0</span>
+            <span className="text-sm text-neutral-500">für immer</span>
           </div>
-          <ul className="mt-6 flex flex-1 flex-col gap-3 text-sm text-[#9A9AB8]">
+          <ul className="mt-6 flex flex-1 flex-col gap-3 text-sm text-neutral-600">
             {freeFeatures.map((f) => (
               <li key={f} className="flex gap-2">
                 <Check />
@@ -106,23 +106,23 @@ export default function Pricing() {
           </ul>
           <Link
             href="/auth/register"
-            className="mt-7 w-full rounded-full border border-[#34344D] px-4 py-2.5 text-center text-sm font-medium text-[#F1F1FB] transition hover:border-[#8E8EAB]"
+            className="btn-soft mt-7 w-full px-4 py-3 text-sm"
           >
             Kostenlos starten
           </Link>
         </div>
 
         {/* Pro (recommended) */}
-        <div className="relative flex flex-col rounded-2xl border-2 border-[#00E5FF] bg-white p-7 shadow-[0_8px_40px_-12px_rgba(0,113,227,0.3)]">
-          <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-[#00E5FF] px-3 py-1 text-xs font-medium text-white">
-            Empfohlen
+        <div className="relative flex flex-col rounded-[28px] border-2 border-brand bg-white p-7 shadow-[var(--shadow-card-hover)] md:-translate-y-3">
+          <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 rotate-[-2deg] rounded-full bg-coral px-3 py-1 text-xs font-bold text-ink shadow-md">
+            Beliebt ⭐
           </span>
-          <h3 className="text-lg font-semibold tracking-tight">Pro</h3>
+          <h3 className="text-lg font-bold tracking-tight">Pro</h3>
           <div className="mt-4 flex items-baseline gap-1">
-            <span className="text-4xl font-semibold tracking-tight">€{proPrice}</span>
-            <span className="text-sm text-[#8E8EAB]">{proPeriod}</span>
+            <span className="font-[family-name:var(--font-display-sans)] text-5xl font-extrabold tracking-tight">€{proPrice}</span>
+            <span className="text-sm text-neutral-500">{proPeriod}</span>
           </div>
-          <ul className="mt-6 flex flex-1 flex-col gap-3 text-sm text-[#9A9AB8]">
+          <ul className="mt-6 flex flex-1 flex-col gap-3 text-sm text-neutral-600">
             {proFeatures.map((f) => (
               <li key={f} className="flex gap-2">
                 <Check />
@@ -132,20 +132,20 @@ export default function Pricing() {
           </ul>
           <Link
             href="/auth/register"
-            className="mt-7 w-full rounded-full bg-[#00E5FF] px-4 py-2.5 text-center text-sm font-medium text-white transition hover:bg-[#00C8FF]"
+            className="btn-pop mt-7 w-full px-4 py-3 text-sm"
           >
             Pro holen
           </Link>
         </div>
 
         {/* Lifetime */}
-        <div className="flex flex-col rounded-2xl border border-[#27273B] bg-white p-7">
-          <h3 className="text-lg font-semibold tracking-tight">Lifetime</h3>
+        <div className="card-neon flex flex-col rounded-[28px] p-7">
+          <h3 className="text-lg font-bold tracking-tight">Lifetime</h3>
           <div className="mt-4 flex items-baseline gap-1">
-            <span className="text-4xl font-semibold tracking-tight">€149</span>
-            <span className="text-sm text-[#8E8EAB]">einmalig</span>
+            <span className="font-[family-name:var(--font-display-sans)] text-5xl font-extrabold tracking-tight">€149</span>
+            <span className="text-sm text-neutral-500">einmalig</span>
           </div>
-          <ul className="mt-6 flex flex-1 flex-col gap-3 text-sm text-[#9A9AB8]">
+          <ul className="mt-6 flex flex-1 flex-col gap-3 text-sm text-neutral-600">
             {lifetimeFeatures.map((f) => (
               <li key={f} className="flex gap-2">
                 <Check />
@@ -155,7 +155,7 @@ export default function Pricing() {
           </ul>
           <Link
             href="/auth/register"
-            className="mt-7 w-full rounded-full border border-[#34344D] px-4 py-2.5 text-center text-sm font-medium text-[#F1F1FB] transition hover:border-[#8E8EAB]"
+            className="btn-soft mt-7 w-full px-4 py-3 text-sm"
           >
             Lifetime kaufen
           </Link>

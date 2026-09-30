@@ -2,161 +2,113 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState, type ReactNode } from "react";
+import { useEffect, useRef, useState } from "react";
 import { signOut } from "next-auth/react";
 import type { Session } from "next-auth";
+import { ADMIN_ICON, Avatar, Logo, NAV_ITEMS, initialsOf, isActivePath } from "./navItems";
 
-type NavItem = {
-  href: string;
-  label: string;
-  icon: ReactNode;
-};
-
-const items: NavItem[] = [
-  {
-    href: "/dashboard",
-    label: "Heute",
-    icon: (
-      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-3m0 0l7-4 7 4M5 9v10a1 1 0 001 1h12a1 1 0 001-1V9m-9 11l4-4m0 0l4 4m-4-4V3" />
-      </svg>
-    ),
-  },
-  {
-    href: "/week",
-    label: "Woche",
-    icon: (
-      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-      </svg>
-    ),
-  },
-  {
-    href: "/race",
-    label: "Wettkampf",
-    icon: (
-      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-      </svg>
-    ),
-  },
-  {
-    href: "/coach",
-    label: "Coach",
-    icon: (
-      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-      </svg>
-    ),
-  },
-  {
-    href: "/trainer",
-    label: "Trainer",
-    icon: (
-      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <circle cx="6" cy="17" r="3" strokeWidth={2} />
-        <circle cx="18" cy="17" r="3" strokeWidth={2} />
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 17l4-7h4l4 7M10 10l2-3h3" />
-      </svg>
-    ),
-  },
-  {
-    href: "/body",
-    label: "Körper",
-    icon: (
-      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm6 7a1 1 0 11-2 0 1 1 0 012 0zM7 20h10a2 2 0 002-2v-6a2 2 0 00-2-2H7a2 2 0 00-2 2v6a2 2 0 002 2z" />
-      </svg>
-    ),
-  },
-  {
-    href: "/more",
-    label: "Mehr",
-    icon: (
-      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-      </svg>
-    ),
-  },
-];
-
+/** Schwebende Desktop-Seitenleiste (ab md). */
 export default function Sidebar({ session }: { session: Session | null }) {
   const pathname = usePathname();
-  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
   const isAdmin = session?.user?.role === "admin";
+  const initials = initialsOf(session?.user?.name, session?.user?.email);
 
-  const initials = (session?.user?.name || "U").split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
+  // Menü bei Klick außerhalb oder Escape schließen.
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onClick = (e: MouseEvent) => {
+      if (!menuRef.current?.contains(e.target as Node)) setMenuOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setMenuOpen(false);
+    window.addEventListener("mousedown", onClick);
+    window.addEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("mousedown", onClick);
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [menuOpen]);
+
+  const linkClass = (active: boolean) =>
+    `group flex items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-semibold transition-all duration-200 ${
+      active
+        ? "bg-neutral-900 text-neutral-50 shadow-lg shadow-neutral-900/15"
+        : "text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900"
+    }`;
 
   return (
-    <aside className="hidden w-60 border-r border-white/5 bg-[#0b0b14]/80 backdrop-blur-xl md:fixed md:inset-y-0 md:left-0 md:z-30 md:flex md:flex-col">
-      {/* Logo */}
-      <div className="px-5 pt-5">
-        <Link href="/dashboard" className="font-display text-lg font-medium tracking-tight">
-          <span className="bg-gradient-to-r from-[#00E5FF] via-[#7C4DFF] to-[#FF2BD6] bg-clip-text text-transparent">
-            LocalHub
-          </span>
+    <aside className="glass hidden rounded-[28px] shadow-[var(--shadow-card)] md:fixed md:inset-y-3 md:left-3 md:z-30 md:flex md:w-60 md:flex-col">
+      <div className="px-5 pb-2 pt-6">
+        <Link href="/dashboard" aria-label="Brick – Startseite">
+          <Logo />
         </Link>
       </div>
-      {/* User Header */}
-      <div className="border-b border-white/5 p-4">
-        <div className="relative">
-          <button
-            onClick={() => setDropdownOpen(!dropdownOpen)}
-            className="flex w-full items-center gap-3 rounded-xl px-2 py-2 hover:bg-white/5"
-          >
-            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#00E5FF] to-[#FF2BD6] text-sm font-bold text-[#07070d] shadow-[0_0_16px_-4px_rgba(0,229,255,0.8)]">
-              {initials}
-            </div>
-            <div className="min-w-0 flex-1 text-left">
-              <p className="text-sm font-medium text-gray-900 truncate">{session?.user?.name || "Nutzer"}</p>
-              <p className="text-xs text-gray-500 truncate">{session?.user?.email}</p>
-            </div>
-            <svg className={`h-4 w-4 text-gray-400 transition ${dropdownOpen ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-            </svg>
-          </button>
 
-          {dropdownOpen && (
-            <div className="absolute top-full left-0 right-0 z-50 mt-1 overflow-hidden rounded-xl border border-white/10 bg-[#11111b]/95 shadow-2xl backdrop-blur-xl">
-              <Link href="/profile" className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-white/5 rounded-t-lg">
-                Profil
-              </Link>
-              {isAdmin && (
-                <Link href="/admin" className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-white/5 border-t border-gray-100">
-                  Admin
-                </Link>
-              )}
-              <button
-                onClick={() => signOut({ redirectTo: "/auth/login" })}
-                className="block w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-white/5 border-t border-gray-100 rounded-b-lg"
-              >
-                Abmelden
-              </button>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Navigation */}
-      <nav className="flex-1 space-y-1 px-3 py-6">
-        {items.map((item) => {
-          const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
+      <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4" aria-label="Hauptnavigation">
+        {NAV_ITEMS.map((item) => {
+          const active = isActivePath(pathname, item.href);
           return (
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
-                isActive
-                  ? "bg-gradient-to-r from-[#00E5FF]/15 to-[#FF2BD6]/5 text-[#7af1ff] shadow-[inset_2px_0_0_#00E5FF]"
-                  : "text-gray-600 hover:bg-white/5 hover:text-gray-900"
-              }`}
+              className={linkClass(active)}
+              aria-current={active ? "page" : undefined}
             >
-              <div className="h-5 w-5 flex-shrink-0">{item.icon}</div>
-              <span>{item.label}</span>
+              <span className="relative h-5 w-5 flex-shrink-0 transition-transform duration-200 group-hover:-rotate-6 group-hover:scale-110">
+                {item.icon}
+              </span>
+              <span className="flex-1">{item.label}</span>
+              {active && item.dot ? <span className={`h-2 w-2 rounded-full ${item.dot}`} /> : null}
             </Link>
           );
         })}
       </nav>
+
+      {/* Nutzer-Karte */}
+      <div className="relative p-3" ref={menuRef}>
+        {menuOpen && (
+          <div className="absolute inset-x-3 bottom-full mb-2 overflow-hidden rounded-2xl border border-neutral-200 bg-white p-1.5 shadow-xl">
+            <Link href="/profile" className="block rounded-xl px-3 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-100">
+              Profil
+            </Link>
+            {isAdmin && (
+              <Link href="/admin" className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-100">
+                <span className="h-4 w-4">{ADMIN_ICON}</span>
+                Admin
+              </Link>
+            )}
+            <button
+              type="button"
+              onClick={() => signOut({ redirectTo: "/auth/login" })}
+              className="block w-full rounded-xl px-3 py-2 text-left text-sm font-medium text-rose-600 hover:bg-rose-50"
+            >
+              Abmelden
+            </button>
+          </div>
+        )}
+        <button
+          type="button"
+          onClick={() => setMenuOpen((o) => !o)}
+          aria-expanded={menuOpen}
+          className="flex w-full items-center gap-3 rounded-2xl bg-neutral-100/70 px-2.5 py-2 text-left transition hover:bg-neutral-100"
+        >
+          <Avatar initials={initials} />
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm font-semibold text-neutral-900">{session?.user?.name || "Nutzer"}</p>
+            <p className="truncate text-xs text-neutral-500">{session?.user?.email}</p>
+          </div>
+          <svg
+            className={`h-4 w-4 flex-shrink-0 text-neutral-400 transition ${menuOpen ? "rotate-180" : ""}`}
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="m6 15 6-6 6 6" />
+          </svg>
+        </button>
+      </div>
     </aside>
   );
 }

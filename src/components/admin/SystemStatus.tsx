@@ -5,7 +5,7 @@ import { formatBytes, formatDuration } from "./format";
 function Gauge({ label, pct, detail }: { label: string; pct: number; detail: string }) {
   const clamped = Math.max(0, Math.min(100, pct));
   const color =
-    clamped >= 90 ? "#FF3864" : clamped >= 70 ? "#FFD60A" : "#00E5FF";
+    clamped >= 90 ? "#FF4D5E" : clamped >= 70 ? "#FFC21A" : "#2F9BFF";
   return (
     <div>
       <div className="flex items-baseline justify-between">

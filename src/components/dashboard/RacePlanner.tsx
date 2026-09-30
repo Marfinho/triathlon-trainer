@@ -53,9 +53,9 @@ const PRIORITY_CLS: Record<string, string> = {
 };
 
 const PRIORITY_DOT: Record<string, string> = {
-  A: "#FF3864",
-  B: "#FF9F1C",
-  C: "#8E8EAB",
+  A: "#FF4D5E",
+  B: "#FF9500",
+  C: "#9C98AE",
 };
 
 function fmtDate(iso: string): string {

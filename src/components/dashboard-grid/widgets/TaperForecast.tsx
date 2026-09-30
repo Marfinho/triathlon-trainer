@@ -60,17 +60,17 @@ export function TaperForecast({ size }: { size: WidgetSize }) {
             labels={taper.series.map((p) => p.date.slice(5))}
             showZeroLine
             series={[
-              { name: "Fitness (CTL)", color: "#00E5FF", values: taper.series.map((p) => p.ctl) },
-              { name: "Ermüdung (ATL)", color: "#FF9F1C", values: taper.series.map((p) => p.atl) },
-              { name: "Form (TSB)", color: "#39FF88", values: taper.series.map((p) => p.tsb) },
+              { name: "Fitness (CTL)", color: "#2F9BFF", values: taper.series.map((p) => p.ctl) },
+              { name: "Ermüdung (ATL)", color: "#FF9500", values: taper.series.map((p) => p.atl) },
+              { name: "Form (TSB)", color: "#1FC77E", values: taper.series.map((p) => p.tsb) },
             ]}
           />
           <div className="mt-1.5">
             <ChartLegend
               items={[
-                { name: "Fitness (CTL)", color: "#00E5FF" },
-                { name: "Ermüdung (ATL)", color: "#FF9F1C" },
-                { name: "Form (TSB)", color: "#39FF88" },
+                { name: "Fitness (CTL)", color: "#2F9BFF" },
+                { name: "Ermüdung (ATL)", color: "#FF9500" },
+                { name: "Form (TSB)", color: "#1FC77E" },
               ]}
             />
           </div>

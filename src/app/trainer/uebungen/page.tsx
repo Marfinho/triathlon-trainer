@@ -35,7 +35,7 @@ export default async function ExerciseLibraryPage() {
             ← Trainer
           </Link>
         </p>
-        <h1 className="mt-1.5 text-2xl font-semibold tracking-tight text-neutral-900 md:text-3xl">
+        <h1 className="mt-3 text-[2rem] font-bold leading-none tracking-tight text-neutral-900 md:text-5xl">
           Übungsbibliothek
         </h1>
         <p className="mt-1 text-sm text-neutral-600">

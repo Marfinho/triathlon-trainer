@@ -25,12 +25,12 @@ export const WidgetCard = forwardRef<
     <div
       ref={ref}
       style={style}
-      className={`${SIZE_SPAN_CLASS[size]} ${className ?? ""} card-neon rounded-3xl p-4`}
+      className={`${SIZE_SPAN_CLASS[size]} ${className ?? ""} card-neon rounded-[28px] p-4 md:p-5`}
     >
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
         <div className="flex min-w-0 items-center gap-1.5">
           {dragHandle}
-          <h3 className="truncate text-sm font-semibold tracking-tight text-neutral-900">
+          <h3 className="truncate text-[15px] font-bold tracking-tight text-neutral-900">
             {title}
           </h3>
         </div>
@@ -41,7 +41,7 @@ export const WidgetCard = forwardRef<
               type="button"
               onClick={onRemove}
               aria-label={`${title} entfernen`}
-              className="flex h-11 w-11 items-center justify-center rounded-lg text-neutral-400 transition hover:bg-rose-50 hover:text-rose-600"
+              className="flex h-11 w-11 items-center justify-center rounded-full text-neutral-400 transition hover:bg-rose-50 hover:text-rose-600"
             >
               ✕
             </button>

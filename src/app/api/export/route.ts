@@ -31,7 +31,7 @@ export async function GET(request: Request) {
     return new NextResponse(csv, {
       headers: {
         "Content-Type": "text/csv; charset=utf-8",
-        "Content-Disposition": `attachment; filename="localhub-aktivitaeten-${stamp}.csv"`,
+        "Content-Disposition": `attachment; filename="brick-aktivitaeten-${stamp}.csv"`,
       },
     });
   }
@@ -92,7 +92,7 @@ export async function GET(request: Request) {
   return new NextResponse(JSON.stringify(backup, null, 2), {
     headers: {
       "Content-Type": "application/json",
-      "Content-Disposition": `attachment; filename="localhub-backup-${stamp}.json"`,
+      "Content-Disposition": `attachment; filename="brick-backup-${stamp}.json"`,
     },
   });
 }

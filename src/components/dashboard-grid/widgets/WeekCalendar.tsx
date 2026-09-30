@@ -46,7 +46,7 @@ export function WeekCalendar({ size }: { size: WidgetSize }) {
           <span className="text-[10px] font-medium text-neutral-400">{WEEKDAY_LABEL[i]}</span>
           <span
             className="inline-block h-2 w-2 rounded-full"
-            style={{ backgroundColor: day ? sportColor(day.sport) : "#27273B" }}
+            style={{ backgroundColor: day ? sportColor(day.sport) : "var(--color-neutral-200)" }}
             title={day ? sportLabel(day.sport) : undefined}
           />
           {size === "L" && (

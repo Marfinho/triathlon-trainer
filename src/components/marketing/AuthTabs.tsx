@@ -14,16 +14,16 @@ export default function AuthTabs() {
   const [tab, setTab] = useState<Tab>("register");
 
   return (
-    <div className="mx-auto w-full max-w-md rounded-2xl border border-[#1C1C2D] bg-[#11111B] p-6 shadow-2xl sm:p-8">
-      <div className="mb-6 grid grid-cols-2 gap-1 rounded-lg border border-[#1C1C2D] bg-[#07070D] p-1">
+    <div className="mx-auto w-full max-w-md rounded-[32px] border border-neutral-200 bg-white p-6 shadow-[var(--shadow-card)] sm:p-8">
+      <div className="mb-6 grid grid-cols-2 gap-1 rounded-full border border-neutral-200 bg-neutral-100 p-1">
         <button
           type="button"
           onClick={() => setTab("login")}
           aria-pressed={tab === "login"}
-          className={`rounded-md px-4 py-2 text-sm font-medium transition ${
+          className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
             tab === "login"
-              ? "bg-[#FF2BD6] text-[#07070D]"
-              : "text-[#A9A9C4] hover:text-[#F1F1FB]"
+              ? "bg-neutral-900 text-neutral-50"
+              : "text-neutral-500 hover:text-neutral-900"
           }`}
         >
           Anmelden
@@ -32,10 +32,10 @@ export default function AuthTabs() {
           type="button"
           onClick={() => setTab("register")}
           aria-pressed={tab === "register"}
-          className={`rounded-md px-4 py-2 text-sm font-medium transition ${
+          className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
             tab === "register"
-              ? "bg-[#FF2BD6] text-[#07070D]"
-              : "text-[#A9A9C4] hover:text-[#F1F1FB]"
+              ? "bg-neutral-900 text-neutral-50"
+              : "text-neutral-500 hover:text-neutral-900"
           }`}
         >
           Registrieren

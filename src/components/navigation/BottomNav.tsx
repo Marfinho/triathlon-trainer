@@ -2,104 +2,30 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useState } from "react";
 import { signOut } from "next-auth/react";
 import type { Session } from "next-auth";
-
-type NavItem = {
-  href: string;
-  label: string;
-  icon: ReactNode;
-};
-
-const items: NavItem[] = [
-  {
-    href: "/dashboard",
-    label: "Heute",
-    icon: (
-      <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-3m0 0l7-4 7 4M5 9v10a1 1 0 001 1h12a1 1 0 001-1V9m-9 11l4-4m0 0l4 4m-4-4V3" />
-      </svg>
-    ),
-  },
-  {
-    href: "/week",
-    label: "Woche",
-    icon: (
-      <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-      </svg>
-    ),
-  },
-  {
-    href: "/race",
-    label: "Wettkampf",
-    icon: (
-      <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-      </svg>
-    ),
-  },
-  {
-    href: "/coach",
-    label: "Coach",
-    icon: (
-      <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-      </svg>
-    ),
-  },
-  {
-    href: "/trainer",
-    label: "Trainer",
-    icon: (
-      <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <circle cx="6" cy="17" r="3" strokeWidth={2} />
-        <circle cx="18" cy="17" r="3" strokeWidth={2} />
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 17l4-7h4l4 7M10 10l2-3h3" />
-      </svg>
-    ),
-  },
-  {
-    href: "/body",
-    label: "Körper",
-    icon: (
-      <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm6 7a1 1 0 11-2 0 1 1 0 012 0zM7 20h10a2 2 0 002-2v-6a2 2 0 00-2-2H7a2 2 0 00-2 2v6a2 2 0 002 2z" />
-      </svg>
-    ),
-  },
-  {
-    href: "/more",
-    // „Mehr“ ist auf dem Handy der Sheet-Button selbst.
-    label: "Extras",
-    icon: (
-      <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-      </svg>
-    ),
-  },
-];
+import {
+  ADMIN_ICON,
+  Avatar,
+  MENU_ICON,
+  NAV_ITEMS,
+  initialsOf,
+  isActivePath,
+  type NavItem,
+} from "./navItems";
 
 /** Auf dem Handy passen nur wenige Tabs in eine Zeile – der Rest liegt im „Mehr“-Sheet. */
 const PRIMARY_HREFS = ["/dashboard", "/week", "/race", "/coach"];
-const primaryItems = items.filter((i) => PRIMARY_HREFS.includes(i.href));
-const secondaryItems = items.filter((i) => !PRIMARY_HREFS.includes(i.href));
+const primaryItems = NAV_ITEMS.filter((i) => PRIMARY_HREFS.includes(i.href));
+const secondaryItems = NAV_ITEMS.filter((i) => !PRIMARY_HREFS.includes(i.href));
 
-function isActivePath(pathname: string, href: string): boolean {
-  return pathname === href || pathname.startsWith(href + "/");
-}
-
+/** Schwebende Tab-Leiste (Mobil) mit „Mehr“-Sheet. */
 export default function BottomNav({ session }: { session: Session | null }) {
   const pathname = usePathname();
   const [sheetOpen, setSheetOpen] = useState(false);
   const isAdmin = session?.user?.role === "admin";
-  const initials = (session?.user?.name || session?.user?.email || "U")
-    .split(" ")
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
+  const initials = initialsOf(session?.user?.name, session?.user?.email);
 
   // Sheet bei Navigation schließen.
   useEffect(() => {
@@ -124,30 +50,19 @@ export default function BottomNav({ session }: { session: Session | null }) {
     {
       href: "/profile",
       label: "Profil",
-      icon: (
-        <div className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-[#00E5FF] to-[#FF2BD6] text-[9px] font-bold text-[#07070d]">
-          {initials}
-        </div>
-      ),
+      icon: <Avatar initials={initials} size="h-full w-full text-[9px]" />,
     },
-    ...(isAdmin
-      ? [
-          {
-            href: "/admin",
-            label: "Admin",
-            icon: (
-              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-              </svg>
-            ),
-          },
-        ]
-      : []),
+    ...(isAdmin ? [{ href: "/admin", label: "Admin", icon: ADMIN_ICON }] : []),
   ];
 
-  const tabClass = (active: boolean) =>
-    `flex min-w-0 flex-1 flex-col items-center justify-center gap-0.5 py-1.5 text-[11px] font-medium transition-colors ${
-      active ? "text-[#00E5FF] [&_svg]:drop-shadow-[0_0_6px_rgba(0,229,255,0.9)]" : "text-gray-500 active:text-gray-900"
+  const tab = (active: boolean) =>
+    `group flex min-w-0 flex-1 flex-col items-center justify-center gap-0.5 text-[10.5px] font-semibold transition-colors ${
+      active ? "text-neutral-900" : "text-neutral-500 active:text-neutral-900"
+    }`;
+
+  const bubble = (active: boolean) =>
+    `flex h-8 w-12 items-center justify-center rounded-full transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
+      active ? "bg-neutral-900 text-neutral-50 scale-100" : "scale-95 group-active:scale-90"
     }`;
 
   return (
@@ -156,12 +71,11 @@ export default function BottomNav({ session }: { session: Session | null }) {
         <div className="fixed inset-0 z-40 md:hidden" role="dialog" aria-modal="true" aria-label="Weitere Seiten">
           <button
             type="button"
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            className="absolute inset-0 bg-neutral-950/30 backdrop-blur-sm"
             aria-label="Schließen"
             onClick={() => setSheetOpen(false)}
           />
-          <div className="absolute inset-x-0 bottom-0 rounded-t-3xl border-t border-white/10 bg-[#11111b]/95 px-4 pt-3 shadow-2xl backdrop-blur-xl pb-[calc(76px+env(safe-area-inset-bottom))]">
-            <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-gray-300" />
+          <div className="animate-rise absolute inset-x-3 bottom-[calc(84px+env(safe-area-inset-bottom))] rounded-[28px] border border-neutral-200 bg-white p-3 shadow-2xl">
             <div className="grid grid-cols-3 gap-2">
               {sheetLinks.map((item) => {
                 const active = isActivePath(pathname, item.href);
@@ -169,11 +83,11 @@ export default function BottomNav({ session }: { session: Session | null }) {
                   <Link
                     key={item.href}
                     href={item.href}
-                    className={`flex flex-col items-center gap-1.5 rounded-xl px-2 py-3 text-xs font-medium ${
-                      active ? "bg-[#00E5FF]/10 text-[#7af1ff] ring-1 ring-[#00E5FF]/40" : "bg-white/[0.03] text-gray-700 active:bg-white/10"
+                    className={`flex flex-col items-center gap-1.5 rounded-2xl px-2 py-3.5 text-xs font-semibold transition active:scale-95 ${
+                      active ? "bg-neutral-900 text-neutral-50" : "bg-neutral-100 text-neutral-700"
                     }`}
                   >
-                    <div className="h-6 w-6">{item.icon}</div>
+                    <span className="h-6 w-6">{item.icon}</span>
                     <span className="truncate">{item.label}</span>
                   </Link>
                 );
@@ -182,7 +96,7 @@ export default function BottomNav({ session }: { session: Session | null }) {
             <button
               type="button"
               onClick={() => signOut({ redirectTo: "/auth/login" })}
-              className="mt-3 w-full rounded-xl border border-[#FF3864]/40 py-2.5 text-sm font-medium text-[#FF6B8B] active:bg-[#FF3864]/10"
+              className="mt-2 w-full rounded-2xl bg-rose-50 py-3 text-sm font-semibold text-rose-600 active:scale-[0.98]"
             >
               Abmelden
             </button>
@@ -191,20 +105,22 @@ export default function BottomNav({ session }: { session: Session | null }) {
       )}
 
       <nav
-        className="fixed bottom-0 left-0 right-0 z-50 border-t border-white/10 bg-[#0b0b14]/85 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl md:hidden"
+        className="glass fixed inset-x-3 bottom-[calc(12px+env(safe-area-inset-bottom))] z-50 rounded-[26px] shadow-[0_12px_32px_-12px_rgb(22_19_31/0.35)] md:hidden"
         aria-label="Hauptnavigation"
       >
-        <div className="flex h-[60px] items-stretch">
+        <div className="flex h-16 items-stretch px-1">
           {primaryItems.map((item) => {
             const active = isActivePath(pathname, item.href);
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                className={tabClass(active)}
+                className={tab(active)}
                 aria-current={active ? "page" : undefined}
               >
-                <div className="h-6 w-6">{item.icon}</div>
+                <span className={bubble(active)}>
+                  <span className="h-[22px] w-[22px]">{item.icon}</span>
+                </span>
                 <span className="max-w-full truncate px-0.5">{item.label}</span>
               </Link>
             );
@@ -212,15 +128,13 @@ export default function BottomNav({ session }: { session: Session | null }) {
           <button
             type="button"
             onClick={() => setSheetOpen((o) => !o)}
-            className={tabClass(sheetOpen || secondaryActive)}
+            className={tab(sheetOpen || secondaryActive)}
             aria-expanded={sheetOpen}
             aria-label="Weitere Seiten"
           >
-            <div className="h-6 w-6">
-              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </div>
+            <span className={bubble(sheetOpen || secondaryActive)}>
+              <span className="h-[22px] w-[22px]">{MENU_ICON}</span>
+            </span>
             <span>Mehr</span>
           </button>
         </div>

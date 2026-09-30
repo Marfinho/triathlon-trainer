@@ -116,7 +116,7 @@ export function TrainingJournal({ initial }: { initial: JournalItem[] }) {
           <div className="flex-1 text-amber-500">
             <Sparkline
               values={[...entries].reverse().map((e) => e.mood ?? null)}
-              color="#FF9F1C"
+              color="#FF9500"
               height={28}
             />
           </div>
