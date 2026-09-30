@@ -26,7 +26,7 @@ services:
       - "3000:3000"
     environment:
       DATABASE_URL: "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}"
-      NEXTAUTH_URL: ${NEXTAUTH_URL}
+      NEXTAUTH_URL: "https://localhub.217-160-128-156.sslip.io"
       NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
       AUTH_SECRET: ${NEXTAUTH_SECRET}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
