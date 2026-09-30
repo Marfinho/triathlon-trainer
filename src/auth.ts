@@ -1,4 +1,4 @@
-import NextAuth from "next-auth";
+import NextAuth, { CredentialsSignin } from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import Credentials from "next-auth/providers/credentials";
 import Google from "next-auth/providers/google";
@@ -8,6 +8,11 @@ import { authConfig } from "@/auth.config";
 import { checkRateLimit, clientIp } from "@/lib/rate-limit";
 import { recordAudit } from "@/lib/audit";
 import { isOwnerEmail } from "@/lib/owner";
+import { isMailConfigured } from "@/lib/mail";
+
+class EmailNotVerifiedError extends CredentialsSignin {
+  code = "email_not_verified";
+}
 
 // Vergleichs-Hash für unbekannte Nutzer: gleiche Laufzeit wie ein echter
 // bcrypt-Vergleich, damit sich existierende Konten nicht über Timing verraten.
@@ -94,6 +99,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           await recordAudit({ userId: user.id, action: "login_failed", ip });
           return null;
         }
+
+        // Erst nach korrektem Passwort verraten, dass die Bestätigung fehlt.
+        if (isMailConfigured() && !user.emailVerified) throw new EmailNotVerifiedError();
 
         await recordAudit({ userId: user.id, action: "login_success", ip });
         return { id: user.id, email: user.email, name: user.name ?? undefined };

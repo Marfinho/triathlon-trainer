@@ -6,13 +6,16 @@ import { validatePasswordStrength } from "@/domain/auth/password";
 import { sanitizeOptionalText } from "@/domain/security/sanitize";
 import { recordAudit } from "@/lib/audit";
 import { blockedResponse } from "@/lib/security/taunt";
+import { isMailConfigured, sendVerificationMail } from "@/lib/mail";
+import { createEmailToken } from "@/lib/email-tokens";
 
 const BCRYPT_ROUNDS = 12;
 
 /**
  * POST /api/auth/register – Registrierung per E-Mail/Passwort.
  * Body: { name?, email, password } – Passwort-Stärke wird server-seitig erzwungen.
- * Legt User + ein leeres AthleteProfile an.
+ * Legt User + ein leeres AthleteProfile an und verschickt (falls SMTP
+ * konfiguriert) die Bestätigungsmail.
  */
 export async function POST(request: Request) {
   const ip = clientIp(request);
@@ -52,6 +55,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "EMAIL_TAKEN" }, { status: 409 });
   }
 
+  const verificationRequired = isMailConfigured();
   const passwordHash = await bcrypt.hash(password, BCRYPT_ROUNDS);
   const user = await prisma.user.create({
     data: {
@@ -59,6 +63,8 @@ export async function POST(request: Request) {
       name,
       passwordHash,
       provider: "credentials",
+      // Ohne Mail-Konfiguration entfällt die Bestätigung (sofort aktiv).
+      emailVerified: verificationRequired ? null : new Date(),
       athleteProfiles: {
         create: { name: name ?? email.split("@")[0] },
       },
@@ -67,5 +73,10 @@ export async function POST(request: Request) {
 
   await recordAudit({ userId: user.id, action: "account_created", ip });
 
-  return NextResponse.json({ ok: true, userId: user.id });
+  if (verificationRequired) {
+    const token = await createEmailToken("verify", email);
+    await sendVerificationMail(email, token);
+  }
+
+  return NextResponse.json({ ok: true, userId: user.id, verificationRequired });
 }

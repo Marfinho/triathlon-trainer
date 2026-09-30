@@ -19,6 +19,17 @@ export default function LoginForm({ showRegisterLink = true }: LoginFormProps) {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [unverified, setUnverified] = useState(false);
+  const [resent, setResent] = useState(false);
+
+  async function resend() {
+    await fetch("/api/auth/resend-verification", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    }).catch(() => undefined);
+    setResent(true);
+  }
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -37,7 +48,12 @@ export default function LoginForm({ showRegisterLink = true }: LoginFormProps) {
         redirect: false,
       });
       if (res?.error) {
-        setError("E-Mail oder Passwort falsch.");
+        if (res.code === "email_not_verified") {
+          setUnverified(true);
+          setError("Bitte bestätige zuerst deine E-Mail-Adresse (Link in der Bestätigungsmail).");
+        } else {
+          setError("E-Mail oder Passwort falsch.");
+        }
         return;
       }
       window.location.href = "/dashboard";
@@ -88,11 +104,21 @@ export default function LoginForm({ showRegisterLink = true }: LoginFormProps) {
         />
       </div>
 
+      {unverified && (
+        <button type="button" onClick={resend} disabled={resent} className="text-left text-sm font-semibold text-blue-600 hover:underline disabled:text-neutral-400 disabled:no-underline">
+          {resent ? "Falls das Konto existiert, wurde die Mail erneut gesendet." : "Bestätigungsmail erneut senden"}
+        </button>
+      )}
+
       {error && (
         <p role="alert" className="rounded-2xl bg-rose-50 px-4 py-2.5 text-sm font-medium text-rose-700">
           {error}
         </p>
       )}
+
+      <Link href="/auth/forgot-password" className="text-sm font-semibold text-blue-600 hover:underline">
+        Passwort vergessen?
+      </Link>
 
       <button
         type="submit"

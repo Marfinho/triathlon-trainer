@@ -36,6 +36,7 @@ export default function RegisterForm({ showLoginLink = true }: RegisterFormProps
   const [confirm, setConfirm] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [sentTo, setSentTo] = useState<string | null>(null);
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -64,6 +65,12 @@ export default function RegisterForm({ showLoginLink = true }: RegisterFormProps
         return;
       }
 
+      const data: { verificationRequired?: boolean } = await res.json().catch(() => ({}));
+      if (data.verificationRequired) {
+        setSentTo(email);
+        return;
+      }
+
       const signInRes = await signIn("credentials", {
         email,
         password,
@@ -79,6 +86,18 @@ export default function RegisterForm({ showLoginLink = true }: RegisterFormProps
     } finally {
       setLoading(false);
     }
+  }
+
+  if (sentTo) {
+    return (
+      <div className="flex flex-col gap-3 text-[15px] text-neutral-700">
+        <p role="status" className="rounded-2xl bg-emerald-50 px-4 py-3 font-medium text-emerald-800">
+          Fast geschafft! Wir haben dir eine Bestätigungsmail an <strong>{sentTo}</strong> geschickt.
+        </p>
+        <p>Klicke auf den Link in der Mail, um dein Konto zu aktivieren (24 Stunden gültig). Schau ggf. auch im Spam-Ordner nach.</p>
+        <Link href="/auth/login" className="font-semibold text-blue-600 hover:underline">Zur Anmeldung</Link>
+      </div>
+    );
   }
 
   return (
