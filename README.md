@@ -20,9 +20,8 @@ Der Austausch mit dem LLM funktioniert auf **zwei Wegen**:
 1. **Copy & Paste (Standard):** LocalHub erzeugt eine modulare `coach_summary`
    (JSON), du fügst sie in einen LLM-Chat ein und importierst den erzeugten
    `localhub_plan` zurück.
-2. **Direkte LLM-API (optional):** Mit hinterlegtem `ANTHROPIC_API_KEY`,
-   `OPENAI_API_KEY` **oder** `OLLAMA_BASE_URL` (lokale [Ollama](https://ollama.com)-
-   Instanz, kein Cloud-Key nötig) generiert LocalHub den Plan direkt per
+2. **Direkte LLM-API (optional):** Mit hinterlegtem `ANTHROPIC_API_KEY`
+   **oder** `OPENAI_API_KEY` generiert LocalHub den Plan direkt per
    Knopfdruck – das Ergebnis landet zur Prüfung im Importfeld und durchläuft
    denselben harten Validierungs-Flow. Beide Wege bleiben parallel nutzbar.
 
@@ -214,14 +213,6 @@ Kraft-Player Satz für Satz durch die Einheit (Countdowns, Signal, Bildschirm
 bleibt an). Datenformat, Fehlercodes und „neue Übung ergänzen“:
 [`docs/EXERCISES.md`](docs/EXERCISES.md).
 
-## Darstellung (Dark Mode)
-
-Hell, Dunkel oder wie das System – umschaltbar unter **Mehr → Darstellung**
-(pro Gerät gespeichert). Technisch: Tailwind-Variante `dark:` über
-`<html data-theme>`, gesetzt vor dem ersten Paint (`src/lib/theme.ts`).
-Neue Komponenten brauchen zu hellen Farbklassen die passende `dark:`-Klasse
-(Zuordnung siehe `scripts/add-dark-variants.py`).
-
 ## Architektur
 
 ```
@@ -235,7 +226,7 @@ src/
     dashboard/          UI-Komponenten der Tabs
     charts/             abhängigkeitsfreie SVG-Charts
     exercises/          Übungsfigur, Animation, Detail, Kraft-Player
-    ui/                 EmptyState, Skeleton, Toast, ThemeToggle
+    ui/                 EmptyState, Skeleton, Toast
   domain/               reine, getestete Logik (kein DB-Zugriff)
     plan-import/        validate/import + Plan-Diff-Vorschau
     coach-summary/      buildCoachSummary, LLM-Prompt/-Extraktion

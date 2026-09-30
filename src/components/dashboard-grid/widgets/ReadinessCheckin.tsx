@@ -65,10 +65,10 @@ export function ReadinessCheckin({ size }: { size: WidgetSize }) {
       <div className="flex items-center gap-2">
         <span
           className={`inline-block h-2.5 w-2.5 rounded-full ${
-            READINESS_DOT[latest.status ?? ""] ?? "bg-neutral-300 dark:bg-neutral-600"
+            READINESS_DOT[latest.status ?? ""] ?? "bg-neutral-300"
           }`}
         />
-        <p className="text-sm text-neutral-700 dark:text-neutral-300">
+        <p className="text-sm text-neutral-700">
           Müdigkeit {latest.subjectiveFatigue ?? "—"}
         </p>
       </div>
@@ -82,27 +82,27 @@ export function ReadinessCheckin({ size }: { size: WidgetSize }) {
       ) : (
         <dl className="space-y-1 text-sm">
           <div className="flex justify-between">
-            <dt className="text-neutral-500 dark:text-neutral-400">Status</dt>
-            <dd className="flex items-center gap-1.5 font-medium text-neutral-800 dark:text-neutral-200">
+            <dt className="text-neutral-500">Status</dt>
+            <dd className="flex items-center gap-1.5 font-medium text-neutral-800">
               <span
                 className={`inline-block h-2 w-2 rounded-full ${
-                  READINESS_DOT[latest.status ?? ""] ?? "bg-neutral-300 dark:bg-neutral-600"
+                  READINESS_DOT[latest.status ?? ""] ?? "bg-neutral-300"
                 }`}
               />
               {latest.status ?? "—"}
             </dd>
           </div>
           <div className="flex justify-between">
-            <dt className="text-neutral-500 dark:text-neutral-400">Schlaf</dt>
-            <dd className="font-medium text-neutral-800 dark:text-neutral-200">{latest.sleepTrend ?? "—"}</dd>
+            <dt className="text-neutral-500">Schlaf</dt>
+            <dd className="font-medium text-neutral-800">{latest.sleepTrend ?? "—"}</dd>
           </div>
           <div className="flex justify-between">
-            <dt className="text-neutral-500 dark:text-neutral-400">HRV</dt>
-            <dd className="font-medium text-neutral-800 dark:text-neutral-200">{latest.hrvTrend ?? "—"}</dd>
+            <dt className="text-neutral-500">HRV</dt>
+            <dd className="font-medium text-neutral-800">{latest.hrvTrend ?? "—"}</dd>
           </div>
           <div className="flex justify-between">
-            <dt className="text-neutral-500 dark:text-neutral-400">Müdigkeit</dt>
-            <dd className="font-medium text-neutral-800 dark:text-neutral-200">
+            <dt className="text-neutral-500">Müdigkeit</dt>
+            <dd className="font-medium text-neutral-800">
               {latest.subjectiveFatigue ?? "—"}
             </dd>
           </div>
@@ -117,7 +117,7 @@ export function ReadinessCheckin({ size }: { size: WidgetSize }) {
               .slice()
               .reverse()
               .map((h) => h.subjectiveFatigue)}
-            color="#0a84ff"
+            color="#00E5FF"
             height={32}
           />
         </div>
@@ -126,13 +126,13 @@ export function ReadinessCheckin({ size }: { size: WidgetSize }) {
       {size === "L" && (
         <div>
           {open ? (
-            <div className="space-y-2 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-800/60 p-3">
-              <label className="block text-xs text-neutral-500 dark:text-neutral-400">
+            <div className="space-y-2 rounded-xl border border-neutral-200 bg-neutral-50 p-3">
+              <label className="block text-xs text-neutral-500">
                 Readiness
                 <select
                   value={status}
                   onChange={(e) => setStatus(e.target.value)}
-                  className="mt-1 block h-11 w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-2 text-sm"
+                  className="mt-1 block h-11 w-full rounded-lg border border-neutral-300 bg-white px-2 text-sm"
                 >
                   {Object.entries(STATUS_OPTION_LABEL).map(([value, label]) => (
                     <option key={value} value={value}>
@@ -141,7 +141,7 @@ export function ReadinessCheckin({ size }: { size: WidgetSize }) {
                   ))}
                 </select>
               </label>
-              <label className="block text-xs text-neutral-500 dark:text-neutral-400">
+              <label className="block text-xs text-neutral-500">
                 Müdigkeit ({fatigue})
                 <input
                   type="range"
@@ -152,12 +152,12 @@ export function ReadinessCheckin({ size }: { size: WidgetSize }) {
                   className="mt-2 block w-full accent-blue-600"
                 />
               </label>
-              <label className="block text-xs text-neutral-500 dark:text-neutral-400">
+              <label className="block text-xs text-neutral-500">
                 Schlaf
                 <select
                   value={sleepTrend}
                   onChange={(e) => setSleepTrend(e.target.value)}
-                  className="mt-1 block h-11 w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-2 text-sm"
+                  className="mt-1 block h-11 w-full rounded-lg border border-neutral-300 bg-white px-2 text-sm"
                 >
                   <option value="">— keine Angabe —</option>
                   <option value="besser">besser</option>
@@ -169,7 +169,7 @@ export function ReadinessCheckin({ size }: { size: WidgetSize }) {
                 <button
                   type="button"
                   onClick={() => setOpen(false)}
-                  className="flex h-11 flex-1 items-center justify-center rounded-full border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 text-sm font-medium text-neutral-600 dark:text-neutral-400"
+                  className="flex h-11 flex-1 items-center justify-center rounded-full border border-neutral-200 bg-white text-sm font-medium text-neutral-600"
                 >
                   Abbrechen
                 </button>
@@ -187,7 +187,7 @@ export function ReadinessCheckin({ size }: { size: WidgetSize }) {
             <button
               type="button"
               onClick={() => setOpen(true)}
-              className="flex h-11 items-center justify-center rounded-full border border-neutral-200 dark:border-neutral-800 px-4 text-sm font-medium text-neutral-600 dark:text-neutral-400"
+              className="flex h-11 items-center justify-center rounded-full border border-neutral-200 px-4 text-sm font-medium text-neutral-600"
             >
               Check-in
             </button>

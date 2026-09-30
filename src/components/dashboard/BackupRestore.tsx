@@ -171,7 +171,7 @@ export function BackupRestore({
       <div className="flex flex-col gap-8">
         {/* (a) Backup */}
         <div>
-          <h3 className="mb-2 text-[13px] font-semibold text-neutral-900 dark:text-neutral-100">
+          <h3 className="mb-2 text-[13px] font-semibold text-neutral-900">
             Backup
           </h3>
           {cooldownActive ? (
@@ -179,11 +179,11 @@ export function BackupRestore({
               <button
                 type="button"
                 disabled
-                className="inline-flex w-fit cursor-not-allowed items-center justify-center rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-100 dark:bg-neutral-800 px-4 py-2 text-sm font-medium text-neutral-400"
+                className="inline-flex w-fit cursor-not-allowed items-center justify-center rounded-lg border border-neutral-200 bg-neutral-100 px-4 py-2 text-sm font-medium text-neutral-400"
               >
                 Vollständiges Backup (JSON)
               </button>
-              <p className="text-xs" style={{ color: "#F0A500" }}>
+              <p className="text-xs" style={{ color: "#FF2BD6" }}>
                 Nächstes Backup ab {formatDateTime(nextBackupAt)} · Upgrade auf
                 Pro für sofortige Backups
               </p>
@@ -191,7 +191,7 @@ export function BackupRestore({
           ) : (
             <a
               href="/api/backup/export"
-              className="inline-flex w-fit items-center justify-center rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 px-4 py-2 text-sm font-medium text-neutral-900 dark:text-neutral-100 shadow-[0_1px_2px_rgba(0,0,0,0.04)] transition-colors hover:bg-neutral-50 dark:hover:bg-neutral-800/60"
+              className="inline-flex w-fit items-center justify-center rounded-lg border border-neutral-200 bg-white px-4 py-2 text-sm font-medium text-neutral-900 shadow-[0_1px_2px_rgba(0,0,0,0.04)] transition-colors hover:bg-neutral-50"
             >
               Vollständiges Backup (JSON)
             </a>
@@ -200,7 +200,7 @@ export function BackupRestore({
 
         {/* (b) Restore */}
         <div>
-          <h3 className="mb-2 text-[13px] font-semibold text-neutral-900 dark:text-neutral-100">
+          <h3 className="mb-2 text-[13px] font-semibold text-neutral-900">
             Wiederherstellung
           </h3>
 
@@ -213,18 +213,18 @@ export function BackupRestore({
             onDrop={onDrop}
             className={`flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed px-4 py-8 text-center transition-colors ${
               isDragging
-                ? "border-neutral-400 dark:border-neutral-600 bg-neutral-50 dark:bg-neutral-800/60"
-                : "border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900"
+                ? "border-neutral-400 bg-neutral-50"
+                : "border-neutral-200 bg-white"
             }`}
           >
-            <p className="text-sm text-neutral-700 dark:text-neutral-300">
+            <p className="text-sm text-neutral-700">
               Backup-Datei (.json) hierher ziehen
             </p>
-            <p className="text-xs text-neutral-500 dark:text-neutral-400">oder</p>
+            <p className="text-xs text-neutral-500">oder</p>
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="inline-flex items-center justify-center rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 px-3 py-1.5 text-xs font-medium text-neutral-900 dark:text-neutral-100 transition-colors hover:bg-neutral-50 dark:hover:bg-neutral-800/60"
+              className="inline-flex items-center justify-center rounded-lg border border-neutral-200 bg-white px-3 py-1.5 text-xs font-medium text-neutral-900 transition-colors hover:bg-neutral-50"
             >
               Datei auswählen
             </button>
@@ -236,38 +236,38 @@ export function BackupRestore({
               className="hidden"
             />
             {file ? (
-              <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+              <p className="mt-1 text-xs text-neutral-500">
                 Ausgewählt: {file.name}
               </p>
             ) : null}
           </div>
 
           {parseError ? (
-            <p className="mt-3 text-xs text-red-600 dark:text-red-400">{parseError}</p>
+            <p className="mt-3 text-xs text-red-600">{parseError}</p>
           ) : null}
 
           {parsed ? (
-            <div className="mt-4 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-4">
+            <div className="mt-4 rounded-xl border border-neutral-200 bg-white p-4">
               <div className="mb-2 flex items-center justify-between">
-                <span className="text-xs font-medium text-neutral-700 dark:text-neutral-300">
+                <span className="text-xs font-medium text-neutral-700">
                   Vorschau
                 </span>
-                <span className="text-xs text-neutral-500 dark:text-neutral-400">
+                <span className="text-xs text-neutral-500">
                   Version: {parsed.version || "—"}
                 </span>
               </div>
               {versionValid ? null : (
-                <p className="mb-2 text-xs" style={{ color: "#F0A500" }}>
+                <p className="mb-2 text-xs" style={{ color: "#FF2BD6" }}>
                   Ungültiges Format — Version 2 erforderlich
                 </p>
               )}
               <dl className="grid grid-cols-2 gap-x-4 gap-y-1 sm:grid-cols-3">
                 {BACKUP_ARRAY_KEYS.map((key) => (
                   <div key={key} className="flex justify-between gap-2">
-                    <dt className="text-xs text-neutral-500 dark:text-neutral-400">
+                    <dt className="text-xs text-neutral-500">
                       {ARRAY_LABELS[key]}
                     </dt>
-                    <dd className="text-xs font-medium text-neutral-900 dark:text-neutral-100">
+                    <dd className="text-xs font-medium text-neutral-900">
                       {parsed.counts[key]}
                     </dd>
                   </div>
@@ -286,8 +286,8 @@ export function BackupRestore({
               }}
               className={`inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
                 canRestore && !submitting
-                  ? "border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 shadow-[0_1px_2px_rgba(0,0,0,0.04)] hover:bg-neutral-50 dark:hover:bg-neutral-800/60"
-                  : "cursor-not-allowed border border-neutral-200 bg-neutral-100 dark:bg-neutral-800 text-neutral-400"
+                  ? "border border-neutral-200 bg-white text-neutral-900 shadow-[0_1px_2px_rgba(0,0,0,0.04)] hover:bg-neutral-50"
+                  : "cursor-not-allowed border border-neutral-200 bg-neutral-100 text-neutral-400"
               }`}
             >
               Wiederherstellen
@@ -295,8 +295,8 @@ export function BackupRestore({
           </div>
 
           {confirmOpen ? (
-            <div className="mt-4 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-4">
-              <p className="text-sm text-neutral-700 dark:text-neutral-300">
+            <div className="mt-4 rounded-xl border border-neutral-200 bg-white p-4">
+              <p className="text-sm text-neutral-700">
                 Bestehende Daten werden mit dem Backup überschrieben. Completed
                 Aktivitäten bleiben erhalten.
               </p>
@@ -305,7 +305,7 @@ export function BackupRestore({
                   type="button"
                   disabled={submitting}
                   onClick={() => void onConfirmRestore()}
-                  className="inline-flex items-center justify-center rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-neutral-100 dark:text-neutral-900 dark:hover:bg-neutral-300"
+                  className="inline-flex items-center justify-center rounded-lg border border-neutral-200 bg-neutral-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {submitting ? "Wird wiederhergestellt…" : "Ja, wiederherstellen"}
                 </button>
@@ -313,7 +313,7 @@ export function BackupRestore({
                   type="button"
                   disabled={submitting}
                   onClick={() => setConfirmOpen(false)}
-                  className="inline-flex items-center justify-center rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 px-4 py-2 text-sm font-medium text-neutral-900 dark:text-neutral-100 transition-colors hover:bg-neutral-50 dark:hover:bg-neutral-800/60 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="inline-flex items-center justify-center rounded-lg border border-neutral-200 bg-white px-4 py-2 text-sm font-medium text-neutral-900 transition-colors hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   Abbrechen
                 </button>
@@ -322,15 +322,15 @@ export function BackupRestore({
           ) : null}
 
           {restoreError ? (
-            <p className="mt-3 text-xs text-red-600 dark:text-red-400">{restoreError}</p>
+            <p className="mt-3 text-xs text-red-600">{restoreError}</p>
           ) : null}
 
           {result ? (
-            <div className="mt-4 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-4">
-              <p className="mb-2 text-xs font-medium text-neutral-700 dark:text-neutral-300">
+            <div className="mt-4 rounded-xl border border-neutral-200 bg-white p-4">
+              <p className="mb-2 text-xs font-medium text-neutral-700">
                 Wiederherstellung abgeschlossen
               </p>
-              <pre className="overflow-x-auto whitespace-pre-wrap break-words text-xs text-neutral-600 dark:text-neutral-400">
+              <pre className="overflow-x-auto whitespace-pre-wrap break-words text-xs text-neutral-600">
                 {JSON.stringify(result, null, 2)}
               </pre>
             </div>

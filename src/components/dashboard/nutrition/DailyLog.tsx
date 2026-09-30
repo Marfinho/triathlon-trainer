@@ -23,10 +23,10 @@ const STATUS_LABEL: Record<DailyBalanceResult["status"], string> = {
 };
 
 const STATUS_COLOR: Record<DailyBalanceResult["status"], string> = {
-  underfueled: "bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300",
-  ok: "bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300",
-  surplus: "bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300",
-  unknown: "bg-neutral-200 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-400",
+  underfueled: "bg-amber-100 text-amber-700",
+  ok: "bg-emerald-100 text-emerald-700",
+  surplus: "bg-blue-100 text-blue-700",
+  unknown: "bg-neutral-200 text-neutral-600",
 };
 
 /** Heutige Bilanz (Zufuhr vs. Trainingsverbrauch) + Liste der Logs. */
@@ -59,19 +59,19 @@ export function DailyLog({
   return (
     <div>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <div className="rounded-xl border border-neutral-200 dark:border-neutral-800 p-3">
+        <div className="rounded-xl border border-neutral-200 p-3">
           <span className="text-[11px] uppercase tracking-wide text-neutral-400">Zufuhr</span>
-          <p className="mt-0.5 text-xl font-semibold text-neutral-900 dark:text-neutral-100">{balance.intakeKcal} kcal</p>
+          <p className="mt-0.5 text-xl font-semibold text-neutral-900">{balance.intakeKcal} kcal</p>
         </div>
-        <div className="rounded-xl border border-neutral-200 dark:border-neutral-800 p-3">
+        <div className="rounded-xl border border-neutral-200 p-3">
           <span className="text-[11px] uppercase tracking-wide text-neutral-400">Training</span>
-          <p className="mt-0.5 text-xl font-semibold text-neutral-900 dark:text-neutral-100">−{balance.burnedKcal} kcal</p>
+          <p className="mt-0.5 text-xl font-semibold text-neutral-900">−{balance.burnedKcal} kcal</p>
         </div>
-        <div className="rounded-xl border border-neutral-200 dark:border-neutral-800 p-3">
+        <div className="rounded-xl border border-neutral-200 p-3">
           <span className="text-[11px] uppercase tracking-wide text-neutral-400">Netto</span>
-          <p className="mt-0.5 text-xl font-semibold text-neutral-900 dark:text-neutral-100">{balance.netKcal} kcal</p>
+          <p className="mt-0.5 text-xl font-semibold text-neutral-900">{balance.netKcal} kcal</p>
         </div>
-        <div className="rounded-xl border border-neutral-200 dark:border-neutral-800 p-3">
+        <div className="rounded-xl border border-neutral-200 p-3">
           <span className="text-[11px] uppercase tracking-wide text-neutral-400">Status</span>
           <p className="mt-1">
             <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_COLOR[balance.status]}`}>
@@ -86,9 +86,9 @@ export function DailyLog({
           {logs.map((log) => (
             <li
               key={log.id}
-              className="flex items-center justify-between rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 px-2.5 py-1.5 text-sm"
+              className="flex items-center justify-between rounded-lg border border-neutral-200 bg-white px-2.5 py-1.5 text-sm"
             >
-              <span className="text-neutral-700 dark:text-neutral-300">
+              <span className="text-neutral-700">
                 {log.foodProduct.name}
                 {log.foodProduct.brand ? (
                   <span className="text-neutral-400"> · {log.foodProduct.brand}</span>
@@ -96,7 +96,7 @@ export function DailyLog({
                 <span className="text-neutral-400"> · {log.quantityG} g</span>
               </span>
               <span className="flex shrink-0 items-center gap-2">
-                <span className="whitespace-nowrap text-neutral-500 dark:text-neutral-400">{Math.round(log.kcal)} kcal</span>
+                <span className="whitespace-nowrap text-neutral-500">{Math.round(log.kcal)} kcal</span>
                 <button
                   onClick={() => remove(log.id)}
                   disabled={deletingId === log.id}

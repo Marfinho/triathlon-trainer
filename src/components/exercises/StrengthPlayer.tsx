@@ -173,7 +173,7 @@ export function StrengthPlayer({
 
   if (steps.length === 0) {
     return (
-      <p className="text-sm text-neutral-600 dark:text-neutral-400">
+      <p className="text-sm text-neutral-600">
         Diese Einheit enthält keine Schritte.
       </p>
     );
@@ -186,7 +186,7 @@ export function StrengthPlayer({
   return (
     <div className="space-y-4">
       <div>
-        <div className="flex items-baseline justify-between gap-3 text-xs text-neutral-600 dark:text-neutral-400">
+        <div className="flex items-baseline justify-between gap-3 text-xs text-neutral-600">
           <span>
             {date} · {title}
           </span>
@@ -200,26 +200,26 @@ export function StrengthPlayer({
           aria-valuemin={0}
           aria-valuemax={steps.length}
           aria-valuenow={state.finished ? steps.length : state.index}
-          className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-800"
+          className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-neutral-200"
         >
           <div className="h-full rounded-full bg-blue-600 transition-all" style={{ width: `${progress * 100}%` }} />
         </div>
       </div>
 
       {state.finished ? (
-        <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-6 text-center dark:border-emerald-800 dark:bg-emerald-950/40">
-          <p className="text-lg font-semibold text-emerald-800 dark:text-emerald-200">Einheit geschafft!</p>
-          <p className="mt-1 text-sm text-emerald-700 dark:text-emerald-300">
+        <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-6 text-center">
+          <p className="text-lg font-semibold text-emerald-800">Einheit geschafft!</p>
+          <p className="mt-1 text-sm text-emerald-700">
             Ergebnisse werden hier nicht gespeichert.
           </p>
-          <Link href="/trainer?tab=kraft" className="mt-3 inline-block text-sm font-medium text-blue-600 hover:underline dark:text-blue-400">
+          <Link href="/trainer?tab=kraft" className="mt-3 inline-block text-sm font-medium text-blue-600 hover:underline">
             Zurück zur Übersicht
           </Link>
         </div>
       ) : step.kind === "exercise" ? (
         <section
           aria-label={`Übung ${state.index + 1}`}
-          className="rounded-2xl border border-neutral-200/80 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900 md:p-6"
+          className="rounded-2xl border border-neutral-200/80 bg-white p-4 md:p-6"
         >
           <div className="grid gap-5 md:grid-cols-2">
             <div>
@@ -230,38 +230,38 @@ export function StrengthPlayer({
               )}
             </div>
             <div>
-              <h2 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">
+              <h2 className="text-xl font-semibold text-neutral-900">
                 {step.definition?.title ?? step.exercise.id}
               </h2>
-              <p className="mt-0.5 text-sm text-neutral-700 dark:text-neutral-300">
+              <p className="mt-0.5 text-sm text-neutral-700">
                 {formatExerciseDose(step.exercise)}
                 {step.exercise.restSec ? ` · Pause ${step.exercise.restSec} s` : ""}
               </p>
               {step.exercise.note || step.description ? (
-                <p className="mt-2 rounded-md bg-amber-50 px-2.5 py-1.5 text-sm text-amber-800 dark:bg-amber-950/40 dark:text-amber-200">
+                <p className="mt-2 rounded-md bg-amber-50 px-2.5 py-1.5 text-sm text-amber-800">
                   {step.exercise.note ?? step.description}
                 </p>
               ) : null}
               {step.definition ? (
                 <Link
                   href={`/trainer/uebungen/${step.definition.id}`}
-                  className="mt-2 inline-block text-xs font-medium text-blue-600 hover:underline dark:text-blue-400"
+                  className="mt-2 inline-block text-xs font-medium text-blue-600 hover:underline"
                 >
                   Anleitung und typische Fehler
                 </Link>
               ) : null}
 
-              <div className="mt-4 rounded-xl bg-neutral-50 p-4 dark:bg-neutral-800/60" aria-live="polite">
-                <p className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+              <div className="mt-4 rounded-xl bg-neutral-50 p-4" aria-live="polite">
+                <p className="text-sm font-medium text-neutral-700">
                   Satz {Math.min(state.set, meta.sets)} von {meta.sets}
                   {meta.perSide && meta.holdSec != null ? ` · Seite ${state.side}` : ""}
                 </p>
                 {state.phase === "hold" || state.phase === "rest" ? (
-                  <p className="mt-1 font-display text-5xl font-medium tabular-nums text-neutral-900 dark:text-neutral-100">
+                  <p className="mt-1 font-display text-5xl font-medium tabular-nums text-neutral-900">
                     {fmtClock(remaining ?? state.countdownSec ?? 0)}
                   </p>
                 ) : null}
-                <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
+                <p className="mt-1 text-sm text-neutral-600">
                   {state.phase === "hold"
                     ? "Halten"
                     : state.phase === "rest"
@@ -295,7 +295,7 @@ export function StrengthPlayer({
                     <button
                       type="button"
                       onClick={() => dispatch({ type: "skipRest" })}
-                      className="rounded-lg border border-neutral-300 px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-100 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
+                      className="rounded-lg border border-neutral-300 px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-100"
                     >
                       Pause überspringen
                     </button>
@@ -308,13 +308,13 @@ export function StrengthPlayer({
       ) : (
         <section
           aria-label={`Schritt ${state.index + 1}`}
-          className="rounded-2xl border border-neutral-200/80 bg-white p-6 dark:border-neutral-800 dark:bg-neutral-900"
+          className="rounded-2xl border border-neutral-200/80 bg-white p-6"
         >
-          <p className="text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+          <p className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
             {step.segmentType}
             {step.durationSec ? ` · ${Math.round(step.durationSec / 60)} min` : ""}
           </p>
-          <p className="mt-1 text-lg text-neutral-900 dark:text-neutral-100">
+          <p className="mt-1 text-lg text-neutral-900">
             {step.description ?? "Ohne Beschreibung"}
           </p>
         </section>
@@ -327,7 +327,7 @@ export function StrengthPlayer({
               type="button"
               onClick={() => dispatch({ type: "prev" })}
               disabled={state.index === 0}
-              className="rounded-lg border border-neutral-300 px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-100 disabled:opacity-40 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
+              className="rounded-lg border border-neutral-300 px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-100 disabled:opacity-40"
             >
               Zurück
             </button>
@@ -337,13 +337,13 @@ export function StrengthPlayer({
               className={`rounded-lg px-4 py-2 text-sm font-semibold ${
                 state.phase === "stepDone"
                   ? "bg-emerald-600 text-white hover:bg-emerald-500"
-                  : "border border-neutral-300 text-neutral-700 hover:bg-neutral-100 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
+                  : "border border-neutral-300 text-neutral-700 hover:bg-neutral-100"
               }`}
             >
               {state.index === steps.length - 1 ? "Einheit beenden" : "Weiter"}
             </button>
           </div>
-          <div className="flex items-center gap-3 text-xs text-neutral-600 dark:text-neutral-400">
+          <div className="flex items-center gap-3 text-xs text-neutral-600">
             <label className="inline-flex items-center gap-1.5">
               <input
                 type="checkbox"

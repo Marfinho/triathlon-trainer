@@ -61,33 +61,33 @@ export function BodyMetrics({
       }
     >
       {open ? (
-        <div className="mb-4 flex flex-wrap items-end gap-2 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-800/60 p-3">
-          <label className="text-xs text-neutral-500 dark:text-neutral-400">
+        <div className="mb-4 flex flex-wrap items-end gap-2 rounded-xl border border-neutral-200 bg-neutral-50 p-3">
+          <label className="text-xs text-neutral-500">
             Gewicht (kg)
             <input
               type="number"
               step={0.1}
               value={form.weightKg}
               onChange={(e) => setForm({ ...form, weightKg: Number(e.target.value) || 0 })}
-              className="mt-1 block w-24 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-2 py-1.5 text-sm"
+              className="mt-1 block w-24 rounded-lg border border-neutral-300 bg-white px-2 py-1.5 text-sm"
             />
           </label>
-          <label className="text-xs text-neutral-500 dark:text-neutral-400">
+          <label className="text-xs text-neutral-500">
             Ruhepuls (bpm)
             <input
               type="number"
               value={form.restingHr}
               onChange={(e) => setForm({ ...form, restingHr: Number(e.target.value) || 0 })}
-              className="mt-1 block w-24 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-2 py-1.5 text-sm"
+              className="mt-1 block w-24 rounded-lg border border-neutral-300 bg-white px-2 py-1.5 text-sm"
             />
           </label>
-          <label className="text-xs text-neutral-500 dark:text-neutral-400">
+          <label className="text-xs text-neutral-500">
             HRV (ms)
             <input
               type="number"
               value={form.hrv}
               onChange={(e) => setForm({ ...form, hrv: Number(e.target.value) || 0 })}
-              className="mt-1 block w-24 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-2 py-1.5 text-sm"
+              className="mt-1 block w-24 rounded-lg border border-neutral-300 bg-white px-2 py-1.5 text-sm"
             />
           </label>
           <button
@@ -101,7 +101,7 @@ export function BodyMetrics({
       ) : null}
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <div className="rounded-xl border border-neutral-200 dark:border-neutral-800 p-3">
+        <div className="rounded-xl border border-neutral-200 p-3">
           <div className="flex items-baseline justify-between">
             <span className="text-[11px] uppercase tracking-wide text-neutral-400">
               Gewicht
@@ -109,7 +109,7 @@ export function BodyMetrics({
             {change != null ? (
               <span
                 className={`text-xs font-medium ${
-                  change < 0 ? "text-emerald-600 dark:text-emerald-400" : change > 0 ? "text-amber-600 dark:text-amber-400" : "text-neutral-400"
+                  change < 0 ? "text-emerald-600" : change > 0 ? "text-amber-600" : "text-neutral-400"
                 }`}
               >
                 {change > 0 ? "+" : ""}
@@ -117,7 +117,7 @@ export function BodyMetrics({
               </span>
             ) : null}
           </div>
-          <p className="mt-0.5 text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
+          <p className="mt-0.5 text-2xl font-semibold text-neutral-900">
             {summary.latestWeight != null ? `${summary.latestWeight} kg` : "—"}
             {bmi != null ? (
               <span className="ml-2 text-xs font-normal text-neutral-400">
@@ -126,10 +126,10 @@ export function BodyMetrics({
             ) : null}
           </p>
           <div className="mt-1 text-blue-500">
-            <Sparkline values={summary.weights} color="#0a84ff" height={32} />
+            <Sparkline values={summary.weights} color="#00E5FF" height={32} />
           </div>
         </div>
-        <div className="rounded-xl border border-neutral-200 dark:border-neutral-800 p-3">
+        <div className="rounded-xl border border-neutral-200 p-3">
           <div className="flex items-baseline justify-between">
             <span className="text-[11px] uppercase tracking-wide text-neutral-400">
               Ruhepuls
@@ -137,7 +137,7 @@ export function BodyMetrics({
             {summary.restingHrChange != null && summary.restingHrChange !== 0 ? (
               <span
                 className={`text-xs font-medium ${
-                  summary.restingHrChange < 0 ? "text-emerald-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400"
+                  summary.restingHrChange < 0 ? "text-emerald-600" : "text-amber-600"
                 }`}
               >
                 {summary.restingHrChange > 0 ? "+" : ""}
@@ -145,14 +145,14 @@ export function BodyMetrics({
               </span>
             ) : null}
           </div>
-          <p className="mt-0.5 text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
+          <p className="mt-0.5 text-2xl font-semibold text-neutral-900">
             {summary.latestRestingHr != null ? `${summary.latestRestingHr} bpm` : "—"}
           </p>
           <div className="mt-1 text-rose-400">
-            <Sparkline values={summary.restingHrs} color="#ff3b30" height={32} />
+            <Sparkline values={summary.restingHrs} color="#FF3864" height={32} />
           </div>
         </div>
-        <div className="rounded-xl border border-neutral-200 dark:border-neutral-800 p-3">
+        <div className="rounded-xl border border-neutral-200 p-3">
           <div className="flex items-baseline justify-between">
             <span className="text-[11px] uppercase tracking-wide text-neutral-400">
               HRV
@@ -160,7 +160,7 @@ export function BodyMetrics({
             {summary.hrvChange != null && summary.hrvChange !== 0 ? (
               <span
                 className={`text-xs font-medium ${
-                  summary.hrvChange > 0 ? "text-emerald-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400"
+                  summary.hrvChange > 0 ? "text-emerald-600" : "text-amber-600"
                 }`}
               >
                 {summary.hrvChange > 0 ? "+" : ""}
@@ -168,11 +168,11 @@ export function BodyMetrics({
               </span>
             ) : null}
           </div>
-          <p className="mt-0.5 text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
+          <p className="mt-0.5 text-2xl font-semibold text-neutral-900">
             {summary.latestHrv != null ? `${summary.latestHrv} ms` : "—"}
           </p>
           <div className="mt-1 text-emerald-500">
-            <Sparkline values={summary.hrvs} color="#34c759" height={32} />
+            <Sparkline values={summary.hrvs} color="#39FF88" height={32} />
           </div>
         </div>
       </div>

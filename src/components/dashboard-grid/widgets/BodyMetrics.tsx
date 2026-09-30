@@ -30,7 +30,7 @@ export function BodyMetrics({ size }: { size: WidgetSize }) {
 
   if (size === "S") {
     return (
-      <p className="text-sm text-neutral-700 dark:text-neutral-300">
+      <p className="text-sm text-neutral-700">
         {summary.latestWeight != null ? `${summary.latestWeight} kg` : "—"}
         {summary.latestRestingHr != null ? ` · ${summary.latestRestingHr} bpm` : ""}
       </p>
@@ -41,7 +41,7 @@ export function BodyMetrics({ size }: { size: WidgetSize }) {
     <div className="space-y-3">
       <div className="grid grid-cols-3 gap-2 text-center text-xs">
         <div>
-          <p className="text-base font-semibold text-neutral-900 dark:text-neutral-100">
+          <p className="text-base font-semibold text-neutral-900">
             {summary.latestWeight ?? "—"}
           </p>
           <p className="text-neutral-400">
@@ -49,7 +49,7 @@ export function BodyMetrics({ size }: { size: WidgetSize }) {
           </p>
         </div>
         <div>
-          <p className="text-base font-semibold text-neutral-900 dark:text-neutral-100">
+          <p className="text-base font-semibold text-neutral-900">
             {summary.latestRestingHr ?? "—"}
           </p>
           <p className="text-neutral-400">
@@ -57,19 +57,19 @@ export function BodyMetrics({ size }: { size: WidgetSize }) {
           </p>
         </div>
         <div>
-          <p className="text-base font-semibold text-neutral-900 dark:text-neutral-100">{summary.latestHrv ?? "—"}</p>
+          <p className="text-base font-semibold text-neutral-900">{summary.latestHrv ?? "—"}</p>
           <p className="text-neutral-400">HRV</p>
         </div>
       </div>
       {size === "L" && (
-        <div className="space-y-2 border-t border-neutral-100 dark:border-neutral-800 pt-2">
+        <div className="space-y-2 border-t border-neutral-100 pt-2">
           <div>
             <p className="mb-1 text-[11px] text-neutral-400">Gewicht</p>
-            <Sparkline values={summary.weights} color="#0a84ff" />
+            <Sparkline values={summary.weights} color="#00E5FF" />
           </div>
           <div>
             <p className="mb-1 text-[11px] text-neutral-400">Ruhepuls</p>
-            <Sparkline values={summary.restingHrs} color="#ff9f0a" />
+            <Sparkline values={summary.restingHrs} color="#FF9F1C" />
           </div>
         </div>
       )}

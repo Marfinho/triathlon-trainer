@@ -5,8 +5,8 @@ export default function NotFound() {
   return (
     <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 px-6 text-center">
       <p className="font-mono text-5xl font-semibold text-neutral-300">404</p>
-      <h1 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">Seite nicht gefunden</h1>
-      <p className="max-w-sm text-sm text-neutral-500 dark:text-neutral-400">
+      <h1 className="text-lg font-semibold text-neutral-900">Seite nicht gefunden</h1>
+      <p className="max-w-sm text-sm text-neutral-500">
         Diese Adresse gibt es nicht (mehr).
       </p>
       <Link

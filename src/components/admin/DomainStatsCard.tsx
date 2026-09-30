@@ -12,11 +12,11 @@ function Kpi({
   warn?: boolean;
 }) {
   return (
-    <div className="rounded-xl bg-neutral-50 dark:bg-neutral-800/60 px-3.5 py-3">
+    <div className="rounded-xl bg-neutral-50 px-3.5 py-3">
       <p className="text-[11px] uppercase tracking-wide text-neutral-400">{label}</p>
       <p
         className={`mt-0.5 text-lg font-semibold tabular-nums ${
-          warn && value > 0 ? "text-amber-600 dark:text-amber-400" : "text-neutral-900 dark:text-neutral-100"
+          warn && value > 0 ? "text-amber-600" : "text-neutral-900"
         }`}
       >
         {formatNumber(value)}

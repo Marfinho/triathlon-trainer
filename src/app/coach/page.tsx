@@ -25,9 +25,7 @@ import { forecastForm } from "@/domain/training/formForecast";
 import { bestRunReference } from "@/domain/training/prediction";
 import { buildPlanVsActual, summarizeWeeklyCompliance } from "@/domain/training/planVsActual";
 import { isLlmConfigured } from "@/integrations/llm/client";
-import { isOllamaConfigured } from "@/integrations/ollama/isConfigured";
 import { ChatGptExchange } from "@/components/dashboard/ChatGptExchange";
-import { OllamaChat } from "@/components/dashboard/OllamaChat";
 import { FormForecastCard } from "@/components/dashboard/FormForecastCard";
 import { TrainingInsights } from "@/components/dashboard/TrainingInsights";
 import { ReadinessPain } from "@/components/dashboard/ReadinessPain";
@@ -41,7 +39,6 @@ export default async function CoachPage() {
   const userId = session.user.id;
 
   const now = new Date();
-  const ollamaConfigured = await isOllamaConfigured();
   const loadWindowStart = addDays(now, -365);
 
   const [athlete, loadActivities, races, readiness, pain, bodyMetrics] =
@@ -175,33 +172,15 @@ export default async function CoachPage() {
   return (
     <main className="px-4 py-6 md:px-8 md:py-10">
       <header className="mb-6">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-600 dark:text-blue-400">
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-600">
           LocalHub
         </p>
-        <h1 className="mt-1.5 text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100 md:text-3xl">
+        <h1 className="mt-1.5 text-2xl font-semibold tracking-tight text-neutral-900 md:text-3xl">
           Coach
         </h1>
       </header>
       <div className="space-y-5">
-        {ollamaConfigured ? (
-          <OllamaChat
-            athleteName={session.user.name || "Athlet"}
-            contextData={{
-              weight: bodySummary.latestWeight,
-              restingHr: bodySummary.latestRestingHr,
-              hrv: bodySummary.latestHrv,
-              thisWeekLoad: loadSeries.current.atl,
-              formStatus: form.state,
-              recentActivities: analyticsActs.slice(-5).map((a) => ({
-                date: formatIsoDate(a.date),
-                sport: a.sport,
-                durationMin: a.durationMin ?? 0,
-              })),
-            }}
-          />
-        ) : (
-          <ChatGptExchange llmConfigured={isLlmConfigured()} />
-        )}
+        <ChatGptExchange llmConfigured={isLlmConfigured()} />
         <FormForecastCard
           series={forecast.series}
           raceDay={forecast.raceDay}

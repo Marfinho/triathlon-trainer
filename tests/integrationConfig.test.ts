@@ -2,15 +2,14 @@ import { describe, it, expect } from "vitest";
 import { INTEGRATION_PROVIDERS, isKnownProvider } from "@/lib/integration-config";
 
 describe("Integration-Provider-Registry", () => {
-  it("kennt genau die fünf unterstützten Provider", () => {
+  it("kennt genau die vier unterstützten Provider", () => {
     const ids = INTEGRATION_PROVIDERS.map((p) => p.provider).sort();
-    expect(ids).toEqual(["intervals", "ollama", "strava", "wahoo", "withings"]);
+    expect(ids).toEqual(["intervals", "strava", "wahoo", "withings"]);
   });
 
-  it("markiert Intervals.icu und Ollama als API-Key-Integration und die übrigen als OAuth", () => {
+  it("markiert Intervals.icu als API-Key-Integration und die übrigen als OAuth", () => {
     const byId = new Map(INTEGRATION_PROVIDERS.map((p) => [p.provider, p.kind]));
     expect(byId.get("intervals")).toBe("apikey");
-    expect(byId.get("ollama")).toBe("apikey");
     expect(byId.get("strava")).toBe("oauth");
     expect(byId.get("wahoo")).toBe("oauth");
     expect(byId.get("withings")).toBe("oauth");

@@ -39,9 +39,9 @@ const TYPE_LABEL: Record<string, string> = {
 };
 
 const STATUS: Record<WearStatus, { label: string; color: string; bg: string }> = {
-  ok: { label: "OK", color: "#34c759", bg: "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300" },
-  due: { label: "Wartung bald", color: "#ff9f0a", bg: "bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300" },
-  over: { label: "Austausch fällig", color: "#ff3b30", bg: "bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300" },
+  ok: { label: "OK", color: "#39FF88", bg: "bg-emerald-50 text-emerald-700" },
+  due: { label: "Wartung bald", color: "#FF9F1C", bg: "bg-amber-50 text-amber-700" },
+  over: { label: "Austausch fällig", color: "#FF3864", bg: "bg-rose-50 text-rose-700" },
 };
 
 const DEFAULT_SPORT: Record<string, string> = {
@@ -154,7 +154,7 @@ export function GearTracker({ initialGear }: { initialGear: Gear[] }) {
       {over + due > 0 ? (
         <div
           className={`mb-4 rounded-xl px-3 py-2 text-xs font-medium ${
-            over > 0 ? "bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300" : "bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300"
+            over > 0 ? "bg-rose-50 text-rose-700" : "bg-amber-50 text-amber-700"
           }`}
         >
           {over > 0 ? `${over} Gerät(e) Austausch fällig` : null}
@@ -201,8 +201,8 @@ export function GearTracker({ initialGear }: { initialGear: Gear[] }) {
       </div>
 
       {addingChildFor ? (
-        <div className="mt-3 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-800/60 p-3">
-          <p className="mb-2 text-xs font-medium text-neutral-600 dark:text-neutral-400">
+        <div className="mt-3 rounded-xl border border-neutral-200 bg-neutral-50 p-3">
+          <p className="mb-2 text-xs font-medium text-neutral-600">
             Komponente hinzufügen (z.B. Kette, Reifen, Kassette)
           </p>
           <GearForm
@@ -223,7 +223,7 @@ export function GearTracker({ initialGear }: { initialGear: Gear[] }) {
             {retired.map((g) => (
               <div
                 key={g.id}
-                className="flex items-center justify-between rounded-lg border border-neutral-200 dark:border-neutral-800 px-3 py-2 text-sm text-neutral-500 dark:text-neutral-400"
+                className="flex items-center justify-between rounded-lg border border-neutral-200 px-3 py-2 text-sm text-neutral-500"
               >
                 <span>
                   {g.name} · {Math.round(g.usage.km)} km
@@ -231,7 +231,7 @@ export function GearTracker({ initialGear }: { initialGear: Gear[] }) {
                 <div className="flex gap-2">
                   <button
                     onClick={() => patch(g.id, { retired: false })}
-                    className="text-xs text-blue-600 dark:text-blue-400 hover:underline"
+                    className="text-xs text-blue-600 hover:underline"
                   >
                     Reaktivieren
                   </button>
@@ -271,17 +271,17 @@ function GearRow({
   const isComponent = gear.type === "component";
   return (
     <div
-      className={`rounded-xl border border-neutral-200 dark:border-neutral-800 ${
-        isComponent ? "bg-neutral-50/60 dark:bg-neutral-800/40" : "bg-white dark:bg-neutral-900"
+      className={`rounded-xl border border-neutral-200 ${
+        isComponent ? "bg-neutral-50/60" : "bg-white"
       } p-3`}
     >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <span className="min-w-0 flex-1 truncate text-sm font-medium text-neutral-900 dark:text-neutral-100">
+            <span className="min-w-0 flex-1 truncate text-sm font-medium text-neutral-900">
               {gear.name}
             </span>
-            <span className="shrink-0 rounded-full bg-neutral-100 dark:bg-neutral-800 px-1.5 py-0.5 text-[10px] text-neutral-500 dark:text-neutral-400">
+            <span className="shrink-0 rounded-full bg-neutral-100 px-1.5 py-0.5 text-[10px] text-neutral-500">
               {TYPE_LABEL[gear.type] ?? gear.type}
             </span>
             <span
@@ -290,7 +290,7 @@ function GearRow({
               {STATUS[gear.usage.status].label}
             </span>
           </div>
-          <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">
+          <p className="mt-0.5 text-xs text-neutral-500">
             {[
               gear.brand,
               gear.sport ? sportLabel(gear.sport) : null,
@@ -301,21 +301,21 @@ function GearRow({
           </p>
         </div>
         <div className="flex shrink-0 gap-2 text-xs">
-          <button onClick={() => onAddKm(gear.id)} className="text-neutral-500 dark:text-neutral-400 hover:text-blue-600 dark:hover:text-blue-400">
+          <button onClick={() => onAddKm(gear.id)} className="text-neutral-500 hover:text-blue-600">
             + km
           </button>
           <button
             onClick={() => onSetLimit(gear.id, gear.alertKm)}
-            className="text-neutral-500 dark:text-neutral-400 hover:text-blue-600 dark:hover:text-blue-400"
+            className="text-neutral-500 hover:text-blue-600"
           >
             Grenze
           </button>
           {isComponent ? (
-            <button onClick={() => onReset(gear.id)} className="text-neutral-500 dark:text-neutral-400 hover:text-blue-600 dark:hover:text-blue-400">
+            <button onClick={() => onReset(gear.id)} className="text-neutral-500 hover:text-blue-600">
               gewechselt
             </button>
           ) : null}
-          <button onClick={() => onRetire(gear.id)} className="text-neutral-500 dark:text-neutral-400 hover:text-amber-600 dark:hover:text-amber-400">
+          <button onClick={() => onRetire(gear.id)} className="text-neutral-500 hover:text-amber-600">
             ausmustern
           </button>
           <button
@@ -333,14 +333,14 @@ function GearRow({
       {onAddComponent ? (
         <button
           onClick={onAddComponent}
-          className="mt-2 text-xs text-blue-600 dark:text-blue-400 hover:underline"
+          className="mt-2 text-xs text-blue-600 hover:underline"
         >
           + Komponente
         </button>
       ) : null}
 
       {gear.components.length > 0 ? (
-        <div className="mt-3 space-y-2 border-l-2 border-neutral-100 dark:border-neutral-800 pl-3">
+        <div className="mt-3 space-y-2 border-l-2 border-neutral-100 pl-3">
           {gear.components.map((c) => (
             <GearRow
               key={c.id}
@@ -364,7 +364,7 @@ function UsageBar({ gear }: { gear: Gear }) {
   return (
     <div className="mt-2">
       <div className="flex items-baseline justify-between text-xs">
-        <span className="font-medium text-neutral-800 dark:text-neutral-200">
+        <span className="font-medium text-neutral-800">
           {Math.round(gear.usage.km)} km
           {gear.usage.hours ? ` · ${Math.round(gear.usage.hours)} h` : ""}
         </span>
@@ -377,7 +377,7 @@ function UsageBar({ gear }: { gear: Gear }) {
         ) : null}
       </div>
       {pct != null ? (
-        <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-neutral-100 dark:bg-neutral-800">
+        <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-neutral-100">
           <div
             className="h-full rounded-full"
             style={{ width: `${Math.min(100, pct * 100)}%`, backgroundColor: color }}
@@ -390,7 +390,7 @@ function UsageBar({ gear }: { gear: Gear }) {
             <span>{Math.round(gear.usage.hours)} h</span>
             <span>Ziel {gear.alertHours} h</span>
           </div>
-          <div className="mt-0.5 h-1.5 w-full overflow-hidden rounded-full bg-neutral-100 dark:bg-neutral-800">
+          <div className="mt-0.5 h-1.5 w-full overflow-hidden rounded-full bg-neutral-100">
             <div
               className="h-full rounded-full bg-neutral-400"
               style={{
@@ -420,12 +420,12 @@ function GearForm({
   allowType?: boolean;
 }) {
   return (
-    <div className="mb-4 grid grid-cols-2 gap-2 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-800/60 p-3 sm:grid-cols-3">
+    <div className="mb-4 grid grid-cols-2 gap-2 rounded-xl border border-neutral-200 bg-neutral-50 p-3 sm:grid-cols-3">
       <input
         placeholder="Name (z.B. Vaporfly 3)"
         value={form.name}
         onChange={(e) => setForm({ ...form, name: e.target.value })}
-        className="col-span-2 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-2 py-1.5 text-sm sm:col-span-1"
+        className="col-span-2 rounded-lg border border-neutral-300 bg-white px-2 py-1.5 text-sm sm:col-span-1"
       />
       {allowType ? (
         <select
@@ -437,7 +437,7 @@ function GearForm({
               sport: DEFAULT_SPORT[e.target.value] ?? form.sport,
             })
           }
-          className="rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-2 py-1.5 text-sm"
+          className="rounded-lg border border-neutral-300 bg-white px-2 py-1.5 text-sm"
         >
           <option value="shoe">Schuh</option>
           <option value="bike">Rad</option>
@@ -448,7 +448,7 @@ function GearForm({
       <select
         value={form.sport}
         onChange={(e) => setForm({ ...form, sport: e.target.value })}
-        className="rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-2 py-1.5 text-sm"
+        className="rounded-lg border border-neutral-300 bg-white px-2 py-1.5 text-sm"
       >
         <option value="run">Laufen</option>
         <option value="bike">Rad</option>
@@ -459,20 +459,20 @@ function GearForm({
         placeholder="Marke"
         value={form.brand}
         onChange={(e) => setForm({ ...form, brand: e.target.value })}
-        className="rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-2 py-1.5 text-sm"
+        className="rounded-lg border border-neutral-300 bg-white px-2 py-1.5 text-sm"
       />
       <input
         type="date"
         value={form.purchaseDate}
         onChange={(e) => setForm({ ...form, purchaseDate: e.target.value })}
-        className="rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-2 py-1.5 text-sm"
+        className="rounded-lg border border-neutral-300 bg-white px-2 py-1.5 text-sm"
       />
       <input
         type="number"
         placeholder="Verschleißgrenze km"
         value={form.alertKm}
         onChange={(e) => setForm({ ...form, alertKm: e.target.value })}
-        className="rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-2 py-1.5 text-sm"
+        className="rounded-lg border border-neutral-300 bg-white px-2 py-1.5 text-sm"
       />
       <div className="col-span-2 flex gap-2 sm:col-span-3">
         <button
@@ -485,7 +485,7 @@ function GearForm({
         {onCancel ? (
           <button
             onClick={onCancel}
-            className="rounded-lg border border-neutral-300 dark:border-neutral-700 px-3 py-1.5 text-sm text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+            className="rounded-lg border border-neutral-300 px-3 py-1.5 text-sm text-neutral-600 hover:bg-neutral-100"
           >
             Abbrechen
           </button>

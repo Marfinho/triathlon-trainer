@@ -24,7 +24,7 @@ export function VolumeByDiscipline({ size }: { size: WidgetSize }) {
   );
 
   if (size === "S") {
-    return <p className="text-sm text-neutral-700 dark:text-neutral-300">{current.totalMin} min diese Woche</p>;
+    return <p className="text-sm text-neutral-700">{current.totalMin} min diese Woche</p>;
   }
 
   const breakdown = (
@@ -35,8 +35,8 @@ export function VolumeByDiscipline({ size }: { size: WidgetSize }) {
             className="inline-block h-2 w-2 rounded-full"
             style={{ backgroundColor: sportColor(sport) }}
           />
-          <span className="flex-1 text-neutral-600 dark:text-neutral-400">{sportLabel(sport)}</span>
-          <span className="font-medium text-neutral-900 dark:text-neutral-100">{current.bySport[sport]} min</span>
+          <span className="flex-1 text-neutral-600">{sportLabel(sport)}</span>
+          <span className="font-medium text-neutral-900">{current.bySport[sport]} min</span>
         </div>
       ))}
     </div>

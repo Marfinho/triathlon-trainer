@@ -89,35 +89,35 @@ export function UserRolesManager() {
   const currentPage = Math.floor(offset / limit) + 1;
 
   return (
-    <div className="rounded-2xl border border-neutral-200/80 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-6 shadow-sm">
-      <h2 className="mb-4 text-lg font-semibold text-neutral-900 dark:text-neutral-100">Nutzer-Rollen verwalten</h2>
+    <div className="card-neon rounded-3xl p-6">
+      <h2 className="mb-4 text-lg font-semibold text-neutral-900">Nutzer-Rollen verwalten</h2>
 
       {loading ? (
-        <p className="text-sm text-neutral-500 dark:text-neutral-400">Laden…</p>
+        <p className="text-sm text-neutral-500">Laden…</p>
       ) : (
         <>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-neutral-200 dark:border-neutral-800">
-                  <th className="px-4 py-3 text-left font-semibold text-neutral-700 dark:text-neutral-300">E-Mail</th>
-                  <th className="px-4 py-3 text-left font-semibold text-neutral-700 dark:text-neutral-300">Name</th>
-                  <th className="px-4 py-3 text-left font-semibold text-neutral-700 dark:text-neutral-300">Rolle</th>
-                  <th className="px-4 py-3 text-left font-semibold text-neutral-700 dark:text-neutral-300">Tarif</th>
-                  <th className="px-4 py-3 text-left font-semibold text-neutral-700 dark:text-neutral-300">Aktion</th>
+                <tr className="border-b border-neutral-200">
+                  <th className="px-4 py-3 text-left font-semibold text-neutral-700">E-Mail</th>
+                  <th className="px-4 py-3 text-left font-semibold text-neutral-700">Name</th>
+                  <th className="px-4 py-3 text-left font-semibold text-neutral-700">Rolle</th>
+                  <th className="px-4 py-3 text-left font-semibold text-neutral-700">Tarif</th>
+                  <th className="px-4 py-3 text-left font-semibold text-neutral-700">Aktion</th>
                 </tr>
               </thead>
               <tbody>
                 {users.map((user) => (
-                  <tr key={user.id} className="border-b border-neutral-100 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-800/60">
-                    <td className="px-4 py-3 text-neutral-900 dark:text-neutral-100">{user.email}</td>
-                    <td className="px-4 py-3 text-neutral-600 dark:text-neutral-400">{user.name || "—"}</td>
+                  <tr key={user.id} className="border-b border-neutral-100 hover:bg-neutral-50">
+                    <td className="px-4 py-3 text-neutral-900">{user.email}</td>
+                    <td className="px-4 py-3 text-neutral-600">{user.name || "—"}</td>
                     <td className="px-4 py-3">
                       <span
                         className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold ${
                           user.role === "admin"
-                            ? "bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-200"
-                            : "bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300"
+                            ? "bg-red-100 text-red-800"
+                            : "bg-neutral-100 text-neutral-700"
                         }`}
                       >
                         {user.role === "admin" ? "Admin" : "Nutzer"}
@@ -129,8 +129,8 @@ export function UserRolesManager() {
                         disabled={updating === user.id}
                         className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold transition ${
                           user.plan === "paid"
-                            ? "bg-emerald-100 dark:bg-emerald-900/40 text-emerald-800 dark:text-emerald-200 hover:bg-emerald-200 dark:hover:bg-emerald-800/60"
-                            : "bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-700"
+                            ? "bg-emerald-100 text-emerald-800 hover:bg-emerald-200"
+                            : "bg-neutral-100 text-neutral-700 hover:bg-neutral-200"
                         } disabled:opacity-50 disabled:cursor-not-allowed`}
                       >
                         {user.plan === "paid" ? "Bezahlt" : "Kostenlos"}
@@ -141,7 +141,7 @@ export function UserRolesManager() {
                         <button
                           onClick={() => updateRole(user.id, "user")}
                           disabled={updating === user.id}
-                          className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 disabled:opacity-50"
+                          className="text-xs text-blue-600 hover:text-blue-800 disabled:opacity-50"
                         >
                           Als Nutzer setzen
                         </button>
@@ -149,7 +149,7 @@ export function UserRolesManager() {
                         <button
                           onClick={() => updateRole(user.id, "admin")}
                           disabled={updating === user.id}
-                          className="text-xs text-orange-600 dark:text-orange-400 hover:text-orange-800 dark:hover:text-orange-200 disabled:opacity-50"
+                          className="text-xs text-orange-600 hover:text-orange-800 disabled:opacity-50"
                         >
                           Als Admin setzen
                         </button>
@@ -162,21 +162,21 @@ export function UserRolesManager() {
           </div>
 
           <div className="mt-4 flex items-center justify-between">
-            <p className="text-xs text-neutral-500 dark:text-neutral-400">
+            <p className="text-xs text-neutral-500">
               {total} Nutzer gesamt · Seite {currentPage} von {totalPages}
             </p>
             <div className="flex gap-2">
               <button
                 onClick={() => setOffset(Math.max(0, offset - limit))}
                 disabled={offset === 0}
-                className="rounded-lg border border-neutral-200 dark:border-neutral-800 px-3 py-1.5 text-xs font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800/60 disabled:opacity-30"
+                className="rounded-lg border border-neutral-200 px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-50 disabled:opacity-30"
               >
                 ← Zurück
               </button>
               <button
                 onClick={() => setOffset(Math.min(total - limit, offset + limit))}
                 disabled={offset + limit >= total}
-                className="rounded-lg border border-neutral-200 dark:border-neutral-800 px-3 py-1.5 text-xs font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800/60 disabled:opacity-30"
+                className="rounded-lg border border-neutral-200 px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-50 disabled:opacity-30"
               >
                 Weiter →
               </button>
@@ -184,7 +184,7 @@ export function UserRolesManager() {
           </div>
 
           {msg && (
-            <p className={`mt-3 text-xs ${msg.ok ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400"}`}>
+            <p className={`mt-3 text-xs ${msg.ok ? "text-emerald-600" : "text-red-600"}`}>
               {msg.text}
             </p>
           )}

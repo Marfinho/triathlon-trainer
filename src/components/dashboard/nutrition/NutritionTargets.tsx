@@ -53,7 +53,7 @@ export function NutritionTargets({
 
   function field(label: string, key: keyof NutritionTargetData) {
     return (
-      <label className="text-xs text-neutral-500 dark:text-neutral-400">
+      <label className="text-xs text-neutral-500">
         {label}
         <input
           type="number"
@@ -62,7 +62,7 @@ export function NutritionTargets({
           onChange={(e) =>
             setForm({ ...form, [key]: e.target.value === "" ? null : Number(e.target.value) })
           }
-          className="mt-1 block w-24 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-2 py-1.5 text-sm"
+          className="mt-1 block w-24 rounded-lg border border-neutral-300 bg-white px-2 py-1.5 text-sm"
         />
       </label>
     );
@@ -72,7 +72,7 @@ export function NutritionTargets({
     return (
       <button
         onClick={() => setOpen(true)}
-        className="rounded-lg border border-neutral-300 dark:border-neutral-700 px-3 py-1.5 text-xs font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+        className="rounded-lg border border-neutral-300 px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-100"
       >
         Tagesziel bearbeiten
       </button>
@@ -80,7 +80,7 @@ export function NutritionTargets({
   }
 
   return (
-    <div className="flex flex-wrap items-end gap-2 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-800/60 p-3">
+    <div className="flex flex-wrap items-end gap-2 rounded-xl border border-neutral-200 bg-neutral-50 p-3">
       {field("Ziel kcal", "targetKcal")}
       {field("Protein (g)", "targetProteinG")}
       {field("Carbs (g)", "targetCarbsG")}
@@ -94,7 +94,7 @@ export function NutritionTargets({
       </button>
       <button
         onClick={() => setOpen(false)}
-        className="rounded-lg border border-neutral-300 dark:border-neutral-700 px-3 py-1.5 text-sm text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+        className="rounded-lg border border-neutral-300 px-3 py-1.5 text-sm text-neutral-600 hover:bg-neutral-100"
       >
         Abbrechen
       </button>

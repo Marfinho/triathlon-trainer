@@ -12,9 +12,9 @@ const STATUS_LABEL: Record<string, string> = {
 };
 
 const STATUS_COLOR: Record<string, string> = {
-  ok: "text-emerald-600 dark:text-emerald-400",
-  due: "text-amber-600 dark:text-amber-400",
-  over: "text-rose-600 dark:text-rose-400",
+  ok: "text-emerald-600",
+  due: "text-amber-600",
+  over: "text-rose-600",
 };
 
 function flatten(nodes: GearNode[]): GearNode[] {
@@ -37,7 +37,7 @@ export function GearWear({ size }: { size: WidgetSize }) {
 
   if (size === "S") {
     return (
-      <p className="text-sm text-neutral-700 dark:text-neutral-300">
+      <p className="text-sm text-neutral-700">
         {dueOrOver.length > 0
           ? `${dueOrOver.length} Gerät${dueOrOver.length === 1 ? "" : "e"} fällig`
           : "Alles im grünen Bereich"}
@@ -51,7 +51,7 @@ export function GearWear({ size }: { size: WidgetSize }) {
     <div className="space-y-1.5">
       {visible.map((n) => (
         <div key={n.id} className="flex items-center justify-between gap-2 text-sm">
-          <span className="truncate text-neutral-600 dark:text-neutral-400">{n.name}</span>
+          <span className="truncate text-neutral-600">{n.name}</span>
           <span className="flex items-center gap-2 text-xs">
             <span className="text-neutral-400">{Math.round(n.usage.km)} km</span>
             <span className={STATUS_COLOR[n.usage.status]}>

@@ -41,10 +41,10 @@ export function IntervalsSyncStatus({ size }: { size: WidgetSize }) {
 
   if (size === "S") {
     return (
-      <p className="text-sm text-neutral-700 dark:text-neutral-300">
+      <p className="text-sm text-neutral-700">
         {state.syncedWorkouts} synchronisiert
         {state.queue.failed > 0 ? (
-          <span className="text-rose-600 dark:text-rose-400"> · {state.queue.failed} fehlgeschlagen</span>
+          <span className="text-rose-600"> · {state.queue.failed} fehlgeschlagen</span>
         ) : null}
       </p>
     );
@@ -67,10 +67,10 @@ export function IntervalsSyncStatus({ size }: { size: WidgetSize }) {
               className={`text-base font-semibold ${
                 s.tone === "error"
                   ? s.value > 0
-                    ? "text-rose-600 dark:text-rose-400"
-                    : "text-neutral-900 dark:text-neutral-100"
+                    ? "text-rose-600"
+                    : "text-neutral-900"
                   : s.tone === "ok"
-                    ? "text-emerald-600 dark:text-emerald-400"
+                    ? "text-emerald-600"
                     : "text-neutral-900"
               }`}
             >
@@ -81,10 +81,10 @@ export function IntervalsSyncStatus({ size }: { size: WidgetSize }) {
         ))}
       </div>
       {size === "L" && state.recentLogs && state.recentLogs.length > 0 && (
-        <div className="space-y-1 border-t border-neutral-100 dark:border-neutral-800 pt-2">
+        <div className="space-y-1 border-t border-neutral-100 pt-2">
           {state.recentLogs.map((l, i) => (
             <div key={i} className="flex items-center justify-between text-xs">
-              <span className="flex items-center gap-1.5 text-neutral-600 dark:text-neutral-400">
+              <span className="flex items-center gap-1.5 text-neutral-600">
                 <span
                   className={`h-1.5 w-1.5 rounded-full ${
                     l.success ? "bg-emerald-500" : "bg-rose-500"

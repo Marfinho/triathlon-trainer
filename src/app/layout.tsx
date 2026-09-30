@@ -1,9 +1,13 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, DM_Mono } from "next/font/google";
+import { Inter, DM_Mono, Space_Grotesk } from "next/font/google";
 import "./globals.css";
-import { THEME_INIT_SCRIPT } from "@/lib/theme";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
+  variable: "--font-display-sans",
+});
 const dmMono = DM_Mono({
   subsets: ["latin"],
   weight: ["400", "500"],
@@ -15,14 +19,13 @@ export const metadata: Metadata = {
   description:
     "Datendrehscheibe für Triathlon-/Ausdauertraining. Coach = Nutzer + externes LLM.",
   manifest: "/manifest.webmanifest",
-  appleWebApp: { capable: true, statusBarStyle: "default", title: "LocalHub" },
+  appleWebApp: { capable: true, statusBarStyle: "black-translucent", title: "LocalHub" },
 };
 
 export const viewport: Viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#0a84ff" },
-    { media: "(prefers-color-scheme: dark)", color: "#0a0a0a" },
-  ],
+  themeColor: "#07070d",
+  // Nötig, damit env(safe-area-inset-*) auf iPhones mit Home-Indicator greift.
+  viewportFit: "cover",
 };
 
 export default function RootLayout({
@@ -31,11 +34,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    // suppressHydrationWarning: `data-theme` setzt das Init-Skript vor der Hydration.
-    <html lang="de" className={`${inter.variable} ${dmMono.variable}`} suppressHydrationWarning>
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
-      </head>
+    <html lang="de" className={`${inter.variable} ${dmMono.variable} ${spaceGrotesk.variable}`}>
       <body className="min-h-screen antialiased">{children}</body>
     </html>
   );

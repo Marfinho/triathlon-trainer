@@ -42,18 +42,17 @@ export default async function BodyPage() {
   );
 
   const latestMetric = bodyMetrics[0] ?? null;
-  const trendText = (t: ReturnType<typeof trendLabel>) => t ?? "keine Daten";
-  const hrvTrend = trendText(trendLabel(bodySummary.hrvs));
-  const restingHrTrend = trendText(trendLabel(bodySummary.restingHrs));
-  // Reihen sind chronologisch (älteste zuerst); weightChange = neuester − ältester Wert.
-  const change = bodySummary.weightChange;
+  const hrvTrend = trendLabel(bodySummary.hrvs) ?? "keine Daten";
+  const restingHrTrend = trendLabel(bodySummary.restingHrs) ?? "keine Daten";
+  // Die Reihe ist aufsteigend sortiert; die Veränderung gegenüber dem ältesten
+  // Eintrag kommt fertig aus der Zusammenfassung (null: weniger als zwei Werte).
   const weightTrend =
-    change == null
+    bodySummary.weightChange == null
       ? "→ keine Daten"
-      : change > 0
-        ? "↑ zunehmend"
-        : change < 0
-          ? "↓ abnehmend"
+      : bodySummary.weightChange < 0
+        ? "↓ abnehmend"
+        : bodySummary.weightChange > 0
+          ? "↑ zunehmend"
           : "→ stabil";
 
   const latestReadiness = readiness[0] ?? null;
@@ -61,10 +60,10 @@ export default async function BodyPage() {
   return (
     <main className="px-4 py-6 md:px-8 md:py-10">
       <header className="mb-6">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-600 dark:text-blue-400">
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-600">
           LocalHub
         </p>
-        <h1 className="mt-1.5 text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100 md:text-3xl">
+        <h1 className="mt-1.5 text-2xl font-semibold tracking-tight text-neutral-900 md:text-3xl">
           Körper
         </h1>
       </header>

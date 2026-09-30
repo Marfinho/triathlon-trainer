@@ -47,7 +47,7 @@ export function RacePredictions({
       subtitle="Geschätzte Zeiten aus Schwellen-Pace, FTP und CSS"
     >
       {!hasAny ? (
-        <p className="rounded-lg bg-amber-50 dark:bg-amber-950/40 px-3 py-2 text-xs text-amber-700 dark:text-amber-300">
+        <p className="rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-700">
           Hinterlege FTP, Schwellen-Pace und CSS (unter „Trainingszonen" oder im
           „Rechner"), um Vorhersagen zu erhalten.
         </p>
@@ -62,13 +62,13 @@ export function RacePredictions({
                 {upcoming.map(({ race, pred }) => (
                   <li
                     key={race.id}
-                    className="flex items-center justify-between rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-800/60 px-3 py-2"
+                    className="flex items-center justify-between rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2"
                   >
-                    <span className="text-sm text-neutral-800 dark:text-neutral-200">
+                    <span className="text-sm text-neutral-800">
                       {race.name}
                       <span className="ml-2 text-xs text-neutral-400">{pred!.label}</span>
                     </span>
-                    <span className="text-sm font-semibold text-blue-600 dark:text-blue-400">
+                    <span className="text-sm font-semibold text-blue-600">
                       {formatDuration(pred!.totalSec)}
                     </span>
                   </li>
@@ -95,11 +95,11 @@ export function RacePredictions({
                   const sec = predictRunFromReference(d.km, runRef);
                   const pace = paceForRun(d.km, sec);
                   return (
-                    <div key={d.key} className="rounded-xl border border-neutral-200 dark:border-neutral-800 p-3">
+                    <div key={d.key} className="rounded-xl border border-neutral-200 p-3">
                       <p className="text-[11px] uppercase tracking-wide text-neutral-400">
                         {d.label}
                       </p>
-                      <p className="mt-0.5 text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+                      <p className="mt-0.5 text-lg font-semibold text-neutral-900">
                         {formatDuration(sec)}
                       </p>
                       <p className="text-[11px] text-neutral-400">
@@ -128,22 +128,22 @@ export function RacePredictions({
                     <th className="py-2 font-medium">Gesamt</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-neutral-100 dark:divide-neutral-800">
+                <tbody className="divide-y divide-neutral-100">
                   {TRI_DISTANCES.map((t) => {
                     const p = predictTriathlon(t, profile);
                     return (
                       <tr key={t.key}>
-                        <td className="py-2 pr-3 text-neutral-700 dark:text-neutral-300">{t.label}</td>
-                        <td className="py-2 pr-3 tabular-nums text-neutral-600 dark:text-neutral-400">
+                        <td className="py-2 pr-3 text-neutral-700">{t.label}</td>
+                        <td className="py-2 pr-3 tabular-nums text-neutral-600">
                           {formatDuration(p.swimSec)}
                         </td>
-                        <td className="py-2 pr-3 tabular-nums text-neutral-600 dark:text-neutral-400">
+                        <td className="py-2 pr-3 tabular-nums text-neutral-600">
                           {formatDuration(p.bikeSec)}
                         </td>
-                        <td className="py-2 pr-3 tabular-nums text-neutral-600 dark:text-neutral-400">
+                        <td className="py-2 pr-3 tabular-nums text-neutral-600">
                           {formatDuration(p.runSec)}
                         </td>
-                        <td className="py-2 tabular-nums font-semibold text-neutral-900 dark:text-neutral-100">
+                        <td className="py-2 tabular-nums font-semibold text-neutral-900">
                           {formatDuration(p.totalSec)}
                         </td>
                       </tr>

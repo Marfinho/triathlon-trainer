@@ -49,6 +49,7 @@ Mindestens setzen (Secrets mit `openssl rand -base64 32` erzeugen):
 | `NEXTAUTH_SECRET` | zufälliges Secret |
 | `ENCRYPTION_KEY` | zufälliges Secret (für gespeicherte OAuth-Tokens) |
 | `CRON_SECRET` | zufälliges Secret (schützt `/api/cron/sync`) |
+| `TRUSTED_PROXY_HOPS` | Anzahl eigener Reverse-Proxys vor der App (Default `1`, für korrekte Client-IP im Rate-Limit) |
 
 Optional je nach genutzten Features: `GOOGLE_*`, `STRIPE_*`, `INTERVALS_*`,
 `STRAVA_*`/`WAHOO_*`/`WITHINGS_*`, `ANTHROPIC_API_KEY`/`OPENAI_API_KEY`.
@@ -56,6 +57,12 @@ Optional je nach genutzten Features: `GOOGLE_*`, `STRIPE_*`, `INTERVALS_*`,
 > Hinweis: In `docker-compose.yml` wird `DATABASE_URL` automatisch aus den
 > `POSTGRES_*`-Werten zusammengesetzt (Host = Service `db`). Die `DATABASE_URL`
 > in `.env` ist nur für lokale Nutzung ohne Docker relevant.
+
+### Admin-Zugang
+
+Admin ist der Nutzer mit der E-Mail `svenmeendermann@gmail.com`: einfach
+registrieren oder per Google anmelden – die Admin-Rolle wird beim Login
+automatisch gesetzt und kann im Admin-Panel nicht entzogen werden.
 
 ### Erststart testen
 

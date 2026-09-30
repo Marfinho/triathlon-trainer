@@ -142,12 +142,12 @@ export function ExerciseAnimation({
           >
             {playing ? "❚❚ Pause" : "▶ Abspielen"}
           </button>
-          <label className="inline-flex items-center gap-1.5 text-sm text-neutral-600 dark:text-neutral-400">
+          <label className="inline-flex items-center gap-1.5 text-sm text-neutral-600">
             Tempo
             <select
               value={speed}
               onChange={(e) => changeSpeed(Number(e.target.value))}
-              className="rounded-md border border-neutral-300 bg-white px-2 py-1 text-sm text-neutral-900 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100"
+              className="rounded-md border border-neutral-300 bg-white px-2 py-1 text-sm text-neutral-900"
             >
               {SPEEDS.map((s) => (
                 <option key={s.value} value={s.value}>
@@ -174,11 +174,11 @@ export function ExerciseAnimation({
       <p
         ref={phaseRef}
         aria-live="off"
-        className="mt-2 min-h-[1.5em] text-sm font-semibold text-neutral-900 dark:text-neutral-100"
+        className="mt-2 min-h-[1.5em] text-sm font-semibold text-neutral-900"
       >
         {labels[3]}
       </p>
-      <p className="text-sm text-neutral-600 dark:text-neutral-400">{definition.tempoText}</p>
+      <p className="text-sm text-neutral-600">{definition.tempoText}</p>
     </section>
   );
 }

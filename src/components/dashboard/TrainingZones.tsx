@@ -83,14 +83,14 @@ export function TrainingZones({
       actions={
         <button
           onClick={() => setEditing((e) => !e)}
-          className="rounded-lg border border-neutral-300 dark:border-neutral-700 px-3 py-1.5 text-xs font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+          className="rounded-lg border border-neutral-300 px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-100"
         >
           {editing ? "Schließen" : "Schwellen"}
         </button>
       }
     >
       {editing ? (
-        <div className="mb-4 flex flex-wrap items-end gap-3 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-800/60 p-3">
+        <div className="mb-4 flex flex-wrap items-end gap-3 rounded-xl border border-neutral-200 bg-neutral-50 p-3">
           <Field
             label="FTP (W)"
             value={values.ftp}
@@ -119,20 +119,20 @@ export function TrainingZones({
           >
             Speichern
           </button>
-          {saved ? <span className="text-xs text-emerald-600 dark:text-emerald-400">gespeichert</span> : null}
+          {saved ? <span className="text-xs text-emerald-600">gespeichert</span> : null}
         </div>
       ) : null}
 
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-        <div className="inline-flex flex-wrap rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-800/60 p-0.5">
+        <div className="inline-flex flex-wrap rounded-lg border border-neutral-200 bg-neutral-50 p-0.5">
           {tabs.map((t) => (
             <button
               key={t.id}
               onClick={() => setTab(t.id)}
               className={`rounded-md px-3 py-1 text-xs font-medium transition-colors ${
                 tab === t.id
-                  ? "bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 shadow-sm"
-                  : "text-neutral-500 dark:text-neutral-400 hover:text-neutral-800 dark:hover:text-neutral-200"
+                  ? "bg-white text-neutral-900 shadow-sm"
+                  : "text-neutral-500 hover:text-neutral-800"
               }`}
             >
               {t.label}
@@ -149,15 +149,15 @@ export function TrainingZones({
           <li
             key={z.id}
             className={`flex items-center gap-3 rounded-lg px-1.5 py-0.5 ${
-              isThreshold ? "bg-neutral-100 dark:bg-neutral-800" : ""
+              isThreshold ? "bg-neutral-100" : ""
             }`}
           >
             <span
               className="h-2.5 w-2.5 shrink-0 rounded-full"
               style={{ backgroundColor: z.color }}
             />
-            <span className="w-36 shrink-0 text-sm text-neutral-700 dark:text-neutral-300">{z.name}</span>
-            <span className="shrink-0 whitespace-nowrap text-sm tabular-nums text-neutral-900 dark:text-neutral-100">
+            <span className="w-36 shrink-0 text-sm text-neutral-700">{z.name}</span>
+            <span className="shrink-0 whitespace-nowrap text-sm tabular-nums text-neutral-900">
               {isPace
                 ? `${fmt(z.hi)} – ${fmt(z.lo)}`
                 : `${fmt(z.lo)} – ${fmt(z.hi)}`}{" "}
@@ -183,14 +183,14 @@ function Field({
   hint?: string;
 }) {
   return (
-    <label className="text-xs text-neutral-500 dark:text-neutral-400">
+    <label className="text-xs text-neutral-500">
       {label}
       {hint ? <span className="ml-1 text-neutral-400">({hint})</span> : null}
       <input
         type="number"
         value={value}
         onChange={(e) => onChange(Number(e.target.value) || 0)}
-        className="mt-1 block w-32 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-2 py-1.5 text-sm text-neutral-900 dark:text-neutral-100"
+        className="mt-1 block w-32 rounded-lg border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900"
       />
     </label>
   );

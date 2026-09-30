@@ -52,6 +52,9 @@ Gespeichert wird pro Nutzer in `CustomExercise` (`userId` + `exerciseId`
 eindeutig, höchstens 200 pro Nutzer). Beim Lesen wird jede Definition erneut mit
 Zod geprüft; ungültige erscheinen als Platzhalter.
 
+**Farben:** Die Figur nutzt eigene CSS-Variablen `--fig-*` (dunkle Palette
+passend zum Neon-Theme, `src/app/globals.css`), keine Tailwind-Skalen.
+
 **Sicherheit:** Definitionen enthalten nur Zahlen, Enums und kurze Texte
 (keine Steuerzeichen). Kein Roh-SVG/HTML/URL. Die Engine escaped alle Texte
 (`& < > " '`). `dangerouslySetInnerHTML` wird ausschließlich für Engine-Ausgabe
@@ -95,7 +98,7 @@ Sätze × Satz + (Sätze − 1) × `restSec`.
    validiert; Fehler nennen ID und Pfad.
 3. Golden-Datei erzeugen: `npx tsx scripts/generate-exercise-golden.ts`
    (schreibt nur **fehlende** Dateien).
-4. Detailseite `/trainer/uebungen/<id>` im Browser prüfen (hell und dunkel).
+4. Detailseite `/trainer/uebungen/<id>` im Browser prüfen.
 5. `npm test` – Golden- und Eigenschaftstests müssen grün sein. Der Test zur
    Coach-Summary vergleicht den Katalog mit
    `tests/fixtures/exercises/example-exercise-catalog.json` – dort den neuen

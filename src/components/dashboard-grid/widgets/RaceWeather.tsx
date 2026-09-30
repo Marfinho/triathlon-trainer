@@ -62,21 +62,21 @@ export function RaceWeather({ size }: { size: WidgetSize }) {
   if (size === "S") {
     if (weatherLoading) return <p className="text-sm text-neutral-400">Lade Wetter…</p>;
     if (result?.forecast && !result.outOfHorizon) {
-      return <p className="text-sm text-neutral-700 dark:text-neutral-300">{describeForecast(result.forecast)}</p>;
+      return <p className="text-sm text-neutral-700">{describeForecast(result.forecast)}</p>;
     }
     return <p className="text-sm text-neutral-400">Noch kein Wetter verfügbar.</p>;
   }
 
   return (
     <div className="space-y-2">
-      <p className="text-xs text-neutral-500 dark:text-neutral-400">{nextRace.name}</p>
+      <p className="text-xs text-neutral-500">{nextRace.name}</p>
       {weatherError === "Kein Standort hinterlegt. Bitte ?location=<Ort> angeben." ? (
         <div className="flex flex-wrap items-end gap-2">
           <input
             value={location}
             onChange={(e) => setLocation(e.target.value)}
             placeholder="z.B. Roth, Deutschland"
-            className="h-11 flex-1 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-2 text-sm"
+            className="h-11 flex-1 rounded-lg border border-neutral-300 bg-white px-2 text-sm"
           />
           <button
             onClick={() => loadWeather(nextRace.id, location)}
@@ -87,16 +87,16 @@ export function RaceWeather({ size }: { size: WidgetSize }) {
           </button>
         </div>
       ) : weatherError ? (
-        <p className="text-xs text-rose-600 dark:text-rose-400">{weatherError}</p>
+        <p className="text-xs text-rose-600">{weatherError}</p>
       ) : weatherLoading ? (
         <p className="text-sm text-neutral-400">Lade Wetter…</p>
       ) : result?.outOfHorizon || !result?.forecast ? (
-        <p className="text-sm text-neutral-500 dark:text-neutral-400">
+        <p className="text-sm text-neutral-500">
           Renntag liegt außerhalb des ~16-Tage-Prognosehorizonts.
         </p>
       ) : (
         <div>
-          <p className="text-sm font-medium text-neutral-800 dark:text-neutral-200">
+          <p className="text-sm font-medium text-neutral-800">
             {describeForecast(result.forecast)}
           </p>
           {size === "L" && result.locationName && (

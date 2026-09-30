@@ -26,7 +26,7 @@ const ToastContext = createContext<ToastContextValue | null>(null);
 const KIND_STYLE: Record<ToastKind, string> = {
   success: "bg-emerald-600",
   error: "bg-rose-600",
-  info: "bg-neutral-900 dark:bg-neutral-700",
+  info: "bg-neutral-900",
 };
 
 /**

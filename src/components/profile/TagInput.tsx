@@ -30,13 +30,13 @@ export function TagInput({
         {values.map((v) => (
           <span
             key={v}
-            className="flex items-center gap-1 rounded-full bg-neutral-100 dark:bg-neutral-800 px-2.5 py-1 text-xs text-neutral-700 dark:text-neutral-300"
+            className="flex items-center gap-1 rounded-full bg-neutral-100 px-2.5 py-1 text-xs text-neutral-700"
           >
             {v}
             <button
               type="button"
               onClick={() => onChange(values.filter((x) => x !== v))}
-              className="text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300"
+              className="text-neutral-400 hover:text-neutral-700"
               aria-label={`${v} entfernen`}
             >
               ×
@@ -55,7 +55,7 @@ export function TagInput({
             }
           }}
           onBlur={add}
-          className="min-w-[8rem] flex-1 rounded-lg border border-neutral-300 dark:border-neutral-700 px-2 py-1 text-xs"
+          className="min-w-[8rem] flex-1 rounded-lg border border-neutral-300 px-2 py-1 text-xs"
         />
       </div>
     </div>

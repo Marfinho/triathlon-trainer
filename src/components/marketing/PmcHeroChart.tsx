@@ -104,7 +104,7 @@ export default function PmcHeroChart() {
         viewBox={`0 0 ${W} ${H}`}
         role="img"
         aria-label="Performance-Management-Chart mit CTL-, ATL- und TSB-Kurven"
-        className="w-full rounded-2xl border border-[#e8e8ed] bg-white shadow-sm"
+        className="w-full rounded-2xl border border-[#27273B] bg-white shadow-sm"
       >
         {/* Gridlines + Y axis labels */}
         {yTicks.map((t) => {
@@ -116,7 +116,7 @@ export default function PmcHeroChart() {
                 x2={W - PAD_R}
                 y1={gy}
                 y2={gy}
-                stroke="#e8e8ed"
+                stroke="#27273B"
                 strokeWidth={1}
               />
               <text
@@ -125,7 +125,7 @@ export default function PmcHeroChart() {
                 textAnchor="end"
                 className="font-display"
                 fontSize="11"
-                fill="#86868b"
+                fill="#8E8EAB"
               >
                 {t}
               </text>
@@ -139,7 +139,7 @@ export default function PmcHeroChart() {
           x2={W - PAD_R}
           y1={zeroY}
           y2={zeroY}
-          stroke="#d2d2d7"
+          stroke="#34344D"
           strokeWidth={1}
           strokeDasharray="4 4"
         />
@@ -155,7 +155,7 @@ export default function PmcHeroChart() {
               textAnchor="middle"
               className="font-display"
               fontSize="11"
-              fill="#86868b"
+              fill="#8E8EAB"
             >
               {label}
             </text>
@@ -166,7 +166,7 @@ export default function PmcHeroChart() {
         <path
           d={ctlPath}
           fill="none"
-          stroke="#0071e3"
+          stroke="#00E5FF"
           strokeWidth={2.5}
           strokeLinecap="round"
           className="pmc-line pmc-ctl"
@@ -174,7 +174,7 @@ export default function PmcHeroChart() {
         <path
           d={atlPath}
           fill="none"
-          stroke="#86868b"
+          stroke="#8E8EAB"
           strokeWidth={2}
           strokeLinecap="round"
           className="pmc-line pmc-atl"
@@ -182,7 +182,7 @@ export default function PmcHeroChart() {
         <path
           d={tsbPath}
           fill="none"
-          stroke="#34c759"
+          stroke="#39FF88"
           strokeWidth={2}
           strokeLinecap="round"
           className="pmc-line pmc-tsb"
@@ -193,7 +193,7 @@ export default function PmcHeroChart() {
           cx={ctlPts[last].x}
           cy={ctlPts[last].y}
           r={3.5}
-          fill="#0071e3"
+          fill="#00E5FF"
           className="pmc-dot"
         />
         <text
@@ -203,7 +203,7 @@ export default function PmcHeroChart() {
           className="font-display pmc-val"
           fontSize="12"
           fontWeight="500"
-          fill="#0071e3"
+          fill="#00E5FF"
         >
           CTL {CTL[last]}
         </text>
@@ -212,7 +212,7 @@ export default function PmcHeroChart() {
           cx={tsbPts[last].x}
           cy={tsbPts[last].y}
           r={3.5}
-          fill="#34c759"
+          fill="#39FF88"
           className="pmc-dot"
         />
         <text
@@ -222,23 +222,23 @@ export default function PmcHeroChart() {
           className="font-display pmc-val"
           fontSize="12"
           fontWeight="500"
-          fill="#34c759"
+          fill="#39FF88"
         >
           TSB {TSB[last]}
         </text>
 
         {/* Legend */}
         <g className="font-display" fontSize="11">
-          <circle cx={PAD_L + 4} cy={PAD_T + 4} r={3} fill="#0071e3" />
-          <text x={PAD_L + 12} y={PAD_T + 8} fill="#86868b">
+          <circle cx={PAD_L + 4} cy={PAD_T + 4} r={3} fill="#00E5FF" />
+          <text x={PAD_L + 12} y={PAD_T + 8} fill="#8E8EAB">
             CTL
           </text>
-          <circle cx={PAD_L + 54} cy={PAD_T + 4} r={3} fill="#86868b" />
-          <text x={PAD_L + 62} y={PAD_T + 8} fill="#86868b">
+          <circle cx={PAD_L + 54} cy={PAD_T + 4} r={3} fill="#8E8EAB" />
+          <text x={PAD_L + 62} y={PAD_T + 8} fill="#8E8EAB">
             ATL
           </text>
-          <circle cx={PAD_L + 104} cy={PAD_T + 4} r={3} fill="#34c759" />
-          <text x={PAD_L + 112} y={PAD_T + 8} fill="#86868b">
+          <circle cx={PAD_L + 104} cy={PAD_T + 4} r={3} fill="#39FF88" />
+          <text x={PAD_L + 112} y={PAD_T + 8} fill="#8E8EAB">
             TSB
           </text>
         </g>

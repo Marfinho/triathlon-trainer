@@ -55,7 +55,7 @@ export default async function AdminPage() {
               defaults: toJsonSafeLimits(defaultLimits(tier)),
               effective: toJsonSafeLimits(effective),
               override: (row?.settingsJson as PlanOverrideSettings | undefined) ?? null,
-              updatedAt: row?.updatedAt ? row.updatedAt.toISOString() : null,
+              updatedAt: row?.updatedAt ?? null,
               updatedBy: row?.updatedBy ?? null,
             };
           }),
@@ -67,8 +67,8 @@ export default async function AdminPage() {
   return (
     <main className="mx-auto max-w-6xl px-4 py-6 md:px-8 md:py-10">
       <header className="mb-6">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-600 dark:text-blue-400">Administration</p>
-        <h1 className="mt-1.5 text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100 md:text-3xl">
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-600">Administration</p>
+        <h1 className="mt-1.5 text-2xl font-semibold tracking-tight text-neutral-900 md:text-3xl">
           Admin-Panel
         </h1>
       </header>
@@ -76,52 +76,52 @@ export default async function AdminPage() {
       <div className="space-y-6">
         {/* Stats */}
         <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-          <div className="rounded-2xl border border-neutral-200/80 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-6 shadow-sm">
-            <p className="text-xs font-medium text-neutral-600 dark:text-neutral-400 uppercase tracking-wide">Alle Nutzer</p>
-            <p className="mt-2 text-3xl font-semibold text-neutral-900 dark:text-neutral-100">{totalUsers}</p>
+          <div className="card-neon rounded-3xl p-6">
+            <p className="text-xs font-medium text-neutral-600 uppercase tracking-wide">Alle Nutzer</p>
+            <p className="mt-2 text-3xl font-semibold text-neutral-900">{totalUsers}</p>
           </div>
-          <div className="rounded-2xl border border-neutral-200/80 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-6 shadow-sm">
-            <p className="text-xs font-medium text-neutral-600 dark:text-neutral-400 uppercase tracking-wide">Bezahlende Nutzer</p>
-            <p className="mt-2 text-3xl font-semibold text-neutral-900 dark:text-neutral-100">{paidUsers}</p>
+          <div className="card-neon rounded-3xl p-6">
+            <p className="text-xs font-medium text-neutral-600 uppercase tracking-wide">Bezahlende Nutzer</p>
+            <p className="mt-2 text-3xl font-semibold text-neutral-900">{paidUsers}</p>
           </div>
-          <div className="rounded-2xl border border-neutral-200/80 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-6 shadow-sm">
-            <p className="text-xs font-medium text-neutral-600 dark:text-neutral-400 uppercase tracking-wide">Aktive Integrationen</p>
-            <p className="mt-2 text-3xl font-semibold text-neutral-900 dark:text-neutral-100">{activeIntegrations}</p>
+          <div className="card-neon rounded-3xl p-6">
+            <p className="text-xs font-medium text-neutral-600 uppercase tracking-wide">Aktive Integrationen</p>
+            <p className="mt-2 text-3xl font-semibold text-neutral-900">{activeIntegrations}</p>
           </div>
-          <div className="rounded-2xl border border-neutral-200/80 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-6 shadow-sm">
-            <p className="text-xs font-medium text-neutral-600 dark:text-neutral-400 uppercase tracking-wide">Aktiv heute (24h)</p>
-            <p className="mt-2 text-3xl font-semibold text-neutral-900 dark:text-neutral-100">{dailyActiveUsers}</p>
+          <div className="card-neon rounded-3xl p-6">
+            <p className="text-xs font-medium text-neutral-600 uppercase tracking-wide">Aktiv heute (24h)</p>
+            <p className="mt-2 text-3xl font-semibold text-neutral-900">{dailyActiveUsers}</p>
           </div>
         </div>
 
         {/* Recent Signups */}
-        <div className="rounded-2xl border border-neutral-200/80 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-6 shadow-sm">
-          <h2 className="mb-4 text-lg font-semibold text-neutral-900 dark:text-neutral-100">Neue Registrierungen (7 Tage)</h2>
+        <div className="card-neon rounded-3xl p-6">
+          <h2 className="mb-4 text-lg font-semibold text-neutral-900">Neue Registrierungen (7 Tage)</h2>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-neutral-200 dark:border-neutral-800">
-                  <th className="px-4 py-3 text-left font-semibold text-neutral-700 dark:text-neutral-300">Name</th>
-                  <th className="px-4 py-3 text-left font-semibold text-neutral-700 dark:text-neutral-300">E-Mail</th>
-                  <th className="px-4 py-3 text-left font-semibold text-neutral-700 dark:text-neutral-300">Tarif</th>
-                  <th className="px-4 py-3 text-left font-semibold text-neutral-700 dark:text-neutral-300">Anmeldung</th>
+                <tr className="border-b border-neutral-200">
+                  <th className="px-4 py-3 text-left font-semibold text-neutral-700">Name</th>
+                  <th className="px-4 py-3 text-left font-semibold text-neutral-700">E-Mail</th>
+                  <th className="px-4 py-3 text-left font-semibold text-neutral-700">Tarif</th>
+                  <th className="px-4 py-3 text-left font-semibold text-neutral-700">Anmeldung</th>
                 </tr>
               </thead>
               <tbody>
                 {recentSignups.map((user) => (
-                  <tr key={user.id} className="border-b border-neutral-100 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-800/60">
-                    <td className="px-4 py-3 text-neutral-900 dark:text-neutral-100">{user.name || "—"}</td>
-                    <td className="px-4 py-3 text-neutral-600 dark:text-neutral-400">{user.email}</td>
+                  <tr key={user.id} className="border-b border-neutral-100 hover:bg-neutral-50">
+                    <td className="px-4 py-3 text-neutral-900">{user.name || "—"}</td>
+                    <td className="px-4 py-3 text-neutral-600">{user.email}</td>
                     <td className="px-4 py-3">
                       <span className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold ${
                         user.plan === "paid"
-                          ? "bg-emerald-100 dark:bg-emerald-900/40 text-emerald-800 dark:text-emerald-200"
-                          : "bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300"
+                          ? "bg-emerald-100 text-emerald-800"
+                          : "bg-neutral-100 text-neutral-700"
                       }`}>
                         {user.plan === "paid" ? "Bezahlt" : "Kostenlos"}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-neutral-600 dark:text-neutral-400">
+                    <td className="px-4 py-3 text-neutral-600">
                       {new Date(user.createdAt).toLocaleDateString("de-DE")}
                     </td>
                   </tr>
@@ -133,13 +133,13 @@ export default async function AdminPage() {
 
         {/* Plan Limits */}
         <div>
-          <h2 className="mb-4 text-lg font-semibold text-neutral-900 dark:text-neutral-100">Plan-Limits pro Tarif</h2>
+          <h2 className="mb-4 text-lg font-semibold text-neutral-900">Plan-Limits pro Tarif</h2>
           <PlanLimitsEditor initialTiers={tiers} />
         </div>
 
         {/* Integrations */}
         <div>
-          <h2 className="mb-4 text-lg font-semibold text-neutral-900 dark:text-neutral-100">OAuth-Provider verwalten</h2>
+          <h2 className="mb-4 text-lg font-semibold text-neutral-900">OAuth-Provider verwalten</h2>
           <IntegrationsAdmin initial={integrations} />
         </div>
 

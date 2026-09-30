@@ -121,7 +121,7 @@ export function DashboardGrid({ initialWidgets }: { initialWidgets: WidgetInstan
                   {Content ? (
                     <Content size={widget.size} />
                   ) : (
-                    <div className="flex h-24 items-center justify-center rounded-xl border border-dashed border-neutral-200 dark:border-neutral-800 text-xs text-neutral-400">
+                    <div className="flex h-24 items-center justify-center rounded-xl border border-dashed border-neutral-200 text-xs text-neutral-400">
                       Platzhalter
                     </div>
                   )}
@@ -129,7 +129,7 @@ export function DashboardGrid({ initialWidgets }: { initialWidgets: WidgetInstan
               );
             })}
             {widgets.length === 0 && (
-              <p className="col-span-1 text-sm text-neutral-500 dark:text-neutral-400 md:col-span-4">
+              <p className="col-span-1 text-sm text-neutral-500 md:col-span-4">
                 Keine Widgets. Über &quot;Widget hinzufügen&quot; im Bearbeitungsmodus
                 kannst du dein Dashboard zusammenstellen.
               </p>

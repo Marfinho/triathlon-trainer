@@ -10,9 +10,9 @@ const CONFIDENCE_LABEL: Record<EnergyForecastConfidence, string> = {
 };
 
 const CONFIDENCE_COLOR: Record<EnergyForecastConfidence, string> = {
-  high: "bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300",
-  medium: "bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300",
-  low: "bg-neutral-200 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-400",
+  high: "bg-emerald-100 text-emerald-700",
+  medium: "bg-amber-100 text-amber-700",
+  low: "bg-neutral-200 text-neutral-600",
 };
 
 /**
@@ -27,7 +27,7 @@ export function ForecastPanel({
   hints: FuelingHint[];
 }) {
   return (
-    <div className="rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-800/60 p-3">
+    <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-3">
       <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-neutral-400">
         Energiebedarf kommende Einheiten
       </p>
@@ -38,16 +38,16 @@ export function ForecastPanel({
           {byDay.map((d) => (
             <li
               key={d.date}
-              className="flex items-center justify-between rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 px-2.5 py-1.5 text-sm"
+              className="flex items-center justify-between rounded-lg border border-neutral-200 bg-white px-2.5 py-1.5 text-sm"
             >
-              <span className="text-neutral-700 dark:text-neutral-300">
+              <span className="text-neutral-700">
                 {d.date}{" "}
                 <span className="text-neutral-400">
                   ({d.workoutCount} {d.workoutCount === 1 ? "Einheit" : "Einheiten"})
                 </span>
               </span>
               <span className="flex items-center gap-2">
-                <span className="font-medium text-neutral-900 dark:text-neutral-100">≈{d.kcal} kcal</span>
+                <span className="font-medium text-neutral-900">≈{d.kcal} kcal</span>
                 <span
                   className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${CONFIDENCE_COLOR[d.confidence]}`}
                 >
@@ -65,7 +65,7 @@ export function ForecastPanel({
             <li
               key={i}
               className={`rounded-lg px-2.5 py-1.5 text-xs ${
-                h.level === "notice" ? "bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-200" : "bg-blue-50 dark:bg-blue-950/40 text-blue-800 dark:text-blue-200"
+                h.level === "notice" ? "bg-amber-50 text-amber-800" : "bg-blue-50 text-blue-800"
               }`}
             >
               {h.text}

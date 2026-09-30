@@ -45,10 +45,10 @@ const STATUS_LABEL: Record<TrainerConnectionStatus, string> = {
 };
 
 const STATUS_CLS: Record<TrainerConnectionStatus, string> = {
-  disconnected: "bg-neutral-200 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-400",
-  connecting: "bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300",
-  connected: "bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300",
-  error: "bg-rose-100 dark:bg-rose-900/40 text-rose-700 dark:text-rose-300",
+  disconnected: "bg-neutral-200 text-neutral-600",
+  connecting: "bg-amber-100 text-amber-700",
+  connected: "bg-emerald-100 text-emerald-700",
+  error: "bg-rose-100 text-rose-700",
 };
 
 export function TrainerControl({
@@ -303,7 +303,7 @@ export function TrainerControl({
       actions={
         <div className="flex items-center gap-2">
           {recording ? (
-            <span className="flex items-center gap-1.5 text-[11px] font-medium text-rose-600 dark:text-rose-400">
+            <span className="flex items-center gap-1.5 text-[11px] font-medium text-rose-600">
               <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-rose-500" />
               REC {fmt(recSecRef.current)}
             </span>
@@ -316,14 +316,14 @@ export function TrainerControl({
           <button
             onClick={() => setFullscreen(true)}
             disabled={!connected}
-            className="rounded-lg border border-neutral-300 dark:border-neutral-700 px-3 py-1.5 text-xs font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 disabled:opacity-40"
+            className="rounded-lg border border-neutral-300 px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-100 disabled:opacity-40"
           >
             Vollbild
           </button>
           {connected ? (
             <button
               onClick={disconnect}
-              className="rounded-lg border border-neutral-300 dark:border-neutral-700 px-3 py-1.5 text-xs font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+              className="rounded-lg border border-neutral-300 px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-100"
             >
               Trennen
             </button>
@@ -340,19 +340,19 @@ export function TrainerControl({
       }
     >
       {!available ? (
-        <p className="mb-3 rounded-lg bg-amber-50 dark:bg-amber-950/40 px-3 py-2 text-xs text-amber-700 dark:text-amber-300">
+        <p className="mb-3 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-700">
           Dieser Browser unterstützt kein Web Bluetooth. Nutze Chrome oder Edge
           (Desktop) über <code>localhost</code> oder HTTPS.
         </p>
       ) : null}
       {statusMsg && status === "error" ? (
-        <p className="mb-3 rounded-lg bg-rose-50 dark:bg-rose-950/40 px-3 py-2 text-xs text-rose-700 dark:text-rose-300">
+        <p className="mb-3 rounded-lg bg-rose-50 px-3 py-2 text-xs text-rose-700">
           {statusMsg}
         </p>
       ) : null}
 
       <div className="mb-4 flex flex-wrap items-end gap-3">
-        <label className="text-xs text-neutral-500 dark:text-neutral-400">
+        <label className="text-xs text-neutral-500">
           FTP (W)
           <input
             type="number"
@@ -360,10 +360,10 @@ export function TrainerControl({
             max={600}
             value={ftp}
             onChange={(e) => setFtp(Number(e.target.value) || 0)}
-            className="mt-1 block w-24 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-2 py-1.5 text-sm text-neutral-900 dark:text-neutral-100"
+            className="mt-1 block w-24 rounded-lg border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900"
           />
         </label>
-        <label className="min-w-[14rem] flex-1 text-xs text-neutral-500 dark:text-neutral-400">
+        <label className="min-w-[14rem] flex-1 text-xs text-neutral-500">
           Rad-Workout
           <select
             value={selectedId}
@@ -373,7 +373,7 @@ export function TrainerControl({
               setElapsed(0);
               setRunning(false);
             }}
-            className="mt-1 block w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-2 py-1.5 text-sm text-neutral-900 dark:text-neutral-100"
+            className="mt-1 block w-full rounded-lg border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900"
           >
             {workouts.length === 0 ? (
               <option value="">— keine Rad-Workouts mit Segmenten —</option>
@@ -420,14 +420,14 @@ export function TrainerControl({
 
       {timeline.totalDurationSec > 0 ? (
         <div className="mt-4">
-          <div className="mb-1 flex items-center justify-between text-xs text-neutral-500 dark:text-neutral-400">
+          <div className="mb-1 flex items-center justify-between text-xs text-neutral-500">
             <span>{active.step ? active.step.label : "Workout abgeschlossen"}</span>
             <span>
               {active.step ? `${fmt(active.secondsRemainingInStep)} verbleibend · ` : ""}
               {fmt(elapsed)} / {fmt(timeline.totalDurationSec)}
             </span>
           </div>
-          <div className="h-2 w-full overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-700">
+          <div className="h-2 w-full overflow-hidden rounded-full bg-neutral-200">
             <div
               className="h-full bg-blue-500 transition-all"
               style={{ width: `${progressPct}%` }}
@@ -439,7 +439,7 @@ export function TrainerControl({
                 key={s.index}
                 title={`${s.label}: ${s.targetWatts} W`}
                 className={`h-1.5 rounded-full ${
-                  s.index === active.stepIndex ? "bg-blue-400" : "bg-neutral-200 dark:bg-neutral-700"
+                  s.index === active.stepIndex ? "bg-blue-400" : "bg-neutral-200"
                 }`}
                 style={{ width: `${(s.durationSec / timeline.totalDurationSec) * 100}%` }}
               />
@@ -474,37 +474,37 @@ export function TrainerControl({
         <button
           onClick={skipStep}
           disabled={!connected || !active.step}
-          className="rounded-lg border border-neutral-300 dark:border-neutral-700 px-3 py-1.5 text-xs font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 disabled:opacity-40"
+          className="rounded-lg border border-neutral-300 px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-100 disabled:opacity-40"
         >
           Schritt überspringen
         </button>
         <button
           onClick={stopPlayer}
           disabled={!connected}
-          className="rounded-lg border border-neutral-300 dark:border-neutral-700 px-3 py-1.5 text-xs font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 disabled:opacity-40"
+          className="rounded-lg border border-neutral-300 px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-100 disabled:opacity-40"
         >
           Stop
         </button>
         <button
           onClick={() => (recording ? finalizeRecording() : startRecording())}
           disabled={!connected}
-          className="rounded-lg border border-neutral-300 dark:border-neutral-700 px-3 py-1.5 text-xs font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 disabled:opacity-40"
+          className="rounded-lg border border-neutral-300 px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-100 disabled:opacity-40"
         >
           {recording ? "Aufzeichnung beenden" : "Frei aufzeichnen"}
         </button>
 
         <div className="ml-auto flex items-center gap-1">
-          <span className="mr-1 text-xs text-neutral-500 dark:text-neutral-400">Korrektur</span>
+          <span className="mr-1 text-xs text-neutral-500">Korrektur</span>
           <OffsetButton onClick={() => setOffset((o) => o - 5)} label="−5" disabled={!connected} />
           <OffsetButton onClick={() => setOffset((o) => o + 5)} label="+5" disabled={!connected} />
-          <span className="w-12 text-center text-xs text-neutral-600 dark:text-neutral-400">
+          <span className="w-12 text-center text-xs text-neutral-600">
             {offset >= 0 ? `+${offset}` : offset} W
           </span>
         </div>
       </div>
 
-      <div className="mt-4 flex flex-wrap items-end gap-2 border-t border-neutral-200 dark:border-neutral-800 pt-3">
-        <label className="text-xs text-neutral-500 dark:text-neutral-400">
+      <div className="mt-4 flex flex-wrap items-end gap-2 border-t border-neutral-200 pt-3">
+        <label className="text-xs text-neutral-500">
           Freie Watt-Vorgabe
           <input
             type="number"
@@ -512,7 +512,7 @@ export function TrainerControl({
             max={2000}
             value={manualWatts}
             onChange={(e) => setManualWatts(Number(e.target.value) || 0)}
-            className="mt-1 block w-28 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-2 py-1.5 text-sm text-neutral-900 dark:text-neutral-100"
+            className="mt-1 block w-28 rounded-lg border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900"
           />
         </label>
         <button
@@ -529,15 +529,15 @@ export function TrainerControl({
 
       {/* Zusammenfassung der aufgezeichneten Einheit */}
       {summary ? (
-        <div className="mt-5 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-800/60 p-4">
+        <div className="mt-5 rounded-xl border border-neutral-200 bg-neutral-50 p-4">
           <div className="mb-3 flex items-center justify-between">
-            <h3 className="text-sm font-semibold text-neutral-800 dark:text-neutral-200">
+            <h3 className="text-sm font-semibold text-neutral-800">
               Aufgezeichnete Einheit
             </h3>
-            <span className="text-xs text-neutral-500 dark:text-neutral-400">{fmt(summary.durationSec)}</span>
+            <span className="text-xs text-neutral-500">{fmt(summary.durationSec)}</span>
           </div>
-          <div className="mb-3 text-blue-600 dark:text-blue-400">
-            <Sparkline values={powerSeries} color="#0a84ff" height={48} />
+          <div className="mb-3 text-blue-600">
+            <Sparkline values={powerSeries} color="#00E5FF" height={48} />
           </div>
           <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
             <Metric label="Ø Power" value={summary.avgPowerW != null ? `${summary.avgPowerW} W` : "—"} />
@@ -557,7 +557,7 @@ export function TrainerControl({
             </button>
             <button
               onClick={() => setSummary(null)}
-              className="rounded-lg border border-neutral-300 dark:border-neutral-700 px-3 py-1.5 text-xs font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+              className="rounded-lg border border-neutral-300 px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-100"
             >
               Verwerfen
             </button>
@@ -565,14 +565,14 @@ export function TrainerControl({
         </div>
       ) : null}
       {savedMsg ? (
-        <p className="mt-3 text-xs text-emerald-600 dark:text-emerald-400">
+        <p className="mt-3 text-xs text-emerald-600">
           {savedMsg}
           {savedActivityId ? (
             <>
               {" "}
               <a
                 href={`/api/activities/${savedActivityId}/tcx`}
-                className="font-medium text-blue-600 dark:text-blue-400 underline hover:text-blue-500"
+                className="font-medium text-blue-600 underline hover:text-blue-500"
               >
                 TCX herunterladen
               </a>
@@ -721,7 +721,7 @@ function BigMetric({
 }) {
   return (
     <div className="text-center">
-      <p className="text-xs uppercase tracking-wide text-neutral-500 dark:text-neutral-400">{label}</p>
+      <p className="text-xs uppercase tracking-wide text-neutral-500">{label}</p>
       <p className={`mt-1 text-4xl font-bold sm:text-5xl ${color ?? "text-white"}`}>{value}</p>
     </div>
   );
@@ -754,11 +754,11 @@ function FsButton({
 }
 
 function zoneColor(ratio: number): string {
-  if (ratio < 0.6) return "#0a84ff";
-  if (ratio < 0.9) return "#30b0c7";
-  if (ratio < 1.05) return "#34c759";
-  if (ratio < 1.2) return "#ff9f0a";
-  return "#ff3b30";
+  if (ratio < 0.6) return "#00E5FF";
+  if (ratio < 0.9) return "#00FFD1";
+  if (ratio < 1.05) return "#39FF88";
+  if (ratio < 1.2) return "#FF9F1C";
+  return "#FF3864";
 }
 
 function WorkoutProfile({
@@ -775,7 +775,7 @@ function WorkoutProfile({
   const maxW = Math.max(ftp * 1.2, ...steps.map((s) => s.targetWatts), 1);
   return (
     <div className="mb-4">
-      <div className="flex h-16 items-end gap-px overflow-hidden rounded-lg bg-neutral-50 dark:bg-neutral-800/60 p-1">
+      <div className="flex h-16 items-end gap-px overflow-hidden rounded-lg bg-neutral-50 p-1">
         {steps.map((s) => {
           const ratio = ftp > 0 ? s.targetWatts / ftp : 0;
           return (
@@ -817,12 +817,12 @@ function Metric({
 }) {
   const color =
     accent === "blue"
-      ? "text-blue-600 dark:text-blue-400"
+      ? "text-blue-600"
       : accent === "emerald"
-        ? "text-emerald-600 dark:text-emerald-400"
-        : "text-neutral-900 dark:text-neutral-100";
+        ? "text-emerald-600"
+        : "text-neutral-900";
   return (
-    <div className="rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 px-3 py-2">
+    <div className="rounded-xl border border-neutral-200 bg-white px-3 py-2">
       <p className="text-[11px] uppercase tracking-wide text-neutral-400">{label}</p>
       <p className={`mt-0.5 font-semibold ${big ? "text-2xl" : "text-base"} ${color}`}>
         {value}
@@ -844,7 +844,7 @@ function OffsetButton({
     <button
       onClick={onClick}
       disabled={disabled}
-      className="h-7 w-9 rounded-lg border border-neutral-300 dark:border-neutral-700 text-xs font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 disabled:opacity-40"
+      className="h-7 w-9 rounded-lg border border-neutral-300 text-xs font-medium text-neutral-700 hover:bg-neutral-100 disabled:opacity-40"
     >
       {label}
     </button>

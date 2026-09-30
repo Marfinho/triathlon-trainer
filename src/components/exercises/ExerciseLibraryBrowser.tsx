@@ -48,7 +48,7 @@ export function ExerciseLibraryBrowser({ items }: { items: LibraryListItem[] }) 
   return (
     <div>
       <div className="mb-4 flex flex-wrap items-center gap-3">
-        <div role="radiogroup" aria-label="Kategorie" className="inline-flex rounded-lg border border-neutral-200 bg-neutral-100 p-0.5 dark:border-neutral-800 dark:bg-neutral-800">
+        <div role="radiogroup" aria-label="Kategorie" className="inline-flex rounded-lg border border-neutral-200 bg-neutral-100 p-0.5">
           {FILTERS.map((f) => (
             <button
               key={f.value}
@@ -58,8 +58,8 @@ export function ExerciseLibraryBrowser({ items }: { items: LibraryListItem[] }) 
               onClick={() => setFilter(f.value)}
               className={`rounded-md px-3 py-1.5 text-xs font-medium ${
                 filter === f.value
-                  ? "bg-white text-neutral-900 shadow-sm dark:bg-neutral-600 dark:text-neutral-50"
-                  : "text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100"
+                  ? "bg-white text-neutral-900 shadow-sm"
+                  : "text-neutral-600 hover:text-neutral-900"
               }`}
             >
               {f.label}
@@ -73,17 +73,17 @@ export function ExerciseLibraryBrowser({ items }: { items: LibraryListItem[] }) 
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Suche nach Titel oder Muskel…"
-            className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-1.5 text-sm text-neutral-900 placeholder:text-neutral-400 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100"
+            className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-1.5 text-sm text-neutral-900 placeholder:text-neutral-400"
           />
         </label>
       </div>
 
-      <p className="mb-2 text-xs text-neutral-500 dark:text-neutral-400" aria-live="polite">
+      <p className="mb-2 text-xs text-neutral-500" aria-live="polite">
         {visible.length} {visible.length === 1 ? "Übung" : "Übungen"}
       </p>
 
       {visible.length === 0 ? (
-        <p className="rounded-lg border border-dashed border-neutral-300 p-6 text-center text-sm text-neutral-500 dark:border-neutral-700 dark:text-neutral-400">
+        <p className="rounded-lg border border-dashed border-neutral-300 p-6 text-center text-sm text-neutral-500">
           Keine Übung gefunden.
         </p>
       ) : (
@@ -92,23 +92,23 @@ export function ExerciseLibraryBrowser({ items }: { items: LibraryListItem[] }) 
             <li key={it.id}>
               <Link
                 href={`/trainer/uebungen/${it.id}`}
-                className="flex gap-3 rounded-xl border border-neutral-200 bg-white p-3 transition hover:border-neutral-300 hover:shadow-sm dark:border-neutral-800 dark:bg-neutral-900 dark:hover:border-neutral-700"
+                className="flex gap-3 rounded-xl border border-neutral-200 bg-white p-3 transition hover:border-neutral-300 hover:shadow-sm"
               >
                 <ExerciseFigure svg={it.thumbSvg} className="w-24 shrink-0 self-start" />
                 <div className="min-w-0">
-                  <p className="font-semibold text-neutral-900 dark:text-neutral-100">{it.title}</p>
-                  <p className="text-xs text-neutral-600 dark:text-neutral-400">{it.subtitle}</p>
+                  <p className="font-semibold text-neutral-900">{it.title}</p>
+                  <p className="text-xs text-neutral-600">{it.subtitle}</p>
                   <p className="mt-1 flex flex-wrap gap-1">
-                    <span className="rounded bg-neutral-100 px-1.5 text-[11px] text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300">
+                    <span className="rounded bg-neutral-100 px-1.5 text-[11px] text-neutral-700">
                       {it.category === "strength" ? "Kraft" : "Mobility"}
                     </span>
                     {it.custom ? (
-                      <span className="rounded bg-violet-50 px-1.5 text-[11px] text-violet-700 dark:bg-violet-950/40 dark:text-violet-300">
+                      <span className="rounded bg-violet-50 px-1.5 text-[11px] text-violet-700">
                         Eigene Übung
                       </span>
                     ) : null}
                   </p>
-                  <p className="mt-1 line-clamp-2 text-xs text-neutral-500 dark:text-neutral-400">
+                  <p className="mt-1 line-clamp-2 text-xs text-neutral-500">
                     {it.muscles.join(", ")}
                   </p>
                 </div>

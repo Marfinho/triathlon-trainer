@@ -46,7 +46,7 @@ export function ExercisePlaceholder({ id, reason }: { id: string; reason: "missi
     <div
       role="img"
       aria-label={`Übung ${id}: keine Abbildung verfügbar`}
-      className="flex aspect-[200/170] w-full items-center justify-center rounded-md border border-dashed border-neutral-300 bg-neutral-50 p-2 text-center text-xs text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800/60 dark:text-neutral-400"
+      className="flex aspect-[200/170] w-full items-center justify-center rounded-md border border-dashed border-neutral-300 bg-neutral-50 p-2 text-center text-xs text-neutral-500"
     >
       {reason === "invalid" ? "Übung ungültig" : "Übung unbekannt"}
     </div>

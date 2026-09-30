@@ -253,7 +253,7 @@ export function StackedBarChart({
 
 export function Sparkline({
   values,
-  color = "#0a84ff",
+  color = "#00E5FF",
   height = 40,
   width = 160,
 }: {
@@ -303,7 +303,7 @@ export function ChartLegend({
   return (
     <div className="flex flex-wrap gap-x-4 gap-y-1">
       {items.map((it) => (
-        <span key={it.name} className="flex items-center gap-1.5 text-xs text-neutral-500 dark:text-neutral-400">
+        <span key={it.name} className="flex items-center gap-1.5 text-xs text-neutral-500">
           <span
             className="inline-block h-2 w-2 rounded-full"
             style={{ backgroundColor: it.color }}

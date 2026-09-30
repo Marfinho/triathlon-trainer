@@ -30,7 +30,7 @@ export function TodayWorkout({ size }: { size: WidgetSize }) {
     if (!primary) return <WidgetEmpty message="Heute ist kein Training geplant." />;
     const duration = planned?.plannedDurationMin ?? actual?.durationMin;
     return (
-      <p className="text-sm text-neutral-700 dark:text-neutral-300">
+      <p className="text-sm text-neutral-700">
         {sportLabel(primary.sport)}
         {duration ? ` · ${duration} min` : ""}
       </p>
@@ -44,16 +44,16 @@ export function TodayWorkout({ size }: { size: WidgetSize }) {
           <p className="text-xs font-semibold uppercase tracking-wide text-neutral-400">
             Geplant
           </p>
-          <p className="font-medium text-neutral-900 dark:text-neutral-100">
+          <p className="font-medium text-neutral-900">
             {sportLabel(planned.sport)} · {planned.title}
           </p>
-          <p className="text-neutral-500 dark:text-neutral-400">
+          <p className="text-neutral-500">
             {planned.plannedDurationMin} min
             {planned.rpe ? ` · RPE ${planned.rpe}` : ""} ·{" "}
             {STATUS_LABEL[planned.status] ?? planned.status}
           </p>
           {size === "L" && planned.description && (
-            <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">{planned.description}</p>
+            <p className="mt-1 text-xs text-neutral-500">{planned.description}</p>
           )}
         </div>
       )}
@@ -62,8 +62,8 @@ export function TodayWorkout({ size }: { size: WidgetSize }) {
           <p className="text-xs font-semibold uppercase tracking-wide text-neutral-400">
             Absolviert
           </p>
-          <p className="font-medium text-neutral-900 dark:text-neutral-100">{sportLabel(actual.sport)}</p>
-          <p className="text-neutral-500 dark:text-neutral-400">
+          <p className="font-medium text-neutral-900">{sportLabel(actual.sport)}</p>
+          <p className="text-neutral-500">
             {actual.durationMin ? `${actual.durationMin} min` : "—"}
             {actual.distanceKm ? ` · ${actual.distanceKm} km` : ""}
             {size === "L" && actual.load ? ` · Last ${actual.load}` : ""}

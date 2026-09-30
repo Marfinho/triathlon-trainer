@@ -18,8 +18,8 @@ export function EditModeToolbar({
   onAddWidget: () => void;
 }) {
   return (
-    <div className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-neutral-200/80 dark:border-neutral-800 bg-white dark:bg-neutral-900 px-4 py-2.5">
-      <p className="text-xs text-neutral-500 dark:text-neutral-400">
+    <div className="mb-4 flex flex-wrap items-center justify-between gap-2 card-neon rounded-3xl px-4 py-2.5">
+      <p className="text-xs text-neutral-500">
         {editMode
           ? "Bearbeitungsmodus: Größe anpassen oder Widgets entfernen."
           : "Dein Dashboard, individuell anpassbar."}
@@ -29,7 +29,7 @@ export function EditModeToolbar({
           <button
             type="button"
             onClick={onAddWidget}
-            className="flex h-11 items-center justify-center rounded-full border border-neutral-200 dark:border-neutral-800 px-4 text-sm font-medium text-neutral-600 dark:text-neutral-400 transition hover:border-neutral-300 dark:hover:border-neutral-700 hover:text-neutral-900 dark:hover:text-neutral-100"
+            className="flex h-11 items-center justify-center rounded-full border border-neutral-200 px-4 text-sm font-medium text-neutral-600 transition hover:border-neutral-300 hover:text-neutral-900"
           >
             Widget hinzufügen
           </button>
@@ -38,7 +38,7 @@ export function EditModeToolbar({
           <button
             type="button"
             onClick={onCancel}
-            className="flex h-11 items-center justify-center rounded-full border border-neutral-200 dark:border-neutral-800 px-4 text-sm font-medium text-neutral-600 dark:text-neutral-400 transition hover:border-neutral-300 dark:hover:border-neutral-700 hover:text-neutral-900 dark:hover:text-neutral-100"
+            className="flex h-11 items-center justify-center rounded-full border border-neutral-200 px-4 text-sm font-medium text-neutral-600 transition hover:border-neutral-300 hover:text-neutral-900"
           >
             Abbrechen
           </button>
@@ -56,7 +56,7 @@ export function EditModeToolbar({
         <button
           type="button"
           onClick={onToggleEdit}
-          className="flex h-11 items-center justify-center rounded-full border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 px-4 text-sm font-medium text-neutral-600 dark:text-neutral-400 transition hover:border-neutral-300 dark:hover:border-neutral-700 hover:text-neutral-900 dark:hover:text-neutral-100"
+          className="flex h-11 items-center justify-center rounded-full border border-neutral-200 bg-white px-4 text-sm font-medium text-neutral-600 transition hover:border-neutral-300 hover:text-neutral-900"
         >
           {editMode ? "Fertig" : "Bearbeiten"}
         </button>

@@ -30,13 +30,15 @@ export default async function ExerciseLibraryPage() {
   return (
     <main className="px-4 py-6 md:px-8 md:py-10">
       <header className="mb-6">
-        <Link href="/trainer?tab=kraft" className="text-xs font-medium text-blue-600 hover:underline dark:text-blue-400">
-          ← Trainer
-        </Link>
-        <h1 className="mt-1.5 text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100 md:text-3xl">
+        <p>
+          <Link href="/trainer?tab=kraft" className="text-xs font-medium text-blue-600 hover:underline">
+            ← Trainer
+          </Link>
+        </p>
+        <h1 className="mt-1.5 text-2xl font-semibold tracking-tight text-neutral-900 md:text-3xl">
           Übungsbibliothek
         </h1>
-        <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
+        <p className="mt-1 text-sm text-neutral-600">
           Kraft und Mobility mit Muskelbild, Ablauf und Animation.
         </p>
         <div className="mt-3">

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/auth-guard";
+import { checkRateLimit } from "@/lib/rate-limit";
 import { buildCoachSummary } from "@/domain/coach-summary/buildCoachSummary";
 import { listValidCustomExercises } from "@/domain/exercises/resolve";
 import { gatherCoachSummaryContext } from "@/domain/coach-summary/gatherContext";
@@ -32,9 +33,18 @@ export async function POST(request: Request) {
       {
         ok: false,
         error:
-          "Keine LLM-API konfiguriert (OLLAMA_BASE_URL, ANTHROPIC_API_KEY oder OPENAI_API_KEY fehlt).",
+          "Keine LLM-API konfiguriert (ANTHROPIC_API_KEY oder OPENAI_API_KEY fehlt).",
       },
       { status: 400 },
+    );
+  }
+
+  // Jeder Aufruf kostet beim Cloud-Anbieter Geld – pro Nutzer begrenzen.
+  const rl = await checkRateLimit(`generate-plan:${userId}`, 10, 60 * 60 * 1000);
+  if (!rl.allowed) {
+    return NextResponse.json(
+      { ok: false, error: "Zu viele Plan-Generierungen – bitte später erneut versuchen." },
+      { status: 429, headers: { "Retry-After": String(Math.ceil(rl.retryAfterMs / 1000)) } },
     );
   }
 

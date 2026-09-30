@@ -76,13 +76,13 @@ export function AccountSettings({
     <Card title="Account" subtitle="Name, E-Mail und Anmeldedaten">
       <div className="space-y-4">
         <div className="flex flex-wrap items-end gap-2">
-          <label className="text-xs text-neutral-500 dark:text-neutral-400">
+          <label className="text-xs text-neutral-500">
             Name
             <input
               type="text"
               value={nameValue}
               onChange={(e) => setNameValue(e.target.value)}
-              className="mt-1 block w-56 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-2.5 py-1.5 text-sm"
+              className="mt-1 block w-56 rounded-lg border border-neutral-300 bg-white px-2.5 py-1.5 text-sm"
             />
           </label>
           <button
@@ -92,41 +92,41 @@ export function AccountSettings({
           >
             {savingName ? "…" : "Speichern"}
           </button>
-          {nameMsg && <span className="text-xs text-neutral-500 dark:text-neutral-400">{nameMsg}</span>}
+          {nameMsg && <span className="text-xs text-neutral-500">{nameMsg}</span>}
         </div>
 
         <div>
-          <p className="text-xs text-neutral-500 dark:text-neutral-400">E-Mail</p>
-          <p className="mt-1 text-sm text-neutral-900 dark:text-neutral-100">{email}</p>
+          <p className="text-xs text-neutral-500">E-Mail</p>
+          <p className="mt-1 text-sm text-neutral-900">{email}</p>
         </div>
 
         {canChangePassword ? (
-          <div className="border-t border-neutral-100 dark:border-neutral-800 pt-4">
+          <div className="border-t border-neutral-100 pt-4">
             {!showPasswordForm ? (
               <button
                 onClick={() => setShowPasswordForm(true)}
-                className="rounded-lg border border-neutral-300 dark:border-neutral-700 px-3 py-1.5 text-sm font-medium text-neutral-700 dark:text-neutral-300 hover:border-neutral-400 dark:hover:border-neutral-600"
+                className="rounded-lg border border-neutral-300 px-3 py-1.5 text-sm font-medium text-neutral-700 hover:border-neutral-400"
               >
                 Passwort ändern
               </button>
             ) : (
               <div className="flex flex-wrap items-end gap-2">
-                <label className="text-xs text-neutral-500 dark:text-neutral-400">
+                <label className="text-xs text-neutral-500">
                   Aktuelles Passwort
                   <input
                     type="password"
                     value={currentPassword}
                     onChange={(e) => setCurrentPassword(e.target.value)}
-                    className="mt-1 block w-44 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-2.5 py-1.5 text-sm"
+                    className="mt-1 block w-44 rounded-lg border border-neutral-300 bg-white px-2.5 py-1.5 text-sm"
                   />
                 </label>
-                <label className="text-xs text-neutral-500 dark:text-neutral-400">
+                <label className="text-xs text-neutral-500">
                   Neues Passwort
                   <input
                     type="password"
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
-                    className="mt-1 block w-44 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-2.5 py-1.5 text-sm"
+                    className="mt-1 block w-44 rounded-lg border border-neutral-300 bg-white px-2.5 py-1.5 text-sm"
                   />
                 </label>
                 <button
@@ -143,20 +143,20 @@ export function AccountSettings({
                     setNewPassword("");
                     setPasswordMsg(null);
                   }}
-                  className="rounded-lg px-3 py-1.5 text-sm text-neutral-500 dark:text-neutral-400 hover:text-neutral-800 dark:hover:text-neutral-200"
+                  className="rounded-lg px-3 py-1.5 text-sm text-neutral-500 hover:text-neutral-800"
                 >
                   Abbrechen
                 </button>
               </div>
             )}
             {passwordMsg && (
-              <p className={`mt-2 text-xs ${passwordMsg.ok ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400"}`}>
+              <p className={`mt-2 text-xs ${passwordMsg.ok ? "text-emerald-600" : "text-red-600"}`}>
                 {passwordMsg.text}
               </p>
             )}
           </div>
         ) : (
-          <p className="border-t border-neutral-100 dark:border-neutral-800 pt-4 text-xs text-neutral-400">
+          <p className="border-t border-neutral-100 pt-4 text-xs text-neutral-400">
             Anmeldung über Google – Passwort wird dort verwaltet.
           </p>
         )}

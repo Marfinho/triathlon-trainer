@@ -190,14 +190,14 @@ export function FoodSearch({ onLogged }: { onLogged: () => void }) {
   const results = [...localResults, ...externalResults];
 
   return (
-    <div className="rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-800/60 p-3">
+    <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-3">
       <div className="flex flex-wrap gap-2">
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && search()}
           placeholder="Barcode (EAN) oder Produktname…"
-          className="min-w-[160px] flex-1 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-2 py-1.5 text-sm"
+          className="min-w-[160px] flex-1 rounded-lg border border-neutral-300 bg-white px-2 py-1.5 text-sm"
         />
         <button
           onClick={search}
@@ -208,13 +208,13 @@ export function FoodSearch({ onLogged }: { onLogged: () => void }) {
         </button>
         <button
           onClick={() => setScannerOpen(true)}
-          className="rounded-lg border border-neutral-300 dark:border-neutral-700 px-3 py-1.5 text-xs font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+          className="rounded-lg border border-neutral-300 px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-100"
         >
           📷 Barcode scannen
         </button>
         <button
           onClick={() => setShowManual((s) => !s)}
-          className="rounded-lg border border-neutral-300 dark:border-neutral-700 px-3 py-1.5 text-xs font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+          className="rounded-lg border border-neutral-300 px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-100"
         >
           Manuell anlegen
         </button>
@@ -225,7 +225,7 @@ export function FoodSearch({ onLogged }: { onLogged: () => void }) {
       ) : null}
 
       {showManual ? (
-        <div className="mt-3 grid grid-cols-2 gap-2 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-3 sm:grid-cols-4">
+        <div className="mt-3 grid grid-cols-2 gap-2 rounded-lg border border-neutral-200 bg-white p-3 sm:grid-cols-4">
           {manual.ean ? (
             <p className="col-span-2 text-xs text-neutral-400 sm:col-span-4">
               Barcode {manual.ean} ohne Treffer – wird mit angelegt.
@@ -235,25 +235,25 @@ export function FoodSearch({ onLogged }: { onLogged: () => void }) {
             value={manual.name}
             onChange={(e) => setManual({ ...manual, name: e.target.value })}
             placeholder="Name"
-            className="col-span-2 rounded-lg border border-neutral-300 dark:border-neutral-700 px-2 py-1.5 text-sm sm:col-span-4"
+            className="col-span-2 rounded-lg border border-neutral-300 px-2 py-1.5 text-sm sm:col-span-4"
           />
           <input
             value={manual.brand}
             onChange={(e) => setManual({ ...manual, brand: e.target.value })}
             placeholder="Marke (optional)"
-            className="col-span-2 rounded-lg border border-neutral-300 dark:border-neutral-700 px-2 py-1.5 text-sm sm:col-span-4"
+            className="col-span-2 rounded-lg border border-neutral-300 px-2 py-1.5 text-sm sm:col-span-4"
           />
-          <label className="text-xs text-neutral-500 dark:text-neutral-400">
+          <label className="text-xs text-neutral-500">
             kcal/100g
             <input
               type="number"
               min={0}
               value={manual.kcalPer100g}
               onChange={(e) => setManual({ ...manual, kcalPer100g: Number(e.target.value) || 0 })}
-              className="mt-1 block w-full rounded-lg border border-neutral-300 dark:border-neutral-700 px-2 py-1.5 text-sm"
+              className="mt-1 block w-full rounded-lg border border-neutral-300 px-2 py-1.5 text-sm"
             />
           </label>
-          <label className="text-xs text-neutral-500 dark:text-neutral-400">
+          <label className="text-xs text-neutral-500">
             Protein/100g
             <input
               type="number"
@@ -262,10 +262,10 @@ export function FoodSearch({ onLogged }: { onLogged: () => void }) {
               onChange={(e) =>
                 setManual({ ...manual, proteinGPer100g: e.target.value === "" ? "" : Number(e.target.value) })
               }
-              className="mt-1 block w-full rounded-lg border border-neutral-300 dark:border-neutral-700 px-2 py-1.5 text-sm"
+              className="mt-1 block w-full rounded-lg border border-neutral-300 px-2 py-1.5 text-sm"
             />
           </label>
-          <label className="text-xs text-neutral-500 dark:text-neutral-400">
+          <label className="text-xs text-neutral-500">
             Carbs/100g
             <input
               type="number"
@@ -274,10 +274,10 @@ export function FoodSearch({ onLogged }: { onLogged: () => void }) {
               onChange={(e) =>
                 setManual({ ...manual, carbsGPer100g: e.target.value === "" ? "" : Number(e.target.value) })
               }
-              className="mt-1 block w-full rounded-lg border border-neutral-300 dark:border-neutral-700 px-2 py-1.5 text-sm"
+              className="mt-1 block w-full rounded-lg border border-neutral-300 px-2 py-1.5 text-sm"
             />
           </label>
-          <label className="text-xs text-neutral-500 dark:text-neutral-400">
+          <label className="text-xs text-neutral-500">
             Fett/100g
             <input
               type="number"
@@ -286,7 +286,7 @@ export function FoodSearch({ onLogged }: { onLogged: () => void }) {
               onChange={(e) =>
                 setManual({ ...manual, fatGPer100g: e.target.value === "" ? "" : Number(e.target.value) })
               }
-              className="mt-1 block w-full rounded-lg border border-neutral-300 dark:border-neutral-700 px-2 py-1.5 text-sm"
+              className="mt-1 block w-full rounded-lg border border-neutral-300 px-2 py-1.5 text-sm"
             />
           </label>
           <div className="col-span-2 sm:col-span-4">
@@ -307,10 +307,10 @@ export function FoodSearch({ onLogged }: { onLogged: () => void }) {
             <li key={p.id ?? p.code ?? i}>
               <button
                 onClick={() => select(p)}
-                className={`flex w-full items-center justify-between rounded-lg border px-2 py-1.5 text-left text-sm hover:bg-white dark:hover:bg-neutral-900 ${
+                className={`flex w-full items-center justify-between rounded-lg border px-2 py-1.5 text-left text-sm hover:bg-white ${
                   selected && (selected.id === p.id || selected.ean === p.code)
-                    ? "border-blue-400 bg-blue-50 dark:bg-blue-950/40"
-                    : "border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900"
+                    ? "border-blue-400 bg-blue-50"
+                    : "border-neutral-200 bg-white"
                 }`}
               >
                 <span>
@@ -327,19 +327,19 @@ export function FoodSearch({ onLogged }: { onLogged: () => void }) {
       {resolving ? <p className="mt-2 text-xs text-neutral-400">Lade Produktdaten…</p> : null}
 
       {selected?.id ? (
-        <div className="mt-3 flex flex-wrap items-end gap-2 rounded-lg border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950/40 p-3">
-          <div className="text-sm text-neutral-700 dark:text-neutral-300">
+        <div className="mt-3 flex flex-wrap items-end gap-2 rounded-lg border border-blue-200 bg-blue-50 p-3">
+          <div className="text-sm text-neutral-700">
             <strong>{selected.name}</strong>
             <span className="ml-1 text-neutral-400">({Math.round(selected.kcalPer100g)} kcal/100g)</span>
           </div>
-          <label className="text-xs text-neutral-500 dark:text-neutral-400">
+          <label className="text-xs text-neutral-500">
             Menge (g)
             <input
               type="number"
               min={1}
               value={quantityG}
               onChange={(e) => setQuantityG(Number(e.target.value) || 0)}
-              className="mt-1 block w-24 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-2 py-1.5 text-sm"
+              className="mt-1 block w-24 rounded-lg border border-neutral-300 bg-white px-2 py-1.5 text-sm"
             />
           </label>
           <button

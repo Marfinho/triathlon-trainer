@@ -15,8 +15,6 @@ import { SeasonStatsCard } from "@/components/dashboard/SeasonStats";
 import { DataExport } from "@/components/dashboard/DataExport";
 import { BackupRestore } from "@/components/dashboard/BackupRestore";
 import { IntervalsSyncStatus } from "@/components/dashboard/IntervalsSyncStatus";
-import { Card } from "@/components/dashboard/Card";
-import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
 export const dynamic = "force-dynamic";
 
@@ -117,17 +115,14 @@ export default async function MorePage() {
   return (
     <main className="px-4 py-6 md:px-8 md:py-10">
       <header className="mb-6">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-600 dark:text-blue-400">
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-600">
           LocalHub
         </p>
-        <h1 className="mt-1.5 text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100 md:text-3xl">
+        <h1 className="mt-1.5 text-2xl font-semibold tracking-tight text-neutral-900 md:text-3xl">
           Mehr
         </h1>
       </header>
       <div className="space-y-5">
-        <Card title="Darstellung" subtitle="Hell, Dunkel oder wie das System (gilt für dieses Gerät)">
-          <ThemeToggle />
-        </Card>
         <TrainingZones
           ftp={athlete?.ftpWatts ?? null}
           thresholdHr={athlete?.thresholdHr ?? null}

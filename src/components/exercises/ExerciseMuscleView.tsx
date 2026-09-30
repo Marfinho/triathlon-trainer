@@ -8,7 +8,7 @@ const LEVEL_LABEL = { 1: "Hauptarbeit", 2: "unterstützend" } as const;
 export function ExerciseMuscleView({ definition }: { definition: ExerciseDefinition }) {
   return (
     <section aria-label="Zielmuskeln">
-      <h3 className="mb-2 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Zielmuskeln</h3>
+      <h3 className="mb-2 text-sm font-semibold text-neutral-900">Zielmuskeln</h3>
       <ExerciseFigure svg={renderHeroSvg(definition)} />
       <ol className="mt-3 space-y-2">
         {definition.muscles.map((m, i) => (
@@ -18,11 +18,11 @@ export function ExerciseMuscleView({ definition }: { definition: ExerciseDefinit
             </span>
             <div>
               <span className="sr-only">{i + 1}. </span>
-              <strong className="font-semibold text-neutral-900 dark:text-neutral-100">{m.label}</strong>
-              <span className="ml-1.5 inline-block rounded-full bg-neutral-100 px-2 text-xs text-neutral-600 dark:bg-neutral-800 dark:text-neutral-400">
+              <strong className="font-semibold text-neutral-900">{m.label}</strong>
+              <span className="ml-1.5 inline-block rounded-full bg-neutral-100 px-2 text-xs text-neutral-600">
                 {m.kind === "stretch" ? "wird gedehnt" : LEVEL_LABEL[m.level]}
               </span>
-              <span className="block text-neutral-600 dark:text-neutral-400">{m.note}</span>
+              <span className="block text-neutral-600">{m.note}</span>
             </div>
           </li>
         ))}
@@ -36,7 +36,7 @@ export function ExerciseLegend() {
   return (
     <div
       aria-label="Legende"
-      className="flex flex-wrap gap-x-5 gap-y-2 text-xs text-neutral-600 dark:text-neutral-400"
+      className="flex flex-wrap gap-x-5 gap-y-2 text-xs text-neutral-600"
     >
       <span className="inline-flex items-center gap-1.5">
         <i className="exfig-swatch work" /> arbeitet

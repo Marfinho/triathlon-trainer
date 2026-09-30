@@ -19,7 +19,7 @@ export function SeasonStats({ size }: { size: WidgetSize }) {
 
   if (size === "S") {
     return (
-      <p className="text-sm text-neutral-700 dark:text-neutral-300">
+      <p className="text-sm text-neutral-700">
         {seasonStats.totalSessions} Einheiten · {seasonStats.totalHours.toFixed(0)} h
       </p>
     );
@@ -29,37 +29,37 @@ export function SeasonStats({ size }: { size: WidgetSize }) {
     <div className="space-y-3">
       <div className="grid grid-cols-2 gap-2 text-center text-xs sm:grid-cols-4">
         <div>
-          <p className="text-base font-semibold text-neutral-900 dark:text-neutral-100">{seasonStats.totalSessions}</p>
+          <p className="text-base font-semibold text-neutral-900">{seasonStats.totalSessions}</p>
           <p className="text-neutral-400">Einheiten</p>
         </div>
         <div>
-          <p className="text-base font-semibold text-neutral-900 dark:text-neutral-100">
+          <p className="text-base font-semibold text-neutral-900">
             {seasonStats.totalHours.toFixed(1)}
           </p>
           <p className="text-neutral-400">Stunden</p>
         </div>
         <div>
-          <p className="text-base font-semibold text-neutral-900 dark:text-neutral-100">{seasonStats.totalKm}</p>
+          <p className="text-base font-semibold text-neutral-900">{seasonStats.totalKm}</p>
           <p className="text-neutral-400">km</p>
         </div>
         <div>
-          <p className="text-base font-semibold text-neutral-900 dark:text-neutral-100">
+          <p className="text-base font-semibold text-neutral-900">
             {seasonStats.currentStreakDays}
           </p>
           <p className="text-neutral-400">Streak (d)</p>
         </div>
       </div>
       {size === "L" && seasonStats.bySport.length > 0 && (
-        <div className="space-y-1.5 border-t border-neutral-100 dark:border-neutral-800 pt-2">
+        <div className="space-y-1.5 border-t border-neutral-100 pt-2">
           {seasonStats.bySport.map((s) => (
             <div key={s.sport} className="flex items-center gap-2 text-sm">
               <span
                 className="inline-block h-2 w-2 rounded-full"
                 style={{ backgroundColor: sportColor(s.sport) }}
               />
-              <span className="flex-1 text-neutral-600 dark:text-neutral-400">{sportLabel(s.sport)}</span>
+              <span className="flex-1 text-neutral-600">{sportLabel(s.sport)}</span>
               <span className="text-xs text-neutral-400">{s.sessions}×</span>
-              <span className="font-medium text-neutral-900 dark:text-neutral-100">
+              <span className="font-medium text-neutral-900">
                 {(s.totalMin / 60).toFixed(1)} h
               </span>
             </div>

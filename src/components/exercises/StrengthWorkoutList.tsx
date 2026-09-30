@@ -29,28 +29,28 @@ export async function StrengthWorkoutList({ userId }: { userId: string }) {
         actions={
           <Link
             href="/trainer/uebungen"
-            className="rounded-lg border border-neutral-300 px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-100 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
+            className="rounded-lg border border-neutral-300 px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-100"
           >
             Übungsbibliothek
           </Link>
         }
       >
         {workouts.length === 0 ? (
-          <p className="text-sm text-neutral-500 dark:text-neutral-400">
+          <p className="text-sm text-neutral-500">
             Keine Kraft- oder Mobility-Einheiten geplant.
           </p>
         ) : (
-          <ul className="divide-y divide-neutral-100 dark:divide-neutral-800">
+          <ul className="divide-y divide-neutral-100">
             {workouts.map((w) => {
               const exerciseCount = exerciseIdsFromSegments(w.segmentsJson).length;
               return (
                 <li key={w.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
                   <div className="min-w-0">
-                    <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                    <p className="text-xs text-neutral-500">
                       {formatIsoDate(w.date)} · {sportLabel(w.sport)} · {w.plannedDurationMin} min
                     </p>
-                    <p className="font-medium text-neutral-900 dark:text-neutral-100">{w.title}</p>
-                    <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                    <p className="font-medium text-neutral-900">{w.title}</p>
+                    <p className="text-xs text-neutral-500">
                       {exerciseCount > 0 ? `${exerciseCount} Übungen` : "ohne Übungsbilder"}
                     </p>
                   </div>

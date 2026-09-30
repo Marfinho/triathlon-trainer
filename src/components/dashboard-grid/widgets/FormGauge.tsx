@@ -7,11 +7,11 @@ import type { WidgetSize } from "../types";
 import { WidgetError, WidgetSkeleton } from "./WidgetStates";
 
 const FORM_COLOR: Record<string, string> = {
-  fresh: "#34c759",
-  optimal: "#30d158",
-  neutral: "#0a84ff",
-  tired: "#ff9f0a",
-  overload: "#ff3b30",
+  fresh: "#39FF88",
+  optimal: "#39FF88",
+  neutral: "#00E5FF",
+  tired: "#FF9F1C",
+  overload: "#FF3864",
 };
 
 export function FormGauge({ size }: { size: WidgetSize }) {
@@ -22,15 +22,15 @@ export function FormGauge({ size }: { size: WidgetSize }) {
   if (!data) return null;
 
   const { form, loadSeries } = data.training;
-  const color = FORM_COLOR[form.state] ?? "#8e8e93";
+  const color = FORM_COLOR[form.state] ?? "#8E8EAB";
   const { current } = loadSeries;
 
   if (size === "S") {
     return (
       <div className="flex items-center gap-2">
         <span className="inline-block h-2.5 w-2.5 rounded-full" style={{ backgroundColor: color }} />
-        <p className="text-sm font-medium text-neutral-800 dark:text-neutral-200">{form.label}</p>
-        <p className="ml-auto text-sm text-neutral-500 dark:text-neutral-400">TSB {current.tsb}</p>
+        <p className="text-sm font-medium text-neutral-800">{form.label}</p>
+        <p className="ml-auto text-sm text-neutral-500">TSB {current.tsb}</p>
       </div>
     );
   }
@@ -39,29 +39,29 @@ export function FormGauge({ size }: { size: WidgetSize }) {
     <div className="space-y-3">
       <div className="flex items-center gap-2">
         <span className="inline-block h-2.5 w-2.5 rounded-full" style={{ backgroundColor: color }} />
-        <p className="text-sm font-medium text-neutral-800 dark:text-neutral-200">{form.label}</p>
+        <p className="text-sm font-medium text-neutral-800">{form.label}</p>
       </div>
       <dl className="grid grid-cols-3 gap-2 text-center text-sm">
         <div>
           <dt className="text-xs text-neutral-400">CTL</dt>
-          <dd className="font-semibold text-neutral-900 dark:text-neutral-100">{current.ctl}</dd>
+          <dd className="font-semibold text-neutral-900">{current.ctl}</dd>
         </div>
         <div>
           <dt className="text-xs text-neutral-400">ATL</dt>
-          <dd className="font-semibold text-neutral-900 dark:text-neutral-100">{current.atl}</dd>
+          <dd className="font-semibold text-neutral-900">{current.atl}</dd>
         </div>
         <div>
           <dt className="text-xs text-neutral-400">TSB</dt>
-          <dd className="font-semibold text-neutral-900 dark:text-neutral-100">{current.tsb}</dd>
+          <dd className="font-semibold text-neutral-900">{current.tsb}</dd>
         </div>
       </dl>
       {size === "L" && (
         <>
           <div className="text-blue-500">
             <p className="mb-0.5 text-[11px] text-neutral-400">TSB-Verlauf (30 Tage)</p>
-            <Sparkline values={loadSeries.tsb.slice(-30)} color="#0a84ff" height={36} />
+            <Sparkline values={loadSeries.tsb.slice(-30)} color="#00E5FF" height={36} />
           </div>
-          <p className="text-xs text-neutral-500 dark:text-neutral-400">
+          <p className="text-xs text-neutral-500">
             ACWR {current.acwr ?? "—"} · {interpretAcwr(current.acwr).label}
           </p>
         </>

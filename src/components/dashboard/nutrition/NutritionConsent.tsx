@@ -30,11 +30,11 @@ export function NutritionConsent({ onGranted }: { onGranted: () => void }) {
   }
 
   return (
-    <div className="rounded-2xl border border-neutral-200/80 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-6 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
-      <h2 className="text-[15px] font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">
+    <div className="card-neon rounded-3xl p-6">
+      <h2 className="text-[15px] font-semibold tracking-tight text-neutral-900">
         Einwilligung zur Ernährungs-Erfassung
       </h2>
-      <p className="mt-2 max-w-xl text-sm text-neutral-500 dark:text-neutral-400">
+      <p className="mt-2 max-w-xl text-sm text-neutral-500">
         Um Lebensmittel, Kalorien und Makros zu erfassen, benötigen wir deine
         ausdrückliche Einwilligung zur Verarbeitung dieser Gesundheitsdaten
         (Art. 9 DSGVO). Ohne Einwilligung bleibt dieser Bereich gesperrt – es

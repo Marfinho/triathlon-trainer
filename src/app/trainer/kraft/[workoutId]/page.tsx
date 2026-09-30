@@ -56,10 +56,12 @@ export default async function StrengthPlayerPage({
   return (
     <main className="px-4 py-6 md:px-8 md:py-10">
       <ExerciseSvgDefs />
-      <Link href="/trainer?tab=kraft" className="text-xs font-medium text-blue-600 hover:underline dark:text-blue-400">
-        ← Kraft und Mobility
-      </Link>
-      <h1 className="mt-1.5 mb-4 text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">
+      <p>
+        <Link href="/trainer?tab=kraft" className="text-xs font-medium text-blue-600 hover:underline">
+          ← Kraft und Mobility
+        </Link>
+      </p>
+      <h1 className="mt-1.5 mb-4 text-2xl font-semibold tracking-tight text-neutral-900">
         {workout.title}
       </h1>
       <StrengthPlayer title={workout.title} date={formatIsoDate(workout.date)} steps={steps} />

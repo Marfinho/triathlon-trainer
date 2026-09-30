@@ -42,15 +42,15 @@ export function RaceWeatherPanel({
   }
 
   return (
-    <div className="mt-2 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-800/60 p-3">
+    <div className="mt-2 rounded-xl border border-neutral-200 bg-neutral-50 p-3">
       <div className="flex flex-wrap items-end gap-2">
-        <label className="text-xs text-neutral-500 dark:text-neutral-400">
+        <label className="text-xs text-neutral-500">
           Renn-Standort
           <input
             value={location}
             onChange={(e) => setLocation(e.target.value)}
             placeholder="z.B. Roth, Deutschland"
-            className="mt-1 block w-56 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-2 py-1.5 text-sm"
+            className="mt-1 block w-56 rounded-lg border border-neutral-300 bg-white px-2 py-1.5 text-sm"
           />
         </label>
         <button
@@ -63,7 +63,7 @@ export function RaceWeatherPanel({
       </div>
 
       {error ? (
-        <p className="mt-2 rounded-lg bg-rose-50 dark:bg-rose-950/40 px-3 py-2 text-xs text-rose-700 dark:text-rose-300">{error}</p>
+        <p className="mt-2 rounded-lg bg-rose-50 px-3 py-2 text-xs text-rose-700">{error}</p>
       ) : null}
 
       {result ? (
@@ -72,11 +72,11 @@ export function RaceWeatherPanel({
             <p className="text-xs text-neutral-400">{result.locationName}</p>
           ) : null}
           {result.outOfHorizon || !result.forecast ? (
-            <p className="text-neutral-500 dark:text-neutral-400">
+            <p className="text-neutral-500">
               Renntag liegt außerhalb des ~16-Tage-Prognosehorizonts – bitte näher am Termin erneut laden.
             </p>
           ) : (
-            <p className="font-medium text-neutral-800 dark:text-neutral-200">{describeForecast(result.forecast)}</p>
+            <p className="font-medium text-neutral-800">{describeForecast(result.forecast)}</p>
           )}
         </div>
       ) : null}

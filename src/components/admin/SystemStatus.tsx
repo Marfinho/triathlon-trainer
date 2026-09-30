@@ -5,14 +5,14 @@ import { formatBytes, formatDuration } from "./format";
 function Gauge({ label, pct, detail }: { label: string; pct: number; detail: string }) {
   const clamped = Math.max(0, Math.min(100, pct));
   const color =
-    clamped >= 90 ? "#dc2626" : clamped >= 70 ? "#f59e0b" : "#2563eb";
+    clamped >= 90 ? "#FF3864" : clamped >= 70 ? "#FFD60A" : "#00E5FF";
   return (
     <div>
       <div className="flex items-baseline justify-between">
-        <span className="text-xs font-medium text-neutral-600 dark:text-neutral-400">{label}</span>
-        <span className="text-xs tabular-nums text-neutral-500 dark:text-neutral-400">{clamped}%</span>
+        <span className="text-xs font-medium text-neutral-600">{label}</span>
+        <span className="text-xs tabular-nums text-neutral-500">{clamped}%</span>
       </div>
-      <div className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-neutral-100 dark:bg-neutral-800">
+      <div className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-neutral-100">
         <div
           className="h-full rounded-full transition-all"
           style={{ width: `${clamped}%`, backgroundColor: color }}
@@ -25,9 +25,9 @@ function Gauge({ label, pct, detail }: { label: string; pct: number; detail: str
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-xl bg-neutral-50 dark:bg-neutral-800/60 px-3.5 py-3">
+    <div className="rounded-xl bg-neutral-50 px-3.5 py-3">
       <p className="text-[11px] uppercase tracking-wide text-neutral-400">{label}</p>
-      <p className="mt-0.5 text-sm font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">{value}</p>
+      <p className="mt-0.5 text-sm font-semibold tabular-nums text-neutral-900">{value}</p>
     </div>
   );
 }

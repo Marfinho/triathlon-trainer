@@ -15,9 +15,4 @@ describe("Card", () => {
     expect(screen.getByRole("button", { name: "Neu" })).toBeInTheDocument();
   });
 
-  it("hat helle und dunkle Oberflächenklassen", () => {
-    const { container } = render(<Card title="X">y</Card>);
-    const section = container.querySelector("section");
-    expect(section).toHaveClass("bg-white", "dark:bg-neutral-900");
-  });
 });

@@ -4,9 +4,9 @@ import { formatNumber } from "./format";
 
 function Kpi({ label, value, sub }: { label: string; value: string; sub?: string }) {
   return (
-    <div className="rounded-xl bg-neutral-50 dark:bg-neutral-800/60 px-3.5 py-3">
+    <div className="rounded-xl bg-neutral-50 px-3.5 py-3">
       <p className="text-[11px] uppercase tracking-wide text-neutral-400">{label}</p>
-      <p className="mt-0.5 text-lg font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">{value}</p>
+      <p className="mt-0.5 text-lg font-semibold tabular-nums text-neutral-900">{value}</p>
       {sub ? <p className="text-[11px] text-neutral-400">{sub}</p> : null}
     </div>
   );
@@ -32,24 +32,24 @@ export function UserStatsCard({ users }: { users: UserStats }) {
         <p className="mb-1.5 text-[11px] uppercase tracking-wide text-neutral-400">
           Verteilung nach Plan
         </p>
-        <div className="flex h-3 w-full overflow-hidden rounded-full bg-neutral-100 dark:bg-neutral-800">
+        <div className="flex h-3 w-full overflow-hidden rounded-full bg-neutral-100">
           {planEntries.map(([plan, count]) => (
             <div
               key={plan}
               title={`${PLAN_LABELS[plan] ?? plan}: ${count}`}
               style={{
                 width: `${(count / total) * 100}%`,
-                backgroundColor: plan === "paid" ? "#16a34a" : "#94a3b8",
+                backgroundColor: plan === "paid" ? "#39FF88" : "#A9A9C4",
               }}
             />
           ))}
         </div>
         <div className="mt-1.5 flex flex-wrap gap-x-4 gap-y-1">
           {planEntries.map(([plan, count]) => (
-            <span key={plan} className="flex items-center gap-1.5 text-xs text-neutral-500 dark:text-neutral-400">
+            <span key={plan} className="flex items-center gap-1.5 text-xs text-neutral-500">
               <span
                 className="h-2 w-2 rounded-full"
-                style={{ backgroundColor: plan === "paid" ? "#16a34a" : "#94a3b8" }}
+                style={{ backgroundColor: plan === "paid" ? "#39FF88" : "#A9A9C4" }}
               />
               {PLAN_LABELS[plan] ?? plan}: {formatNumber(count)}
             </span>

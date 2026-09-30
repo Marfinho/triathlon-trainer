@@ -76,14 +76,14 @@ export function TrainingJournal({ initial }: { initial: JournalItem[] }) {
       }
     >
       {open ? (
-        <div className="mb-4 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-800/60 p-3">
+        <div className="mb-4 rounded-xl border border-neutral-200 bg-neutral-50 p-3">
           <div className="mb-2 flex gap-1.5">
             {MOODS.map((m, i) => (
               <button
                 key={i}
                 onClick={() => setMood(i + 1)}
                 className={`h-8 w-8 rounded-lg text-lg transition-transform ${
-                  mood === i + 1 ? "scale-110 bg-white dark:bg-neutral-900 shadow-sm" : "opacity-50"
+                  mood === i + 1 ? "scale-110 bg-white shadow-sm" : "opacity-50"
                 }`}
               >
                 {m}
@@ -94,7 +94,7 @@ export function TrainingJournal({ initial }: { initial: JournalItem[] }) {
             value={text}
             onChange={(e) => setText(e.target.value)}
             placeholder="Wie war die Einheit? Was ist aufgefallen?"
-            className="h-20 w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-2 text-sm"
+            className="h-20 w-full rounded-lg border border-neutral-300 bg-white p-2 text-sm"
           />
           <div className="mt-2">
             <button
@@ -116,7 +116,7 @@ export function TrainingJournal({ initial }: { initial: JournalItem[] }) {
           <div className="flex-1 text-amber-500">
             <Sparkline
               values={[...entries].reverse().map((e) => e.mood ?? null)}
-              color="#ff9f0a"
+              color="#FF9F1C"
               height={28}
             />
           </div>
@@ -128,10 +128,10 @@ export function TrainingJournal({ initial }: { initial: JournalItem[] }) {
       ) : (
         <ul className="space-y-2">
           {entries.slice(0, 8).map((e) => (
-            <li key={e.id} className="flex gap-3 border-b border-neutral-100 dark:border-neutral-800 pb-2 last:border-0">
+            <li key={e.id} className="flex gap-3 border-b border-neutral-100 pb-2 last:border-0">
               <span className="text-lg leading-6">{moodEmoji(e.mood)}</span>
               <div className="min-w-0 flex-1">
-                <p className="text-sm text-neutral-800 dark:text-neutral-200">{e.text}</p>
+                <p className="text-sm text-neutral-800">{e.text}</p>
                 <p className="text-[11px] text-neutral-400">{fmtDate(e.date)}</p>
               </div>
               <button
