@@ -1,5 +1,5 @@
 /**
- * Kurzer Ablauf einer Trainingswoche am Beispiel Apple Watch + Intervals.icu
+ * Kurzer Ablauf eines Trainingsblocks am Beispiel Apple Watch + Intervals.icu
  * Companion. Die Schritte sind eine echte Reihenfolge, daher nummeriert.
  */
 
@@ -21,13 +21,13 @@ const steps: Step[] = [
   {
     where: "Brick → KI",
     title: "Fragen",
-    text: "Unter „Coach“ auf „Erzeugen“ tippen, die Zusammenfassung kopieren und in deine KI einfügen: „Plane meine nächste Woche.“",
+    text: "Unter „Coach“ die Planlänge wählen, von 1 bis 12 Wochen. Auf „Erzeugen“ tippen, die Zusammenfassung kopieren und in deine KI einfügen.",
     dot: "bg-brand text-white",
   },
   {
     where: "KI → Brick",
     title: "Plan übernehmen",
-    text: "Die Antwort der KI in Brick einfügen. Brick prüft sie, zeigt dir die Vorschau und trägt die Einheiten in den Kalender ein.",
+    text: "Die Antwort der KI in Brick einfügen. „Prüfen“ zeigt dir die Vorschau, „Übernehmen“ trägt die Einheiten in den Kalender ein.",
     dot: "bg-bubblegum text-ink",
   },
   {
@@ -39,7 +39,7 @@ const steps: Step[] = [
   {
     where: "Watch → Brick",
     title: "Vergleichen",
-    text: "Companion lädt das Workout zu Intervals.icu, Brick holt es ab. Du siehst Soll und Ist, und nächste Woche geht es bei Schritt 2 weiter.",
+    text: "Companion lädt das Workout zu Intervals.icu, Brick holt es ab. Du siehst Soll und Ist. Ist der Plan durch, geht es bei Schritt 2 weiter.",
     dot: "bg-lime-pop text-ink",
   },
 ];
@@ -60,7 +60,7 @@ export default function WeekFlow() {
         <span className="sticker bg-white text-neutral-700">
           <WatchIcon /> Beispiel mit Apple Watch
         </span>
-        <h2 className="mt-5 text-4xl font-extrabold tracking-tight sm:text-5xl">So läuft eine Trainingswoche</h2>
+        <h2 className="mt-5 text-4xl font-extrabold tracking-tight sm:text-5xl">So läuft ein Trainingsblock</h2>
         <p className="mt-4 max-w-xl text-lg text-neutral-600">
           Für die Apple Watch brauchst du die App Intervals.icu Companion. Mit Garmin oder Wahoo geht es genauso, nur
           ohne Extra-App.

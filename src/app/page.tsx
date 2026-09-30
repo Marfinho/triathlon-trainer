@@ -143,7 +143,7 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* Ablauf am Beispiel Apple Watch */}
+      {/* Ablauf eines Trainingsblocks am Beispiel Apple Watch */}
       <section id="ablauf" className="scroll-mt-24 px-4 pb-16 pt-4 sm:px-6">
         <WeekFlow />
       </section>
