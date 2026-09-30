@@ -1,6 +1,5 @@
 import { describe, it, expect } from "vitest";
 import { buildCoachSummary } from "@/domain/coach-summary/buildCoachSummary";
-import { buildLlmPrompt } from "@/domain/coach-summary/llmPlan";
 import { coachSummarySchema } from "@/domain/schemas";
 import { exerciseDefinitionSchema } from "@/domain/exercises/schema";
 import catalogFixture from "../fixtures/exercises/example-exercise-catalog.json";
@@ -68,26 +67,5 @@ describe("Coach-Export: Übungskatalog", () => {
     expect(s.exerciseDefinitionGuide).toContain("EIGENE ÜBUNGEN");
     expect(s.exerciseDefinitionExample).toEqual(birdDog);
     expect(s.chatGptInstruction.rules.join("\n")).toContain("exerciseDefinitionGuide");
-  });
-});
-
-describe("buildLlmPrompt mit Übungen", () => {
-  it("nimmt Katalog auf, Leitfaden und Beispiel nur bei Freigabe", () => {
-    const without = buildLlmPrompt(buildCoachSummary({ ...base, exportPurpose: "training_plan" }));
-    expect(without).toContain("Übungskatalog");
-    expect(without).toContain("- clamshell: Clamshell");
-    expect(without).not.toContain("EIGENE ÜBUNGEN");
-
-    const withCustom = buildLlmPrompt(
-      buildCoachSummary({ ...base, exportPurpose: "training_plan", allowCustomExercises: true }),
-    );
-    expect(withCustom).toContain("EIGENE ÜBUNGEN – Aufbau einer Definition");
-    expect(withCustom).toContain("Beispiel einer eigenen Übung");
-    expect(withCustom).toContain('"id":"bird-dog"');
-  });
-
-  it("ohne Katalog (debug) bleibt der Prompt wie bisher", () => {
-    const p = buildLlmPrompt(buildCoachSummary({ ...base, exportPurpose: "debug" }));
-    expect(p).not.toContain("Übungskatalog");
   });
 });

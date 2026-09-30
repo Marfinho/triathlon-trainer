@@ -53,7 +53,7 @@ function tomorrowIso(): string {
   return d.toISOString().slice(0, 10);
 }
 
-export function ChatGptExchange({ llmConfigured }: { llmConfigured?: boolean }) {
+export function ChatGptExchange() {
   const router = useRouter();
 
   // --- CoachSummary-Export ---
@@ -65,10 +65,6 @@ export function ChatGptExchange({ llmConfigured }: { llmConfigured?: boolean }) 
   const [exporting, setExporting] = useState(false);
   const [allowCustomExercises, setAllowCustomExercises] = useState(false);
   const planExport = purpose === "training_plan" || purpose === "plan_review";
-
-  // --- Direkte LLM-Generierung ---
-  const [generating, setGenerating] = useState(false);
-  const [generateError, setGenerateError] = useState<string | null>(null);
 
   // --- Planimport ---
   const [planInput, setPlanInput] = useState("");
@@ -97,35 +93,6 @@ export function ChatGptExchange({ llmConfigured }: { llmConfigured?: boolean }) 
       setSummaryJson(JSON.stringify(data.summary, null, 2));
     } finally {
       setExporting(false);
-    }
-  }
-
-  async function generateViaLlm() {
-    setGenerating(true);
-    setGenerateError(null);
-    try {
-      const res = await fetch("/api/coach-summary/generate-plan", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          exportPurpose: purpose,
-          planStart,
-          planDays,
-          allowCustomExercises: planExport && allowCustomExercises,
-        }),
-      });
-      const data = await res.json();
-      if (!data.ok) {
-        setGenerateError(data.error ?? "LLM-Anfrage fehlgeschlagen.");
-        return;
-      }
-      setPlanInput(JSON.stringify(data.plan, null, 2));
-      setErrors([]);
-      setInfo(null);
-    } catch (e) {
-      setGenerateError(e instanceof Error ? e.message : "Fehler");
-    } finally {
-      setGenerating(false);
     }
   }
 
@@ -248,16 +215,6 @@ export function ChatGptExchange({ llmConfigured }: { llmConfigured?: boolean }) 
             >
               {exporting ? "Erzeuge…" : "Erzeugen"}
             </button>
-            {llmConfigured ? (
-              <button
-                onClick={generateViaLlm}
-                disabled={generating}
-                title="Erzeugt die CoachSummary und schickt sie direkt an die konfigurierte LLM-API – der Plan landet zur Prüfung im Importfeld unten."
-                className="rounded-lg bg-violet-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-violet-500 disabled:opacity-40"
-              >
-                {generating ? "Generiere…" : "Plan direkt generieren"}
-              </button>
-            ) : null}
           </div>
 
           {planExport ? (
@@ -270,12 +227,6 @@ export function ChatGptExchange({ llmConfigured }: { llmConfigured?: boolean }) 
               />
               Eigene Übungen erlauben (größerer Prompt)
             </label>
-          ) : null}
-
-          {generateError ? (
-            <p className="mt-2 rounded-lg bg-rose-50 px-3 py-2 text-xs text-rose-700">
-              {generateError}
-            </p>
           ) : null}
 
           {summaryJson ? (

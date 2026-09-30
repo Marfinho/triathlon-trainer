@@ -24,7 +24,6 @@ import { estimateVdot, vdotCategory } from "@/domain/training/vdot";
 import { forecastForm } from "@/domain/training/formForecast";
 import { bestRunReference } from "@/domain/training/prediction";
 import { buildPlanVsActual, summarizeWeeklyCompliance } from "@/domain/training/planVsActual";
-import { isLlmConfigured } from "@/integrations/llm/client";
 import { ChatGptExchange } from "@/components/dashboard/ChatGptExchange";
 import { FormForecastCard } from "@/components/dashboard/FormForecastCard";
 import { TrainingInsights } from "@/components/dashboard/TrainingInsights";
@@ -180,7 +179,7 @@ export default async function CoachPage() {
         </h1>
       </header>
       <div className="space-y-5">
-        <ChatGptExchange llmConfigured={isLlmConfigured()} />
+        <ChatGptExchange />
         <FormForecastCard
           series={forecast.series}
           raceDay={forecast.raceDay}

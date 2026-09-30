@@ -18,7 +18,6 @@ import {
 import { forecastForm } from "@/domain/training/formForecast";
 import { intensityDistribution } from "@/domain/training/analytics";
 import { buildSeasonStats } from "@/domain/training/stats";
-import { recommendTraining } from "@/domain/training/loadAdvisor";
 import { buildGearTree } from "@/domain/training/gear";
 
 export async function GET(req: NextRequest) {
@@ -185,11 +184,6 @@ export async function GET(req: NextRequest) {
 
     const intensity = intensityDistribution(recentActivities);
     const seasonStats = buildSeasonStats(recentActivities, { today: now });
-    const coachRecommendation = recommendTraining(
-      loadSeries.current.tsb,
-      loadSeries.current.acwr,
-      form.state,
-    );
     const gearTree = buildGearTree(gearItems, gearActivities);
 
     return NextResponse.json({
@@ -218,7 +212,6 @@ export async function GET(req: NextRequest) {
       analysis: {
         intensity,
         seasonStats,
-        coachRecommendation,
       },
       readiness: {
         latest: recentReadiness[0] || null,
