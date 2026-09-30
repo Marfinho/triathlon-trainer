@@ -1,12 +1,16 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, DM_Mono, Bricolage_Grotesque } from "next/font/google";
+import { Inter, DM_Mono } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
-// Expressive, freundliche Display-Schrift für Überschriften.
-const bricolage = Bricolage_Grotesque({
-  subsets: ["latin"],
-  weight: ["500", "600", "700", "800"],
+// Expressive, freundliche Display-Schrift für Überschriften. Lokal eingebunden
+// (variable Schrift, Latin-Subset, SIL Open Font License), weil der Google-Fonts-
+// Loader für diese Schrift im CI-Build nicht zuverlässig lief.
+const bricolage = localFont({
+  src: "./fonts/BricolageGrotesque-latin.woff2",
+  weight: "500 800",
+  display: "swap",
   variable: "--font-display-sans",
 });
 const dmMono = DM_Mono({
