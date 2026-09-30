@@ -1,5 +1,7 @@
 import type { PrismaClient } from "@prisma/client";
 import { z } from "zod";
+import { parseStoredDefinition } from "@/domain/exercises/parse";
+import { builtinExerciseIds } from "@/domain/exercises/library";
 
 /**
  * Backup-Format Version "2" – ein vollständiges, nutzerbezogenes JSON.
@@ -34,6 +36,8 @@ export const backupSchema = z.object({
     journalEntries: recordArray(),
     readinessSnapshots: recordArray(),
     painSnapshots: recordArray(),
+    /** Eigene Übungen (ab LocalHub mit Übungsbibliothek; fehlt in älteren Backups). */
+    customExercises: recordArray(),
     integrations: z
       .array(
         z.object({
@@ -92,6 +96,7 @@ export async function buildBackupForUser(
     journalEntries,
     readinessSnapshots,
     painSnapshots,
+    customExercises,
     integrations,
   ] = await Promise.all([
     db.athleteProfile.findFirst({ where: { userId } }),
@@ -104,6 +109,7 @@ export async function buildBackupForUser(
     db.journalEntry.findMany({ where: { userId } }),
     db.readinessSnapshot.findMany({ where: { userId } }),
     db.painSnapshot.findMany({ where: { userId } }),
+    db.customExercise.findMany({ where: { userId } }),
     db.userIntegration.findMany({ where: { userId } }),
   ]);
 
@@ -123,6 +129,7 @@ export async function buildBackupForUser(
       journalEntries: journalEntries as unknown as Record<string, unknown>[],
       readinessSnapshots: readinessSnapshots as unknown as Record<string, unknown>[],
       painSnapshots: painSnapshots as unknown as Record<string, unknown>[],
+      customExercises: customExercises as unknown as Record<string, unknown>[],
       // API-Keys werden bewusst NICHT exportiert.
       integrations: integrations.map((i) => ({
         provider: i.provider,
@@ -209,7 +216,8 @@ export async function restoreBackup(
       key: string,
       list: Rec[],
       find: (id: string) => Promise<{ userId: string; status?: string } | null>,
-      doUpsert: (id: string, r: Rec) => Promise<void>,
+      /** `false` = Datensatz bewusst übersprungen (zählt als skipped). */
+      doUpsert: (id: string, r: Rec) => Promise<void | false>,
       protect?: (existing: { status?: string }) => boolean,
     ) {
       let count = 0;
@@ -224,7 +232,10 @@ export async function restoreBackup(
           skipped++;
           continue;
         }
-        await doUpsert(id, r);
+        if ((await doUpsert(id, r)) === false) {
+          skipped++;
+          continue;
+        }
         count++;
       }
       if (count > 0) restored[key] = count;
@@ -422,6 +433,33 @@ export async function restoreBackup(
           notes: s(r, "notes"),
         };
         await tx.painSnapshot.upsert({ where: { id }, create: { id, ...payload }, update: payload });
+      },
+    );
+
+    // Eigene Übungen: nur gültige Definitionen (erneute Zod-Prüfung) und nie
+    // über die (userId, exerciseId)-Eindeutigkeit hinweg auf fremde Datensätze.
+    await upsertList(
+      "customExercises",
+      data.customExercises as Rec[],
+      (id) => tx.customExercise.findUnique({ where: { id }, select: { userId: true } }),
+      async (id, r) => {
+        const exerciseId = s(r, "exerciseId");
+        const def = exerciseId ? parseStoredDefinition(exerciseId, r.definitionJson) : null;
+        if (!exerciseId || !def || builtinExerciseIds.has(exerciseId)) return false;
+        const clash = await tx.customExercise.findUnique({
+          where: { userId_exerciseId: { userId, exerciseId } },
+          select: { id: true },
+        });
+        if (clash && clash.id !== id) {
+          // Gleiche Übungs-ID unter anderer Datensatz-ID: Definition übernehmen.
+          await tx.customExercise.update({
+            where: { id: clash.id },
+            data: { definitionJson: def as object },
+          });
+          return;
+        }
+        const payload = { userId, exerciseId, definitionJson: def as object };
+        await tx.customExercise.upsert({ where: { id }, create: { id, ...payload }, update: payload });
       },
     );
   });

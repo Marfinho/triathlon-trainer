@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { segmentExerciseSchema } from "@/domain/exercises/schema";
 
 /**
  * Segmentformat (camelCase, aktiv).
@@ -71,6 +72,12 @@ export const segmentSchema = z.preprocess(
     cadenceNote: z.string().max(200).nullable().default(null),
     rpeTarget: z.number().nullable().default(null),
     description: z.string().max(1000).nullable().default(null),
+    /**
+     * Verweis auf eine Übung (Kraft/Mobility), ab localhub_plan 1.1; auch in
+     * 1.0-Plänen erlaubt. Die ID muss in der eingebauten Bibliothek oder in
+     * `exerciseDefinitions` (bzw. den eigenen Übungen des Nutzers) existieren.
+     */
+    exercise: segmentExerciseSchema.nullable().default(null),
   }),
 );
 

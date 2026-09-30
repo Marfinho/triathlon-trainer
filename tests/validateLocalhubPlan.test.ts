@@ -3,10 +3,10 @@ import {
   validateLocalhubPlan,
   type ExistingWorkoutRef,
 } from "@/domain/plan-import/validateLocalhubPlan";
-import type { LocalhubPlan } from "@/domain/schemas";
+import type { LocalhubPlanInput } from "@/domain/schemas";
 
 /** Baut einen gültigen 3-Tage-Plan (Run, Rest, Swim). */
-function validPlan(): LocalhubPlan {
+function validPlan(): LocalhubPlanInput {
   return {
     schemaVersion: "1.0",
     type: "localhub_plan",

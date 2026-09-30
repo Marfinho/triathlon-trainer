@@ -6,6 +6,9 @@ import {
 } from "./validateLocalhubPlan";
 import { parseIsoDate, addDays } from "@/domain/training/dates";
 import type { ExistingWorkoutRef } from "./validateLocalhubPlan";
+import { definitionsEqual, type ExistingCustomExerciseRef } from "./validateExercises";
+import { summarizePlanExercises, type PlanExerciseSummary } from "./buildPlanPreview";
+import { MAX_CUSTOM_EXERCISES_PER_USER } from "@/domain/exercises/schema";
 
 /**
  * Importiert einen `localhub_plan` in die Datenbank.
@@ -49,6 +52,21 @@ export interface ImportPreview {
   warnings: ValidationError[];
   entries: ImportPreviewEntry[];
   protectedDates: string[];
+  /** Verwendete Übungen und eigene Definitionen des Plans. */
+  exercises: PlanExerciseSummary;
+  /** Was mit den eigenen Übungen passiert ist. */
+  exerciseChanges: ExerciseChange[];
+}
+
+export interface ExerciseChange {
+  id: string;
+  change: "created" | "updated" | "unchanged";
+}
+
+class CustomExerciseLimitError extends Error {
+  constructor(public readonly total: number) {
+    super("CUSTOM_EXERCISE_LIMIT");
+  }
 }
 
 export interface ImportResult {
@@ -73,10 +91,19 @@ export async function importLocalhubPlan(
   const userId = deps.userId;
   const triggeredBy = deps.triggeredBy ?? "import";
 
-  // 1a. Erster Pass (rein, ohne DB) – liefert den Zeitraum, falls strukturell ok.
-  const firstPass = validateLocalhubPlan(raw);
+  // 1a. Eigene Übungen des Nutzers (nur IDs + Definition; für ID-Auflösung,
+  //     Nutzer-Limit und Änderungs-Hinweis).
+  const existingCustomExercises: ExistingCustomExerciseRef[] = (
+    await db.customExercise.findMany({
+      where: { userId },
+      select: { exerciseId: true, definitionJson: true },
+    })
+  ).map((c) => ({ exerciseId: c.exerciseId, definitionJson: c.definitionJson as unknown }));
+
+  // 1b. Erster Pass (ohne Workout-Kontext) – liefert den Zeitraum, falls strukturell ok.
+  const firstPass = validateLocalhubPlan(raw, { existingCustomExercises });
   if (!firstPass.valid || !firstPass.meta) {
-    return { success: false, errors: firstPass.errors, warnings: [] };
+    return { success: false, errors: firstPass.errors, warnings: firstPass.warnings };
   }
 
   const { planStart, planEnd } = firstPass.meta;
@@ -116,12 +143,17 @@ export async function importLocalhubPlan(
   const result = validateLocalhubPlan(raw, {
     existingWorkouts: existingRefs,
     expectedExport,
+    existingCustomExercises,
   });
 
   const blockingErrors = result.errors.filter(
     (e) => !BLOCKING_EXCLUDE.has(e.code),
   );
-  const warnings = result.errors.filter((e) => BLOCKING_EXCLUDE.has(e.code));
+  // EXERCISE_DEFINITION_UPDATED wird verbindlich in der Transaktion ermittelt.
+  const warnings = [
+    ...result.errors.filter((e) => BLOCKING_EXCLUDE.has(e.code)),
+    ...result.warnings.filter((w) => w.code !== "EXERCISE_DEFINITION_UPDATED"),
+  ];
 
   // Der erste Pass war gültig -> `firstPass.plan` ist garantiert gesetzt. Der
   // zweite Pass liefert nur zusätzliche Warnungen (EXPORT_MISMATCH) sowie die
@@ -137,7 +169,31 @@ export async function importLocalhubPlan(
   );
 
   // 2. Transaktion: alles oder nichts.
-  const importJobId = await db.$transaction(async (tx) => {
+  const exerciseChanges: ExerciseChange[] = [];
+  const txResult = await db.$transaction(async (tx) => {
+    // Eigene Übungen speichern: neu anlegen, geänderte überschreiben,
+    // identische unverändert lassen (No-op).
+    for (const def of plan.exerciseDefinitions ?? []) {
+      const existingDef = await tx.customExercise.findUnique({
+        where: { userId_exerciseId: { userId, exerciseId: def.id } },
+        select: { definitionJson: true },
+      });
+      if (existingDef && definitionsEqual(existingDef.definitionJson, def)) {
+        exerciseChanges.push({ id: def.id, change: "unchanged" });
+        continue;
+      }
+      await tx.customExercise.upsert({
+        where: { userId_exerciseId: { userId, exerciseId: def.id } },
+        create: { userId, exerciseId: def.id, definitionJson: def as object },
+        update: { definitionJson: def as object },
+      });
+      exerciseChanges.push({ id: def.id, change: existingDef ? "updated" : "created" });
+    }
+    if (exerciseChanges.some((c) => c.change === "created")) {
+      const total = await tx.customExercise.count({ where: { userId } });
+      if (total > MAX_CUSTOM_EXERCISES_PER_USER) throw new CustomExerciseLimitError(total);
+    }
+
     const importRecord = await tx.trainingPlanImport.create({
       data: {
         userId,
@@ -238,7 +294,36 @@ export async function importLocalhubPlan(
     }
 
     return importRecord.id;
+  }).catch((e: unknown) => {
+    // Nutzer-Limit überschritten: Transaktion ist zurückgerollt.
+    if (e instanceof CustomExerciseLimitError) return e;
+    throw e;
   });
+
+  if (txResult instanceof CustomExerciseLimitError) {
+    return {
+      success: false,
+      errors: [
+        {
+          code: "CUSTOM_EXERCISE_LIMIT",
+          message: `Höchstens ${MAX_CUSTOM_EXERCISES_PER_USER} eigene Übungen pro Nutzer (wären ${txResult.total}).`,
+          path: "exerciseDefinitions",
+        },
+      ],
+      warnings,
+    };
+  }
+  const importJobId = txResult;
+
+  for (const c of exerciseChanges) {
+    if (c.change === "updated") {
+      warnings.push({
+        code: "EXERCISE_DEFINITION_UPDATED",
+        message: `Die eigene Übung "${c.id}" wurde mit der neuen Definition überschrieben.`,
+        path: "exerciseDefinitions",
+      });
+    }
+  }
 
   const preview: ImportPreview = {
     planName: plan.planName ?? null,
@@ -257,6 +342,8 @@ export async function importLocalhubPlan(
       status: "planned",
     })),
     protectedDates,
+    exercises: summarizePlanExercises(plan),
+    exerciseChanges,
   };
 
   return { success: true, errors: [], warnings, importJobId, preview };

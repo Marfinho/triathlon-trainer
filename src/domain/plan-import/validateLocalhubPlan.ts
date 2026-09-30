@@ -12,6 +12,12 @@ import {
   eachIsoDateInRange,
   diffInDays,
 } from "@/domain/training/dates";
+import {
+  validateExerciseReferences,
+  type ExistingCustomExerciseRef,
+} from "./validateExercises";
+
+export type { ExistingCustomExerciseRef };
 
 /**
  * Hartes Validieren eines `localhub_plan`. Bei JEDEM Fehler werden alle
@@ -44,11 +50,18 @@ export interface ValidateOptions {
   existingWorkouts?: ExistingWorkoutRef[];
   /** Letzter CoachSummary-Export für Abgleich von planStart/planDays. */
   expectedExport?: ExpectedExportRef | null;
+  /**
+   * Bereits gespeicherte eigene Übungen des Nutzers. Ihre IDs gelten als
+   * bekannt; geänderte Definitionen erzeugen EXERCISE_DEFINITION_UPDATED.
+   */
+  existingCustomExercises?: ExistingCustomExerciseRef[];
 }
 
 export interface ValidationResult {
   valid: boolean;
   errors: ValidationError[];
+  /** Nicht blockierende Hinweise (z. B. EXERCISE_DEFINITION_UNUSED). */
+  warnings: ValidationError[];
   plan?: LocalhubPlan;
   /** `completed` Workouts im Zeitraum – unantastbar. */
   protectedActivities: ExistingWorkoutRef[];
@@ -182,6 +195,7 @@ export function validateLocalhubPlan(
     return {
       valid: false,
       errors,
+      warnings: [],
       protectedActivities: [],
       replaceableWorkouts: [],
     };
@@ -251,6 +265,14 @@ export function validateLocalhubPlan(
     validateEntryBusinessRules(entry, index, errors),
   );
 
+  // 5b. Übungen (IDs, eigene Definitionen, Dauerplausibilität).
+  const exerciseCheck = validateExerciseReferences(
+    plan,
+    options.existingCustomExercises ?? [],
+  );
+  errors.push(...exerciseCheck.errors);
+  const warnings: ValidationError[] = [...exerciseCheck.warnings];
+
   // 6. Geschützte (completed) und ersetzbare (offene) Workouts ermitteln.
   const protectedActivities: ExistingWorkoutRef[] = [];
   const replaceableWorkouts: ExistingWorkoutRef[] = [];
@@ -268,6 +290,7 @@ export function validateLocalhubPlan(
   return {
     valid: errors.length === 0,
     errors,
+    warnings,
     plan: errors.length === 0 ? plan : undefined,
     protectedActivities,
     replaceableWorkouts,

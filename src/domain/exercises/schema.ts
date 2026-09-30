@@ -20,7 +20,6 @@ const coordY = z.number().finite().min(-40).max(200);
 export const pointSchema = z.tuple([coord, coordY]);
 const angle = z.number().finite().min(-180).max(180);
 
-// eslint-disable-next-line no-control-regex
 const CONTROL_CHARS = /[\u0000-\u0008\u000B\u000C\u000E-\u001F]/;
 
 /** Text ohne Steuerzeichen, begrenzt. */

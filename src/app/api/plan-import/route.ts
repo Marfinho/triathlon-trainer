@@ -3,7 +3,12 @@ import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/auth-guard";
 import { validateLocalhubPlan } from "@/domain/plan-import/validateLocalhubPlan";
 import { importLocalhubPlan } from "@/domain/plan-import/importLocalhubPlan";
-import { buildPlanPreview } from "@/domain/plan-import/buildPlanPreview";
+import {
+  buildPlanPreview,
+  inspectRawExerciseDefinitions,
+  summarizePlanExercises,
+} from "@/domain/plan-import/buildPlanPreview";
+import { renderFrameSvg } from "@/domain/exercises/engine";
 import { parseIsoDate, addDays } from "@/domain/training/dates";
 import type { ExistingWorkoutRef } from "@/domain/plan-import/validateLocalhubPlan";
 import { processSyncQueue } from "@/integrations/intervals/syncQueue";
@@ -87,8 +92,15 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: result.success, ...result, sync });
   }
 
-  // mode === "validate": Vorschau ohne DB-Änderung.
-  const firstPass = validateLocalhubPlan(plan);
+  // mode === "validate": Vorschau ohne DB-Änderung (nur lesende Queries).
+  const existingCustomExercises = (
+    await prisma.customExercise.findMany({
+      where: { userId },
+      select: { exerciseId: true, definitionJson: true },
+    })
+  ).map((c) => ({ exerciseId: c.exerciseId, definitionJson: c.definitionJson as unknown }));
+
+  const firstPass = validateLocalhubPlan(plan, { existingCustomExercises });
   let existingRefs: ExistingWorkoutRef[] = [];
   if (firstPass.meta) {
     const rangeStart = parseIsoDate(firstPass.meta.planStart);
@@ -105,10 +117,29 @@ export async function POST(request: Request) {
     }));
   }
 
-  const result = validateLocalhubPlan(plan, { existingWorkouts: existingRefs });
+  const result = validateLocalhubPlan(plan, {
+    existingWorkouts: existingRefs,
+    existingCustomExercises,
+  });
+
+  // Eigene Übungen einzeln prüfen und für gültige Start-/Endbild rendern
+  // (Engine-Ausgabe, Texte XML-escaped).
+  const customExercisePreviews = inspectRawExerciseDefinitions(plan).map((c) => ({
+    index: c.index,
+    id: c.id,
+    title: c.title,
+    valid: c.valid,
+    error: c.error,
+    startSvg: c.definition ? renderFrameSvg(c.definition, 0) : null,
+    endSvg: c.definition ? renderFrameSvg(c.definition, 3) : null,
+  }));
+
   return NextResponse.json({
     ok: result.valid,
     errors: result.errors,
+    warnings: result.warnings,
+    exercises: result.plan ? summarizePlanExercises(result.plan) : null,
+    customExercisePreviews,
     meta: result.meta,
     protectedCount: result.protectedActivities.length,
     replaceableCount: result.replaceableWorkouts.length,

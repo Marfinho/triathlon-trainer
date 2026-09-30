@@ -65,6 +65,7 @@ model User {
   foodLogs            FoodLog[]
   dailyNutritionTarget DailyNutritionTarget?
   dashboardConfig     DashboardConfig?
+  customExercises     CustomExercise[]
 }
 
 model Account {
@@ -649,5 +650,24 @@ model DashboardConfig {
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@index([userId])
+}
+
+// ---------------------------------------------------------------------------
+// Eigene Übungen (Kraft & Mobility) aus `exerciseDefinitions` eines
+// localhub_plan 1.1. Reine Daten; beim Lesen erneut per Zod geprüft.
+// ---------------------------------------------------------------------------
+
+model CustomExercise {
+  id             String   @id @default(cuid())
+  userId         String
+  /// Übungs-ID aus der Definition (z. B. "bird-dog"), eindeutig pro Nutzer.
+  exerciseId     String
+  definitionJson Json
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, exerciseId])
   @@index([userId])
 }
