@@ -94,7 +94,7 @@ export function ExerciseLibraryBrowser({ items }: { items: LibraryListItem[] }) 
                 href={`/trainer/uebungen/${it.id}`}
                 className="flex gap-3 rounded-xl border border-neutral-200 bg-white p-3 transition hover:border-neutral-300 hover:shadow-sm dark:border-neutral-800 dark:bg-neutral-900 dark:hover:border-neutral-700"
               >
-                <ExerciseFigure svg={it.thumbSvg} className="w-24 shrink-0" />
+                <ExerciseFigure svg={it.thumbSvg} className="w-24 shrink-0 self-start" />
                 <div className="min-w-0">
                   <p className="font-semibold text-neutral-900 dark:text-neutral-100">{it.title}</p>
                   <p className="text-xs text-neutral-600 dark:text-neutral-400">{it.subtitle}</p>

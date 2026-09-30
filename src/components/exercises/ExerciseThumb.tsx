@@ -10,5 +10,5 @@ export function ExerciseThumb({
   definition: ExerciseDefinition;
   className?: string;
 }) {
-  return <ExerciseFigure svg={renderThumbSvg(definition)} className={`shrink-0 ${className}`} />;
+  return <ExerciseFigure svg={renderThumbSvg(definition)} className={`shrink-0 self-start ${className}`} />;
 }

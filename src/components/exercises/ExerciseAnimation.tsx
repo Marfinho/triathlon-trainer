@@ -62,8 +62,7 @@ export function ExerciseAnimation({
 
   useEffect(() => {
     const host = hostRef.current;
-    const dyn = host?.querySelector<SVGGElement>(".dyn");
-    if (!host || !dyn) return;
+    if (!host) return;
     const st = state.current;
     const reduce = prefersReducedMotion();
     st.tau = reduce ? definition.tempo.toEndSec : 0;
@@ -72,7 +71,10 @@ export function ExerciseAnimation({
 
     function draw() {
       const tl = timelineAt(definition.tempo, st.tau);
-      dyn!.innerHTML = renderBodyAt(definition, tl.u);
+      // Gruppe bei jedem Zeichnen frisch holen: React kann den Host-Inhalt
+      // (dangerouslySetInnerHTML) nach der Hydration neu setzen.
+      const dyn = host!.querySelector<SVGGElement>(".dyn");
+      if (dyn) dyn.innerHTML = renderBodyAt(definition, tl.u);
       if (phaseRef.current) phaseRef.current.textContent = labels[tl.ph];
       if (scrubRef.current) scrubRef.current.value = String(Math.round((st.tau / total) * 1000));
     }
