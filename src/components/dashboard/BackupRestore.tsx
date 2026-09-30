@@ -183,7 +183,7 @@ export function BackupRestore({
               >
                 Vollständiges Backup (JSON)
               </button>
-              <p className="text-xs" style={{ color: "#FF2BD6" }}>
+              <p className="text-xs" style={{ color: "#FF4FA8" }}>
                 Nächstes Backup ab {formatDateTime(nextBackupAt)} · Upgrade auf
                 Pro für sofortige Backups
               </p>
@@ -257,7 +257,7 @@ export function BackupRestore({
                 </span>
               </div>
               {versionValid ? null : (
-                <p className="mb-2 text-xs" style={{ color: "#FF2BD6" }}>
+                <p className="mb-2 text-xs" style={{ color: "#FF4FA8" }}>
                   Ungültiges Format — Version 2 erforderlich
                 </p>
               )}

@@ -253,7 +253,7 @@ export function StackedBarChart({
 
 export function Sparkline({
   values,
-  color = "#00E5FF",
+  color = "#2F9BFF",
   height = 40,
   width = 160,
 }: {

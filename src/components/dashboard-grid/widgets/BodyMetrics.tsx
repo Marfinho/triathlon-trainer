@@ -65,11 +65,11 @@ export function BodyMetrics({ size }: { size: WidgetSize }) {
         <div className="space-y-2 border-t border-neutral-100 pt-2">
           <div>
             <p className="mb-1 text-[11px] text-neutral-400">Gewicht</p>
-            <Sparkline values={summary.weights} color="#00E5FF" />
+            <Sparkline values={summary.weights} color="#2F9BFF" />
           </div>
           <div>
             <p className="mb-1 text-[11px] text-neutral-400">Ruhepuls</p>
-            <Sparkline values={summary.restingHrs} color="#FF9F1C" />
+            <Sparkline values={summary.restingHrs} color="#FF9500" />
           </div>
         </div>
       )}

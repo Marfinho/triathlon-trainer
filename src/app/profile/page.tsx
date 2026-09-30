@@ -79,7 +79,7 @@ export default async function ProfilePage({
     <main className="mx-auto max-w-4xl px-6 py-10">
       <header className="mb-10">
         <div className="flex items-center justify-between gap-4">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-600">
+          <p className="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-blue-700">
             LocalHub
           </p>
           <a
@@ -89,7 +89,7 @@ export default async function ProfilePage({
             Zurück zum Dashboard
           </a>
         </div>
-        <h1 className="mt-1.5 text-3xl font-semibold tracking-tight text-neutral-900">
+        <h1 className="mt-3 text-[2rem] font-bold leading-none tracking-tight text-neutral-900 md:text-5xl">
           Profil & Einstellungen
         </h1>
         <p className="mt-2 max-w-2xl text-sm text-neutral-500">

@@ -19,13 +19,13 @@ export interface Zone {
 
 // Ruhig abgestufte Zonen-Palette (grau → blau → grün → amber → rot).
 const PALETTE = [
-  "#8E8EAB",
-  "#00E5FF",
-  "#00FFD1",
-  "#39FF88",
-  "#FF9F1C",
-  "#FF6B1A",
-  "#FF3864",
+  "#9C98AE",
+  "#2F9BFF",
+  "#14C4B0",
+  "#1FC77E",
+  "#FF9500",
+  "#FF6A2B",
+  "#FF4D5E",
 ];
 
 /** Power-Zonen (Coggan, % der FTP) in Watt. */

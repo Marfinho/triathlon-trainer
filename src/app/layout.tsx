@@ -1,11 +1,12 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, DM_Mono, Space_Grotesk } from "next/font/google";
+import { Inter, DM_Mono, Bricolage_Grotesque } from "next/font/google";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
-const spaceGrotesk = Space_Grotesk({
+// Expressive, freundliche Display-Schrift für Überschriften.
+const bricolage = Bricolage_Grotesque({
   subsets: ["latin"],
-  weight: ["500", "600", "700"],
+  weight: ["500", "600", "700", "800"],
   variable: "--font-display-sans",
 });
 const dmMono = DM_Mono({
@@ -19,11 +20,14 @@ export const metadata: Metadata = {
   description:
     "Datendrehscheibe für Triathlon-/Ausdauertraining. Coach = Nutzer + externes LLM.",
   manifest: "/manifest.webmanifest",
-  appleWebApp: { capable: true, statusBarStyle: "black-translucent", title: "LocalHub" },
+  appleWebApp: { capable: true, statusBarStyle: "default", title: "LocalHub" },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#07070d",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#f6f3ee" },
+    { media: "(prefers-color-scheme: dark)", color: "#0f0d16" },
+  ],
   // Nötig, damit env(safe-area-inset-*) auf iPhones mit Home-Indicator greift.
   viewportFit: "cover",
 };
@@ -34,7 +38,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="de" className={`${inter.variable} ${dmMono.variable} ${spaceGrotesk.variable}`}>
+    <html lang="de" className={`${inter.variable} ${dmMono.variable} ${bricolage.variable}`}>
       <body className="min-h-screen antialiased">{children}</body>
     </html>
   );

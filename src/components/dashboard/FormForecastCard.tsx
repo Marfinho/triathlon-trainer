@@ -75,16 +75,16 @@ export function FormForecastCard({
             labels={labels}
             showZeroLine
             series={[
-              { name: "Fitness (CTL)", color: "#00E5FF", values: series.map((p) => p.ctl) },
-              { name: "Ermüdung (ATL)", color: "#FF9F1C", values: series.map((p) => p.atl) },
-              { name: "Form (TSB)", color: "#39FF88", values: series.map((p) => p.tsb) },
+              { name: "Fitness (CTL)", color: "#2F9BFF", values: series.map((p) => p.ctl) },
+              { name: "Ermüdung (ATL)", color: "#FF9500", values: series.map((p) => p.atl) },
+              { name: "Form (TSB)", color: "#1FC77E", values: series.map((p) => p.tsb) },
             ]}
           />
           <ChartLegend
             items={[
-              { name: "Fitness (CTL)", color: "#00E5FF" },
-              { name: "Ermüdung (ATL)", color: "#FF9F1C" },
-              { name: "Form (TSB)", color: "#39FF88" },
+              { name: "Fitness (CTL)", color: "#2F9BFF" },
+              { name: "Ermüdung (ATL)", color: "#FF9500" },
+              { name: "Form (TSB)", color: "#1FC77E" },
             ]}
           />
 

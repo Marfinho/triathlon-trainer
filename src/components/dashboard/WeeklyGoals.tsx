@@ -120,7 +120,7 @@ export function WeeklyGoals({ initial }: { initial: GoalProgress[] }) {
                     className="h-full rounded-full"
                     style={{
                       width: `${Math.min(100, pct)}%`,
-                      backgroundColor: pct >= 100 ? "#39FF88" : "#00E5FF",
+                      backgroundColor: pct >= 100 ? "#1FC77E" : "#2F9BFF",
                     }}
                   />
                 </div>
@@ -168,7 +168,7 @@ export function WeeklyGoals({ initial }: { initial: GoalProgress[] }) {
                     className="h-full rounded-full transition-all"
                     style={{
                       width: `${Math.min(100, g.pct)}%`,
-                      backgroundColor: reached ? "#39FF88" : color,
+                      backgroundColor: reached ? "#1FC77E" : color,
                     }}
                   />
                 </div>

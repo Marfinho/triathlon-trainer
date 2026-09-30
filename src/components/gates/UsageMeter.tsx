@@ -22,7 +22,7 @@ export function UsageMeter({
     <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-3">
       <div className="mb-1 flex items-center justify-between text-xs">
         <span className="font-medium text-neutral-700">{label}</span>
-        <span className={warn ? "font-semibold text-[#FF6FE6]" : "text-neutral-500"}>
+        <span className={warn ? "font-semibold text-pink-700" : "text-neutral-500"}>
           {current} / {limit}
         </span>
       </div>
@@ -31,14 +31,14 @@ export function UsageMeter({
           className="h-full rounded-full transition-all"
           style={{
             width: `${pct}%`,
-            backgroundColor: reached ? "#FF3864" : "#FF2BD6",
+            backgroundColor: reached ? "#FF4D5E" : "#FF4FA8",
           }}
         />
       </div>
       {reached ? (
         <p className="mt-2 text-[11px] text-neutral-500">
           Free-Limit erreicht ·{" "}
-          <Link href="/#pricing" className="font-medium text-[#FF6FE6] hover:underline">
+          <Link href="/#pricing" className="font-medium text-pink-700 hover:underline">
             Upgrade auf Pro
           </Link>
         </p>

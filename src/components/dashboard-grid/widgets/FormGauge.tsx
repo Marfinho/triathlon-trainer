@@ -7,11 +7,11 @@ import type { WidgetSize } from "../types";
 import { WidgetError, WidgetSkeleton } from "./WidgetStates";
 
 const FORM_COLOR: Record<string, string> = {
-  fresh: "#39FF88",
-  optimal: "#39FF88",
-  neutral: "#00E5FF",
-  tired: "#FF9F1C",
-  overload: "#FF3864",
+  fresh: "#1FC77E",
+  optimal: "#1FC77E",
+  neutral: "#2F9BFF",
+  tired: "#FF9500",
+  overload: "#FF4D5E",
 };
 
 export function FormGauge({ size }: { size: WidgetSize }) {
@@ -22,7 +22,7 @@ export function FormGauge({ size }: { size: WidgetSize }) {
   if (!data) return null;
 
   const { form, loadSeries } = data.training;
-  const color = FORM_COLOR[form.state] ?? "#8E8EAB";
+  const color = FORM_COLOR[form.state] ?? "#9C98AE";
   const { current } = loadSeries;
 
   if (size === "S") {
@@ -59,7 +59,7 @@ export function FormGauge({ size }: { size: WidgetSize }) {
         <>
           <div className="text-blue-500">
             <p className="mb-0.5 text-[11px] text-neutral-400">TSB-Verlauf (30 Tage)</p>
-            <Sparkline values={loadSeries.tsb.slice(-30)} color="#00E5FF" height={36} />
+            <Sparkline values={loadSeries.tsb.slice(-30)} color="#2F9BFF" height={36} />
           </div>
           <p className="text-xs text-neutral-500">
             ACWR {current.acwr ?? "—"} · {interpretAcwr(current.acwr).label}
