@@ -14,7 +14,6 @@ import { CTLChart } from "./widgets/CTLChart";
 import { IntensityDistribution } from "./widgets/IntensityDistribution";
 import { SeasonStats } from "./widgets/SeasonStats";
 import { IntervalsSyncStatus } from "./widgets/IntervalsSyncStatus";
-import { CoachSummary } from "./widgets/CoachSummary";
 import { BodyMetrics } from "./widgets/BodyMetrics";
 import { GearWear } from "./widgets/GearWear";
 
@@ -33,7 +32,6 @@ export const WIDGET_COMPONENTS: Record<string, ComponentType<{ size: WidgetSize 
   IntensityDistribution,
   SeasonStats,
   IntervalsSyncStatus,
-  CoachSummary,
   BodyMetrics,
   GearWear,
 };

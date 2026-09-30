@@ -52,7 +52,7 @@ Mindestens setzen (Secrets mit `openssl rand -base64 32` erzeugen):
 | `TRUSTED_PROXY_HOPS` | Anzahl eigener Reverse-Proxys vor der App (Default `1`, für korrekte Client-IP im Rate-Limit) |
 
 Optional je nach genutzten Features: `GOOGLE_*`, `STRIPE_*`, `INTERVALS_*`,
-`STRAVA_*`/`WAHOO_*`/`WITHINGS_*`, `ANTHROPIC_API_KEY`/`OPENAI_API_KEY`.
+`STRAVA_*`/`WAHOO_*`/`WITHINGS_*`.
 
 > Hinweis: In `docker-compose.yml` wird `DATABASE_URL` automatisch aus den
 > `POSTGRES_*`-Werten zusammengesetzt (Host = Service `db`). Die `DATABASE_URL`

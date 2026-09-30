@@ -24,7 +24,10 @@ import { WidgetGallery } from "./WidgetGallery";
 import { WIDGET_COMPONENTS } from "./widgetRegistry";
 import type { WidgetInstance, WidgetSize } from "./types";
 
-export function DashboardGrid({ initialWidgets }: { initialWidgets: WidgetInstance[] }) {
+export function DashboardGrid({ initialWidgets: storedWidgets }: { initialWidgets: WidgetInstance[] }) {
+  // Gespeicherte Layouts können Widgets enthalten, die es nicht mehr gibt
+  // (z. B. die entfernte Coach-Zusammenfassung) – diese werden ausgeblendet.
+  const initialWidgets = storedWidgets.filter((w) => catalogEntry(w.type));
   const { toast } = useToast();
   const [savedWidgets, setSavedWidgets] = useState(initialWidgets);
   const [widgets, setWidgets] = useState(initialWidgets);

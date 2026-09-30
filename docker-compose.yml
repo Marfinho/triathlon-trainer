@@ -41,11 +41,6 @@ services:
       INTERVALS_ATHLETE_ID: ${INTERVALS_ATHLETE_ID}
       INTERVALS_API_KEY: ${INTERVALS_API_KEY}
       INTERVALS_API_BASE_URL: ${INTERVALS_API_BASE_URL}
-      # Optionale direkte LLM-Anbindung (sonst bleibt der Copy-Paste-Workflow aktiv).
-      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
-      ANTHROPIC_MODEL: ${ANTHROPIC_MODEL}
-      OPENAI_API_KEY: ${OPENAI_API_KEY}
-      OPENAI_MODEL: ${OPENAI_MODEL}
       SEED_ON_START: ${SEED_ON_START:-false}
     restart: unless-stopped
 
