@@ -17,9 +17,9 @@ function fmtWeek(iso: string): string {
 }
 
 function complianceColor(pct: number): string {
-  if (pct >= 80) return "#34c759";
-  if (pct >= 50) return "#ff9f0a";
-  return "#ff3b30";
+  if (pct >= 80) return "#39FF88";
+  if (pct >= 50) return "#FF9F1C";
+  return "#FF3864";
 }
 
 export function PlanVsActual({

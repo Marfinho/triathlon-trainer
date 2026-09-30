@@ -9,10 +9,10 @@ import {
 
 describe("zoneColorForPct", () => {
   it("ordnet Intensitäten Zonenfarben zu", () => {
-    expect(zoneColorForPct(0.5)).toBe("#8e8e93");
-    expect(zoneColorForPct(0.65)).toBe("#0a84ff");
-    expect(zoneColorForPct(0.95)).toBe("#34c759");
-    expect(zoneColorForPct(1.3)).toBe("#ff3b30");
+    expect(zoneColorForPct(0.5)).toBe("#8E8EAB");
+    expect(zoneColorForPct(0.65)).toBe("#00E5FF");
+    expect(zoneColorForPct(0.95)).toBe("#39FF88");
+    expect(zoneColorForPct(1.3)).toBe("#FF3864");
   });
 });
 
@@ -36,7 +36,7 @@ describe("buildWorkoutProfile", () => {
     const bars = buildWorkoutProfile(segments, { ftp: 240 });
     expect(bars[1].watts).toBe(240);
     expect(bars[1].pctFtp).toBe(1);
-    expect(bars[1].color).toBe("#34c759");
+    expect(bars[1].color).toBe("#39FF88");
   });
 
   it("nutzt die Dauer als Balkenbreite", () => {

@@ -7,6 +7,25 @@ import { prisma } from "@/lib/db";
 import { authConfig } from "@/auth.config";
 import { checkRateLimit, clientIp } from "@/lib/rate-limit";
 import { recordAudit } from "@/lib/audit";
+import { isOwnerEmail } from "@/lib/owner";
+
+// Vergleichs-Hash für unbekannte Nutzer: gleiche Laufzeit wie ein echter
+// bcrypt-Vergleich, damit sich existierende Konten nicht über Timing verraten.
+const DUMMY_HASH = bcrypt.hashSync("timing-equalizer-not-a-password", 12);
+
+/** Rolle aus der DB lesen; der Betreiber-Account wird dabei immer Admin. */
+async function resolveRole(userId: string): Promise<string> {
+  const dbUser = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { role: true, email: true },
+  });
+  if (!dbUser) return "user";
+  if (isOwnerEmail(dbUser.email) && dbUser.role !== "admin") {
+    await prisma.user.update({ where: { id: userId }, data: { role: "admin" } });
+    return "admin";
+  }
+  return dbUser.role;
+}
 
 /**
  * Vollständige Auth.js-Konfiguration (Node-Runtime).
@@ -28,10 +47,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   callbacks: {
     ...authConfig.callbacks,
     jwt: async ({ token, user }) => {
-      if (user) {
-        token.id = user.id;
-        const dbUser = await prisma.user.findUnique({ where: { id: user.id } });
-        token.role = dbUser?.role ?? "user";
+      if (user?.id) token.id = user.id;
+      // Rolle bei jedem Aufruf frisch aus der DB, damit Rollenänderungen im
+      // Admin-Panel sofort greifen (statt erst nach bis zu 7 Tagen JWT-Laufzeit).
+      if (typeof token.id === "string") {
+        token.role = await resolveRole(token.id).catch(() => (token.role as string) ?? "user");
       }
       return token;
     },
@@ -48,7 +68,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         password: { label: "Passwort", type: "password" },
       },
       authorize: async (credentials, request) => {
-        const email = credentials?.email as string | undefined;
+        const email = (credentials?.email as string | undefined)?.trim().toLowerCase();
         const password = credentials?.password as string | undefined;
         if (!email || !password) return null;
 
@@ -64,6 +84,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         const user = await prisma.user.findUnique({ where: { email } });
         if (!user?.passwordHash) {
+          await bcrypt.compare(password, DUMMY_HASH);
           await recordAudit({ action: "login_failed", ip, meta: { reason: "unknown_user" } });
           return null;
         }

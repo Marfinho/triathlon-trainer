@@ -1,23 +1,40 @@
 @import "tailwindcss";
 
+/*
+ * Neon-Dark-Theme.
+ *
+ * Die Komponenten nutzen Tailwinds Standardfarben (bg-white, text-neutral-900,
+ * blue-600 …). Statt hunderte Klassen umzuschreiben, werden die Farbskalen hier
+ * zentral auf ein dunkles Neon-Schema umgelegt:
+ *  - „white" ist die dunkle Kartenfläche, die Graustufen sind invertiert
+ *    (neutral-900 = hellster Text, neutral-50 = dunkelste Fläche).
+ *  - Bunte Skalen: 50–300 = dunkle, getönte Flächen, 500–700 = die Neonfarbe,
+ *    800–950 = helle Tönungen für Text auf dunklen Tönungen.
+ * Damit bleiben alle Kombinationen (Badge-Hintergrund + Text, Button + Label)
+ * automatisch kontrastreich.
+ */
+
 :root {
-  /* Ruhige, helle Apple-artige Palette (Dashboard). */
-  --background: #f5f5f7;
-  --surface: #ffffff;
-  --foreground: #1d1d1f;
-  --muted: #6e6e73;
-  --accent: #0a84ff;
+  --background: #07070d;
+  --surface: #11111b;
+  --foreground: #f1f1fb;
+  --muted: #8e8eab;
+  --accent: #00e5ff;
+  --accent-2: #ff2bd6;
+  --accent-3: #39ff88;
 
   /* Marketing-/Auth-Palette (Landingpage). */
-  --night: #0b1120;
-  --night2: #111827;
-  --night3: #1e293b;
-  --m-border: #1e293b;
-  --m-border2: #334155;
-  --amber: #f0a500;
-  --silver: #94a3b8;
-  --m-white: #f8fafc;
-  --m-green: #22c55e;
+  --night: #07070d;
+  --night2: #11111b;
+  --night3: #1c1c2d;
+  --m-border: #1c1c2d;
+  --m-border2: #34344d;
+  --amber: #ff2bd6;
+  --silver: #a9a9c4;
+  --m-white: #f1f1fb;
+  --m-green: #39ff88;
+
+  color-scheme: dark;
 }
 
 /* DM Mono für Datenpunkte/Labels/Logo. */
@@ -31,22 +48,374 @@
   --color-foreground: var(--foreground);
 }
 
+@theme {
+  --color-white: #11111b;
+  --color-black: #000000;
+  --color-neutral-50: #161624;
+  --color-neutral-100: #1c1c2d;
+  --color-neutral-200: #27273b;
+  --color-neutral-300: #34344d;
+  --color-neutral-400: #6b6b8a;
+  --color-neutral-500: #8e8eab;
+  --color-neutral-600: #a9a9c4;
+  --color-neutral-700: #c6c6dc;
+  --color-neutral-800: #dedeef;
+  --color-neutral-900: #f1f1fb;
+  --color-neutral-950: #ffffff;
+  --color-gray-50: #161624;
+  --color-gray-100: #1c1c2d;
+  --color-gray-200: #27273b;
+  --color-gray-300: #34344d;
+  --color-gray-400: #6b6b8a;
+  --color-gray-500: #8e8eab;
+  --color-gray-600: #a9a9c4;
+  --color-gray-700: #c6c6dc;
+  --color-gray-800: #dedeef;
+  --color-gray-900: #f1f1fb;
+  --color-gray-950: #ffffff;
+  --color-slate-50: #161624;
+  --color-slate-100: #1c1c2d;
+  --color-slate-200: #27273b;
+  --color-slate-300: #34344d;
+  --color-slate-400: #6b6b8a;
+  --color-slate-500: #8e8eab;
+  --color-slate-600: #a9a9c4;
+  --color-slate-700: #c6c6dc;
+  --color-slate-800: #dedeef;
+  --color-slate-900: #f1f1fb;
+  --color-slate-950: #ffffff;
+  --color-zinc-50: #161624;
+  --color-zinc-100: #1c1c2d;
+  --color-zinc-200: #27273b;
+  --color-zinc-300: #34344d;
+  --color-zinc-400: #6b6b8a;
+  --color-zinc-500: #8e8eab;
+  --color-zinc-600: #a9a9c4;
+  --color-zinc-700: #c6c6dc;
+  --color-zinc-800: #dedeef;
+  --color-zinc-900: #f1f1fb;
+  --color-zinc-950: #ffffff;
+  --color-stone-50: #161624;
+  --color-stone-100: #1c1c2d;
+  --color-stone-200: #27273b;
+  --color-stone-300: #34344d;
+  --color-stone-400: #6b6b8a;
+  --color-stone-500: #8e8eab;
+  --color-stone-600: #a9a9c4;
+  --color-stone-700: #c6c6dc;
+  --color-stone-800: #dedeef;
+  --color-stone-900: #f1f1fb;
+  --color-stone-950: #ffffff;
+  --color-blue-50: #0a212c;
+  --color-blue-100: #092e3a;
+  --color-blue-200: #084856;
+  --color-blue-300: #06788a;
+  --color-blue-400: #02c4dc;
+  --color-blue-500: #1fe8ff;
+  --color-blue-600: #00e5ff;
+  --color-blue-700: #47ecff;
+  --color-blue-800: #7af1ff;
+  --color-blue-900: #adf7ff;
+  --color-blue-950: #ccfaff;
+  --color-sky-50: #0a1e2c;
+  --color-sky-100: #09293a;
+  --color-sky-200: #084056;
+  --color-sky-300: #066a8a;
+  --color-sky-400: #02acdc;
+  --color-sky-500: #1fcfff;
+  --color-sky-600: #00c8ff;
+  --color-sky-700: #47d7ff;
+  --color-sky-800: #7ae2ff;
+  --color-sky-900: #adedff;
+  --color-sky-950: #ccf4ff;
+  --color-cyan-50: #0a222c;
+  --color-cyan-100: #09303a;
+  --color-cyan-200: #084b56;
+  --color-cyan-300: #067e8a;
+  --color-cyan-400: #02cedc;
+  --color-cyan-500: #1ff2ff;
+  --color-cyan-600: #00f0ff;
+  --color-cyan-700: #47f4ff;
+  --color-cyan-800: #7af7ff;
+  --color-cyan-900: #adfaff;
+  --color-cyan-950: #ccfcff;
+  --color-teal-50: #0a2327;
+  --color-teal-100: #093232;
+  --color-teal-200: #084f49;
+  --color-teal-300: #068572;
+  --color-teal-400: #02dab5;
+  --color-teal-500: #1fffd7;
+  --color-teal-600: #00ffd1;
+  --color-teal-700: #47ffde;
+  --color-teal-800: #7affe7;
+  --color-teal-900: #adfff0;
+  --color-teal-950: #ccfff6;
+  --color-indigo-50: #16122c;
+  --color-indigo-100: #1d163a;
+  --color-indigo-200: #2b1d56;
+  --color-indigo-300: #442c8a;
+  --color-indigo-400: #6b43dc;
+  --color-indigo-500: #8c62ff;
+  --color-indigo-600: #7c4dff;
+  --color-indigo-700: #a17fff;
+  --color-indigo-800: #bba2ff;
+  --color-indigo-900: #d5c6ff;
+  --color-indigo-950: #e5dbff;
+  --color-violet-50: #1c0e2c;
+  --color-violet-100: #250f3a;
+  --color-violet-200: #391356;
+  --color-violet-300: #5e188a;
+  --color-violet-400: #9722dc;
+  --color-violet-500: #b940ff;
+  --color-violet-600: #b026ff;
+  --color-violet-700: #c663ff;
+  --color-violet-800: #d68eff;
+  --color-violet-900: #e6baff;
+  --color-violet-950: #efd4ff;
+  --color-purple-50: #1d102c;
+  --color-purple-100: #28133a;
+  --color-purple-200: #3e1956;
+  --color-purple-300: #66248a;
+  --color-purple-400: #a635dc;
+  --color-purple-500: #c853ff;
+  --color-purple-600: #c13cff;
+  --color-purple-700: #d273ff;
+  --color-purple-800: #df9aff;
+  --color-purple-900: #ebc1ff;
+  --color-purple-950: #f3d8ff;
+  --color-fuchsia-50: #230e27;
+  --color-fuchsia-100: #321033;
+  --color-fuchsia-200: #4f144a;
+  --color-fuchsia-300: #851b75;
+  --color-fuchsia-400: #da26b9;
+  --color-fuchsia-500: #ff44db;
+  --color-fuchsia-600: #ff2bd6;
+  --color-fuchsia-700: #ff66e1;
+  --color-fuchsia-800: #ff91ea;
+  --color-fuchsia-900: #ffbbf2;
+  --color-fuchsia-950: #ffd5f7;
+  --color-pink-50: #230e27;
+  --color-pink-100: #321033;
+  --color-pink-200: #4f144a;
+  --color-pink-300: #851b75;
+  --color-pink-400: #da26b9;
+  --color-pink-500: #ff44db;
+  --color-pink-600: #ff2bd6;
+  --color-pink-700: #ff66e1;
+  --color-pink-800: #ff91ea;
+  --color-pink-900: #ffbbf2;
+  --color-pink-950: #ffd5f7;
+  --color-emerald-50: #102320;
+  --color-emerald-100: #123227;
+  --color-emerald-200: #184f34;
+  --color-emerald-300: #22854e;
+  --color-emerald-400: #32da77;
+  --color-emerald-500: #51ff96;
+  --color-emerald-600: #39ff88;
+  --color-emerald-700: #70ffa9;
+  --color-emerald-800: #98ffc1;
+  --color-emerald-900: #c0ffd9;
+  --color-emerald-950: #d7ffe7;
+  --color-green-50: #102320;
+  --color-green-100: #123227;
+  --color-green-200: #184f34;
+  --color-green-300: #22854e;
+  --color-green-400: #32da77;
+  --color-green-500: #51ff96;
+  --color-green-600: #39ff88;
+  --color-green-700: #70ffa9;
+  --color-green-800: #98ffc1;
+  --color-green-900: #c0ffd9;
+  --color-green-950: #d7ffe7;
+  --color-lime-50: #1c2312;
+  --color-lime-100: #263211;
+  --color-lime-200: #3b4f0e;
+  --color-lime-300: #60850a;
+  --color-lime-400: #9cda03;
+  --color-lime-500: #bfff1f;
+  --color-lime-600: #b6ff00;
+  --color-lime-700: #caff47;
+  --color-lime-800: #d9ff7a;
+  --color-lime-900: #e8ffad;
+  --color-lime-950: #f0ffcc;
+  --color-amber-50: #231e12;
+  --color-amber-100: #322911;
+  --color-amber-200: #4f3f0e;
+  --color-amber-300: #85680a;
+  --color-amber-400: #daa803;
+  --color-amber-500: #ffcb1f;
+  --color-amber-600: #ffc400;
+  --color-amber-700: #ffd547;
+  --color-amber-800: #ffe07a;
+  --color-amber-900: #ffecad;
+  --color-amber-950: #fff3cc;
+  --color-yellow-50: #232112;
+  --color-yellow-100: #322e11;
+  --color-yellow-200: #4f480e;
+  --color-yellow-300: #85780a;
+  --color-yellow-400: #dac503;
+  --color-yellow-500: #ffe91f;
+  --color-yellow-600: #ffe600;
+  --color-yellow-700: #ffed47;
+  --color-yellow-800: #fff27a;
+  --color-yellow-900: #fff7ad;
+  --color-yellow-950: #fffacc;
+  --color-orange-50: #231812;
+  --color-orange-100: #321f11;
+  --color-orange-200: #4f2f0e;
+  --color-orange-300: #854a0a;
+  --color-orange-400: #da7703;
+  --color-orange-500: #ff981f;
+  --color-orange-600: #ff8a00;
+  --color-orange-700: #ffab47;
+  --color-orange-800: #ffc27a;
+  --color-orange-900: #ffdaad;
+  --color-orange-950: #ffe8cc;
+  --color-rose-50: #23101c;
+  --color-rose-100: #321221;
+  --color-rose-200: #4f182a;
+  --color-rose-300: #85223c;
+  --color-rose-400: #da3158;
+  --color-rose-500: #ff5077;
+  --color-rose-600: #ff3864;
+  --color-rose-700: #ff708f;
+  --color-rose-800: #ff98ae;
+  --color-rose-900: #ffbfcd;
+  --color-rose-950: #ffd7e0;
+  --color-red-50: #23101b;
+  --color-red-100: #321320;
+  --color-red-200: #4f1828;
+  --color-red-300: #852338;
+  --color-red-400: #da3451;
+  --color-red-500: #ff5370;
+  --color-red-600: #ff3b5c;
+  --color-red-700: #ff728a;
+  --color-red-800: #ff99aa;
+  --color-red-900: #ffc0cb;
+  --color-red-950: #ffd8de;
+}
+
 html {
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  background: var(--background);
 }
 
 body {
-  background: var(--background);
   color: var(--foreground);
   font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI",
     Roboto, Helvetica, Arial, sans-serif;
+  /* Dezentes „Aurora"-Leuchten im Hintergrund. */
+  background:
+    radial-gradient(60rem 40rem at 10% -10%, rgb(0 229 255 / 0.16), transparent 60%),
+    radial-gradient(50rem 35rem at 110% 10%, rgb(255 43 214 / 0.16), transparent 60%),
+    radial-gradient(45rem 30rem at 50% 120%, rgb(57 255 136 / 0.06), transparent 60%),
+    var(--background);
+  background-attachment: fixed;
 }
 
-/* Dezente, ruhige Scrollbar. */
+/* Überschriften: Display-Schrift, leicht enger gesetzt. */
+h1,
+h2,
+h3 {
+  font-family: var(--font-display-sans), var(--font-inter), system-ui, sans-serif;
+  letter-spacing: -0.02em;
+}
+
+/* Seitentitel mit Neon-Verlauf. */
+main h1 {
+  display: inline-block;
+  background: linear-gradient(90deg, #00e5ff 0%, #7c4dff 50%, #ff2bd6 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Layout-Hintergründe (bg-gray-50/bg-neutral-50 auf Seitenebene) transparent
+   lassen, damit das Aurora-Leuchten durchscheint. */
+.app-shell {
+  background: transparent !important;
+}
+
+/* Karten: Glas-Optik mit feiner Neon-Kante. */
+.card-neon {
+  position: relative;
+  background: linear-gradient(180deg, rgb(24 24 38 / 0.82), rgb(14 14 24 / 0.82));
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  border: 1px solid rgb(255 255 255 / 0.06);
+  box-shadow:
+    0 0 0 1px rgb(0 229 255 / 0.04) inset,
+    0 10px 30px -12px rgb(0 0 0 / 0.7);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+.card-neon::before {
+  content: "";
+  position: absolute;
+  inset: 0 16px auto 16px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgb(0 229 255 / 0.55), rgb(255 43 214 / 0.55), transparent);
+  pointer-events: none;
+}
+.card-neon:hover {
+  border-color: rgb(0 229 255 / 0.18);
+  box-shadow:
+    0 0 0 1px rgb(0 229 255 / 0.06) inset,
+    0 14px 40px -14px rgb(0 229 255 / 0.25);
+}
+
+/* Neon-Glow-Utilities für Akzente. */
+.glow-cyan {
+  box-shadow: 0 0 18px -2px rgb(0 229 255 / 0.55);
+}
+.glow-magenta {
+  box-shadow: 0 0 18px -2px rgb(255 43 214 / 0.55);
+}
+.text-glow {
+  text-shadow: 0 0 12px rgb(0 229 255 / 0.55);
+}
+
+/* Primäre Buttons (bg-blue-600/bg-emerald-600) leuchten leicht. */
+.bg-blue-600 {
+  box-shadow: 0 0 18px -6px rgb(0 229 255 / 0.8);
+}
+.bg-emerald-600 {
+  box-shadow: 0 0 18px -6px rgb(57 255 136 / 0.8);
+}
+
+/* Formularfelder: dunkel, Neon-Fokus. */
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+select,
+textarea {
+  background-color: rgb(10 10 18 / 0.6);
+  color: var(--foreground);
+}
+input::placeholder,
+textarea::placeholder {
+  color: #6b6b8a;
+}
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: rgb(0 229 255 / 0.7) !important;
+  box-shadow: 0 0 0 3px rgb(0 229 255 / 0.18);
+}
+input[type="checkbox"],
+input[type="radio"],
+input[type="range"] {
+  accent-color: var(--accent);
+}
+
+/* Dezente Scrollbar. */
 * {
   scrollbar-width: thin;
-  scrollbar-color: #d2d2d7 transparent;
+  scrollbar-color: #34344d transparent;
+}
+
+::selection {
+  background: rgb(255 43 214 / 0.35);
+  color: #fff;
 }
 
 /* A11y: gut sichtbarer Fokusring für Tastaturnutzer (nur bei :focus-visible,
@@ -70,6 +439,21 @@ body {
   border: 0;
 }
 
+/* Sanftes Einblenden von Seiteninhalten. */
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.animate-rise {
+  animation: rise-in 0.35s ease-out both;
+}
+
 /* Respektiert die Systemeinstellung „Bewegung reduzieren". */
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -82,8 +466,7 @@ body {
   }
 }
 
-/* Druckfreundlich: Navigation/Buttons ausblenden, Karten ohne Schatten,
-   damit z. B. ein Wochenüberblick sauber auf Papier landet. */
+/* Druckfreundlich: helles Papierlayout, Navigation/Buttons ausblenden. */
 @media print {
   nav,
   button {
@@ -91,6 +474,16 @@ body {
   }
   body {
     background: #fff;
+    color: #000;
+  }
+  main h1 {
+    color: #000;
+    background: none;
+  }
+  .card-neon {
+    background: #fff;
+    box-shadow: none !important;
+    backdrop-filter: none;
   }
   .shadow-sm,
   .shadow,

@@ -59,12 +59,12 @@ export function segmentTypeLabel(type: string | null | undefined): string {
 
 // Farbskala nach %FTP – an den Coggan-Power-Zonengrenzen orientiert.
 export function zoneColorForPct(pctFtp: number): string {
-  if (pctFtp < 0.56) return "#8e8e93"; // Z1 Recovery
-  if (pctFtp < 0.76) return "#0a84ff"; // Z2 Grundlage
-  if (pctFtp < 0.91) return "#30b0c7"; // Z3 Tempo
-  if (pctFtp < 1.06) return "#34c759"; // Z4 Schwelle
-  if (pctFtp < 1.21) return "#ff9f0a"; // Z5 VO2max
-  return "#ff3b30"; // Z6+ anaerob/Sprint
+  if (pctFtp < 0.56) return "#8E8EAB"; // Z1 Recovery
+  if (pctFtp < 0.76) return "#00E5FF"; // Z2 Grundlage
+  if (pctFtp < 0.91) return "#00FFD1"; // Z3 Tempo
+  if (pctFtp < 1.06) return "#39FF88"; // Z4 Schwelle
+  if (pctFtp < 1.21) return "#FF9F1C"; // Z5 VO2max
+  return "#FF3864"; // Z6+ anaerob/Sprint
 }
 
 export function buildWorkoutProfile(

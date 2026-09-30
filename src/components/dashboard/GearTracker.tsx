@@ -39,9 +39,9 @@ const TYPE_LABEL: Record<string, string> = {
 };
 
 const STATUS: Record<WearStatus, { label: string; color: string; bg: string }> = {
-  ok: { label: "OK", color: "#34c759", bg: "bg-emerald-50 text-emerald-700" },
-  due: { label: "Wartung bald", color: "#ff9f0a", bg: "bg-amber-50 text-amber-700" },
-  over: { label: "Austausch fällig", color: "#ff3b30", bg: "bg-rose-50 text-rose-700" },
+  ok: { label: "OK", color: "#39FF88", bg: "bg-emerald-50 text-emerald-700" },
+  due: { label: "Wartung bald", color: "#FF9F1C", bg: "bg-amber-50 text-amber-700" },
+  over: { label: "Austausch fällig", color: "#FF3864", bg: "bg-rose-50 text-rose-700" },
 };
 
 const DEFAULT_SPORT: Record<string, string> = {

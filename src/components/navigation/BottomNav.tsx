@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { signOut } from "next-auth/react";
 import type { Session } from "next-auth";
 
@@ -71,7 +71,8 @@ const items: NavItem[] = [
   },
   {
     href: "/more",
-    label: "Mehr",
+    // „Mehr“ ist auf dem Handy der Sheet-Button selbst.
+    label: "Extras",
     icon: (
       <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
@@ -80,72 +81,150 @@ const items: NavItem[] = [
   },
 ];
 
+/** Auf dem Handy passen nur wenige Tabs in eine Zeile – der Rest liegt im „Mehr“-Sheet. */
+const PRIMARY_HREFS = ["/dashboard", "/week", "/race", "/coach"];
+const primaryItems = items.filter((i) => PRIMARY_HREFS.includes(i.href));
+const secondaryItems = items.filter((i) => !PRIMARY_HREFS.includes(i.href));
+
+function isActivePath(pathname: string, href: string): boolean {
+  return pathname === href || pathname.startsWith(href + "/");
+}
+
 export default function BottomNav({ session }: { session: Session | null }) {
   const pathname = usePathname();
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [sheetOpen, setSheetOpen] = useState(false);
   const isAdmin = session?.user?.role === "admin";
-  const initials = (session?.user?.name || "U").split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
+  const initials = (session?.user?.name || session?.user?.email || "U")
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+
+  // Sheet bei Navigation schließen.
+  useEffect(() => {
+    setSheetOpen(false);
+  }, [pathname]);
+
+  // Escape schließt das Sheet.
+  useEffect(() => {
+    if (!sheetOpen) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setSheetOpen(false);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [sheetOpen]);
+
+  const secondaryActive =
+    secondaryItems.some((i) => isActivePath(pathname, i.href)) ||
+    isActivePath(pathname, "/profile") ||
+    isActivePath(pathname, "/admin");
+
+  const sheetLinks: NavItem[] = [
+    ...secondaryItems,
+    {
+      href: "/profile",
+      label: "Profil",
+      icon: (
+        <div className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-[#00E5FF] to-[#FF2BD6] text-[9px] font-bold text-[#07070d]">
+          {initials}
+        </div>
+      ),
+    },
+    ...(isAdmin
+      ? [
+          {
+            href: "/admin",
+            label: "Admin",
+            icon: (
+              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
+            ),
+          },
+        ]
+      : []),
+  ];
+
+  const tabClass = (active: boolean) =>
+    `flex min-w-0 flex-1 flex-col items-center justify-center gap-0.5 py-1.5 text-[11px] font-medium transition-colors ${
+      active ? "text-[#00E5FF] [&_svg]:drop-shadow-[0_0_6px_rgba(0,229,255,0.9)]" : "text-gray-500 active:text-gray-900"
+    }`;
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-gray-200 bg-white md:hidden">
-      <div className="flex h-[60px] items-center justify-around">
-        {items.map((item) => {
-          const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`flex flex-col items-center justify-center gap-1 px-3 py-2 text-[11px] font-medium transition-colors ${
-                isActive
-                  ? "text-blue-600"
-                  : "text-gray-600 hover:text-gray-900"
-              }`}
-              aria-label={item.label}
-            >
-              <div className="h-6 w-6">{item.icon}</div>
-              <span>{item.label}</span>
-            </Link>
-          );
-        })}
-        {/* User menu */}
-        <div className="relative">
+    <>
+      {sheetOpen && (
+        <div className="fixed inset-0 z-40 md:hidden" role="dialog" aria-modal="true" aria-label="Weitere Seiten">
           <button
-            onClick={() => setMenuOpen(!menuOpen)}
-            className="flex flex-col items-center justify-center gap-1 px-3 py-2 text-[11px] font-medium transition-colors text-gray-600 hover:text-gray-900"
-            aria-label="Menü"
-          >
-            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-[9px] font-semibold text-white">
-              {initials}
+            type="button"
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            aria-label="Schließen"
+            onClick={() => setSheetOpen(false)}
+          />
+          <div className="absolute inset-x-0 bottom-0 rounded-t-3xl border-t border-white/10 bg-[#11111b]/95 px-4 pt-3 shadow-2xl backdrop-blur-xl pb-[calc(76px+env(safe-area-inset-bottom))]">
+            <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-gray-300" />
+            <div className="grid grid-cols-3 gap-2">
+              {sheetLinks.map((item) => {
+                const active = isActivePath(pathname, item.href);
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`flex flex-col items-center gap-1.5 rounded-xl px-2 py-3 text-xs font-medium ${
+                      active ? "bg-[#00E5FF]/10 text-[#7af1ff] ring-1 ring-[#00E5FF]/40" : "bg-white/[0.03] text-gray-700 active:bg-white/10"
+                    }`}
+                  >
+                    <div className="h-6 w-6">{item.icon}</div>
+                    <span className="truncate">{item.label}</span>
+                  </Link>
+                );
+              })}
             </div>
-            <span>Menü</span>
-          </button>
-
-          {menuOpen && (
-            <div className="absolute bottom-full right-0 mb-1 w-48 rounded-lg border border-gray-200 bg-white shadow-lg">
-              <Link
-                href="/profile"
-                className="block w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 rounded-t-lg"
-              >
-                Profil
-              </Link>
-              {isAdmin && (
-                <Link
-                  href="/admin"
-                  className="block w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 border-t border-gray-100"
-                >
-                  Admin
-                </Link>
-              )}
-              <button
-                onClick={() => signOut({ redirectTo: "/auth/login" })}
-                className="block w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 border-t border-gray-100 rounded-b-lg"
-              >
-                Abmelden
-              </button>
-            </div>
-          )}
+            <button
+              type="button"
+              onClick={() => signOut({ redirectTo: "/auth/login" })}
+              className="mt-3 w-full rounded-xl border border-[#FF3864]/40 py-2.5 text-sm font-medium text-[#FF6B8B] active:bg-[#FF3864]/10"
+            >
+              Abmelden
+            </button>
+          </div>
         </div>
-      </div>
-    </nav>
+      )}
+
+      <nav
+        className="fixed bottom-0 left-0 right-0 z-50 border-t border-white/10 bg-[#0b0b14]/85 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl md:hidden"
+        aria-label="Hauptnavigation"
+      >
+        <div className="flex h-[60px] items-stretch">
+          {primaryItems.map((item) => {
+            const active = isActivePath(pathname, item.href);
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={tabClass(active)}
+                aria-current={active ? "page" : undefined}
+              >
+                <div className="h-6 w-6">{item.icon}</div>
+                <span className="max-w-full truncate px-0.5">{item.label}</span>
+              </Link>
+            );
+          })}
+          <button
+            type="button"
+            onClick={() => setSheetOpen((o) => !o)}
+            className={tabClass(sheetOpen || secondaryActive)}
+            aria-expanded={sheetOpen}
+            aria-label="Weitere Seiten"
+          >
+            <div className="h-6 w-6">
+              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </div>
+            <span>Mehr</span>
+          </button>
+        </div>
+      </nav>
+    </>
   );
 }

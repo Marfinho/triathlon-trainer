@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth-guard";
+import { recordAudit } from "@/lib/audit";
+import { isOwnerEmail } from "@/lib/owner";
 
 /**
  * GET /api/admin/users – Liste aller Nutzer mit Rollen
@@ -81,13 +83,46 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Nutzer nicht gefunden." }, { status: 404 });
   }
 
-  const updateData: Record<string, string> = {};
+  if (role === "user" && targetUser.role === "admin") {
+    if (isOwnerEmail(targetUser.email)) {
+      return NextResponse.json(
+        { error: "Der Betreiber-Account bleibt immer Admin." },
+        { status: 400 },
+      );
+    }
+    const adminCount = await prisma.user.count({ where: { role: "admin" } });
+    if (adminCount <= 1) {
+      return NextResponse.json(
+        { error: "Der letzte Admin kann nicht herabgestuft werden." },
+        { status: 400 },
+      );
+    }
+  }
+
+  const updateData: {
+    role?: string;
+    plan?: string;
+    planExpiresAt?: null;
+    planInterval?: null;
+  } = {};
   if (role) updateData.role = role;
-  if (plan) updateData.plan = plan;
+  if (plan) {
+    updateData.plan = plan;
+    // Manuell vergebener Tarif: kein Ablaufdatum (sonst stuft requireUser einen
+    // "paid"-Nutzer mit altem planExpiresAt sofort wieder auf "free" zurück).
+    updateData.planExpiresAt = null;
+    if (plan === "free") updateData.planInterval = null;
+  }
 
   const updated = await prisma.user.update({
     where: { id: userId },
     data: updateData,
+  });
+
+  await recordAudit({
+    userId: adminUser.userId,
+    action: "admin_user_updated",
+    meta: { targetUserId: userId, role: role || undefined, plan: plan || undefined },
   });
 
   return NextResponse.json({

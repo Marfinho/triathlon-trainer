@@ -18,7 +18,7 @@ export function EditModeToolbar({
   onAddWidget: () => void;
 }) {
   return (
-    <div className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-neutral-200/80 bg-white px-4 py-2.5">
+    <div className="mb-4 flex flex-wrap items-center justify-between gap-2 card-neon rounded-3xl px-4 py-2.5">
       <p className="text-xs text-neutral-500">
         {editMode
           ? "Bearbeitungsmodus: Größe anpassen oder Widgets entfernen."

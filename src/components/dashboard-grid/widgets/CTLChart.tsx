@@ -19,7 +19,7 @@ export function CTLChart({ size }: { size: WidgetSize }) {
     return (
       <div className="flex items-center justify-between gap-2">
         <p className="text-sm text-neutral-700">CTL {current.ctl.toFixed(0)}</p>
-        <Sparkline values={loadSeries.ctl.slice(-30)} color="#0a84ff" width={80} height={28} />
+        <Sparkline values={loadSeries.ctl.slice(-30)} color="#00E5FF" width={80} height={28} />
       </div>
     );
   }
@@ -45,7 +45,7 @@ export function CTLChart({ size }: { size: WidgetSize }) {
             <p className="text-neutral-400">TSB</p>
           </div>
         </div>
-        <Sparkline values={loadSeries.ctl.slice(-30)} color="#0a84ff" />
+        <Sparkline values={loadSeries.ctl.slice(-30)} color="#00E5FF" />
         <p className="text-[11px] text-neutral-400">CTL · letzte {last30.length} Tage</p>
       </div>
     );
@@ -78,16 +78,16 @@ export function CTLChart({ size }: { size: WidgetSize }) {
         labels={loadSeries.dates.slice(-90).map((d) => d.slice(5))}
         showZeroLine
         series={[
-          { name: "Fitness (CTL)", color: "#0a84ff", values: loadSeries.ctl.slice(-90) },
-          { name: "Ermüdung (ATL)", color: "#ff9f0a", values: loadSeries.atl.slice(-90) },
-          { name: "Form (TSB)", color: "#34c759", values: loadSeries.tsb.slice(-90) },
+          { name: "Fitness (CTL)", color: "#00E5FF", values: loadSeries.ctl.slice(-90) },
+          { name: "Ermüdung (ATL)", color: "#FF9F1C", values: loadSeries.atl.slice(-90) },
+          { name: "Form (TSB)", color: "#39FF88", values: loadSeries.tsb.slice(-90) },
         ]}
       />
       <ChartLegend
         items={[
-          { name: "Fitness (CTL)", color: "#0a84ff" },
-          { name: "Ermüdung (ATL)", color: "#ff9f0a" },
-          { name: "Form (TSB)", color: "#34c759" },
+          { name: "Fitness (CTL)", color: "#00E5FF" },
+          { name: "Ermüdung (ATL)", color: "#FF9F1C" },
+          { name: "Form (TSB)", color: "#39FF88" },
         ]}
       />
     </div>

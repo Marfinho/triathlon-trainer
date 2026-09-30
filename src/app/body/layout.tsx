@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import AppShell from "@/components/navigation/AppShell";
 
-export default function MoreLayout({ children }: { children: ReactNode }) {
+export default function BodyLayout({ children }: { children: ReactNode }) {
   return <AppShell>{children}</AppShell>;
 }

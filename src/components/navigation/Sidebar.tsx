@@ -88,18 +88,26 @@ export default function Sidebar({ session }: { session: Session | null }) {
   const initials = (session?.user?.name || "U").split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
 
   return (
-    <aside className="hidden w-60 border-r border-gray-200 bg-white md:fixed md:inset-y-0 md:left-0 md:flex md:flex-col">
+    <aside className="hidden w-60 border-r border-white/5 bg-[#0b0b14]/80 backdrop-blur-xl md:fixed md:inset-y-0 md:left-0 md:z-30 md:flex md:flex-col">
+      {/* Logo */}
+      <div className="px-5 pt-5">
+        <Link href="/dashboard" className="font-display text-lg font-medium tracking-tight">
+          <span className="bg-gradient-to-r from-[#00E5FF] via-[#7C4DFF] to-[#FF2BD6] bg-clip-text text-transparent">
+            LocalHub
+          </span>
+        </Link>
+      </div>
       {/* User Header */}
-      <div className="border-b border-gray-200 p-4">
+      <div className="border-b border-white/5 p-4">
         <div className="relative">
           <button
             onClick={() => setDropdownOpen(!dropdownOpen)}
-            className="flex w-full items-center gap-3 rounded-lg px-2 py-2 hover:bg-gray-50"
+            className="flex w-full items-center gap-3 rounded-xl px-2 py-2 hover:bg-white/5"
           >
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-600 text-sm font-semibold text-white">
+            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#00E5FF] to-[#FF2BD6] text-sm font-bold text-[#07070d] shadow-[0_0_16px_-4px_rgba(0,229,255,0.8)]">
               {initials}
             </div>
-            <div className="flex-1 text-left">
+            <div className="min-w-0 flex-1 text-left">
               <p className="text-sm font-medium text-gray-900 truncate">{session?.user?.name || "Nutzer"}</p>
               <p className="text-xs text-gray-500 truncate">{session?.user?.email}</p>
             </div>
@@ -109,18 +117,18 @@ export default function Sidebar({ session }: { session: Session | null }) {
           </button>
 
           {dropdownOpen && (
-            <div className="absolute top-full left-0 right-0 mt-1 rounded-lg border border-gray-200 bg-white shadow-lg z-50">
-              <Link href="/profile" className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 rounded-t-lg">
+            <div className="absolute top-full left-0 right-0 z-50 mt-1 overflow-hidden rounded-xl border border-white/10 bg-[#11111b]/95 shadow-2xl backdrop-blur-xl">
+              <Link href="/profile" className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-white/5 rounded-t-lg">
                 Profil
               </Link>
               {isAdmin && (
-                <Link href="/admin" className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 border-t border-gray-100">
+                <Link href="/admin" className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-white/5 border-t border-gray-100">
                   Admin
                 </Link>
               )}
               <button
                 onClick={() => signOut({ redirectTo: "/auth/login" })}
-                className="block w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 border-t border-gray-100 rounded-b-lg"
+                className="block w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-white/5 border-t border-gray-100 rounded-b-lg"
               >
                 Abmelden
               </button>
@@ -137,10 +145,10 @@ export default function Sidebar({ session }: { session: Session | null }) {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
+              className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
                 isActive
-                  ? "bg-blue-50 text-blue-600"
-                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                  ? "bg-gradient-to-r from-[#00E5FF]/15 to-[#FF2BD6]/5 text-[#7af1ff] shadow-[inset_2px_0_0_#00E5FF]"
+                  : "text-gray-600 hover:bg-white/5 hover:text-gray-900"
               }`}
             >
               <div className="h-5 w-5 flex-shrink-0">{item.icon}</div>

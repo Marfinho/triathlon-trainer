@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from "vitest";
 import { createTestDb } from "./helpers/testDb";
-import { checkRateLimit } from "@/lib/rate-limit";
+import { checkRateLimit, clientIp } from "@/lib/rate-limit";
 
 describe("checkRateLimit", () => {
   const { db, cleanup } = createTestDb();
@@ -47,5 +47,26 @@ describe("checkRateLimit", () => {
     await checkRateLimit("test:d1", 1, 60_000, db);
     const other = await checkRateLimit("test:d2", 1, 60_000, db);
     expect(other.allowed).toBe(true);
+  });
+
+  it("hält das Limit auch bei parallelen Anfragen ein", async () => {
+    const results = await Promise.all(
+      Array.from({ length: 10 }, () => checkRateLimit("test:burst", 3, 60_000, db)),
+    );
+    expect(results.filter((r) => r.allowed).length).toBeLessThanOrEqual(3);
+  });
+});
+
+describe("clientIp", () => {
+  const req = (headers: Record<string, string>) =>
+    new Request("http://localhost/", { headers });
+
+  it("nimmt den vom eigenen Proxy angehängten (letzten) X-Forwarded-For-Eintrag", () => {
+    expect(clientIp(req({ "x-forwarded-for": "6.6.6.6, 203.0.113.7" }))).toBe("203.0.113.7");
+  });
+
+  it("fällt auf X-Real-IP und dann 'unknown' zurück", () => {
+    expect(clientIp(req({ "x-real-ip": "198.51.100.2" }))).toBe("198.51.100.2");
+    expect(clientIp(req({}))).toBe("unknown");
   });
 });

@@ -75,7 +75,7 @@ export function SyncQueueMonitor() {
   const displayJobs = filter === "all" ? jobs : jobs.filter((j) => j.status === filter);
 
   return (
-    <div className="rounded-2xl border border-neutral-200/80 bg-white p-6 shadow-sm">
+    <div className="card-neon rounded-3xl p-6">
       <h2 className="mb-4 text-lg font-semibold text-neutral-900">Sync-Queue überwachen</h2>
 
       <div className="mb-4 flex flex-wrap gap-2">

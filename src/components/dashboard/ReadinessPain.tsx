@@ -32,10 +32,10 @@ const READINESS_DOT: Record<string, string> = {
 };
 
 function painColor(v: number | null): string {
-  if (v == null) return "#d2d2d7";
-  if (v <= 1) return "#34c759";
-  if (v <= 3) return "#ff9f0a";
-  return "#ff3b30";
+  if (v == null) return "#34344D";
+  if (v <= 1) return "#39FF88";
+  if (v <= 3) return "#FF9F1C";
+  return "#FF3864";
 }
 
 export function ReadinessPain({
@@ -235,7 +235,7 @@ export function ReadinessPain({
             ) : null}
             <div className="mt-2 text-blue-500">
               <p className="mb-0.5 text-[11px] text-neutral-400">Müdigkeit (Verlauf)</p>
-              <Sparkline values={fatigueTrend} color="#0a84ff" height={32} />
+              <Sparkline values={fatigueTrend} color="#00E5FF" height={32} />
             </div>
           </div>
           <div>
@@ -271,7 +271,7 @@ export function ReadinessPain({
             ) : null}
             <div className="mt-2">
               <p className="mb-0.5 text-[11px] text-neutral-400">Schmerz gesamt (Verlauf)</p>
-              <Sparkline values={painTrend} color="#ff3b30" height={32} />
+              <Sparkline values={painTrend} color="#FF3864" height={32} />
             </div>
           </div>
         </div>

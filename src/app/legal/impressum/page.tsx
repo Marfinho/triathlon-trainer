@@ -6,10 +6,10 @@ export const metadata = {
 
 export default function ImpressumPage() {
   return (
-    <main className="mx-auto max-w-2xl px-6 py-20 text-[#1d1d1f]">
+    <main className="mx-auto max-w-2xl px-6 py-20 text-[#F1F1FB]">
       <Link
         href="/"
-        className="text-[13px] font-medium text-[#0071e3] transition hover:underline"
+        className="text-[13px] font-medium text-[#00E5FF] transition hover:underline"
       >
         ‹ Zurück
       </Link>
@@ -20,12 +20,12 @@ export default function ImpressumPage() {
         nach § 5 TMG (Name, Anschrift, ggf. USt-IdNr.) ergänzen.
       </div>
 
-      <section className="mt-8 space-y-6 text-[15px] leading-relaxed text-[#1d1d1f]">
+      <section className="mt-8 space-y-6 text-[15px] leading-relaxed text-[#F1F1FB]">
         <div>
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-[#86868b]">
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-[#8E8EAB]">
             Angaben gemäß § 5 TMG
           </h2>
-          <p className="mt-2 text-[#6e6e73]">
+          <p className="mt-2 text-[#9A9AB8]">
             [Vor- und Nachname]
             <br />
             [Straße und Hausnummer]
@@ -35,14 +35,14 @@ export default function ImpressumPage() {
         </div>
 
         <div>
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-[#86868b]">
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-[#8E8EAB]">
             Kontakt
           </h2>
-          <p className="mt-2 text-[#6e6e73]">
+          <p className="mt-2 text-[#9A9AB8]">
             E-Mail:{" "}
             <a
               href="mailto:svenmeendermann@gmail.com"
-              className="text-[#0071e3] hover:underline"
+              className="text-[#00E5FF] hover:underline"
             >
               svenmeendermann@gmail.com
             </a>
@@ -50,10 +50,10 @@ export default function ImpressumPage() {
         </div>
 
         <div>
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-[#86868b]">
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-[#8E8EAB]">
             Verantwortlich für den Inhalt
           </h2>
-          <p className="mt-2 text-[#6e6e73]">[Vor- und Nachname], Anschrift wie oben.</p>
+          <p className="mt-2 text-[#9A9AB8]">[Vor- und Nachname], Anschrift wie oben.</p>
         </div>
       </section>
     </main>

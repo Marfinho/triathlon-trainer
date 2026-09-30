@@ -27,10 +27,18 @@ export async function checkRateLimit(
   db: PrismaClient = defaultPrisma,
 ): Promise<RateLimitResult> {
   const now = new Date();
+  const windowStartCutoff = new Date(now.getTime() - windowMs);
   try {
-    const existing = await db.rateLimitEntry.findUnique({ where: { key } });
+    // Atomar statt Lesen-dann-Schreiben: parallele Requests (z. B. ein
+    // Brute-Force-Burst) können sich sonst gegenseitig überholen und das
+    // Limit überschreiten.
+    const bumped = await db.rateLimitEntry.updateMany({
+      where: { key, windowStart: { gt: windowStartCutoff } },
+      data: { count: { increment: 1 } },
+    });
 
-    if (!existing || now.getTime() - existing.windowStart.getTime() >= windowMs) {
+    if (bumped.count === 0) {
+      // Kein Eintrag oder Fenster abgelaufen -> neues Fenster öffnen.
       await db.rateLimitEntry.upsert({
         where: { key },
         create: { key, count: 1, windowStart: now },
@@ -39,26 +47,35 @@ export async function checkRateLimit(
       return { allowed: true, remaining: limit - 1, retryAfterMs: 0 };
     }
 
-    if (existing.count >= limit) {
-      const retryAfterMs =
-        windowMs - (now.getTime() - existing.windowStart.getTime());
+    const entry = await db.rateLimitEntry.findUnique({ where: { key } });
+    if (!entry) return { allowed: true, remaining: limit - 1, retryAfterMs: 0 };
+
+    if (entry.count > limit) {
+      const retryAfterMs = windowMs - (now.getTime() - entry.windowStart.getTime());
       return { allowed: false, remaining: 0, retryAfterMs: Math.max(0, retryAfterMs) };
     }
-
-    await db.rateLimitEntry.update({
-      where: { key },
-      data: { count: existing.count + 1 },
-    });
-    return { allowed: true, remaining: limit - existing.count - 1, retryAfterMs: 0 };
+    return { allowed: true, remaining: limit - entry.count, retryAfterMs: 0 };
   } catch {
     return { allowed: true, remaining: limit, retryAfterMs: 0 };
   }
 }
 
-/** Extrahiert die Client-IP aus Standard-Proxy-Headern (Fallback "unknown"). */
+/**
+ * Extrahiert die Client-IP aus Standard-Proxy-Headern (Fallback "unknown").
+ *
+ * X-Forwarded-For wird von jedem Proxy HINTEN ergänzt; der erste Eintrag kommt
+ * ungeprüft vom Client und ist beliebig fälschbar (Rate-Limit-Umgehung). Daher
+ * zählt der Eintrag, den der eigene Reverse-Proxy angehängt hat:
+ * TRUSTED_PROXY_HOPS (Default 1) Einträge von hinten.
+ */
 export function clientIp(request: Request): string {
   const forwarded = request.headers.get("x-forwarded-for");
-  if (forwarded) return forwarded.split(",")[0].trim();
+  if (forwarded) {
+    const parts = forwarded.split(",").map((p) => p.trim()).filter(Boolean);
+    const hops = Math.max(1, Number(process.env.TRUSTED_PROXY_HOPS) || 1);
+    const ip = parts[Math.max(0, parts.length - hops)];
+    if (ip) return ip;
+  }
   const real = request.headers.get("x-real-ip");
   if (real) return real.trim();
   return "unknown";

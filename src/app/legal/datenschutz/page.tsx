@@ -6,10 +6,10 @@ export const metadata = {
 
 export default function DatenschutzPage() {
   return (
-    <main className="mx-auto max-w-2xl px-6 py-20 text-[#1d1d1f]">
+    <main className="mx-auto max-w-2xl px-6 py-20 text-[#F1F1FB]">
       <Link
         href="/"
-        className="text-[13px] font-medium text-[#0071e3] transition hover:underline"
+        className="text-[13px] font-medium text-[#00E5FF] transition hover:underline"
       >
         ‹ Zurück
       </Link>
@@ -20,9 +20,9 @@ export default function DatenschutzPage() {
         den Betrieb zugeschnittene Datenschutzerklärung (DSGVO) ersetzen.
       </div>
 
-      <div className="mt-8 space-y-7 text-[15px] leading-relaxed text-[#6e6e73]">
+      <div className="mt-8 space-y-7 text-[15px] leading-relaxed text-[#9A9AB8]">
         <section>
-          <h2 className="text-base font-semibold text-[#1d1d1f]">Überblick</h2>
+          <h2 className="text-base font-semibold text-[#F1F1FB]">Überblick</h2>
           <p className="mt-2">
             LocalHub verarbeitet personenbezogene Daten ausschließlich, um den
             Dienst bereitzustellen. Deine Trainingsdaten gehören dir und sind
@@ -31,7 +31,7 @@ export default function DatenschutzPage() {
         </section>
 
         <section>
-          <h2 className="text-base font-semibold text-[#1d1d1f]">
+          <h2 className="text-base font-semibold text-[#F1F1FB]">
             Welche Daten wir verarbeiten
           </h2>
           <ul className="mt-2 list-disc space-y-1 pl-5">
@@ -49,7 +49,7 @@ export default function DatenschutzPage() {
         </section>
 
         <section>
-          <h2 className="text-base font-semibold text-[#1d1d1f]">Auftragsverarbeiter</h2>
+          <h2 className="text-base font-semibold text-[#F1F1FB]">Auftragsverarbeiter</h2>
           <p className="mt-2">
             Zur Bereitstellung nutzen wir Dienste wie Stripe (Zahlungen) sowie
             die von dir verbundenen Trainingsplattformen. Daten werden nur im
@@ -58,14 +58,14 @@ export default function DatenschutzPage() {
         </section>
 
         <section>
-          <h2 className="text-base font-semibold text-[#1d1d1f]">Deine Rechte</h2>
+          <h2 className="text-base font-semibold text-[#F1F1FB]">Deine Rechte</h2>
           <p className="mt-2">
             Du hast das Recht auf Auskunft, Berichtigung, Löschung und
             Datenübertragbarkeit. Über die Backup-/Export-Funktion kannst du
             deine Daten jederzeit vollständig exportieren. Für Anfragen:{" "}
             <a
               href="mailto:svenmeendermann@gmail.com"
-              className="text-[#0071e3] hover:underline"
+              className="text-[#00E5FF] hover:underline"
             >
               svenmeendermann@gmail.com
             </a>
