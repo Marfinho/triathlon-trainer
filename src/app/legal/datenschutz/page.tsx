@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 export const metadata = {
-  title: "Datenschutz · LocalHub",
+  title: "Datenschutz · Brick",
 };
 
 export default function DatenschutzPage() {
@@ -24,7 +24,7 @@ export default function DatenschutzPage() {
         <section>
           <h2 className="text-base font-semibold text-neutral-900">Überblick</h2>
           <p className="mt-2">
-            LocalHub verarbeitet personenbezogene Daten ausschließlich, um den
+            Brick verarbeitet personenbezogene Daten ausschließlich, um den
             Dienst bereitzustellen. Deine Trainingsdaten gehören dir und sind
             jederzeit exportierbar.
           </p>

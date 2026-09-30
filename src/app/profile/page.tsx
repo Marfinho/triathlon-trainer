@@ -80,7 +80,7 @@ export default async function ProfilePage({
       <header className="mb-10">
         <div className="flex items-center justify-between gap-4">
           <p className="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-blue-700">
-            LocalHub
+            Brick
           </p>
           <a
             href="/dashboard"

@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { auth } from "@/auth";
-import PmcHeroChart from "@/components/marketing/PmcHeroChart";
+import HowItWorks from "@/components/marketing/HowItWorks";
 import Pricing from "@/components/marketing/Pricing";
 import { Logo } from "@/components/navigation/navItems";
 
@@ -16,9 +16,9 @@ type Feature = {
 
 const features: Feature[] = [
   {
-    title: "Aktivitäten-Sync",
-    desc: "Schwimmen, Rad und Lauf laufen automatisch über Intervals.icu zusammen.",
-    emoji: "🔄",
+    title: "KI-Schnittstelle",
+    desc: "Zusammenfassung für deine KI mit einem Klick, ihr Plan wird vor dem Speichern geprüft. Du bleibst bei deiner Lieblings-KI.",
+    emoji: "🤝",
     tile: "sm:col-span-2 bg-brand text-white",
   },
   {
@@ -72,7 +72,7 @@ export default async function Home() {
       {/* Nav: schwebende Glas-Pille */}
       <header className="sticky top-3 z-50 px-3">
         <nav className="glass mx-auto flex max-w-5xl items-center justify-between rounded-full py-2 pl-5 pr-2 shadow-[var(--shadow-card)]">
-          <Link href="/" aria-label="LocalHub – Startseite">
+          <Link href="/" aria-label="Brick – Startseite">
             <Logo />
           </Link>
           <div className="flex items-center gap-1 text-sm font-semibold text-neutral-600 sm:gap-2">
@@ -101,29 +101,29 @@ export default async function Home() {
 
         <div className="text-center">
           <span className="sticker bg-white text-neutral-700">
-            <span className="h-2 w-2 rounded-full bg-emerald-500" /> Neu: Kraft-Player mit animierten Übungen
+            <span className="h-2 w-2 rounded-full bg-emerald-500" /> Für Triathlon &amp; Ausdauersport
           </span>
 
           <h1 className="mx-auto mt-7 max-w-4xl text-[2.75rem] font-extrabold leading-[0.98] tracking-[-0.045em] sm:text-7xl">
-            Dein Training.{" "}
+            Deine KI plant.{" "}
+            <span className="text-brand">Brick</span> ist das{" "}
             <span className="relative isolate whitespace-nowrap text-ink">
               <span className="absolute inset-x-[-0.15em] bottom-[0.08em] top-[0.45em] -z-10 -rotate-1 rounded-xl bg-lime-pop" />
-              Alles an
-            </span>{" "}
-            <span className="text-brand">einem Ort.</span>
+              Fundament.
+            </span>
           </h1>
 
           <p className="mx-auto mt-6 max-w-xl text-lg leading-relaxed text-neutral-600">
-            LocalHub bündelt Schwimmen, Rad und Lauf in einer freundlichen Datendrehscheibe. Form &amp; Belastung
-            verstehen, Wettkämpfe planen — und die volle Kontrolle über deine Daten behalten.
+            Brick holt deine Trainingsdaten aus Intervals.icu, gibt sie deiner KI als fertige Zusammenfassung und bringt
+            ihren Trainingsplan zurück in deinen Kalender.
           </p>
 
           <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Link href="/auth/register" className="btn-pop w-full px-7 py-3.5 text-[15px] sm:w-auto">
               Kostenlos starten →
             </Link>
-            <a href="#features" className="btn-soft w-full px-7 py-3.5 text-[15px] sm:w-auto">
-              Mehr erfahren
+            <a href="#so-gehts" className="btn-soft w-full px-7 py-3.5 text-[15px] sm:w-auto">
+              So funktioniert’s
             </a>
           </div>
 
@@ -136,19 +136,9 @@ export default async function Home() {
           </div>
         </div>
 
-        {/* Chart-Karte mit schwebenden Kennzahlen */}
-        <div className="relative mx-auto mt-14 max-w-3xl">
-          <div className="card-neon rounded-[32px] p-3 sm:p-5">
-            <PmcHeroChart />
-          </div>
-          <div className="animate-rise absolute -left-2 -top-5 rotate-[-4deg] rounded-2xl bg-neutral-900 px-4 py-2.5 text-neutral-50 shadow-xl sm:-left-8">
-            <p className="text-[11px] font-medium opacity-70">Fitness</p>
-            <p className="font-[family-name:var(--font-display-sans)] text-xl font-bold">CTL 64 ↗</p>
-          </div>
-          <div className="animate-rise absolute -bottom-5 -right-2 rotate-[3deg] rounded-2xl bg-lime-pop px-4 py-2.5 text-ink shadow-xl [animation-delay:0.2s] sm:-right-8">
-            <p className="text-[11px] font-medium opacity-70">Form heute</p>
-            <p className="font-[family-name:var(--font-display-sans)] text-xl font-bold">Frisch ✨</p>
-          </div>
+        {/* Das Prinzip als Bild */}
+        <div id="so-gehts" className="mt-16 scroll-mt-24">
+          <HowItWorks />
         </div>
       </section>
 
@@ -247,7 +237,7 @@ export default async function Home() {
       {/* Footer */}
       <footer className="border-t border-neutral-200">
         <div className="mx-auto flex max-w-5xl flex-col items-center justify-between gap-5 px-6 py-10 sm:flex-row">
-          <Link href="/" aria-label="LocalHub – Startseite">
+          <Link href="/" aria-label="Brick – Startseite">
             <Logo />
           </Link>
           <div className="flex flex-wrap items-center justify-center gap-6 text-sm font-medium text-neutral-500">
@@ -263,7 +253,7 @@ export default async function Home() {
           </div>
         </div>
         <p className="pb-10 text-center text-xs text-neutral-400">
-          © {new Date().getFullYear()} LocalHub. Deine Daten gehören dir.
+          © {new Date().getFullYear()} Brick. Deine Daten gehören dir.
         </p>
       </footer>
     </div>

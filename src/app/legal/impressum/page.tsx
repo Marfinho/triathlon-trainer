@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 export const metadata = {
-  title: "Impressum · LocalHub",
+  title: "Impressum · Brick",
 };
 
 export default function ImpressumPage() {

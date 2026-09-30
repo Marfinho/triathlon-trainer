@@ -26,7 +26,7 @@ export default function AuthFrame({
       </div>
 
       <div className="relative w-full max-w-md">
-        <Link href="/" className="mb-8 flex justify-center" aria-label="LocalHub – Startseite">
+        <Link href="/" className="mb-8 flex justify-center" aria-label="Brick – Startseite">
           <Logo className="scale-110" />
         </Link>
 

@@ -148,10 +148,10 @@ export function Logo({ className = "" }: { className?: string }) {
       <span className="relative inline-flex h-7 w-7 items-center justify-center" aria-hidden="true">
         <span className="absolute inset-0 rotate-12 rounded-[10px] bg-brand" />
         <span className="absolute -right-1 -top-1 h-3.5 w-3.5 rounded-full bg-lime-pop ring-2 ring-[var(--background)]" />
-        <span className="relative text-[13px] font-extrabold leading-none text-white">L</span>
+        <span className="relative text-[13px] font-extrabold leading-none text-white">B</span>
       </span>
       <span className="font-[family-name:var(--font-display-sans)] text-lg font-bold tracking-tight text-neutral-900">
-        LocalHub
+        Brick
       </span>
     </span>
   );

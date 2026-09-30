@@ -98,7 +98,7 @@ export async function GET() {
   return new NextResponse(markdown, {
     headers: {
       "Content-Type": "text/markdown; charset=utf-8",
-      "Content-Disposition": `attachment; filename="localhub-wochenbericht-${formatIsoDate(now)}.md"`,
+      "Content-Disposition": `attachment; filename="brick-wochenbericht-${formatIsoDate(now)}.md"`,
     },
   });
 }

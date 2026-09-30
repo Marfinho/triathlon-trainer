@@ -40,7 +40,7 @@ export default function Sidebar({ session }: { session: Session | null }) {
   return (
     <aside className="glass hidden rounded-[28px] shadow-[var(--shadow-card)] md:fixed md:inset-y-3 md:left-3 md:z-30 md:flex md:w-60 md:flex-col">
       <div className="px-5 pb-2 pt-6">
-        <Link href="/dashboard" aria-label="LocalHub – Startseite">
+        <Link href="/dashboard" aria-label="Brick – Startseite">
           <Logo />
         </Link>
       </div>

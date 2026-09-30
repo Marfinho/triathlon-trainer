@@ -43,7 +43,7 @@ export async function GET() {
   return new NextResponse(JSON.stringify(backup, null, 2), {
     headers: {
       "Content-Type": "application/json",
-      "Content-Disposition": `attachment; filename="localhub-backup-${stamp}.json"`,
+      "Content-Disposition": `attachment; filename="brick-backup-${stamp}.json"`,
     },
   });
 }

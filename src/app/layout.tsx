@@ -16,11 +16,11 @@ const dmMono = DM_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "LocalHub",
+  title: "Brick",
   description:
-    "Datendrehscheibe für Triathlon-/Ausdauertraining. Coach = Nutzer + externes LLM.",
+    "Deine KI plant, Brick ist das Fundament: Trainingsdaten aus Intervals.icu für deine KI, ihr Plan zurück in deinen Kalender.",
   manifest: "/manifest.webmanifest",
-  appleWebApp: { capable: true, statusBarStyle: "default", title: "LocalHub" },
+  appleWebApp: { capable: true, statusBarStyle: "default", title: "Brick" },
 };
 
 export const viewport: Viewport = {
