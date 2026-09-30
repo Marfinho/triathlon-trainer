@@ -1,8 +1,7 @@
 /**
- * Fester Betreiber-Account: Diese E-Mail-Adresse ist IMMER Admin. Sie wird beim
- * Login (JWT-Callback) und beim Seed zum Admin gemacht, kann im Admin-Panel
- * nicht herabgestuft werden und ist für die offene Registrierung gesperrt
- * (sonst könnte sich jemand ohne E-Mail-Verifikation als Betreiber anmelden).
+ * Admin ist der Nutzer mit dieser E-Mail-Adresse – egal ob per Registrierung
+ * oder Google-Login angelegt. Die Rolle wird bei jedem Login/JWT-Refresh
+ * gesetzt (siehe auth.ts) und kann im Admin-Panel nicht entzogen werden.
  */
 export const OWNER_ADMIN_EMAIL = "svenmeendermann@gmail.com";
 

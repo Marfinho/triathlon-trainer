@@ -46,7 +46,7 @@ services:
       ANTHROPIC_MODEL: ${ANTHROPIC_MODEL}
       OPENAI_API_KEY: ${OPENAI_API_KEY}
       OPENAI_MODEL: ${OPENAI_MODEL}
-      SEED_ADMIN_PASSWORD: ${SEED_ADMIN_PASSWORD:-}
+      SEED_ON_START: ${SEED_ON_START:-false}
     restart: unless-stopped
 
   cron:
