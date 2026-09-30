@@ -203,6 +203,25 @@ Einheit aufgezeichnet (Speichern als Aktivität + **TCX-Export**).
 > Die Trainer-Steuerung läuft vollständig **lokal im Browser** – es werden keine
 > Trainer-Daten an einen Server gesendet.
 
+## Übungsbibliothek (Kraft & Mobility)
+
+20 eingebaute Übungen mit **Muskelbild**, **Ablauf in vier Bildern**,
+**Animation** und Fehlerbild – gezeichnet von einer eigenen SVG-Engine aus reinen
+Daten (keine Bilddateien). Pläne referenzieren Übungen per `exercise.id`
+(`localhub_plan` 1.1); das LLM kann optional eigene Übungen mitliefern
+(`exerciseDefinitions`). Unter **Trainer → Kraft und Mobility** führt ein
+Kraft-Player Satz für Satz durch die Einheit (Countdowns, Signal, Bildschirm
+bleibt an). Datenformat, Fehlercodes und „neue Übung ergänzen“:
+[`docs/EXERCISES.md`](docs/EXERCISES.md).
+
+## Darstellung (Dark Mode)
+
+Hell, Dunkel oder wie das System – umschaltbar unter **Mehr → Darstellung**
+(pro Gerät gespeichert). Technisch: Tailwind-Variante `dark:` über
+`<html data-theme>`, gesetzt vor dem ersten Paint (`src/lib/theme.ts`).
+Neue Komponenten brauchen zu hellen Farbklassen die passende `dark:`-Klasse
+(Zuordnung siehe `scripts/add-dark-variants.py`).
+
 ## Architektur
 
 ```
@@ -215,10 +234,12 @@ src/
   components/
     dashboard/          UI-Komponenten der Tabs
     charts/             abhängigkeitsfreie SVG-Charts
-    ui/                 EmptyState, Skeleton, Toast
+    exercises/          Übungsfigur, Animation, Detail, Kraft-Player
+    ui/                 EmptyState, Skeleton, Toast, ThemeToggle
   domain/               reine, getestete Logik (kein DB-Zugriff)
     plan-import/        validate/import + Plan-Diff-Vorschau
     coach-summary/      buildCoachSummary, LLM-Prompt/-Extraktion
+    exercises/          Übungsschema, Bibliothek, Figuren-Engine, Auflösung
     training/           trainingLoad, formForecast, analytics, loadAdvisor,
                         vdot, nutrition, weather, races, zones, prediction …
     auth/ security/     Passwort-Policy, Input-Sanitisierung
@@ -226,8 +247,8 @@ src/
   integrations/         intervals | trainer (FTMS) | oauth | llm | weather
   lib/                  db, auth-guard, rate-limit, audit, stripe, crypto …
 prisma/schema.prisma    Datenmodell + Migrationen
-docs/                   CHATGPT_LOCALHUB_PROMPT.md, screenshots/
-tests/                  Vitest (rein + DB-gestützte Integrationstests)
+docs/                   CHATGPT_LOCALHUB_PROMPT.md, EXERCISES.md, screenshots/
+tests/                  Vitest (rein, DB-gestützt, Komponenten in jsdom)
 ```
 
 Die Domain-Logik ist bewusst **rein** (Daten als Parameter), daher leicht
@@ -249,9 +270,13 @@ Der System-Prompt für das LLM liegt in
 ## Tests & Build
 
 ```bash
-npm run test    # 281 Tests (Domain-Logik + DB-gestützte Integrationstests)
+npm run lint    # ESLint (next/core-web-vitals, next/typescript)
+npm run test    # Domain-Logik, DB-Integrationstests, Komponententests
 npm run build   # Next.js Produktionsbuild (inkl. Typecheck)
 ```
+
+Komponententests (`tests/**/*.test.tsx`) laufen mit React Testing Library in
+jsdom (Vitest-Projekt `components`), alle übrigen Tests in Node (`unit`).
 
 DB-gestützte Tests nutzen `TEST_DATABASE_URL` (siehe `tests/helpers/testDb.ts`)
 und laufen sequenziell gegen eine separate Test-Datenbank – die Entwicklungs-DB
