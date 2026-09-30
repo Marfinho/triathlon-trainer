@@ -1,16 +1,17 @@
-name: CI & Deploy
+name: CI
 
-# Bei jedem Push auf main: erst testen/bauen, dann (nur bei Erfolg) per SSH
-# auf den VPS deployen. Manueller Start über die Actions-Oberfläche möglich.
+# Typecheck, Tests und Build bei jedem Push auf main und bei Pull Requests.
+# Deployt wird manuell auf dem Server (siehe DEPLOY.md).
 on:
   push:
     branches: [main]
+  pull_request:
   workflow_dispatch:
 
-# Verhindert überlappende Deploys, wenn schnell hintereinander gemergt wird.
+# Ältere Läufe desselben Branches/PRs abbrechen, wenn neu gepusht wird.
 concurrency:
-  group: deploy-main
-  cancel-in-progress: false
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   ci:
@@ -52,28 +53,3 @@ jobs:
         run: npm run test
       - name: Build
         run: npm run build
-
-  deploy:
-    name: Deploy über SSH
-    needs: ci
-    runs-on: ubuntu-latest
-    # Nur echte Pushes/Manueller Trigger auf main – nicht für Forks o. Ä.
-    if: github.ref == 'refs/heads/main'
-    steps:
-      - name: SSH-Deploy auf den VPS
-        uses: appleboy/ssh-action@v1.2.2
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: ${{ secrets.SSH_PORT }}
-          script_stop: true
-          script: |
-            set -euo pipefail
-            cd "${{ secrets.DEPLOY_PATH }}"
-            git fetch --all --prune
-            git reset --hard origin/main
-            docker compose pull db
-            docker compose up -d --build
-            docker image prune -f
-            echo "Deploy abgeschlossen: $(git rev-parse --short HEAD)"

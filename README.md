@@ -150,15 +150,14 @@ docker compose up -d --build   # http://localhost:3000
 docker compose logs -f app     # Migrationen + Start beobachten
 ```
 
-## Deployment (Auto-Deploy via GitHub Actions → SSH)
+## Deployment
 
-Bei jedem Merge nach `main` läuft `.github/workflows/deploy.yml`:
-CI-Gate (`tsc` + Tests gegen einen Postgres-Service + `next build`) → bei Erfolg
-SSH-Deploy auf den VPS, der den Docker-Stack neu baut. Es geht **kein SSH-Key
-durch Logs/Chat** – alles liegt in GitHub-Secrets.
+Manuell auf dem eigenen Server: `git pull origin main && docker compose up -d --build`.
+GitHub Actions (`.github/workflows/ci.yml`) führt nur CI aus – Typecheck, Tests
+gegen einen Postgres-Service und `next build` – und deployt nicht.
 
-Die vollständige Schritt-für-Schritt-Anleitung (Server-Vorbereitung, Deploy-Key,
-GitHub-Secrets, HTTPS via Caddy, Betrieb) steht in **[`DEPLOY.md`](DEPLOY.md)**.
+Die vollständige Anleitung (Server-Vorbereitung, `.env`, HTTPS via Caddy,
+Betrieb) steht in **[`DEPLOY.md`](DEPLOY.md)**.
 
 ## Sicherheit
 
