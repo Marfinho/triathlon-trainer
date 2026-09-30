@@ -1,4 +1,5 @@
 import {
+  EXERCISE_CATALOG_PURPOSES,
   SCHEMA_VERSION,
   SUMMARY_MODULES,
   type ChatGptInstruction,
@@ -7,6 +8,14 @@ import {
   type SummaryModule,
 } from "@/domain/schemas";
 import { MODULE_PRESETS, MODULE_CONTEXT_KEY } from "./presets";
+import type { ExerciseDefinition } from "@/domain/exercises/schema";
+import {
+  buildExerciseCatalog,
+  CUSTOM_EXERCISE_RULES,
+  EXERCISE_DEFINITION_EXAMPLE,
+  EXERCISE_DEFINITION_GUIDE,
+  EXERCISE_RULES,
+} from "@/domain/exercises/coachGuide";
 
 /**
  * Erzeugt eine modulare `coach_summary` (rein, ohne DB-Zugriff). Die Persistenz
@@ -40,6 +49,17 @@ export interface BuildCoachSummaryParams {
   /** Entfernt einzelne Module aus dem (Preset-/Override-)Set. */
   excludeModules?: SummaryModule[];
   generatedAt?: string;
+  /** Eigene (gültige) Übungen des Nutzers für den Übungskatalog. */
+  customExercises?: ExerciseDefinition[];
+  /**
+   * true = das LLM darf eigene Übungen definieren (größerer Prompt: Leitfaden
+   * und Beispiel werden mitgeliefert). Standard: false.
+   */
+  allowCustomExercises?: boolean;
+}
+
+function includesExerciseCatalog(purpose: ExportPurpose): boolean {
+  return EXERCISE_CATALOG_PURPOSES.includes(purpose);
 }
 
 function resolveModules(params: BuildCoachSummaryParams): SummaryModule[] {
@@ -65,8 +85,15 @@ function buildChatGptInstruction(
       "Verpasste Einheiten nicht stumpf stapeln, sondern sinnvoll in die Restwoche integrieren.",
       "Verwende das aktive camelCase-Segmentformat (durationSec, distanceM, targetType …).",
       "Halte dich an das Schema localhub_plan (type, schemaVersion, planStart, planDays, planEnd, entries[]).",
+      ...(includesExerciseCatalog(params.exportPurpose) ? EXERCISE_RULES : []),
+      ...(allowsCustomExercises(params) ? CUSTOM_EXERCISE_RULES : []),
     ],
   };
+}
+
+/** Eigene Übungen nur bei Plan-Exporten und ausdrücklicher Freigabe. */
+function allowsCustomExercises(params: BuildCoachSummaryParams): boolean {
+  return params.allowCustomExercises === true && includesExerciseCatalog(params.exportPurpose);
 }
 
 export function buildCoachSummary(
@@ -81,7 +108,7 @@ export function buildCoachSummary(
     modules[moduleName] = context[key] ?? null;
   }
 
-  return {
+  const summary: CoachSummary = {
     schemaVersion: SCHEMA_VERSION,
     type: "coach_summary",
     generatedAt: params.generatedAt ?? new Date().toISOString(),
@@ -98,4 +125,15 @@ export function buildCoachSummary(
     modules,
     chatGptInstruction: buildChatGptInstruction(params),
   };
+
+  // Übungskatalog nur bei Plan-Exporten (training_plan, plan_review).
+  if (includesExerciseCatalog(params.exportPurpose)) {
+    summary.exerciseCatalog = buildExerciseCatalog(params.customExercises ?? []);
+    summary.allowCustomExercises = allowsCustomExercises(params);
+    if (summary.allowCustomExercises) {
+      summary.exerciseDefinitionGuide = EXERCISE_DEFINITION_GUIDE;
+      summary.exerciseDefinitionExample = EXERCISE_DEFINITION_EXAMPLE;
+    }
+  }
+  return summary;
 }

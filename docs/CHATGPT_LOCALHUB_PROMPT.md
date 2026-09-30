@@ -32,6 +32,8 @@ Ich gebe dir ein JSON-Objekt vom Typ "coach_summary". Es enthält u.a.:
 - sync_state: Synchronisationszustand mit Intervals.icu
 Außerdem enthält "requestedOutput" die Felder planStart, planDays, language,
 timezone und "chatGptInstruction" die verbindlichen Ausgaberegeln.
+Bei Plan-Exporten enthält "exerciseCatalog" die Übungen (Kraft/Mobility), die du
+per exercise.id referenzieren darfst.
 
 DEINE AUFGABE
 Erstelle auf Basis dieser Daten einen konkreten, periodisierten Trainingsplan und
@@ -58,6 +60,10 @@ AUSGABE – HARTE REGELN
    cross_training, other, rest.
 10. Optional darfst du planRationale (summary, keyAdjustments, riskNotes) und
     assumptions ergänzen – aber NUR als Felder im JSON, nicht als Freitext.
+11. Kraft/Mobility: Segmente mit "exercise" { id, sets, reps ODER holdSec,
+    restSec, perSide, loadKg, note } und schemaVersion "1.1". exercise.id NUR aus
+    exerciseCatalog. Eigene Übungen (exerciseDefinitions) nur, wenn
+    allowCustomExercises true ist – nie SVG oder HTML.
 
 Wenn dir Informationen fehlen, triff plausible, konservative Annahmen und
 dokumentiere sie im Feld "assumptions". Frage NICHT zurück – liefere direkt das
@@ -147,9 +153,75 @@ JSON.
 | `cadenceNote`   | string \| null   | Hinweis zur Trittfrequenz                  |
 | `rpeTarget`     | number \| null   | RPE-Ziel (1–10)                            |
 | `description`   | string \| null   | Kurzbeschreibung                           |
+| `exercise`      | object \| null   | Verweis auf eine Übung (Kraft/Mobility), siehe unten |
 
 > Legacy `snake_case` (z.B. `duration_sec`) wird beim Import defensiv toleriert,
 > sollte aber **nicht** erzeugt werden. Verwende immer camelCase.
+
+### Version 1.1: Übungen und eigene Übungsdefinitionen
+
+- `schemaVersion: "1.1"` ist für Pläne mit Übungen vorgesehen. Segmente mit
+  `exercise` werden auch unter `"1.0"` akzeptiert; `exerciseDefinitions`
+  erfordern dagegen zwingend `"1.1"`.
+- `exerciseDefinitions` (optional, Top-Level, max. 20 Einträge, max. 200 KB):
+  eigene Übungen, nur wenn die Coach-Summary `allowCustomExercises: true` enthält.
+  Aufbau siehe `exerciseDefinitionGuide` und `exerciseDefinitionExample` in der
+  Coach-Summary.
+
+## Übungen (Kraft & Mobility)
+
+LocalHub kennt eine Übungsbibliothek. Zu jeder Übung zeichnet LocalHub selbst Muskelbild, Ablauf und
+Animation. Du musst nur die Übung **referenzieren**.
+
+Verwende dafür in Segmenten das Feld `exercise` und setze `schemaVersion` auf `"1.1"`:
+
+```json
+{
+  "type": "other",
+  "durationSec": 360,
+  "distanceM": null,
+  "intensity": "kraft",
+  "targetType": "rpe",
+  "targetValue": 3,
+  "targetValueTo": null,
+  "cadenceNote": null,
+  "rpeTarget": 3,
+  "description": "Seitlicher Gesäßmuskel",
+  "exercise": {
+    "id": "clamshell",
+    "sets": 2,
+    "reps": 15,
+    "holdSec": null,
+    "restSec": 30,
+    "perSide": true,
+    "loadKg": null,
+    "note": null
+  }
+}
+```
+
+Regeln:
+
+1. `exercise.id` muss aus `exerciseCatalog` in der `coach_summary` stammen. Erfinde keine IDs.
+2. Pro Übung `reps` **oder** `holdSec` angeben (Halteübungen wie Plank: `holdSec`).
+3. `durationSec` des Segments = Gesamtzeit der Übung inklusive Pausen. Die Summe der Segmente
+   muss weiter zu `plannedDurationMin` passen.
+4. `perSide: true` bedeutet, dass Wiederholungen bzw. Haltezeit für jede Seite gelten.
+5. Für Kraft und Mobility ist `sport` `"strength"` bzw. `"mobility"`. Segmenttyp `"warmup"`,
+   `"other"` oder `"cooldown"`.
+6. Passt keine Übung aus dem Katalog, beschreibe die Übung im Feld `description` des Segments ohne
+   `exercise`. Eigene Definitionen sind nur erlaubt, wenn die Coach-Summary `allowCustomExercises: true` enthält.
+
+| Feld `exercise.*` | Typ            | Bedeutung                                         |
+| ----------------- | -------------- | ------------------------------------------------- |
+| `id`              | string         | ID aus `exerciseCatalog` (kebab-case)             |
+| `sets`            | 1–20           | Anzahl Sätze                                      |
+| `reps`            | 1–100 \| null  | Wiederholungen pro Satz (oder `holdSec`)          |
+| `holdSec`         | 1–600 \| null  | Haltezeit pro Satz in Sekunden (oder `reps`)      |
+| `restSec`         | 0–600 \| null  | Pause zwischen den Sätzen                         |
+| `perSide`         | boolean        | Wiederholungen/Haltezeit gelten je Seite          |
+| `loadKg`          | 0–500 \| null  | Zusatzgewicht                                     |
+| `note`            | string \| null | Kurzhinweis (max. 200 Zeichen)                    |
 
 ## Häufige Importfehler vermeiden
 
@@ -160,3 +232,14 @@ JSON.
 - Trainingstage: `plannedDurationMin > 0`.
 - Segmentdauern dürfen die Gesamtdauer nicht stark überschreiten.
 - Schwimmen: Summe der `distanceM` der Segmente ≈ `plannedDistanceM`.
+- `EXERCISE_UNKNOWN`: `exercise.id` steht weder im `exerciseCatalog` noch in
+  `exerciseDefinitions`. Nur Katalog-IDs verwenden.
+- `EXERCISE_ID_COLLISION`: Eine eigene Definition nutzt die ID einer eingebauten Übung.
+- `EXERCISE_ID_DUPLICATE`: Dieselbe ID steht zweimal in `exerciseDefinitions`.
+- `EXERCISE_DEFINITIONS_NEED_1_1`: `exerciseDefinitions` nur mit `schemaVersion: "1.1"`.
+- `EXERCISE_DEFINITIONS_TOO_LARGE`: `exerciseDefinitions` zusammen über 200 KB.
+- `CUSTOM_EXERCISE_LIMIT`: Mehr als 200 eigene Übungen pro Nutzer.
+- Warnungen (blockieren nicht): `EXERCISE_DEFINITION_UNUSED` (Definition wird nicht
+  verwendet), `EXERCISE_DURATION_IMPLAUSIBLE` (geschätzte Übungsdauer weicht um mehr als
+  50 % von `durationSec` ab), `EXERCISE_DEFINITION_UPDATED` (eine gespeicherte eigene
+  Übung wird überschrieben).

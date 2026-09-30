@@ -3,6 +3,7 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/auth-guard";
 import { buildCoachSummary } from "@/domain/coach-summary/buildCoachSummary";
+import { listValidCustomExercises } from "@/domain/exercises/resolve";
 import { gatherCoachSummaryContext } from "@/domain/coach-summary/gatherContext";
 import {
   EXPORT_PURPOSES,
@@ -55,9 +56,14 @@ export async function POST(request: Request) {
     userId,
   });
 
+  // Eigene (gültige) Übungen des Nutzers für den Übungskatalog.
+  const customExercises = await listValidCustomExercises(userId);
+
   const summary = buildCoachSummary({
     exportPurpose,
     athleteId,
+    customExercises,
+    allowCustomExercises: body.allowCustomExercises === true,
     planStart,
     planDays,
     includeModules,

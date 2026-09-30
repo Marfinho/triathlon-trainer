@@ -13,10 +13,38 @@ export function buildLlmPrompt(summary: CoachSummary): string {
     "",
     "Regeln:",
     ...instruction.rules.map((r) => `- ${r}`),
+    ...exerciseSection(summary),
     "",
     "Kontext (coach_summary JSON):",
     JSON.stringify(summary, null, 2),
   ].join("\n");
+}
+
+/**
+ * Übungskatalog (kompakt) sowie – nur bei allowCustomExercises – Leitfaden und
+ * Beispiel für eigene Übungen als lesbare Abschnitte vor dem JSON-Kontext.
+ */
+function exerciseSection(summary: CoachSummary): string[] {
+  const catalog = summary.exerciseCatalog;
+  if (!catalog || catalog.length === 0) return [];
+  const lines = [
+    "",
+    "Übungskatalog (exercise.id → Titel · Kategorie · Richtwert):",
+    ...catalog.map(
+      (e) => `- ${e.id}: ${e.title} · ${e.category}${e.custom ? " · eigene Übung" : ""} · ${e.dose}`,
+    ),
+  ];
+  if (summary.allowCustomExercises && summary.exerciseDefinitionGuide) {
+    lines.push("", summary.exerciseDefinitionGuide);
+    if (summary.exerciseDefinitionExample !== undefined) {
+      lines.push(
+        "",
+        "Beispiel einer eigenen Übung (exerciseDefinitionExample):",
+        JSON.stringify(summary.exerciseDefinitionExample),
+      );
+    }
+  }
+  return lines;
 }
 
 function tryParseJson(s: string): unknown {
