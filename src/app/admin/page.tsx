@@ -5,6 +5,8 @@ import { UserRolesManager } from "@/components/admin/UserRolesManager";
 import { SyncQueueMonitor } from "@/components/admin/SyncQueueMonitor";
 import { SystemLogsViewer } from "@/components/admin/SystemLogsViewer";
 import { PlanLimitsEditor } from "@/components/admin/PlanLimitsEditor";
+import { MailAdmin } from "@/components/admin/MailAdmin";
+import { getMailConfigView } from "@/lib/mail";
 import { IntegrationsAdmin } from "@/components/admin/IntegrationsAdmin";
 import {
   getEffectiveLimits,
@@ -141,6 +143,12 @@ export default async function AdminPage() {
         <div>
           <h2 className="mb-4 text-lg font-semibold text-neutral-900">OAuth-Provider verwalten</h2>
           <IntegrationsAdmin initial={integrations} />
+        </div>
+
+        {/* Mail */}
+        <div>
+          <h2 className="mb-4 text-lg font-semibold text-neutral-900">Mail-Versand</h2>
+          <MailAdmin initial={await getMailConfigView()} adminEmail={session.user.email ?? ""} />
         </div>
 
         {/* User Roles */}

@@ -38,6 +38,10 @@ model User {
   /// (DSGVO Art. 9). `null` = noch nicht eingewilligt – alle /api/nutrition/*
   /// Routen sind dann gesperrt. Wird nie automatisch gesetzt.
   nutritionConsentAt   DateTime?
+  /// Zustimmung zu AGB/Datenschutz bei der Registrierung.
+  termsAcceptedAt      DateTime?
+  /// Gesetzt, wenn die „Erste Schritte“-Checkliste ausgeblendet wurde.
+  onboardingDismissedAt DateTime?
   createdAt            DateTime  @default(now())
   updatedAt            DateTime  @updatedAt
 
@@ -673,4 +677,18 @@ model CustomExercise {
 
   @@unique([userId, exerciseId])
   @@index([userId])
+}
+
+/// Globale SMTP-Konfiguration (ein Datensatz, id = "singleton"), vom Admin
+/// gepflegt. Felder ohne Wert fallen auf die SMTP_*-Env-Variablen zurück.
+model MailConfig {
+  id        String   @id @default("singleton")
+  host      String?
+  port      Int?
+  secure    Boolean?
+  user      String?
+  password  String? // AES-256-GCM-verschlüsselt
+  fromAddr  String?
+  updatedAt DateTime @updatedAt
+  updatedBy String?
 }

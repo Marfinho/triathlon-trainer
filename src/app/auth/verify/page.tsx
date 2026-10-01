@@ -6,19 +6,21 @@ import { useSearchParams } from "next/navigation";
 import AuthFrame from "@/components/marketing/AuthFrame";
 
 function Verify() {
-  const token = useSearchParams().get("token");
+  const params = useSearchParams();
+  const token = params.get("token");
+  const endpoint = params.get("type") === "change" ? "/api/auth/confirm-email-change" : "/api/auth/verify-email";
   const [state, setState] = useState<"loading" | "ok" | "error">(token ? "loading" : "error");
 
   useEffect(() => {
     if (!token) return;
-    fetch("/api/auth/verify-email", {
+    fetch(endpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ token }),
     })
       .then((r) => setState(r.ok ? "ok" : "error"))
       .catch(() => setState("error"));
-  }, [token]);
+  }, [token, endpoint]);
 
   return (
     <div className="flex flex-col gap-4 text-[15px] text-neutral-700">

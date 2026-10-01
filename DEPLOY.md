@@ -117,3 +117,18 @@ docker compose exec db pg_dump -U "$POSTGRES_USER" "$POSTGRES_DB" > backup.sql  
 
 Migrationen müssen nicht manuell ausgeführt werden – sie laufen idempotent bei
 jedem Container-Start. Das Postgres-Volume `localhub-db` überlebt Updates.
+
+## Launch-Checkliste für öffentliche Registrierung
+
+1. **Rechtliches:** `LEGAL_NAME`, `LEGAL_STREET`, `LEGAL_CITY`, `LEGAL_EMAIL` (optional `LEGAL_PHONE`, `LEGAL_VAT_ID`) setzen –
+   sie füllen Impressum, AGB und Datenschutz. Die AGB-/Datenschutz-Texte sind Entwürfe: rechtlich prüfen lassen
+   (Widerruf, Auftragsverarbeitungsverträge mit SMTP-Anbieter, Stripe, Hoster).
+2. **Mail:** SMTP im Admin-Bereich („Mail-Versand“) oder per `SMTP_*`-Variablen einrichten und die Testmail senden.
+   Für die Absenderdomain **SPF, DKIM und DMARC** im DNS eintragen (Werte liefert der SMTP-Anbieter), sonst landen
+   Bestätigungsmails im Spam.
+3. **Secrets:** `NEXTAUTH_SECRET`, `ENCRYPTION_KEY`, `CRON_SECRET` mit `openssl rand -base64 32` erzeugen; `NEXTAUTH_URL` auf die
+   öffentliche HTTPS-URL setzen.
+4. **Stripe:** Live-Keys, Preis-IDs und Webhook (`/api/billing/webhook`) konfigurieren; einen Testkauf und eine Kündigung durchspielen.
+5. **Backups:** regelmäßiger `pg_dump` des Postgres-Volumes (z. B. täglich per Cron, mit Wiederherstellungstest) und Offsite-Kopie.
+6. **Monitoring:** Uptime-Check auf `/` sowie Container-Logs/Fehler-Tracking (z. B. Sentry) anbinden.
+7. **Google-Login:** OAuth-Zustimmungsbildschirm veröffentlichen und die Redirect-URI `${NEXTAUTH_URL}/api/auth/callback/google` eintragen.

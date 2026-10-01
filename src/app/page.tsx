@@ -253,6 +253,9 @@ export default async function Home() {
             <Link href="/legal/datenschutz" className="transition hover:text-neutral-900">
               Datenschutz
             </Link>
+            <Link href="/legal/agb" className="transition hover:text-neutral-900">
+              AGB
+            </Link>
             <a href="mailto:svenmeendermann@gmail.com" className="transition hover:text-neutral-900">
               Kontakt
             </a>

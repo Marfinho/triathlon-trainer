@@ -16,12 +16,13 @@ export async function POST(request: Request) {
   ]);
   if (!a.allowed || !b.allowed) return NextResponse.json({ error: "TOO_MANY_REQUESTS" }, { status: 429 });
 
-  if (email && isMailConfigured()) {
+  const mailOn = await isMailConfigured();
+  if (email && mailOn) {
     const user = await prisma.user.findUnique({ where: { email } });
     if (user?.passwordHash) {
       await sendPasswordResetMail(email, await createEmailToken("reset", email));
       await recordAudit({ userId: user.id, action: "password_reset_requested", ip });
     }
   }
-  return NextResponse.json({ ok: true, mailConfigured: isMailConfigured() });
+  return NextResponse.json({ ok: true, mailConfigured: mailOn });
 }
