@@ -1,25 +1,29 @@
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { addDays, formatIsoDate } from "@/domain/training/dates";
-import { exerciseIdsFromSegments } from "@/domain/exercises/resolve";
+import { exerciseIdsFromSegments, isGuidedWorkout } from "@/domain/exercises/guided";
 import { Card, sportLabel } from "@/components/dashboard/Card";
 
 /**
- * Nächste 21 Tage Kraft- und Mobility-Einheiten (planned/synced) mit Link zum
- * Kraft-Player. Server-Komponente, filtert strikt nach userId.
+ * Nächste 21 Tage Kraft-, Mobility- und sonstige Einheiten (planned/synced)
+ * sowie jede Einheit mit Übungssegmenten – mit Link zum Kraft-Player.
+ * Server-Komponente, filtert strikt nach userId.
  */
 export async function StrengthWorkoutList({ userId }: { userId: string }) {
   const now = new Date();
-  const workouts = await prisma.plannedWorkout.findMany({
+  const candidates = await prisma.plannedWorkout.findMany({
     where: {
       userId,
-      sport: { in: ["strength", "mobility"] },
+      sport: { not: "rest" },
       status: { in: ["planned", "synced"] },
       date: { gte: addDays(now, -1), lte: addDays(now, 21) },
     },
     orderBy: { date: "asc" },
-    take: 30,
+    take: 200,
   });
+  const workouts = candidates
+    .filter((w) => isGuidedWorkout(w.sport, w.segmentsJson))
+    .slice(0, 30);
 
   return (
     <>

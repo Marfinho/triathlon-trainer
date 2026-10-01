@@ -42,6 +42,7 @@ export function buildExerciseCatalog(customExercises: ExerciseDefinition[] = [])
 
 /** Kurzregeln für Plan-Exporte (training_plan, plan_review). */
 export const EXERCISE_RULES: readonly string[] = [
+  'Kraft- und Mobility-Einheiten mit sport "strength" bzw. "mobility" planen, nicht als "other".',
   'Für Kraft- und Mobility-Einheiten: Segmente mit `exercise` { id, sets, reps ODER holdSec, restSec, perSide, loadKg, note } und schemaVersion "1.1".',
   "`exercise.id` nur aus `exerciseCatalog` verwenden; keine IDs erfinden.",
   "`durationSec` eines Übungssegments = Gesamtzeit inklusive Pausen; die Segmentsumme muss zu plannedDurationMin passen.",

@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db";
 import { addDays, formatIsoDate, mondayOfIso } from "@/domain/training/dates";
 import { buildCalendar } from "@/domain/training/calendar";
 import { buildWorkoutExerciseRows } from "@/domain/exercises/workoutRows";
+import { isGuidedWorkout } from "@/domain/exercises/guided";
 import {
   buildPlanVsActual,
   summarizeWeeklyCompliance,
@@ -60,7 +61,7 @@ export default async function WeekPage() {
   // Übungslisten (Thumb, Titel, Dosis) für Kraft/Mobility im Kalender-Detail.
   const exercisesByWorkout = await buildWorkoutExerciseRows(
     userId,
-    rangePlanned.filter((w) => w.sport === "strength" || w.sport === "mobility"),
+    rangePlanned.filter((w) => isGuidedWorkout(w.sport, w.segmentsJson)),
   );
 
   const calendarGrid = buildCalendar(

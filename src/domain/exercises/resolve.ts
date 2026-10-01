@@ -2,9 +2,10 @@ import type { PrismaClient } from "@prisma/client";
 import { prisma as defaultPrisma } from "@/lib/db";
 import { builtinExerciseIds, builtinExercises, getBuiltinExercise } from "./library";
 import { parseStoredDefinition } from "./parse";
+import { exerciseIdsFromSegments } from "./guided";
 import type { ExerciseDefinition } from "./schema";
 
-export { parseStoredDefinition };
+export { parseStoredDefinition, exerciseIdsFromSegments };
 
 /**
  * Auflösung von Übungs-IDs. Reihenfolge: eingebaute Bibliothek, dann eigene
@@ -40,16 +41,6 @@ export function resolveExercise(
     : { id, status: "invalid", source: "custom", definition: null };
 }
 
-/** Übungs-IDs aus Segmenten (Reihenfolge des ersten Auftretens, ohne Duplikate). */
-export function exerciseIdsFromSegments(segments: unknown): string[] {
-  if (!Array.isArray(segments)) return [];
-  const ids: string[] = [];
-  for (const s of segments) {
-    const id = (s as { exercise?: { id?: unknown } | null } | null)?.exercise?.id;
-    if (typeof id === "string" && !ids.includes(id)) ids.push(id);
-  }
-  return ids;
-}
 
 /** Lädt die eigenen Übungen eines Nutzers (optional nur bestimmte IDs). */
 export async function loadCustomExercises(

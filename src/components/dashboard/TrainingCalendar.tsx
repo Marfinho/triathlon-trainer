@@ -10,6 +10,7 @@ import {
 import type { CalendarDay, CalendarItem } from "@/domain/training/calendar";
 import { forecastWorkoutEnergy } from "@/domain/nutrition/forecast";
 import type { WorkoutExerciseRow } from "@/domain/exercises/workoutRows";
+import { isGuidedWorkout } from "@/domain/exercises/guided";
 import { ExerciseFigure, ExercisePlaceholder } from "@/components/exercises/ExerciseFigure";
 import Link from "next/link";
 
@@ -595,6 +596,12 @@ function DetailRow({
   exercises?: WorkoutExerciseRow[];
 }) {
   const color = sportColor(item.sport);
+  // Kraft-Player auch für Mobility/Sonstige ohne Übungsbilder (Textschritte).
+  const canGuide =
+    item.kind === "planned" &&
+    !!item.id &&
+    (item.status === "planned" || item.status === "synced") &&
+    isGuidedWorkout(item.sport, item.segments);
   const stats: { label: string; value: string }[] = [];
 
   stats.push({ label: "Sport", value: sportLabel(item.sport) });
@@ -710,44 +717,46 @@ function DetailRow({
         </div>
       ) : null}
 
-      {item.kind === "planned" && exercises.length > 0 ? (
+      {item.kind === "planned" && (exercises.length > 0 || canGuide) ? (
         <div className="mt-3">
-          <ul className="space-y-1.5" aria-label="Übungen">
-            {exercises.map((ex, i) => {
-              const content = (
-                <>
-                  {ex.thumbSvg ? (
-                    <ExerciseFigure svg={ex.thumbSvg} className="w-14 shrink-0" />
-                  ) : (
-                    <div className="w-14 shrink-0">
-                      <ExercisePlaceholder id={ex.id} reason="missing" />
-                    </div>
-                  )}
-                  <span className="min-w-0">
-                    <span className="block text-sm font-medium text-neutral-900">
-                      {ex.title}
+          {exercises.length > 0 ? (
+            <ul className="space-y-1.5" aria-label="Übungen">
+              {exercises.map((ex, i) => {
+                const content = (
+                  <>
+                    {ex.thumbSvg ? (
+                      <ExerciseFigure svg={ex.thumbSvg} className="w-14 shrink-0" />
+                    ) : (
+                      <div className="w-14 shrink-0">
+                        <ExercisePlaceholder id={ex.id} reason="missing" />
+                      </div>
+                    )}
+                    <span className="min-w-0">
+                      <span className="block text-sm font-medium text-neutral-900">
+                        {ex.title}
+                      </span>
+                      <span className="block text-xs text-neutral-500">{ex.dose}</span>
                     </span>
-                    <span className="block text-xs text-neutral-500">{ex.dose}</span>
-                  </span>
-                </>
-              );
-              return (
-                <li key={i}>
-                  {ex.linkable ? (
-                    <Link
-                      href={`/trainer/uebungen/${ex.id}`}
-                      className="flex items-center gap-2.5 rounded-lg p-1 hover:bg-neutral-50"
-                    >
-                      {content}
-                    </Link>
-                  ) : (
-                    <div className="flex items-center gap-2.5 p-1">{content}</div>
-                  )}
-                </li>
-              );
-            })}
-          </ul>
-          {item.id && (item.status === "planned" || item.status === "synced") ? (
+                  </>
+                );
+                return (
+                  <li key={i}>
+                    {ex.linkable ? (
+                      <Link
+                        href={`/trainer/uebungen/${ex.id}`}
+                        className="flex items-center gap-2.5 rounded-lg p-1 hover:bg-neutral-50"
+                      >
+                        {content}
+                      </Link>
+                    ) : (
+                      <div className="flex items-center gap-2.5 p-1">{content}</div>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          ) : null}
+          {canGuide ? (
             <Link
               href={`/trainer/kraft/${item.id}`}
               className="mt-2 inline-block rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-500"
