@@ -1,0 +1,623 @@
+[
+  {
+    "format": "3d",
+    "id": "glute-bridge",
+    "title": "Glute Bridge",
+    "subtitle": "Gesäßbrücke",
+    "category": "strength",
+    "why": "Der große Gesäßmuskel streckt beim Laufen die Hüfte und schiebt dich nach vorn. Die Brücke trainiert ihn gezielt, ohne Belastung für Knie und Rücken.",
+    "steps": [
+      "Rückenlage, Knie gebeugt, Füße hüftbreit flach am Boden, Arme neben dem Körper.",
+      "Bauch leicht anspannen und das Becken über die Fersen anheben, bis Schultern, Hüfte und Knie eine Linie bilden.",
+      "Oben 1–2 Sekunden das Gesäß fest anspannen, nicht ins Hohlkreuz gehen.",
+      "Kontrolliert Wirbel für Wirbel wieder ablegen."
+    ],
+    "mistakes": [
+      "Hohlkreuz oben: Der untere Rücken übernimmt statt des Gesäßes.",
+      "Die Knie fallen nach innen oder außen.",
+      "Druck auf den Zehen statt auf den Fersen."
+    ],
+    "dose": "3 × 12–15",
+    "progression": "Leichter: weniger Höhe. Schwerer: einbeinig oder mit Gewicht auf dem Becken.",
+    "tempoText": "Hoch in 1–2 s, oben 1,5 s halten, ab in 2 s.",
+    "view": "side",
+    "props": [
+      {
+        "type": "mat"
+      }
+    ],
+    "muscles": [
+      {
+        "id": "gluteus_maximus",
+        "role": "work",
+        "note": "streckt die Hüfte und hebt das Becken"
+      },
+      {
+        "id": "hamstrings",
+        "role": "work",
+        "note": "unterstützen die Hüftstreckung"
+      },
+      {
+        "id": "erector_spinae",
+        "role": "stabilize",
+        "note": "halten den Rücken in Linie"
+      },
+      {
+        "id": "hip_flexors",
+        "role": "stretch",
+        "note": "werden oben leicht gedehnt"
+      }
+    ],
+    "keyframes": [
+      {
+        "label": "Start: Rückenlage, Füße flach",
+        "joints": {
+          "pelvis": {
+            "pitch": -90
+          },
+          "hip_l": {
+            "flex": 58
+          },
+          "hip_r": {
+            "flex": 58
+          },
+          "knee_l": {
+            "flex": 132
+          },
+          "knee_r": {
+            "flex": 132
+          },
+          "ankle_l": {
+            "dorsi": -16
+          },
+          "ankle_r": {
+            "dorsi": -16
+          },
+          "shoulder_l": {
+            "flex": -8
+          },
+          "shoulder_r": {
+            "flex": -8
+          }
+        },
+        "contacts": {
+          "pelvis": "floor",
+          "upper_back": "floor",
+          "left_heel": "floor",
+          "left_ball": "floor",
+          "right_heel": "floor",
+          "right_ball": "floor",
+          "left_hand": "floor",
+          "right_hand": "floor"
+        },
+        "activation": {
+          "gluteus_maximus": 0.15,
+          "hamstrings": 0.1,
+          "erector_spinae": 0.1,
+          "hip_flexors": 0.1
+        },
+        "toNextSec": 1.6,
+        "holdSec": 0.6
+      },
+      {
+        "label": "Oben: Schultern, Hüfte, Knie in einer Linie",
+        "joints": {
+          "pelvis": {
+            "pitch": -122
+          },
+          "spine_up": {
+            "flex": 30
+          },
+          "hip_l": {
+            "flex": 0
+          },
+          "hip_r": {
+            "flex": 0
+          },
+          "knee_l": {
+            "flex": 118
+          },
+          "knee_r": {
+            "flex": 118
+          },
+          "ankle_l": {
+            "dorsi": -4
+          },
+          "ankle_r": {
+            "dorsi": -4
+          },
+          "shoulder_l": {
+            "flex": -8
+          },
+          "shoulder_r": {
+            "flex": -8
+          }
+        },
+        "root": {
+          "x": -3
+        },
+        "contacts": {
+          "upper_back": "floor",
+          "left_heel": "floor",
+          "left_ball": "floor",
+          "right_heel": "floor",
+          "right_ball": "floor",
+          "left_hand": "floor",
+          "right_hand": "floor"
+        },
+        "activation": {
+          "gluteus_maximus": 1,
+          "hamstrings": 0.6,
+          "erector_spinae": 0.4,
+          "hip_flexors": 0.5
+        },
+        "toNextSec": 2,
+        "holdSec": 1.5
+      }
+    ],
+    "frames": [
+      {
+        "at": 0,
+        "label": "Start: Füße flach, Arme neben dem Körper"
+      },
+      {
+        "at": 0.5,
+        "label": "Becken über die Fersen anheben"
+      },
+      {
+        "at": 1,
+        "label": "Oben: Gesäß 1–2 s anspannen"
+      },
+      {
+        "at": 1.5,
+        "label": "Kontrolliert ablegen"
+      }
+    ],
+    "fault": {
+      "caption": "Falsch: Hohlkreuz statt Gesäßarbeit",
+      "pose": {
+        "joints": {
+          "pelvis": {
+            "pitch": -114
+          },
+          "spine_low": {
+            "flex": -20
+          },
+          "spine_up": {
+            "flex": 30
+          },
+          "hip_l": {
+            "flex": 8
+          },
+          "hip_r": {
+            "flex": 8
+          },
+          "knee_l": {
+            "flex": 122
+          },
+          "knee_r": {
+            "flex": 122
+          },
+          "ankle_l": {
+            "dorsi": 0
+          },
+          "ankle_r": {
+            "dorsi": 0
+          },
+          "shoulder_l": {
+            "flex": -8
+          },
+          "shoulder_r": {
+            "flex": -8
+          }
+        },
+        "contacts": {
+          "upper_back": "floor",
+          "left_heel": "floor",
+          "left_ball": "floor",
+          "right_heel": "floor",
+          "right_ball": "floor"
+        }
+      }
+    }
+  },
+  {
+    "format": "3d",
+    "id": "side-plank",
+    "title": "Side Plank",
+    "subtitle": "Seitstütz auf dem Unterarm",
+    "category": "strength",
+    "why": "Die seitlichen Bauchmuskeln und der mittlere Gesäßmuskel halten beim Laufen das Becken waagerecht. Der Seitstütz trainiert genau diese seitliche Stabilität.",
+    "steps": [
+      "Seitlage, Ellbogen unter der Schulter, Unterarm nach vorn, Beine gestreckt übereinander.",
+      "Becken anheben, bis Kopf, Rumpf und Beine eine gerade Linie bilden.",
+      "Position halten, gleichmäßig atmen, das Becken nicht absinken lassen.",
+      "Kontrolliert ablegen, dann die andere Seite."
+    ],
+    "mistakes": [
+      "Die Hüfte sinkt ab oder knickt nach hinten.",
+      "Die Schulter sackt ein, der Ellbogen steht nicht unter der Schulter.",
+      "Kopf hängt zur Seite."
+    ],
+    "dose": "2–3 × 20–30 s pro Seite",
+    "progression": "Leichter: unteres Knie aufsetzen. Schwerer: oberes Bein anheben.",
+    "tempoText": "Becken in 1,5 s heben, 3 s halten, ablegen.",
+    "view": "front",
+    "props": [
+      {
+        "type": "mat"
+      }
+    ],
+    "muscles": [
+      {
+        "id": "obliques_r",
+        "role": "work",
+        "note": "halten den Rumpf seitlich gerade"
+      },
+      {
+        "id": "gluteus_medius_r",
+        "role": "work",
+        "note": "hält das Becken oben"
+      },
+      {
+        "id": "rectus_abdominis",
+        "role": "stabilize",
+        "note": "unterstützt die Rumpfspannung"
+      },
+      {
+        "id": "deltoid_r",
+        "role": "stabilize",
+        "note": "stützt die Schulter über dem Ellbogen"
+      }
+    ],
+    "keyframes": [
+      {
+        "label": "Start: Seitlage, Hüfte am Boden",
+        "joints": {
+          "pelvis": {
+            "roll": -80
+          },
+          "spine_low": {
+            "lateral": 18
+          },
+          "spine_up": {
+            "lateral": 22
+          },
+          "hip_r": {
+            "abd": -10
+          },
+          "hip_l": {
+            "abd": 10
+          },
+          "shoulder_r": {
+            "abd": 40
+          },
+          "elbow_r": {
+            "flex": 90
+          },
+          "shoulder_l": {
+            "abd": 0
+          },
+          "elbow_l": {
+            "flex": 10
+          }
+        },
+        "contacts": {
+          "right_elbow": "floor",
+          "right_wrist": "floor",
+          "right_hip_side": "floor",
+          "right_foot_side": "floor"
+        },
+        "activation": {
+          "obliques_r": 0.2,
+          "gluteus_medius_r": 0.2,
+          "rectus_abdominis": 0.1,
+          "deltoid_r": 0.3
+        },
+        "toNextSec": 1.6,
+        "holdSec": 0.6
+      },
+      {
+        "label": "Halten: eine gerade Linie",
+        "joints": {
+          "pelvis": {
+            "roll": -76
+          },
+          "shoulder_r": {
+            "abd": 76
+          },
+          "elbow_r": {
+            "flex": 90
+          },
+          "shoulder_l": {
+            "abd": 8
+          },
+          "elbow_l": {
+            "flex": 20
+          }
+        },
+        "contacts": {
+          "right_elbow": "floor",
+          "right_wrist": "floor",
+          "right_foot_side": "floor"
+        },
+        "activation": {
+          "obliques_r": 1,
+          "gluteus_medius_r": 0.9,
+          "rectus_abdominis": 0.5,
+          "deltoid_r": 0.7
+        },
+        "toNextSec": 1.6,
+        "holdSec": 3
+      }
+    ],
+    "frames": [
+      {
+        "at": 0,
+        "label": "Start: Seitlage, Ellbogen unter der Schulter"
+      },
+      {
+        "at": 0.5,
+        "label": "Becken anheben"
+      },
+      {
+        "at": 1,
+        "label": "Halten: Kopf bis Fuß eine Linie"
+      },
+      {
+        "at": 1.5,
+        "label": "Kontrolliert ablegen"
+      }
+    ],
+    "fault": {
+      "caption": "Falsch: Hüfte sinkt ab",
+      "pose": {
+        "joints": {
+          "pelvis": {
+            "roll": -74
+          },
+          "spine_low": {
+            "lateral": -14
+          },
+          "spine_up": {
+            "lateral": -8
+          },
+          "hip_r": {
+            "abd": 12
+          },
+          "hip_l": {
+            "abd": 12
+          },
+          "shoulder_r": {
+            "abd": 76
+          },
+          "elbow_r": {
+            "flex": 90
+          },
+          "shoulder_l": {
+            "abd": 8
+          },
+          "elbow_l": {
+            "flex": 20
+          }
+        },
+        "contacts": {
+          "right_elbow": "floor",
+          "right_wrist": "floor",
+          "right_foot_side": "floor"
+        }
+      }
+    }
+  },
+  {
+    "format": "3d",
+    "id": "bulgarian-split-squat",
+    "title": "Bulgarian Split Squat",
+    "subtitle": "Bulgarische Kniebeuge",
+    "category": "strength",
+    "why": "Bei jedem Laufschritt stehst du auf einem Bein. Diese Übung trainiert genau das: Quadrizeps, Gesäß und Beckenstabilität pro Seite, also die Kraftausdauer der Beine.",
+    "steps": [
+      "Stell dich mit dem Rücken zu einer Bank (Kniehöhe), etwa eine große Schrittlänge davor. Leg den Spann des hinteren Fußes auf die Bank.",
+      "Der vordere Fuß steht flach, das Gewicht liegt auf Mittelfuß und Ferse. Oberkörper leicht nach vorn geneigt, Brust offen.",
+      "Beug das vordere Knie und senk das hintere Knie in etwa 3 Sekunden Richtung Boden.",
+      "Das vordere Knie zeigt über die zweite Zehe. Unten kurz stabil stehen, dann über die vordere Ferse hochdrücken."
+    ],
+    "mistakes": [
+      "Schritt zu kurz: Das Knie schiebt weit über die Zehen, die Ferse hebt ab.",
+      "Das vordere Knie kippt nach innen.",
+      "Der Oberkörper klappt nach vorn oder das Becken kippt zur Seite."
+    ],
+    "dose": "3 × 8–10 pro Seite, Absenken ca. 3 s",
+    "progression": "Leichter: hinteren Fuß am Boden lassen. Schwerer: Kettlebell vor der Brust halten.",
+    "tempoText": "Absenken 3 s, unten kurz halten, hochdrücken in 1–2 s.",
+    "view": "side",
+    "props": [
+      {
+        "type": "box",
+        "id": "bench",
+        "x": -72,
+        "w": 40,
+        "h": 45
+      }
+    ],
+    "muscles": [
+      {
+        "id": "quadriceps_r",
+        "role": "work",
+        "note": "streckt das Knie und trägt dich im vorderen Bein"
+      },
+      {
+        "id": "gluteus_maximus_r",
+        "role": "work",
+        "note": "streckt die Hüfte und hält das Becken stabil"
+      },
+      {
+        "id": "gluteus_medius_r",
+        "role": "stabilize",
+        "note": "hält das Becken waagerecht"
+      },
+      {
+        "id": "hip_flexors_l",
+        "role": "stretch",
+        "note": "werden im hinteren Bein gedehnt"
+      }
+    ],
+    "keyframes": [
+      {
+        "label": "Start: aufrecht, hinterer Fuß auf der Bank",
+        "joints": {
+          "spine_low": {
+            "flex": 4
+          },
+          "hip_r": {
+            "flex": 12
+          },
+          "knee_r": {
+            "flex": 10
+          },
+          "ankle_r": {
+            "dorsi": -2
+          },
+          "hip_l": {
+            "flex": -20
+          },
+          "knee_l": {
+            "flex": 78
+          },
+          "ankle_l": {
+            "dorsi": -50
+          },
+          "shoulder_l": {
+            "flex": 10
+          },
+          "shoulder_r": {
+            "flex": 10
+          },
+          "elbow_l": {
+            "flex": 20
+          },
+          "elbow_r": {
+            "flex": 20
+          }
+        },
+        "contacts": {
+          "right_heel": "floor",
+          "right_ball": "floor",
+          "left_instep": "bench"
+        },
+        "activation": {
+          "quadriceps_r": 0.3,
+          "gluteus_maximus_r": 0.2,
+          "gluteus_medius_r": 0.4,
+          "hip_flexors_l": 0.3
+        },
+        "toNextSec": 3,
+        "holdSec": 1
+      },
+      {
+        "label": "Unten: hinteres Knie Richtung Boden",
+        "joints": {
+          "pelvis": {
+            "pitch": 12
+          },
+          "spine_low": {
+            "flex": 4
+          },
+          "hip_r": {
+            "flex": 85
+          },
+          "knee_r": {
+            "flex": 90
+          },
+          "ankle_r": {
+            "dorsi": 17
+          },
+          "hip_l": {
+            "flex": -10
+          },
+          "knee_l": {
+            "flex": 110
+          },
+          "ankle_l": {
+            "dorsi": -50
+          },
+          "shoulder_l": {
+            "flex": 15
+          },
+          "shoulder_r": {
+            "flex": 15
+          },
+          "elbow_l": {
+            "flex": 30
+          },
+          "elbow_r": {
+            "flex": 30
+          }
+        },
+        "contacts": {
+          "right_heel": "floor",
+          "right_ball": "floor",
+          "left_instep": "bench"
+        },
+        "activation": {
+          "quadriceps_r": 1,
+          "gluteus_maximus_r": 0.9,
+          "gluteus_medius_r": 0.7,
+          "hip_flexors_l": 1
+        },
+        "toNextSec": 1.5,
+        "holdSec": 0.6
+      }
+    ],
+    "frames": [
+      {
+        "at": 0,
+        "label": "Start: hinterer Fuß auf der Bank"
+      },
+      {
+        "at": 0.5,
+        "label": "Absenken, ca. 3 s"
+      },
+      {
+        "at": 1,
+        "label": "Unten kurz stabil"
+      },
+      {
+        "at": 1.5,
+        "label": "Über die vordere Ferse hochdrücken"
+      }
+    ],
+    "fault": {
+      "caption": "Falsch: Schritt zu kurz – Knie weit vor, Ferse hebt ab",
+      "pose": {
+        "joints": {
+          "pelvis": {
+            "pitch": 8
+          },
+          "hip_r": {
+            "flex": 60
+          },
+          "knee_r": {
+            "flex": 105
+          },
+          "ankle_r": {
+            "dorsi": 35
+          },
+          "hip_l": {
+            "flex": -5
+          },
+          "knee_l": {
+            "flex": 100
+          },
+          "ankle_l": {
+            "dorsi": -50
+          }
+        },
+        "contacts": {
+          "right_ball": "floor",
+          "left_instep": "bench"
+        }
+      }
+    }
+  }
+]

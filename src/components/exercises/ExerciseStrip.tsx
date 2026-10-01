@@ -1,9 +1,8 @@
-import { renderFrameSvg } from "@/domain/exercises/engine";
-import type { ExerciseDefinition } from "@/domain/exercises/schema";
+import { isExercise3d, renderFrameAny, type AnyExerciseDefinition } from "@/domain/exercises/any";
 import { ExerciseFigure } from "./ExerciseFigure";
 
 /** Ablauf in vier Bildern mit Bildunterschrift. */
-export function ExerciseStrip({ definition }: { definition: ExerciseDefinition }) {
+export function ExerciseStrip({ definition }: { definition: AnyExerciseDefinition }) {
   return (
     <section aria-label="Ablauf in vier Bildern">
       <h3 className="mb-2 text-sm font-semibold text-neutral-900">
@@ -12,7 +11,7 @@ export function ExerciseStrip({ definition }: { definition: ExerciseDefinition }
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         {definition.frames.map((f, i) => (
           <figure key={i} className="m-0">
-            <ExerciseFigure svg={renderFrameSvg(definition, i)} />
+            <ExerciseFigure svg={renderFrameAny(definition, i)} />
             <figcaption className="mt-1.5 flex items-start gap-2 text-xs font-semibold leading-snug text-neutral-800">
               <span
                 aria-hidden="true"
@@ -26,8 +25,9 @@ export function ExerciseStrip({ definition }: { definition: ExerciseDefinition }
         ))}
       </div>
       <p className="mt-2 text-xs text-neutral-500">
-        Die blasse Figur zeigt, woher die Bewegung kommt: in Bild 2 und 3 die Startposition, in
-        Bild 4 die Endposition.
+        {isExercise3d(definition)
+          ? "Die blasse Figur zeigt das vorherige Schlüsselbild – also, woher die Bewegung kommt."
+          : "Die blasse Figur zeigt, woher die Bewegung kommt: in Bild 2 und 3 die Startposition, in Bild 4 die Endposition."}
       </p>
     </section>
   );

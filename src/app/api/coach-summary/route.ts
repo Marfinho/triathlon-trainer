@@ -63,7 +63,7 @@ export async function POST(request: Request) {
     exportPurpose,
     athleteId,
     customExercises,
-    allowCustomExercises: body.allowCustomExercises === true,
+    allowCustomExercises: body.allowCustomExercises === false ? false : undefined,
     planStart,
     planDays,
     includeModules,

@@ -6,7 +6,8 @@
   "muscles": [
    "Quadrizeps",
    "Großer Gesäßmuskel",
-   "Hüftbeuger des hinteren Beins"
+   "Mittlerer Gesäßmuskel",
+   "Hüftbeuger"
   ],
   "dose": "3 × 8–10 pro Seite, Absenken ca. 3 s"
  },
@@ -109,7 +110,9 @@
   "category": "strength",
   "muscles": [
    "Großer Gesäßmuskel",
-   "Beinbeuger"
+   "Beinbeuger",
+   "Rückenstrecker",
+   "Hüftbeuger"
   ],
   "dose": "3 × 12–15"
  },
@@ -128,8 +131,10 @@
   "title": "Side Plank",
   "category": "strength",
   "muscles": [
-   "Seitliche Bauchmuskeln",
-   "Seitlicher Gesäßmuskel"
+   "Schräge Bauchmuskeln",
+   "Mittlerer Gesäßmuskel",
+   "Gerader Bauchmuskel",
+   "Deltamuskel"
   ],
   "dose": "2–3 × 20–30 s pro Seite"
  },

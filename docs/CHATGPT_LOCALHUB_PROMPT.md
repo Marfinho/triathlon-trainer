@@ -62,8 +62,9 @@ AUSGABE – HARTE REGELN
     assumptions ergänzen – aber NUR als Felder im JSON, nicht als Freitext.
 11. Kraft/Mobility: Segmente mit "exercise" { id, sets, reps ODER holdSec,
     restSec, perSide, loadKg, note } und schemaVersion "1.1". exercise.id NUR aus
-    exerciseCatalog. Eigene Übungen (exerciseDefinitions) nur, wenn
-    allowCustomExercises true ist – nie SVG oder HTML.
+    exerciseCatalog. Passt keine Katalogübung, definiere eine eigene Übung in
+    exerciseDefinitions im 3D-Format (format "3d") exakt nach
+    exerciseDefinitionGuide und exerciseDefinitionExample – nie SVG oder HTML.
 
 Wenn dir Informationen fehlen, triff plausible, konservative Annahmen und
 dokumentiere sie im Feld "assumptions". Frage NICHT zurück – liefere direkt das
@@ -164,9 +165,9 @@ JSON.
   `exercise` werden auch unter `"1.0"` akzeptiert; `exerciseDefinitions`
   erfordern dagegen zwingend `"1.1"`.
 - `exerciseDefinitions` (optional, Top-Level, max. 20 Einträge, max. 200 KB):
-  eigene Übungen, nur wenn die Coach-Summary `allowCustomExercises: true` enthält.
-  Aufbau siehe `exerciseDefinitionGuide` und `exerciseDefinitionExample` in der
-  Coach-Summary.
+  eigene Übungen, bevorzugt im 3D-Format (`format: "3d"`). Aufbau siehe
+  `exerciseDefinitionGuide` (Bauplan: Gelenke mit Bereichen, Kontakte, Muskeln,
+  Prüfregeln) und `exerciseDefinitionExample` in der Coach-Summary.
 
 ## Übungen (Kraft & Mobility)
 
@@ -209,8 +210,9 @@ Regeln:
 4. `perSide: true` bedeutet, dass Wiederholungen bzw. Haltezeit für jede Seite gelten.
 5. Für Kraft und Mobility ist `sport` `"strength"` bzw. `"mobility"`. Segmenttyp `"warmup"`,
    `"other"` oder `"cooldown"`.
-6. Passt keine Übung aus dem Katalog, beschreibe die Übung im Feld `description` des Segments ohne
-   `exercise`. Eigene Definitionen sind nur erlaubt, wenn die Coach-Summary `allowCustomExercises: true` enthält.
+6. Passt keine Übung aus dem Katalog, definiere sie in `exerciseDefinitions` im 3D-Format nach
+   `exerciseDefinitionGuide` (oder beschreibe sie ausnahmsweise nur im Feld `description` ohne
+   `exercise`).
 
 | Feld `exercise.*` | Typ            | Bedeutung                                         |
 | ----------------- | -------------- | ------------------------------------------------- |
@@ -239,6 +241,8 @@ Regeln:
 - `EXERCISE_DEFINITIONS_NEED_1_1`: `exerciseDefinitions` nur mit `schemaVersion: "1.1"`.
 - `EXERCISE_DEFINITIONS_TOO_LARGE`: `exerciseDefinitions` zusammen über 200 KB.
 - `CUSTOM_EXERCISE_LIMIT`: Mehr als 200 eigene Übungen pro Nutzer.
+- `EXERCISE_POSE_INVALID`: Eine 3D-Übung ist fachlich falsch (Pfad und Grund stehen in der
+  Meldung, z. B. Gelenk außerhalb des Bereichs oder Fuß schwebt). Genau diese Werte korrigieren.
 - Warnungen (blockieren nicht): `EXERCISE_DEFINITION_UNUSED` (Definition wird nicht
   verwendet), `EXERCISE_DURATION_IMPLAUSIBLE` (geschätzte Übungsdauer weicht um mehr als
   50 % von `durationSec` ab), `EXERCISE_DEFINITION_UPDATED` (eine gespeicherte eigene

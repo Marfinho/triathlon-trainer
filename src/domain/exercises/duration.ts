@@ -1,20 +1,21 @@
-import type { ExerciseDefinition, SegmentExercise } from "./schema";
+import type { SegmentExercise } from "./schema";
+import { repDurationSec, type TimedDefinition } from "./any";
 
 /**
  * Geschätzte Dauer eines Übungssegments in Sekunden (nur für Warnungen und
  * Anzeige, nicht für Planungsentscheidungen).
  *
- *  - reps:    Satzdauer = reps × (toEnd + holdEnd + toStart + holdStart)
+ *  - reps:    Satzdauer = reps × Dauer einer Wiederholung
+ *             (1.x: toEnd + holdEnd + toStart + holdStart; 3d: alle Übergänge + Haltezeiten)
  *  - holdSec: Satzdauer = holdSec
  *  - perSide: Satzdauer verdoppeln
  *  - Gesamt = Sätze × Satzdauer + (Sätze − 1) × restSec
  */
 export function estimateExerciseDurationSec(
   exercise: Pick<SegmentExercise, "sets" | "reps" | "holdSec" | "restSec" | "perSide">,
-  definition: Pick<ExerciseDefinition, "tempo">,
+  definition: TimedDefinition,
 ): number {
-  const t = definition.tempo;
-  const repSec = t.toEndSec + t.holdEndSec + t.toStartSec + t.holdStartSec;
+  const repSec = repDurationSec(definition);
   let setSec = exercise.reps != null ? exercise.reps * repSec : (exercise.holdSec ?? 0);
   if (exercise.perSide) setSec *= 2;
   const sets = exercise.sets;

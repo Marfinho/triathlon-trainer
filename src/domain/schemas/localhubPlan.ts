@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { isoDateSchema, sportSchema } from "./common";
 import { segmentSchema } from "./segment";
-import { exerciseDefinitionsSchema } from "@/domain/exercises/schema";
+import { anyExerciseDefinitionsSchema } from "@/domain/exercises/any";
 
 /** Unterstützte Versionen des Planformats. 1.1 = Übungen + exerciseDefinitions. */
 export const SUPPORTED_PLAN_SCHEMA_VERSIONS = ["1.0", "1.1"] as const;
@@ -54,7 +54,7 @@ export const localhubPlanSchema = z.object({
    * Eigene Übungen (nur schemaVersion "1.1"). Die fachliche Prüfung der IDs
    * (Kollision, Duplikat, Verwendung) erfolgt in `validateLocalhubPlan`.
    */
-  exerciseDefinitions: exerciseDefinitionsSchema.optional(),
+  exerciseDefinitions: anyExerciseDefinitionsSchema.optional(),
 });
 
 export type LocalhubPlan = z.infer<typeof localhubPlanSchema>;

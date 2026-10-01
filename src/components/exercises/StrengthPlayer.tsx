@@ -2,9 +2,11 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useReducer, useRef, useState } from "react";
-import type { ExerciseDefinition, SegmentExercise } from "@/domain/exercises/schema";
+import type { SegmentExercise } from "@/domain/exercises/schema";
+import { isExercise3d, type AnyExerciseDefinition } from "@/domain/exercises/any";
 import { formatExerciseDose } from "@/domain/exercises/duration";
 import { ExerciseAnimation } from "./ExerciseAnimation";
+import { Exercise3dViewer } from "./Exercise3dViewer";
 import { ExercisePlaceholder } from "./ExerciseFigure";
 import {
   initialPlayerState,
@@ -18,7 +20,7 @@ export type StrengthPlayerStep =
   | {
       kind: "exercise";
       exercise: SegmentExercise;
-      definition: ExerciseDefinition | null;
+      definition: AnyExerciseDefinition | null;
       status: "ok" | "invalid" | "missing";
       description: string | null;
     }
@@ -223,7 +225,9 @@ export function StrengthPlayer({
         >
           <div className="grid gap-5 md:grid-cols-2">
             <div>
-              {step.definition ? (
+              {step.definition && isExercise3d(step.definition) ? (
+                <Exercise3dViewer key={step.definition.id} definition={step.definition} compact />
+              ) : step.definition ? (
                 <ExerciseAnimation key={step.definition.id} definition={step.definition} showControls={false} />
               ) : (
                 <ExercisePlaceholder id={step.exercise.id} reason={step.status === "invalid" ? "invalid" : "missing"} />

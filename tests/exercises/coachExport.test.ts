@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import { buildCoachSummary } from "@/domain/coach-summary/buildCoachSummary";
 import { coachSummarySchema } from "@/domain/schemas";
 import { exerciseDefinitionSchema } from "@/domain/exercises/schema";
+import { exercise3dDefinitionSchema, validateExercise3d } from "@/domain/exercises/body3d";
 import catalogFixture from "../fixtures/exercises/example-exercise-catalog.json";
 import birdDog from "../fixtures/exercises/example-custom-exercise.json";
 
@@ -13,9 +14,10 @@ describe("Coach-Export: Übungskatalog", () => {
     const s = buildCoachSummary({ ...base, exportPurpose: "training_plan" });
     expect(coachSummarySchema.safeParse(s).success).toBe(true);
     expect(s.exerciseCatalog).toEqual(catalogFixture);
-    expect(s.allowCustomExercises).toBe(false);
-    expect(s.exerciseDefinitionGuide).toBeUndefined();
-    expect(s.exerciseDefinitionExample).toBeUndefined();
+    // 3D-Bauplan und Beispiel sind bei Plan-Exporten immer dabei
+    expect(s.allowCustomExercises).toBe(true);
+    expect(s.exerciseDefinitionGuide).toContain("3D-FORMAT");
+    expect((s.exerciseDefinitionExample as { format: string }).format).toBe("3d");
   });
 
   it("liefert den Katalog auch bei plan_review", () => {
@@ -49,23 +51,30 @@ describe("Coach-Export: Übungskatalog", () => {
     });
   });
 
-  it("enthält die Kurzregeln für Übungen", () => {
+  it("enthält die Kurzregeln für Übungen inkl. 3D-Bauplan", () => {
     const s = buildCoachSummary({ ...base, exportPurpose: "training_plan" });
     const rules = s.chatGptInstruction.rules.join("\n");
     expect(rules).toContain("`exercise.id` nur aus `exerciseCatalog`");
-    expect(rules).not.toContain("exerciseDefinitionGuide");
+    expect(rules).toContain("exerciseDefinitionGuide");
+    expect(rules).toContain('format "3d"');
   });
 
-  it("Leitfaden und Beispiel nur bei allowCustomExercises", () => {
+  it("allowCustomExercises: false lässt Bauplan und Beispiel weg", () => {
     const s = buildCoachSummary({
       ...base,
       exportPurpose: "training_plan",
-      allowCustomExercises: true,
+      allowCustomExercises: false,
     });
     expect(coachSummarySchema.safeParse(s).success).toBe(true);
-    expect(s.allowCustomExercises).toBe(true);
-    expect(s.exerciseDefinitionGuide).toContain("EIGENE ÜBUNGEN");
-    expect(s.exerciseDefinitionExample).toEqual(birdDog);
-    expect(s.chatGptInstruction.rules.join("\n")).toContain("exerciseDefinitionGuide");
+    expect(s.allowCustomExercises).toBe(false);
+    expect(s.exerciseDefinitionGuide).toBeUndefined();
+    expect(s.exerciseDefinitionExample).toBeUndefined();
+    expect(s.chatGptInstruction.rules.join("\n")).not.toContain("exerciseDefinitionGuide");
+  });
+
+  it("das Beispiel ist eine gültige 3D-Übung ohne Fehler", () => {
+    const s = buildCoachSummary({ ...base, exportPurpose: "training_plan" });
+    const def = exercise3dDefinitionSchema.parse(s.exerciseDefinitionExample);
+    expect(validateExercise3d(def).errors).toEqual([]);
   });
 });

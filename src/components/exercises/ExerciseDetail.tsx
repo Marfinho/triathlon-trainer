@@ -1,11 +1,11 @@
-import { renderFaultSvg } from "@/domain/exercises/engine";
-import type { ExerciseDefinition } from "@/domain/exercises/schema";
+import { isExercise3d, renderFaultAny, type AnyExerciseDefinition } from "@/domain/exercises/any";
 import { ExerciseAnimation } from "./ExerciseAnimation";
+import { Exercise3dViewer } from "./Exercise3dViewer";
 import { ExerciseFigure } from "./ExerciseFigure";
 import { ExerciseMuscleView } from "./ExerciseMuscleView";
 import { ExerciseStrip } from "./ExerciseStrip";
 
-export const CATEGORY_LABEL: Record<ExerciseDefinition["category"], string> = {
+export const CATEGORY_LABEL: Record<AnyExerciseDefinition["category"], string> = {
   strength: "Kraft",
   mobility: "Mobility",
 };
@@ -18,10 +18,10 @@ export function ExerciseDetail({
   definition,
   custom = false,
 }: {
-  definition: ExerciseDefinition;
+  definition: AnyExerciseDefinition;
   custom?: boolean;
 }) {
-  const fault = renderFaultSvg(definition);
+  const fault = renderFaultAny(definition);
   return (
     <article className="space-y-6">
       <header>
@@ -44,8 +44,14 @@ export function ExerciseDetail({
       <div className="grid gap-6 md:grid-cols-2">
         <ExerciseMuscleView definition={definition} />
         <div>
-          <h3 className="mb-2 text-sm font-semibold text-neutral-900">Animation</h3>
-          <ExerciseAnimation definition={definition} />
+          <h3 className="mb-2 text-sm font-semibold text-neutral-900">
+            {isExercise3d(definition) ? "Animation in 3D" : "Animation"}
+          </h3>
+          {isExercise3d(definition) ? (
+            <Exercise3dViewer definition={definition} />
+          ) : (
+            <ExerciseAnimation definition={definition} />
+          )}
         </div>
       </div>
 
@@ -69,9 +75,9 @@ export function ExerciseDetail({
               </h3>
               {fault ? (
                 <figure className="mb-3 max-w-[300px]">
-                  <ExerciseFigure svg={fault} />
+                  <ExerciseFigure svg={fault.svg} />
                   <figcaption className="mt-1.5 text-sm font-semibold text-rose-700">
-                    ✗ {definition.faultCaption}
+                    ✗ {fault.caption}
                   </figcaption>
                 </figure>
               ) : null}

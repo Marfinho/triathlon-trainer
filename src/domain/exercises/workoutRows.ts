@@ -4,7 +4,7 @@ import { segmentExerciseSchema } from "./schema";
 import { builtinExerciseIds } from "./library";
 import { exerciseIdsFromSegments, loadCustomExercises, resolveExercise } from "./resolve";
 import { formatExerciseDose } from "./duration";
-import { renderThumbSvg } from "./engine";
+import { renderThumbAny } from "./any";
 
 /** Eine Übungszeile im Kalender-Detail. */
 export interface WorkoutExerciseRow {
@@ -44,7 +44,7 @@ export async function buildWorkoutExerciseRows(
       const r = resolveExercise(ex.id, { customById: custom });
       let thumb: string | null = null;
       if (r.status === "ok") {
-        thumb = thumbs.get(ex.id) ?? renderThumbSvg(r.definition);
+        thumb = thumbs.get(ex.id) ?? renderThumbAny(r.definition);
         thumbs.set(ex.id, thumb);
       }
       rows.push({

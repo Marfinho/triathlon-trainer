@@ -75,7 +75,6 @@ export function ChatGptExchange() {
   const [summaryJson, setSummaryJson] = useState("");
   const [copyLabel, setCopyLabel] = useState("Kopieren");
   const [exporting, setExporting] = useState(false);
-  const [allowCustomExercises, setAllowCustomExercises] = useState(false);
   const planExport = purpose === "training_plan" || purpose === "plan_review";
 
   // --- Planimport ---
@@ -98,7 +97,6 @@ export function ChatGptExchange() {
           exportPurpose: purpose,
           planStart,
           planDays,
-          allowCustomExercises: planExport && allowCustomExercises,
         }),
       });
       const data = await res.json();
@@ -249,15 +247,9 @@ export function ChatGptExchange() {
           </div>
 
           {planExport ? (
-            <label className="mt-2 flex items-center gap-2 text-xs text-neutral-600">
-              <input
-                type="checkbox"
-                checked={allowCustomExercises}
-                onChange={(e) => setAllowCustomExercises(e.target.checked)}
-                className="accent-blue-600"
-              />
-              Eigene Übungen erlauben (größerer Prompt)
-            </label>
+            <p className="mt-2 text-xs text-neutral-500">
+              Enthält Übungskatalog und 3D-Bauplan – die KI kann bei Bedarf eigene Übungen mitliefern.
+            </p>
           ) : null}
 
           {summaryJson ? (

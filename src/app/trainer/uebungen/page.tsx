@@ -2,12 +2,14 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { listExercisesForUser } from "@/domain/exercises/resolve";
-import { renderThumbSvg } from "@/domain/exercises/engine";
+import { musclesOf, renderThumbAny } from "@/domain/exercises/any";
 import {
   ExerciseLibraryBrowser,
   type LibraryListItem,
 } from "@/components/exercises/ExerciseLibraryBrowser";
 import { ExerciseLegend } from "@/components/exercises/ExerciseMuscleView";
+import { NewExerciseExchange } from "@/components/exercises/NewExerciseExchange";
+import { buildNewExercisePrompt, WISH_PLACEHOLDER } from "@/domain/exercises/newExercisePrompt";
 
 export const dynamic = "force-dynamic";
 
@@ -21,9 +23,9 @@ export default async function ExerciseLibraryPage() {
       title: definition.title,
       subtitle: definition.subtitle,
       category: definition.category,
-      muscles: definition.muscles.map((m) => m.label),
+      muscles: musclesOf(definition).map((m) => m.label),
       custom,
-      thumbSvg: renderThumbSvg(definition),
+      thumbSvg: renderThumbAny(definition),
     }),
   );
 
@@ -45,6 +47,12 @@ export default async function ExerciseLibraryPage() {
           <ExerciseLegend />
         </div>
       </header>
+      <div className="mb-6">
+        <NewExerciseExchange
+          promptTemplate={buildNewExercisePrompt({ wish: WISH_PLACEHOLDER, existingIds: items.map((i) => i.id) })}
+          placeholder={WISH_PLACEHOLDER}
+        />
+      </div>
       <ExerciseLibraryBrowser items={items} />
     </main>
   );

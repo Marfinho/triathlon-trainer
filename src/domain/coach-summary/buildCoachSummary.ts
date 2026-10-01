@@ -8,7 +8,7 @@ import {
   type SummaryModule,
 } from "@/domain/schemas";
 import { MODULE_PRESETS, MODULE_CONTEXT_KEY } from "./presets";
-import type { ExerciseDefinition } from "@/domain/exercises/schema";
+import type { AnyExerciseDefinition } from "@/domain/exercises/any";
 import {
   buildExerciseCatalog,
   CUSTOM_EXERCISE_RULES,
@@ -50,10 +50,10 @@ export interface BuildCoachSummaryParams {
   excludeModules?: SummaryModule[];
   generatedAt?: string;
   /** Eigene (gültige) Übungen des Nutzers für den Übungskatalog. */
-  customExercises?: ExerciseDefinition[];
+  customExercises?: AnyExerciseDefinition[];
   /**
-   * true = das LLM darf eigene Übungen definieren (größerer Prompt: Leitfaden
-   * und Beispiel werden mitgeliefert). Standard: false.
+   * false = keine eigenen Übungen (Bauplan und Beispiel fehlen dann).
+   * Standard: erlaubt.
    */
   allowCustomExercises?: boolean;
 }
@@ -91,9 +91,12 @@ function buildChatGptInstruction(
   };
 }
 
-/** Eigene Übungen nur bei Plan-Exporten und ausdrücklicher Freigabe. */
+/**
+ * Eigene Übungen bei Plan-Exporten: standardmäßig erlaubt (Bauplan immer
+ * dabei), nur `allowCustomExercises: false` schaltet sie ab.
+ */
 function allowsCustomExercises(params: BuildCoachSummaryParams): boolean {
-  return params.allowCustomExercises === true && includesExerciseCatalog(params.exportPurpose);
+  return params.allowCustomExercises !== false && includesExerciseCatalog(params.exportPurpose);
 }
 
 export function buildCoachSummary(

@@ -1,26 +1,23 @@
-import { renderHeroSvg } from "@/domain/exercises/engine";
-import type { ExerciseDefinition } from "@/domain/exercises/schema";
+import { MUSCLE_ROLE_LABEL, musclesOf, renderHeroAny, type AnyExerciseDefinition } from "@/domain/exercises/any";
 import { ExerciseFigure } from "./ExerciseFigure";
 
-const LEVEL_LABEL = { 1: "Hauptarbeit", 2: "unterstützend" } as const;
-
-/** Muskelbild (Endpose) mit nummerierter Legende. */
-export function ExerciseMuscleView({ definition }: { definition: ExerciseDefinition }) {
+/** Muskelbild (Zielposition) mit nummerierter Legende. */
+export function ExerciseMuscleView({ definition }: { definition: AnyExerciseDefinition }) {
   return (
     <section aria-label="Zielmuskeln">
       <h3 className="mb-2 text-sm font-semibold text-neutral-900">Zielmuskeln</h3>
-      <ExerciseFigure svg={renderHeroSvg(definition)} />
+      <ExerciseFigure svg={renderHeroAny(definition)} />
       <ol className="mt-3 space-y-2">
-        {definition.muscles.map((m, i) => (
+        {musclesOf(definition).map((m, i) => (
           <li key={m.key} className="flex gap-2.5 text-sm leading-snug">
-            <span className={`exfig-num ${m.kind === "stretch" ? "stretch" : ""}`} aria-hidden="true">
+            <span className={`exfig-num ${m.role === "stretch" ? "stretch" : ""}`} aria-hidden="true">
               {i + 1}
             </span>
             <div>
               <span className="sr-only">{i + 1}. </span>
               <strong className="font-semibold text-neutral-900">{m.label}</strong>
               <span className="ml-1.5 inline-block rounded-full bg-neutral-100 px-2 text-xs text-neutral-600">
-                {m.kind === "stretch" ? "wird gedehnt" : LEVEL_LABEL[m.level]}
+                {MUSCLE_ROLE_LABEL[m.role]}
               </span>
               <span className="block text-neutral-600">{m.note}</span>
             </div>

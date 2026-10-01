@@ -1,9 +1,9 @@
 import type { PrismaClient } from "@prisma/client";
 import { prisma as defaultPrisma } from "@/lib/db";
-import { builtinExerciseIds, builtinExercises, getBuiltinExercise } from "./library";
+import { builtinExerciseIds, getLibraryExercise, libraryExercises } from "./library";
 import { parseStoredDefinition } from "./parse";
 import { exerciseIdsFromSegments } from "./guided";
-import type { ExerciseDefinition } from "./schema";
+import type { AnyExerciseDefinition } from "./any";
 
 export { parseStoredDefinition, exerciseIdsFromSegments };
 
@@ -17,7 +17,7 @@ export { parseStoredDefinition, exerciseIdsFromSegments };
 export type ExerciseSource = "builtin" | "custom";
 
 export type ResolvedExercise =
-  | { id: string; status: "ok"; source: ExerciseSource; definition: ExerciseDefinition }
+  | { id: string; status: "ok"; source: ExerciseSource; definition: AnyExerciseDefinition }
   | { id: string; status: "invalid"; source: "custom"; definition: null }
   | { id: string; status: "missing"; source: null; definition: null };
 
@@ -31,7 +31,7 @@ export function resolveExercise(
   id: string,
   opts: { customById?: ReadonlyMap<string, unknown> } = {},
 ): ResolvedExercise {
-  const builtin = getBuiltinExercise(id);
+  const builtin = getLibraryExercise(id);
   if (builtin) return { id, status: "ok", source: "builtin", definition: builtin };
   const raw = opts.customById?.get(id);
   if (raw === undefined) return { id, status: "missing", source: null, definition: null };
@@ -76,9 +76,9 @@ export async function resolveExercisesForWorkout(
 export async function listValidCustomExercises(
   userId: string,
   db: Db = defaultPrisma,
-): Promise<ExerciseDefinition[]> {
+): Promise<AnyExerciseDefinition[]> {
   const custom = await loadCustomExercises(userId, undefined, db);
-  const out: ExerciseDefinition[] = [];
+  const out: AnyExerciseDefinition[] = [];
   for (const [id, raw] of custom) {
     // Kollidiert eine gespeicherte ID mit der Bibliothek, gewinnt die Bibliothek.
     if (builtinExerciseIds.has(id)) continue;
@@ -89,7 +89,7 @@ export async function listValidCustomExercises(
 }
 
 export interface LibraryItem {
-  definition: ExerciseDefinition;
+  definition: AnyExerciseDefinition;
   custom: boolean;
 }
 
@@ -100,7 +100,7 @@ export async function listExercisesForUser(
 ): Promise<LibraryItem[]> {
   const custom = await listValidCustomExercises(userId, db);
   return [
-    ...builtinExercises.map((definition) => ({ definition, custom: false })),
+    ...libraryExercises.map((definition) => ({ definition, custom: false })),
     ...custom.map((definition) => ({ definition, custom: true })),
   ];
 }
@@ -111,7 +111,7 @@ export async function findExerciseForUser(
   id: string,
   db: Db = defaultPrisma,
 ): Promise<LibraryItem | null> {
-  const builtin = getBuiltinExercise(id);
+  const builtin = getLibraryExercise(id);
   if (builtin) return { definition: builtin, custom: false };
   const custom = await loadCustomExercises(userId, [id], db);
   const resolved = resolveExercise(id, { customById: custom });

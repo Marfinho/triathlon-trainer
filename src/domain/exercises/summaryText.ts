@@ -1,5 +1,5 @@
 import { segmentExerciseSchema } from "./schema";
-import { getBuiltinExercise } from "./library";
+import { getLibraryExercise } from "./library";
 
 /**
  * Lesbarer Übungstext für externe Kalender (Intervals.icu), z. B.
@@ -13,7 +13,7 @@ export function exerciseSummaryText(segments: unknown, sport: string): string | 
     const parsed = segmentExerciseSchema.safeParse((seg as { exercise?: unknown } | null)?.exercise);
     if (!parsed.success) continue;
     const e = parsed.data;
-    const name = getBuiltinExercise(e.id)?.title ?? e.id;
+    const name = getLibraryExercise(e.id)?.title ?? e.id;
     const amount = e.reps != null ? `${e.reps}` : `${e.holdSec} s`;
     let text = `${name} ${e.sets} × ${amount}`;
     if (e.perSide) text += " je Seite";

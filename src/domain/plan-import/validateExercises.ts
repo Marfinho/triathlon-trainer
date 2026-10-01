@@ -1,11 +1,12 @@
 import type { LocalhubPlan } from "@/domain/schemas";
-import { builtinExerciseIds, getBuiltinExercise } from "@/domain/exercises/library";
+import { builtinExerciseIds, getLibraryExercise } from "@/domain/exercises/library";
+import { isExercise3d, type AnyExerciseDefinition } from "@/domain/exercises/any";
+import { validateExercise3d } from "@/domain/exercises/body3d";
 import { estimateExerciseDurationSec } from "@/domain/exercises/duration";
 import { parseStoredDefinition } from "@/domain/exercises/parse";
 import {
   MAX_CUSTOM_EXERCISES_PER_USER,
   MAX_DEFINITIONS_BYTES,
-  type ExerciseDefinition,
 } from "@/domain/exercises/schema";
 
 /**
@@ -13,9 +14,10 @@ import {
  *
  * Blockierend: EXERCISE_UNKNOWN, EXERCISE_ID_COLLISION, EXERCISE_ID_DUPLICATE,
  * EXERCISE_DEFINITIONS_TOO_LARGE, EXERCISE_DEFINITIONS_NEED_1_1,
- * CUSTOM_EXERCISE_LIMIT.
+ * CUSTOM_EXERCISE_LIMIT, EXERCISE_POSE_INVALID (3D-Format: Gelenkbereich,
+ * Kontakte, Bewegung).
  * Warnungen: EXERCISE_DEFINITION_UNUSED, EXERCISE_DURATION_IMPLAUSIBLE,
- * EXERCISE_DEFINITION_UPDATED.
+ * EXERCISE_DEFINITION_UPDATED, EXERCISE_POSE_WARNING.
  */
 
 export interface ExerciseIssue {
@@ -77,7 +79,7 @@ export function validateExerciseReferences(
     });
   }
 
-  const planDefs = new Map<string, ExerciseDefinition>();
+  const planDefs = new Map<string, AnyExerciseDefinition>();
   defs.forEach((d, i) => {
     if (builtinExerciseIds.has(d.id)) {
       errors.push({
@@ -94,6 +96,14 @@ export function validateExerciseReferences(
       });
     }
     planDefs.set(d.id, d);
+    // 3D-Format: fachliche Prüfung der Posen (Gelenkbereiche, Kontakte …)
+    if (isExercise3d(d)) {
+      const check = validateExercise3d(d);
+      for (const e of check.errors)
+        errors.push({ code: e.code, message: `Übung "${d.id}": ${e.message}`, path: `exerciseDefinitions[${i}].${e.path}` });
+      for (const w of check.warnings)
+        warnings.push({ code: w.code, message: `Übung "${d.id}": ${w.message}`, path: `exerciseDefinitions[${i}].${w.path}` });
+    }
   });
 
   const existingById = new Map(existingCustom.map((c) => [c.exerciseId, c.definitionJson]));
@@ -122,8 +132,8 @@ export function validateExerciseReferences(
     }
   }
 
-  const definitionFor = (id: string): ExerciseDefinition | null => {
-    const builtin = getBuiltinExercise(id);
+  const definitionFor = (id: string): AnyExerciseDefinition | null => {
+    const builtin = getLibraryExercise(id);
     if (builtin) return builtin;
     const fromPlan = planDefs.get(id);
     if (fromPlan) return fromPlan;

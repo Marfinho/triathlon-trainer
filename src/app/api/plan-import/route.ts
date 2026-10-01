@@ -8,7 +8,7 @@ import {
   inspectRawExerciseDefinitions,
   summarizePlanExercises,
 } from "@/domain/plan-import/buildPlanPreview";
-import { renderFrameSvg } from "@/domain/exercises/engine";
+import { isExercise3d, renderFrameAny, renderThumbAny } from "@/domain/exercises/any";
 import { parseIsoDate, addDays } from "@/domain/training/dates";
 import type { ExistingWorkoutRef } from "@/domain/plan-import/validateLocalhubPlan";
 import { processSyncQueue } from "@/integrations/intervals/syncQueue";
@@ -130,8 +130,12 @@ export async function POST(request: Request) {
     title: c.title,
     valid: c.valid,
     error: c.error,
-    startSvg: c.definition ? renderFrameSvg(c.definition, 0) : null,
-    endSvg: c.definition ? renderFrameSvg(c.definition, 3) : null,
+    startSvg: c.definition ? renderFrameAny(c.definition, 0) : null,
+    endSvg: c.definition
+      ? isExercise3d(c.definition)
+        ? renderThumbAny(c.definition)
+        : renderFrameAny(c.definition, 3)
+      : null,
   }));
 
   return NextResponse.json({

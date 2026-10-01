@@ -2,11 +2,9 @@ import type { LocalhubPlan, PlanEntry } from "@/domain/schemas";
 import type { ExistingWorkoutRef } from "./validateLocalhubPlan";
 import { formatIsoDate } from "@/domain/training/dates";
 import { builtinExerciseIds } from "@/domain/exercises/library";
-import {
-  exerciseDefinitionSchema,
-  MAX_DEFINITIONS_PER_PLAN,
-  type ExerciseDefinition,
-} from "@/domain/exercises/schema";
+import { MAX_DEFINITIONS_PER_PLAN } from "@/domain/exercises/schema";
+import { isExercise3d, parseAnyDefinition, type AnyExerciseDefinition } from "@/domain/exercises/any";
+import { validateExercise3d } from "@/domain/exercises/body3d";
 
 /**
  * Tag-für-Tag-Diff zwischen einem `localhub_plan` und den bereits in der DB
@@ -63,7 +61,7 @@ export interface RawExerciseDefinitionCheck {
   valid: boolean;
   /** Erste Schemaverletzung in Klartext (nur wenn ungültig). */
   error: string | null;
-  definition: ExerciseDefinition | null;
+  definition: AnyExerciseDefinition | null;
 }
 
 /**
@@ -79,19 +77,24 @@ export function inspectRawExerciseDefinitions(raw: unknown): RawExerciseDefiniti
     const obj = d && typeof d === "object" ? (d as Record<string, unknown>) : {};
     const id = typeof obj.id === "string" ? obj.id.slice(0, 60) : null;
     const title = typeof obj.title === "string" ? obj.title.slice(0, 80) : null;
-    const parsed = exerciseDefinitionSchema.safeParse(d);
+    const parsed = parseAnyDefinition(d);
     if (parsed.success) {
       const collision = builtinExerciseIds.has(parsed.data.id);
+      const poseError = isExercise3d(parsed.data) ? validateExercise3d(parsed.data).errors[0] : undefined;
       return {
         index,
         id,
         title,
-        valid: !collision,
-        error: collision ? "ID gehört zu einer eingebauten Übung (EXERCISE_ID_COLLISION)." : null,
+        valid: !collision && !poseError,
+        error: collision
+          ? "ID gehört zu einer eingebauten Übung (EXERCISE_ID_COLLISION)."
+          : poseError
+            ? `${poseError.path}: ${poseError.message}`
+            : null,
         definition: parsed.data,
       };
     }
-    const issue = parsed.error.issues[0];
+    const issue = parsed.issues[0];
     return {
       index,
       id,
