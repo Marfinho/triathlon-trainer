@@ -50,7 +50,7 @@ import { BODY_REST_POSE } from "../../src/domain/exercises/body3d/bodyModel";
     const c = box.getCenter(new THREE.Vector3());
     const size = Math.max(...box.getSize(new THREE.Vector3()).toArray());
     const cam = new THREE.PerspectiveCamera(30, W / H, 1, 3000);
-    const dir = view === "front" ? [1, 0.15, 0.25] : view === "back" ? [-1, 0.15, -0.2] : view === "top" ? [0.3, 1, 0.3] : view === "q" ? [0.8, 0.35, 0.8] : [0.25, 0.12, 1];
+    const dir = view === "front" ? [1, 0.15, 0.25] : view === "back" ? [-1, 0.15, -0.2] : view === "top" ? [0.3, 1, 0.3] : view === "q" ? [0.8, 0.35, 0.8] : view === "app" ? [0.95, 0.2, -0.3] : view === "low" ? [0.7, -0.05, 0.7] : [0.25, 0.12, 1];
     const d = new THREE.Vector3(...dir).normalize().multiplyScalar(size * 2.3);
     cam.position.copy(c).add(d);
     cam.lookAt(c);

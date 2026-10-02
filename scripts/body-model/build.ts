@@ -50,6 +50,20 @@ const fmt = (p: V3) => p.map((x) => x.toFixed(1)).join(",");
 console.log("Ruhepose Knie r", fmt(rest.shank_r.origin), "Fuß r", fmt(rest.foot_r.origin), "Ellbogen r", fmt(rest.forearm_r.origin), "Hand r", fmt(end("forearm_r", DIMS.forearm)));
 
 /* ---------- 3. Skinning-Gewichte ---------- */
+/** Höhe der Achsel (cm): darunter sind Rumpf und Arm im Modell getrennt. */
+const ARMPIT_Y = 123;
+/** Halbe Rumpfbreite (z) je Höhe unterhalb der Achsel, aus dem Modell gemessen. */
+const TRUNK_W: [number, number][] = [[80, 17], [100, 16.1], [104, 15.6], [110, 15.2], [114, 15.8], [118, 17], [122, 17.9], [124, 18.5]];
+function trunkHalfWidth(y: number): number {
+  if (y <= TRUNK_W[0][0]) return TRUNK_W[0][1];
+  for (let i = 1; i < TRUNK_W.length; i++)
+    if (y <= TRUNK_W[i][0]) {
+      const [y0, w0] = TRUNK_W[i - 1],
+        [y1, w1] = TRUNK_W[i];
+      return w0 + ((w1 - w0) * (y - y0)) / (y1 - y0);
+    }
+  return TRUNK_W[TRUNK_W.length - 1][1];
+}
 const smooth = (e0: number, e1: number, x: number) => {
   const t = Math.min(Math.max((x - e0) / (e1 - e0), 0), 1);
   return t * t * (3 - 2 * t);
@@ -88,12 +102,20 @@ for (let i = 0; i < n; i++) {
   const S = rest[`upperarm_${side}`].origin,
     E = rest[`forearm_${side}`].origin,
     Hd = end(`forearm_${side}`, DIMS.forearm + DIMS.hand + 4);
-  const armDist = Math.min(segDist(p, S, E) - 3, segDist(p, E, Hd));
+  // Oberarm eng (Radius ~7 cm, an der Schulterkappe oben etwas mehr), damit
+  // Achsel und seitlicher Brustkorb am Rumpf bleiben
+  const upperR = segDist(p, S, E);
+  const capTop = ua.t < 7 && p[1] > S[1] - 3 ? 2.5 : 0;
+  const armDist = Math.min(upperR - capTop, segDist(p, E, Hd));
   const legDist = Math.min(
     segDist(p, rest[`thigh_${side}`].origin, rest[`shank_${side}`].origin) - 4,
     segDist(p, rest[`shank_${side}`].origin, rest[`foot_${side}`].origin),
   );
-  const armReach = ua.t > -4 && Math.abs(p[2]) > 13 && (armDist < 7.5 || (armDist < 12 && armDist < legDist - 1));
+  // Rumpf/Arm-Trennung über die gemessene Rumpfbreite (unterhalb der Achsel)
+  // bzw. die Brustbreite (darüber); die Schulterkappe oben gehört zum Arm
+  const outsideTrunk = Math.abs(p[2]) > (p[1] < ARMPIT_Y ? trunkHalfWidth(p[1]) + 0.3 : 19.5) || (p[1] > S[1] - 2 && upperR < 9);
+  const armReach =
+    ua.t > -4 && Math.abs(p[2]) > 13 && outsideTrunk && (armDist < 7 || (segDist(p, E, Hd) < 12 && armDist < legDist - 1));
   // Bein? unterhalb des Schritts, oder Gesäß/Hüfte knapp darüber
   const crotch = 79;
   const legShare = 1 - smooth(crotch - 3, crotch + 11, p[1]);
@@ -101,7 +123,8 @@ for (let i = 0; i < n; i++) {
   if (armReach) {
     const fa = along(p, `forearm_${side}`);
     const fw = smooth(-3, 3, fa.t);
-    const armW = smooth(-4, 5, ua.t);
+    // Übergang Schulter: Achselnähe (weiter weg von der Achse) folgt mehr dem Rumpf
+    const armW = smooth(-3, 8, ua.t) * (1 - 0.6 * smooth(4.5, 7, upperR) * (1 - smooth(6, 14, ua.t)));
     add(`upperarm_${side}`, armW * (1 - fw));
     add(`forearm_${side}`, armW * fw);
     add("spine_up", 1 - armW);
