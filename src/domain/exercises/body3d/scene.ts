@@ -118,7 +118,7 @@ function bodyPrimitives(f: BodyFrames): Primitive[] {
   out.push(ell("abdomen", "spine_low", [0.5, 9, 0], [10.5, 15, 14.5], "shirt"));
   out.push(ell("chest", "spine_up", [1, 11, 0], [11.5, 16, 17.5], "shirt"));
   out.push({ kind: "capsule", id: "neck", a: f.neck.origin, b: at("neck", [1, 8, 0]), ra: 5.2, rb: 5, part: "skin" });
-  out.push(ell("head", "neck", [2, 13, 0], [10, 11.5, 9], "skin"));
+  out.push(ell("head", "neck", DIMS.head, [10, 11.5, 9], "skin"));
   out.push(ell("hair", "neck", [-1.8, 15.2, 0], [9.4, 9.8, 9.3], "hair"));
   for (const [sd] of SIDES) {
     const th = `thigh_${sd}` as const,
@@ -139,12 +139,19 @@ function bodyPrimitives(f: BodyFrames): Primitive[] {
 }
 
 /** Rolle und Aktivierung je Muskel-Instanz aus Definition + Pose. */
-function muscleState(def: Exercise3dDefinition, activation: Record<string, number>, id: MuscleId, side: "l" | "r" | "c") {
+export function muscleState(def: Exercise3dDefinition, activation: Record<string, number>, id: MuscleId, side: "l" | "r" | "c") {
   const sided = side === "c" ? id : `${id}_${side}`;
   const entry = def.muscles.find((m) => m.id === sided) ?? def.muscles.find((m) => m.id === id);
   const role: MuscleRole = entry ? entry.role : "idle";
   const act = activation[sided] ?? activation[id] ?? (entry ? 0.6 : 0);
   return { role, activation: Math.min(Math.max(act, 0), 1), listed: !!entry };
+}
+
+/** Wie `muscleState`, aber für eine Instanz-ID wie "gluteus_maximus_r" oder "rectus_abdominis_c". */
+export function muscleInstanceState(def: Exercise3dDefinition, activation: Record<string, number>, instance: string) {
+  const m = /^(.*)_([lrc])$/.exec(instance);
+  if (!m || !(m[1] in MUSCLES)) return { role: "idle" as MuscleRole, activation: 0, listed: false };
+  return muscleState(def, activation, m[1] as MuscleId, m[2] as "l" | "r" | "c");
 }
 
 export function buildScene(def: Exercise3dDefinition, pose: Pose3d, opts: SceneOptions = {}): Scene3d {

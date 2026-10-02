@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import type { Exercise3dDefinition } from "@/domain/exercises/body3d";
 import { ExerciseFigure } from "./ExerciseFigure";
+import { Exercise3dStill } from "./Exercise3dStill";
 
 export interface LibraryListItem {
   id: string;
@@ -13,6 +15,8 @@ export interface LibraryListItem {
   custom: boolean;
   /** Serverseitig gerendertes Thumb (Engine-Ausgabe) */
   thumbSvg: string;
+  /** 3D-Übung: Vorschau wird im Browser aus dem Körpermodell gerendert */
+  definition3d?: Exercise3dDefinition;
 }
 
 const FILTERS = [
@@ -94,7 +98,17 @@ export function ExerciseLibraryBrowser({ items }: { items: LibraryListItem[] }) 
                 href={`/trainer/uebungen/${it.id}`}
                 className="flex gap-3 rounded-xl border border-neutral-200 bg-white p-3 transition hover:border-neutral-300 hover:shadow-sm"
               >
-                <ExerciseFigure svg={it.thumbSvg} className="w-24 shrink-0 self-start" />
+                {it.definition3d ? (
+                  <Exercise3dStill
+                    definition={it.definition3d}
+                    spec={{ kind: "thumb" }}
+                    svg={it.thumbSvg}
+                    label={it.title}
+                    className="w-24 shrink-0 self-start"
+                  />
+                ) : (
+                  <ExerciseFigure svg={it.thumbSvg} className="w-24 shrink-0 self-start" />
+                )}
                 <div className="min-w-0">
                   <p className="font-semibold text-neutral-900">{it.title}</p>
                   <p className="text-xs text-neutral-600">{it.subtitle}</p>

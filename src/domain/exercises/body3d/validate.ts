@@ -1,4 +1,4 @@
-import { CONTACT_POINTS, JOINTS, JOINT_LABEL, type BoneName, type JointName } from "./skeleton";
+import { CONTACT_POINTS, DIMS, JOINTS, JOINT_LABEL, type BoneName, type JointName } from "./skeleton";
 import { boneToWorld, poseAt, solvePose, type BodyFrames } from "./kinematics";
 import type { Exercise3dDefinition, Pose3d } from "./schema";
 import { muscleLabel } from "./muscles";
@@ -43,9 +43,9 @@ export function lowestJoint(frames: BodyFrames): { bone: string; y: number } {
     if (y < best.y) best = { bone, y };
   };
   for (const b of SAMPLE_BONES) check(b, frames[b].origin[1]);
-  check("head", boneToWorld(frames, "neck", [2, 13, 0])[1]);
-  check("hand_l", boneToWorld(frames, "forearm_l", [0, -34, 0])[1]);
-  check("hand_r", boneToWorld(frames, "forearm_r", [0, -34, 0])[1]);
+  check("head", boneToWorld(frames, "neck", DIMS.head)[1]);
+  check("hand_l", boneToWorld(frames, "forearm_l", CONTACT_POINTS.left_hand.offset)[1]);
+  check("hand_r", boneToWorld(frames, "forearm_r", CONTACT_POINTS.right_hand.offset)[1]);
   return best;
 }
 

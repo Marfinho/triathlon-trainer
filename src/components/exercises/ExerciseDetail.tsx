@@ -1,6 +1,7 @@
 import { isExercise3d, renderFaultAny, type AnyExerciseDefinition } from "@/domain/exercises/any";
 import { ExerciseAnimation } from "./ExerciseAnimation";
 import { Exercise3dViewer } from "./Exercise3dViewer";
+import { Exercise3dStill } from "./Exercise3dStill";
 import { ExerciseFigure } from "./ExerciseFigure";
 import { ExerciseMuscleView } from "./ExerciseMuscleView";
 import { ExerciseStrip } from "./ExerciseStrip";
@@ -75,7 +76,16 @@ export function ExerciseDetail({
               </h3>
               {fault ? (
                 <figure className="mb-3 max-w-[300px]">
-                  <ExerciseFigure svg={fault.svg} />
+                  {isExercise3d(definition) ? (
+                    <Exercise3dStill
+                      definition={definition}
+                      spec={{ kind: "fault" }}
+                      svg={fault.svg}
+                      label={`Häufiger Fehler bei ${definition.title}`}
+                    />
+                  ) : (
+                    <ExerciseFigure svg={fault.svg} />
+                  )}
                   <figcaption className="mt-1.5 text-sm font-semibold text-rose-700">
                     ✗ {fault.caption}
                   </figcaption>

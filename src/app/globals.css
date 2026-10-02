@@ -723,6 +723,7 @@ input[type="range"] {
   --fig-muscle-edge: #8a141a;
   --fig-stretch: #2f8cf0;
   --fig-idle-muscle: #c9a0a0;
+  --fig-anatomy: #b47a70;
 }
 @media (prefers-color-scheme: dark) {
   :root {
@@ -741,6 +742,7 @@ input[type="range"] {
     --fig-ghost: #5aa9e6;
     --fig-stretch: #4aa3ff;
     --fig-idle-muscle: #8a6a6a;
+    --fig-anatomy: #9c665d;
   }
 }
 

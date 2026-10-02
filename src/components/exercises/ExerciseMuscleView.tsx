@@ -1,12 +1,22 @@
-import { MUSCLE_ROLE_LABEL, musclesOf, renderHeroAny, type AnyExerciseDefinition } from "@/domain/exercises/any";
+import { isExercise3d, MUSCLE_ROLE_LABEL, musclesOf, renderHeroAny, type AnyExerciseDefinition } from "@/domain/exercises/any";
 import { ExerciseFigure } from "./ExerciseFigure";
+import { Exercise3dStill } from "./Exercise3dStill";
 
 /** Muskelbild (Zielposition) mit nummerierter Legende. */
 export function ExerciseMuscleView({ definition }: { definition: AnyExerciseDefinition }) {
   return (
     <section aria-label="Zielmuskeln">
       <h3 className="mb-2 text-sm font-semibold text-neutral-900">Zielmuskeln</h3>
-      <ExerciseFigure svg={renderHeroAny(definition)} />
+      {isExercise3d(definition) ? (
+        <Exercise3dStill
+          definition={definition}
+          spec={{ kind: "hero" }}
+          svg={renderHeroAny(definition)}
+          label={`Zielmuskeln bei ${definition.title}`}
+        />
+      ) : (
+        <ExerciseFigure svg={renderHeroAny(definition)} />
+      )}
       <ol className="mt-3 space-y-2">
         {musclesOf(definition).map((m, i) => (
           <li key={m.key} className="flex gap-2.5 text-sm leading-snug">

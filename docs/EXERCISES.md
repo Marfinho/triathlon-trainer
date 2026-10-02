@@ -16,6 +16,30 @@ Es gibt zwei Formate:
 
 Gibt es zu einer ID beide Fassungen, zeigt die App die 3D-Fassung.
 
+### Körpermodell (3D)
+
+Der 3D-Viewer, der Kraft-Player und die Standbilder der 3D-Übungen zeigen einen
+realistischen Körper (Blender „Human Base Meshes“, CC0, siehe
+`public/models/CREDITS.md`). Das Skelett (`body3d/skeleton.ts`) ist an seine
+Proportionen angepasst (175 cm). `public/models/body.bin` enthält Geometrie,
+Skinning-Gewichte für die 14 Knochen, Kleidungsbereiche (Shirt, Shorts, Schuhe,
+Haare) und je Eckpunkt bis zu zwei Muskelzonen; der Viewer färbt die Muskeln
+direkt auf der Haut (rot = arbeitet, blau = wird gedehnt, Stärke = Aktivierung).
+Ansicht „Muskeln“: Anatomie-Darstellung ohne Kleidung mit Trennlinien zwischen
+den Muskeln.
+
+Neu erzeugen (nur bei Änderungen an Skelett, Muskeln oder Kleidung):
+
+1. Blender-Paket laden und `human_base_meshes_bundle.blend` mit
+   `scripts/body-model/export_blender.py` exportieren (benötigt Blender 4.2 bzw.
+   das Python-Modul `bpy`; eingebettete Skripte bleiben aus):
+   `python export_blender.py -- human_base_meshes_bundle.blend 1`
+2. `npx tsx scripts/body-model/build.ts body_L1.json public/models/body.bin`
+3. `npm test -- tests/exercises/bodyModel.test.ts` (Gewichte, Ruhepose,
+   Neutralstellung ohne Ausreißer).
+
+Ohne WebGL oder wenn das Modell nicht lädt, bleibt die flache SVG-Darstellung.
+
 LocalHub bleibt Datendrehscheibe, nicht Coach: Das externe LLM referenziert
 Übungen im Plan (`exercise.id`), LocalHub prüft, speichert und zeigt sie an.
 
@@ -32,6 +56,8 @@ LocalHub bleibt Datendrehscheibe, nicht Coach: Das externe LLM referenziert
 | `src/domain/exercises/singleExercise.ts` | Einzelne neue Übung prüfen und speichern („Neue Übung mit KI“) |
 | `src/components/exercises/Exercise3dViewer.tsx` | 3D-Ansicht (lädt `three/body3dRenderer.ts` nach) |
 | `scripts/dev/tune3d.ts` | Entwickler-Werkzeug: prüft eine 3D-Bibliothek und schreibt eine HTML-Vorschau |
+| `scripts/body-model/` | Export (Blender) und Aufbau des Körpermodells `public/models/body.bin` |
+| `src/components/exercises/three/` | three.js: Viewer, Körpermodell (`bodyMesh.ts`), Standbilder (`stillRenderer.ts`) |
 | `src/domain/exercises/resolve.ts` | Auflösung: Bibliothek → eigene Übungen des Nutzers |
 | `src/domain/plan-import/validateExercises.ts` | Fachliche Prüfung der Übungen eines Plans |
 | `src/components/exercises/` | UI: Figur, Muskelbild, Ablauf, Animation, Detail, Kraft-Player |

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { listExercisesForUser } from "@/domain/exercises/resolve";
-import { musclesOf, renderThumbAny } from "@/domain/exercises/any";
+import { isExercise3d, musclesOf, renderThumbAny } from "@/domain/exercises/any";
 import {
   ExerciseLibraryBrowser,
   type LibraryListItem,
@@ -26,6 +26,7 @@ export default async function ExerciseLibraryPage() {
       muscles: musclesOf(definition).map((m) => m.label),
       custom,
       thumbSvg: renderThumbAny(definition),
+      ...(isExercise3d(definition) ? { definition3d: definition } : {}),
     }),
   );
 

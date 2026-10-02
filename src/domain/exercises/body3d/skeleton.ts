@@ -1,27 +1,28 @@
 import type { V3 } from "./math";
 
 /**
- * Stilisiertes Standard-Skelett (cm). Neutralstellung: aufrecht stehend,
+ * Standard-Skelett (cm), angepasst an das Körpermodell (Blender „Human Base
+ * Meshes“, CC0, auf 175 cm skaliert). Neutralstellung: aufrecht stehend,
  * Blick nach +x, Arme hängen seitlich, Füße flach.
  * Seitenvorzeichen s: links = −1 (z negativ), rechts = +1.
  */
 
 export const DIMS = {
-  pelvisHeight: 101,
-  lumbar: 8,
-  thoracic: 18,
-  neckBase: 22,
-  head: [2, 13, 0] as V3,
-  hip: [0, -7, 9] as V3, // z wird mit s multipliziert
-  shoulder: [0, 19, 20] as V3, // relativ zum Brustwirbel-Gelenk, z mit s
-  thigh: 44,
-  shank: 42,
-  upperArm: 29,
-  forearm: 26,
-  hand: 17,
-  heel: [-5, -7, 0] as V3,
-  ball: [14, -7, 0] as V3,
-  toe: [20, -6, 0] as V3,
+  pelvisHeight: 96.4,
+  lumbar: 10,
+  thoracic: 16,
+  neckBase: 29.4,
+  head: [4, 11.2, 0] as V3,
+  hip: [0, -7, 9.4] as V3, // z wird mit s multipliziert
+  shoulder: [-1, 15.6, 18] as V3, // relativ zum Brustwirbel-Gelenk, z mit s
+  thigh: 40.2,
+  shank: 41.9,
+  upperArm: 27.6,
+  forearm: 22.7,
+  hand: 19,
+  heel: [-6, -7.8, 0] as V3,
+  ball: [12.5, -7.8, 0] as V3,
+  toe: [18, -6.8, 0] as V3,
 } as const;
 
 /** Gelenke mit ihren Freiheitsgraden und Bewegungsumfang (Grad). */
@@ -85,29 +86,29 @@ export type BoneName =
  * Ziel bei Bodenkontakt: Punkt.y = Fläche + radius.
  */
 export const CONTACT_POINTS = {
-  left_heel: { bone: "foot_l", offset: [-5, -7, 0], radius: 0 },
-  right_heel: { bone: "foot_r", offset: [-5, -7, 0], radius: 0 },
-  left_ball: { bone: "foot_l", offset: [14, -7, 0], radius: 0 },
-  right_ball: { bone: "foot_r", offset: [14, -7, 0], radius: 0 },
-  left_toes: { bone: "foot_l", offset: [20, -6, 0], radius: 1 },
-  right_toes: { bone: "foot_r", offset: [20, -6, 0], radius: 1 },
-  left_instep: { bone: "foot_l", offset: [8, -1, 0], radius: 3 },
-  right_instep: { bone: "foot_r", offset: [8, -1, 0], radius: 3 },
-  left_foot_side: { bone: "foot_l", offset: [6, -5, 0], radius: 4.5 },
-  right_foot_side: { bone: "foot_r", offset: [6, -5, 0], radius: 4.5 },
+  left_heel: { bone: "foot_l", offset: [-6, -7.8, 0], radius: 0 },
+  right_heel: { bone: "foot_r", offset: [-6, -7.8, 0], radius: 0 },
+  left_ball: { bone: "foot_l", offset: [12.5, -7.8, 0], radius: 0 },
+  right_ball: { bone: "foot_r", offset: [12.5, -7.8, 0], radius: 0 },
+  left_toes: { bone: "foot_l", offset: [18, -6.8, 0], radius: 1 },
+  right_toes: { bone: "foot_r", offset: [18, -6.8, 0], radius: 1 },
+  left_instep: { bone: "foot_l", offset: [8, -2, 0], radius: 3 },
+  right_instep: { bone: "foot_r", offset: [8, -2, 0], radius: 3 },
+  left_foot_side: { bone: "foot_l", offset: [5, -5.5, 0], radius: 4.5 },
+  right_foot_side: { bone: "foot_r", offset: [5, -5.5, 0], radius: 4.5 },
   left_knee: { bone: "shank_l", offset: [0, 0, 0], radius: 6 },
   right_knee: { bone: "shank_r", offset: [0, 0, 0], radius: 6 },
-  left_hand: { bone: "forearm_l", offset: [0, -34, 0], radius: 2 },
-  right_hand: { bone: "forearm_r", offset: [0, -34, 0], radius: 2 },
+  left_hand: { bone: "forearm_l", offset: [0, -31, 0], radius: 2 },
+  right_hand: { bone: "forearm_r", offset: [0, -31, 0], radius: 2 },
   left_elbow: { bone: "forearm_l", offset: [0, 0, 0], radius: 4 },
   right_elbow: { bone: "forearm_r", offset: [0, 0, 0], radius: 4 },
-  left_wrist: { bone: "forearm_l", offset: [0, -26, 0], radius: 3 },
-  right_wrist: { bone: "forearm_r", offset: [0, -26, 0], radius: 3 },
+  left_wrist: { bone: "forearm_l", offset: [0, -22.7, 0], radius: 3 },
+  right_wrist: { bone: "forearm_r", offset: [0, -22.7, 0], radius: 3 },
   pelvis: { bone: "pelvis", offset: [0, 0, 0], radius: 11 },
   left_hip_side: { bone: "pelvis", offset: [0, -4, -9], radius: 9 },
   right_hip_side: { bone: "pelvis", offset: [0, -4, 9], radius: 9 },
   upper_back: { bone: "spine_up", offset: [0, 6, 0], radius: 11 },
-  head_back: { bone: "neck", offset: [2, 13, 0], radius: 10 },
+  head_back: { bone: "neck", offset: [4, 11.2, 0], radius: 10 },
 } as const satisfies Record<string, { bone: BoneName; offset: readonly number[]; radius: number }>;
 
 export type ContactPointName = keyof typeof CONTACT_POINTS;

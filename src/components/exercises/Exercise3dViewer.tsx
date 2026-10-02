@@ -37,8 +37,8 @@ function webglAvailable(): boolean {
 /**
  * 3D-Ansicht einer Übung (Format 2.0): drehbarer Körper (three.js, wird
  * nachgeladen), Umschalter Körper/Muskeln, Abspielen, Tempo, Scrub-Regler und
- * Phasen-Label. Ohne WebGL – und in der kompakten Variante (Player) – zeigt
- * sie dieselbe Szene als flache SVG-Projektion. Bei „Bewegung reduzieren"
+ * Phasen-Label. Ohne WebGL zeigt sie dieselbe Szene als flache
+ * SVG-Projektion. Bei „Bewegung reduzieren"
  * startet sie pausiert im ersten Zielbild.
  */
 export function Exercise3dViewer({
@@ -47,7 +47,7 @@ export function Exercise3dViewer({
   autoPlay = true,
 }: {
   definition: Exercise3dDefinition;
-  /** true = nur flache Ansicht ohne Bedienelemente (z. B. im Kraft-Player) */
+  /** true = ohne Bedienelemente (z. B. im Kraft-Player) */
   compact?: boolean;
   autoPlay?: boolean;
 }) {
@@ -61,7 +61,7 @@ export function Exercise3dViewer({
   const [playing, setPlaying] = useState(false);
   const [speed, setSpeed] = useState(1);
   const [mode, setMode] = useState<ViewMode>("body");
-  const [gl, setGl] = useState<"pending" | "on" | "off">(compact ? "off" : "pending");
+  const [gl, setGl] = useState<"pending" | "on" | "off">("pending");
   const scrubId = useId();
 
   const total = useMemo(() => cycleDuration(definition), [definition]);
@@ -73,19 +73,18 @@ export function Exercise3dViewer({
 
   // three.js nachladen (nur wenn WebGL vorhanden und nicht kompakt)
   useEffect(() => {
-    if (compact) return;
     if (!webglAvailable()) {
       setGl("off");
       return;
     }
     let cancelled = false;
     let resizeObserver: ResizeObserver | null = null;
-    import("./three/body3dRenderer")
-      .then(({ createBody3dRenderer }) => {
+    Promise.all([import("./three/body3dRenderer"), import("./three/loadBodyModel").then((m) => m.loadBodyModel())])
+      .then(([{ createBody3dRenderer }, model]) => {
         const canvas = canvasRef.current,
           host = hostRef.current;
         if (cancelled || !canvas || !host) return;
-        const r = createBody3dRenderer(canvas, definition, host);
+        const r = createBody3dRenderer(canvas, definition, host, model);
         rendererRef.current = r;
         const fit = () => {
           const w = host.clientWidth;

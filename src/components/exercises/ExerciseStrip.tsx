@@ -1,5 +1,6 @@
 import { isExercise3d, renderFrameAny, type AnyExerciseDefinition } from "@/domain/exercises/any";
 import { ExerciseFigure } from "./ExerciseFigure";
+import { Exercise3dStill } from "./Exercise3dStill";
 
 /** Ablauf in vier Bildern mit Bildunterschrift. */
 export function ExerciseStrip({ definition }: { definition: AnyExerciseDefinition }) {
@@ -11,7 +12,16 @@ export function ExerciseStrip({ definition }: { definition: AnyExerciseDefinitio
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         {definition.frames.map((f, i) => (
           <figure key={i} className="m-0">
-            <ExerciseFigure svg={renderFrameAny(definition, i)} />
+            {isExercise3d(definition) ? (
+              <Exercise3dStill
+                definition={definition}
+                spec={{ kind: "frame", index: i }}
+                svg={renderFrameAny(definition, i)}
+                label={`${definition.title}, Bild ${i + 1}: ${f.label}`}
+              />
+            ) : (
+              <ExerciseFigure svg={renderFrameAny(definition, i)} />
+            )}
             <figcaption className="mt-1.5 flex items-start gap-2 text-xs font-semibold leading-snug text-neutral-800">
               <span
                 aria-hidden="true"
