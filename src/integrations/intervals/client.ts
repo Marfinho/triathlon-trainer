@@ -60,13 +60,18 @@ export const SPORT_TO_INTERVALS_TYPE: Record<string, string> = {
   run: "Run",
   bike: "Ride",
   swim: "Swim",
-  strength: "Weight Training",
+  strength: "WeightTraining",
   brick: "Ride",
   mobility: "Yoga",
   walk: "Walk",
   cross_training: "Workout",
   other: "Workout",
 };
+
+/** Intervals.icu liefert numerische IDs; intern werden sie als String geführt. */
+function normalizeEvent(event: IntervalsEvent): IntervalsEvent {
+  return { ...event, id: String(event.id) };
+}
 
 export interface IntervalsClientConfig {
   athleteId: string;
@@ -130,10 +135,12 @@ export class HttpIntervalsClient implements IntervalsClient {
   }
 
   async createEvent(input: IntervalsEventInput): Promise<IntervalsEvent> {
-    return this.request<IntervalsEvent>(
-      "POST",
-      `/athlete/${this.athleteId}/events`,
-      this.toEventBody(input),
+    return normalizeEvent(
+      await this.request<IntervalsEvent>(
+        "POST",
+        `/athlete/${this.athleteId}/events`,
+        this.toEventBody(input),
+      ),
     );
   }
 
@@ -141,10 +148,12 @@ export class HttpIntervalsClient implements IntervalsClient {
     id: string,
     input: IntervalsEventInput,
   ): Promise<IntervalsEvent> {
-    return this.request<IntervalsEvent>(
-      "PUT",
-      `/athlete/${this.athleteId}/events/${id}`,
-      this.toEventBody(input),
+    return normalizeEvent(
+      await this.request<IntervalsEvent>(
+        "PUT",
+        `/athlete/${this.athleteId}/events/${id}`,
+        this.toEventBody(input),
+      ),
     );
   }
 
@@ -156,20 +165,22 @@ export class HttpIntervalsClient implements IntervalsClient {
   }
 
   async listEvents(oldest: string, newest: string): Promise<IntervalsEvent[]> {
-    return this.request<IntervalsEvent[]>(
+    const events = await this.request<IntervalsEvent[]>(
       "GET",
       `/athlete/${this.athleteId}/events?oldest=${oldest}&newest=${newest}&category=WORKOUT`,
     );
+    return events.map(normalizeEvent);
   }
 
   async listActivities(
     oldest: string,
     newest: string,
   ): Promise<IntervalsActivity[]> {
-    return this.request<IntervalsActivity[]>(
+    const activities = await this.request<IntervalsActivity[]>(
       "GET",
       `/athlete/${this.athleteId}/activities?oldest=${oldest}&newest=${newest}`,
     );
+    return activities.map((a) => ({ ...a, id: String(a.id) }));
   }
 
   async findEvent(input: IntervalsEventInput): Promise<IntervalsEvent | null> {

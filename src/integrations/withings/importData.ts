@@ -42,6 +42,11 @@ export async function importWithingsData(
 /**
  * Importiere Weight/HR/HRV von Withings und speichere in BodyMetric.
  */
+/** Withings: echter Wert = value * 10^unit (z.B. 99190 * 10^-3 = 99,19 kg). */
+function decodeMeasure(measure: { value: number; unit: number }): number {
+  return measure.value * Math.pow(10, measure.unit);
+}
+
 async function importMeasurements(
   db: PrismaClient,
   client: WithingsClient,
@@ -71,13 +76,13 @@ async function importMeasurements(
     for (const measure of group.measures || []) {
       if (measure.type === 1) {
         // weight in kg
-        weightKg = measure.value / Math.pow(10, measure.unit);
+        weightKg = Math.round(decodeMeasure(measure) * 100) / 100;
       } else if (measure.type === 11) {
         // heart_pulse in bpm
-        restingHr = Math.round(measure.value / Math.pow(10, measure.unit));
+        restingHr = Math.round(decodeMeasure(measure));
       } else if (measure.type === 88) {
         // hrv in ms
-        hrv = Math.round(measure.value / Math.pow(10, measure.unit));
+        hrv = Math.round(decodeMeasure(measure));
       }
     }
 

@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
-import { decryptApiKey } from "@/lib/crypto";
+import { decryptApiKey, encryptApiKey } from "@/lib/crypto";
+import { refreshOAuthToken } from "@/integrations/oauth/providers";
 import { HttpWithingsClient, type WithingsClient } from "./client";
 
 /**
@@ -17,8 +18,39 @@ export async function createWithingsClientForUser(
 
   if (integration?.apiKey) {
     try {
+      let accessToken = decryptApiKey(integration.apiKey);
+
+      // Withings-Access-Tokens laufen nach ~3h ab (API meldet dann status 401).
+      // Daher vor Ablauf on-demand erneuern und persistieren.
+      const expiresSoon =
+        integration.tokenExpiresAt &&
+        integration.tokenExpiresAt.getTime() < Date.now() + 60_000;
+      if (expiresSoon && integration.refreshToken) {
+        try {
+          const refreshed = await refreshOAuthToken(
+            "withings",
+            decryptApiKey(integration.refreshToken),
+          );
+          await prisma.userIntegration.update({
+            where: { id: integration.id },
+            data: {
+              apiKey: encryptApiKey(refreshed.accessToken),
+              refreshToken: refreshed.refreshToken
+                ? encryptApiKey(refreshed.refreshToken)
+                : integration.refreshToken,
+              tokenExpiresAt: refreshed.expiresAt,
+              scope: refreshed.scope ?? integration.scope,
+            },
+          });
+          accessToken = refreshed.accessToken;
+        } catch {
+          // Refresh fehlgeschlagen (z.B. widerrufen) -> alter Token; der Import
+          // meldet dann den Withings-Fehler.
+        }
+      }
+
       return new HttpWithingsClient({
-        accessToken: decryptApiKey(integration.apiKey),
+        accessToken,
         baseUrl: process.env.WITHINGS_API_BASE_URL,
       });
     } catch {

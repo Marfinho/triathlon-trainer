@@ -58,13 +58,19 @@ export async function handleCallback(
   provider: OAuthProviderId,
   request: Request,
 ): Promise<NextResponse> {
-  const { user, response } = await requireUser();
-  if (response) return response;
-
   const url = new URL(request.url);
   const code = url.searchParams.get("code");
   const state = url.searchParams.get("state");
   const oauthError = url.searchParams.get("error");
+
+  // Erreichbarkeitsprüfung des Anbieters (z.B. Withings beim Registrieren der
+  // URL): weder Code noch Fehler -> einfach 200 antworten.
+  if (!code && !oauthError) {
+    return new NextResponse("ok", { status: 200 });
+  }
+
+  const { user, response } = await requireUser();
+  if (response) return response;
 
   if (oauthError) {
     return NextResponse.redirect(`${baseUrl()}/profile?integration_error=denied`);

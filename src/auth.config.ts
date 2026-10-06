@@ -26,6 +26,10 @@ const PUBLIC_PREFIXES = [
   "/.well-known",
 ];
 
+// OAuth-Callbacks der Anbieter: Withings prüft die URL beim Registrieren ohne
+// Session. Der Handler verlangt für den echten Code-Austausch weiterhin eine Session.
+const PUBLIC_PATTERNS = [/^\/api\/integrations\/[^/]+\/callback\/?$/];
+
 export const authConfig = {
   trustHost: true,
   pages: { signIn: "/auth/login" },
@@ -35,7 +39,8 @@ export const authConfig = {
       const { pathname } = request.nextUrl;
       const isPublic =
         pathname === "/" ||
-        PUBLIC_PREFIXES.some((p) => pathname.startsWith(p));
+        PUBLIC_PREFIXES.some((p) => pathname.startsWith(p)) ||
+        PUBLIC_PATTERNS.some((re) => re.test(pathname));
       if (isPublic) return true;
       return Boolean(auth?.user);
     },
