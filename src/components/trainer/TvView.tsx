@@ -77,7 +77,7 @@ function Waiting({ connected }: { connected: boolean }) {
 
 function Header({ title, right }: { title: string; right: string }) {
   return (
-    <div className="flex items-baseline justify-between gap-6 text-[2vw] text-neutral-400">
+    <div className="flex shrink-0 items-baseline justify-between gap-6 text-[2vw] text-neutral-400">
       <span className="truncate font-semibold text-neutral-200">{title}</span>
       <span className="tabular-nums">{right}</span>
     </div>
@@ -86,7 +86,7 @@ function Header({ title, right }: { title: string; right: string }) {
 
 function Progress({ pct }: { pct: number }) {
   return (
-    <div className="h-[1vw] w-full overflow-hidden rounded-full bg-neutral-800">
+    <div className="h-[1vw] w-full shrink-0 overflow-hidden rounded-full bg-neutral-800">
       <div
         className="h-full rounded-full bg-blue-500 transition-all duration-700"
         style={{ width: `${Math.min(100, Math.max(0, pct))}%` }}
@@ -110,7 +110,7 @@ function Big({
     <div className="rounded-3xl bg-neutral-900 px-[2vw] py-[1.5vw]">
       <p className="text-[1.6vw] uppercase tracking-widest text-neutral-400">{label}</p>
       <p
-        className="mt-[0.5vw] text-[8vw] font-bold leading-none tabular-nums"
+        className="mt-[0.5vw] text-[5vw] font-bold leading-none tabular-nums"
         style={color ? { color } : undefined}
       >
         {value}
@@ -136,16 +136,16 @@ function BikeScreen({ s }: { s: Bike }) {
       />
       <Progress pct={total > 0 ? (s.elapsedSec / total) * 100 : 0} />
 
-      <div className="grid flex-1 grid-cols-[1.6fr_1fr] gap-[1.5vw]">
-        <div className="flex flex-col gap-[1.5vw]">
-          <div className="flex-1 rounded-3xl bg-neutral-900 px-[2.5vw] py-[2vw]">
+      <div className="grid min-h-0 flex-1 grid-cols-[1.6fr_1fr] gap-[1.5vw]">
+        <div className="flex min-h-0 flex-col gap-[1.5vw]">
+          <div className="min-h-0 flex-1 rounded-3xl bg-neutral-900 px-[2.5vw] py-[2vw]">
             <p className="text-[1.6vw] uppercase tracking-widest text-neutral-400">Leistung</p>
             <p
-              className="mt-[0.5vw] text-[15vw] font-bold leading-none tabular-nums"
+              className="mt-[0.5vw] text-[12vw] font-bold leading-none tabular-nums"
               style={powerColor ? { color: powerColor } : undefined}
             >
               {power != null ? Math.round(power) : "–"}
-              <span className="ml-[1vw] text-[3vw] font-medium text-neutral-400">W</span>
+              <span className="ml-[1vw] text-[2.6vw] font-medium text-neutral-400">W</span>
             </p>
             {target != null ? (
               <p className="mt-[1vw] text-[3vw] text-neutral-300">
@@ -162,20 +162,20 @@ function BikeScreen({ s }: { s: Bike }) {
           <Profile s={s} />
         </div>
 
-        <div className="flex flex-col gap-[1.5vw]">
+        <div className="flex min-h-0 flex-col gap-[1.5vw]">
           <Big label="Herzfrequenz" value={s.hrBpm != null ? String(Math.round(s.hrBpm)) : "–"} unit="bpm" />
           <Big
             label="Trittfrequenz"
             value={s.cadenceRpm != null ? String(Math.round(s.cadenceRpm)) : "–"}
             unit="rpm"
           />
-          <div className="flex-1 rounded-3xl bg-neutral-900 px-[2vw] py-[1.5vw]">
+          <div className="min-h-0 flex-1 overflow-hidden rounded-3xl bg-neutral-900 px-[2vw] py-[1.5vw]">
             {s.step ? (
               <>
                 <p className="text-[1.6vw] uppercase tracking-widest text-neutral-400">
                   Schritt {s.step.index + 1}/{s.step.count}
                 </p>
-                <p className="mt-[0.5vw] text-[7vw] font-bold leading-none tabular-nums">
+                <p className="mt-[0.5vw] text-[5vw] font-bold leading-none tabular-nums">
                   {fmt(s.step.remainingSec)}
                 </p>
                 <p className="mt-[1vw] truncate text-[1.8vw] text-neutral-300">{s.step.label}</p>
@@ -205,7 +205,7 @@ function Profile({ s }: { s: Bike }) {
   const max = Math.max(s.ftp * 1.3, ...s.profile.map((p) => p.w), 1);
   let cursor = 0;
   return (
-    <div className="relative h-[11vw] rounded-3xl bg-neutral-900 p-[1.2vw]">
+    <div className="relative h-[9vw] shrink-0 rounded-3xl bg-neutral-900 p-[1.2vw]">
       <div className="relative flex h-full items-end">
         {s.profile.map((p, i) => {
           const left = (cursor / total) * 100;
