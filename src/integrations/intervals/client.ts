@@ -45,6 +45,15 @@ export interface IntervalsActivity {
   icu_rpe?: number;
 }
 
+/** Tageswerte aus Intervals.icu (Apple Health/Garmin/Withings …). `id` ist das Datum YYYY-MM-DD. */
+export interface IntervalsWellness {
+  id: string;
+  restingHR?: number | null;
+  /** HRV (rMSSD) in ms. */
+  hrv?: number | null;
+  weight?: number | null;
+}
+
 export interface IntervalsClient {
   createEvent(input: IntervalsEventInput): Promise<IntervalsEvent>;
   updateEvent(id: string, input: IntervalsEventInput): Promise<IntervalsEvent>;
@@ -53,6 +62,7 @@ export interface IntervalsClient {
   findEvent(input: IntervalsEventInput): Promise<IntervalsEvent | null>;
   listEvents(oldest: string, newest: string): Promise<IntervalsEvent[]>;
   listActivities(oldest: string, newest: string): Promise<IntervalsActivity[]>;
+  listWellness(oldest: string, newest: string): Promise<IntervalsWellness[]>;
 }
 
 /** Mapping LocalHub-Sport -> Intervals.icu-Typ. */
@@ -181,6 +191,14 @@ export class HttpIntervalsClient implements IntervalsClient {
       `/athlete/${this.athleteId}/activities?oldest=${oldest}&newest=${newest}`,
     );
     return activities.map((a) => ({ ...a, id: String(a.id) }));
+  }
+
+  async listWellness(oldest: string, newest: string): Promise<IntervalsWellness[]> {
+    const rows = await this.request<IntervalsWellness[]>(
+      "GET",
+      `/athlete/${this.athleteId}/wellness?oldest=${oldest}&newest=${newest}`,
+    );
+    return rows.map((r) => ({ ...r, id: String(r.id) }));
   }
 
   async findEvent(input: IntervalsEventInput): Promise<IntervalsEvent | null> {

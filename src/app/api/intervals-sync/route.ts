@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/auth-guard";
 import { processSyncQueue } from "@/integrations/intervals/syncQueue";
 import { importActivitiesFromIntervals } from "@/integrations/intervals/importActivities";
+import { importWellnessFromIntervals } from "@/integrations/intervals/importWellness";
 import { createIntervalsClientForUser } from "@/integrations/intervals/userClient";
 
 /**
@@ -46,7 +47,14 @@ export async function POST() {
     activities = { error: e instanceof Error ? e.message : "Import fehlgeschlagen." };
   }
 
-  return NextResponse.json({ ok: true, ...result, activities });
+  let wellness = null;
+  try {
+    wellness = await importWellnessFromIntervals({ db: prisma, client, userId });
+  } catch (e) {
+    wellness = { error: e instanceof Error ? e.message : "Wellness-Import fehlgeschlagen." };
+  }
+
+  return NextResponse.json({ ok: true, ...result, activities, wellness });
 }
 
 /**

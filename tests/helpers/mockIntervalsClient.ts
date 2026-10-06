@@ -3,6 +3,7 @@ import type {
   IntervalsEvent,
   IntervalsEventInput,
   IntervalsActivity,
+  IntervalsWellness,
 } from "@/integrations/intervals/client";
 
 /** In-Memory-Mock des Intervals.icu-Clients für Tests. */
@@ -13,6 +14,8 @@ export class MockIntervalsClient implements IntervalsClient {
   preset: IntervalsEvent | null = null;
   /** Aktivitäten, die `listActivities` zurückgibt. */
   activitiesList: IntervalsActivity[] = [];
+  /** Wellness-Zeilen, die `listWellness` zurückgibt. */
+  wellnessList: IntervalsWellness[] = [];
   private nextId = 1;
 
   async createEvent(input: IntervalsEventInput): Promise<IntervalsEvent> {
@@ -47,5 +50,9 @@ export class MockIntervalsClient implements IntervalsClient {
 
   async listActivities(): Promise<IntervalsActivity[]> {
     return this.activitiesList;
+  }
+
+  async listWellness(): Promise<IntervalsWellness[]> {
+    return this.wellnessList;
   }
 }

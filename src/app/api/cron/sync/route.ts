@@ -14,6 +14,7 @@ function safeEqual(a: string, b: string): boolean {
 import { HttpIntervalsClient } from "@/integrations/intervals/client";
 import { processSyncQueue } from "@/integrations/intervals/syncQueue";
 import { importActivitiesFromIntervals } from "@/integrations/intervals/importActivities";
+import { importWellnessFromIntervals } from "@/integrations/intervals/importWellness";
 import { createWithingsClientForUser } from "@/integrations/withings/userClient";
 import { importWithingsData } from "@/integrations/withings/importData";
 import { isSyncDue } from "@/lib/sync-schedule";
@@ -79,6 +80,8 @@ export async function GET(request: Request) {
       });
       await importActivitiesFromIntervals({ db: prisma, client, userId });
       await processSyncQueue({ db: prisma, client, userId, triggeredBy: "cron" });
+      // Ruhepuls/HRV sind optional: ein Fehler hier darf den Sync nicht fehlschlagen lassen.
+      await importWellnessFromIntervals({ db: prisma, client, userId }).catch(() => undefined);
 
       await prisma.syncLog.create({
         data: {
