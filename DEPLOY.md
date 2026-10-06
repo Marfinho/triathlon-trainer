@@ -87,6 +87,28 @@ docker compose logs -f app     # Migrationen + Start beobachten
 
 Am besten erst deployen, wenn der CI-Lauf für den Commit auf GitHub grün ist.
 
+### Update per Button im Admin-Panel
+
+Im Admin-Panel gibt es die Karte **„System-Update“**: „Auf Updates prüfen“ holt
+den Stand von GitHub, „Jetzt aktualisieren“ macht `git pull --ff-only` und baut
+nur den Dienst `app` neu (Migrationen laufen beim Start wie gewohnt). Schlägt der
+Build fehl, wird der Code zurückgesetzt und die laufende Version bleibt aktiv.
+
+So funktioniert es: Der Dienst **`updater`** (siehe `updater/`) hat den
+Docker-Socket und das Repo (`.:/repo`) gemountet; die App legt nur eine
+Anfrage-Datei im geteilten Volume `localhub-updates` ab und hat selbst keinen
+Docker-Zugriff. Hinweise:
+
+- Der Docker-Socket entspricht Root auf dem Host – der Updater hat keinen
+  Port nach außen, die Auslöser-Route ist admin-geschützt und wird im Audit-Log
+  protokolliert.
+- Der Branch ist per `UPDATE_BRANCH` (Default `main`) einstellbar.
+- Bei privatem Repo muss `git pull` auf dem Server ohne Passwort funktionieren
+  (Token in der `origin`-URL oder Deploy-Key).
+- Der Updater aktualisiert sich nicht selbst; nach Änderungen an `updater/`
+  einmalig manuell `docker compose up -d --build updater`.
+- Lokale Änderungen im Repo auf dem Server brechen das Update ab.
+
 ---
 
 ## 3. HTTPS / Reverse Proxy (empfohlen)

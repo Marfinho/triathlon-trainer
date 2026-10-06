@@ -54,6 +54,24 @@ services:
       LEGAL_EMAIL: ${LEGAL_EMAIL:-}
       LEGAL_PHONE: ${LEGAL_PHONE:-}
       LEGAL_VAT_ID: ${LEGAL_VAT_ID:-}
+      UPDATE_DIR: /updates
+    volumes:
+      - localhub-updates:/updates
+    restart: unless-stopped
+
+  # Spielt Updates aus GitHub ein, wenn ein Admin im Admin-Panel darum bittet.
+  # Hat Zugriff auf den Docker-Socket (= Root-Rechte auf dem Host) und ist von
+  # außen nicht erreichbar; die App kommuniziert nur über das Volume /updates.
+  updater:
+    build: ./updater
+    image: localhub-updater:latest
+    container_name: localhub-updater
+    environment:
+      UPDATE_BRANCH: ${UPDATE_BRANCH:-main}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - .:/repo
+      - localhub-updates:/updates
     restart: unless-stopped
 
   cron:
@@ -72,3 +90,4 @@ services:
 
 volumes:
   localhub-db: {}
+  localhub-updates: {}
