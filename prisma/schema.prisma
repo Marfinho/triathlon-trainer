@@ -70,6 +70,8 @@ model User {
   dailyNutritionTarget DailyNutritionTarget?
   dashboardConfig     DashboardConfig?
   customExercises     CustomExercise[]
+  mcpTokens           McpToken[]
+  oauthCodes          OAuthCode[]
 }
 
 model Account {
@@ -691,4 +693,58 @@ model MailConfig {
   fromAddr  String?
   updatedAt DateTime @updatedAt
   updatedBy String?
+}
+
+/// Persönliche Zugriffstoken für den Remote-MCP-Server (/api/mcp). Das Klartext-
+/// Token wird nur einmal bei der Erzeugung angezeigt; gespeichert wird allein der
+/// SHA-256-Hash. `scopes`: "read" (immer) und optional "write_plan" (Plan ändern).
+model McpToken {
+  id         String    @id @default(cuid())
+  userId     String
+  name       String
+  tokenHash  String    @unique
+  /// Anzeige-Präfix (z. B. "lhm_AbCd…") zur Wiedererkennung in der Liste.
+  prefix     String
+  scopes     Json      @default("[\"read\"]")
+  expiresAt  DateTime?
+  lastUsedAt DateTime?
+  revokedAt  DateTime?
+  createdAt  DateTime  @default(now())
+  /// Nur bei OAuth-ausgestellten Token: Client (claude.ai o. ä.), Refresh-Token-Hash
+  /// (rotierend, Wiederverwendung widerruft alle Token des Clients) und dessen Ablauf.
+  clientId         String?
+  refreshHash      String?   @unique
+  refreshExpiresAt DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+/// Per Dynamic Client Registration (RFC 7591) registrierte öffentliche OAuth-Clients
+/// (PKCE, keine Client-Secrets) für den MCP-Connector.
+model OAuthClient {
+  id           String   @id @default(cuid())
+  clientId     String   @unique
+  clientName   String
+  redirectUris Json
+  createdAt    DateTime @default(now())
+}
+
+/// Kurzlebiger, einmal einlösbarer Autorisierungscode (nur Hash gespeichert).
+model OAuthCode {
+  id            String    @id @default(cuid())
+  codeHash      String    @unique
+  clientId      String
+  userId        String
+  redirectUri   String
+  codeChallenge String
+  scopes        Json
+  expiresAt     DateTime
+  usedAt        DateTime?
+  createdAt     DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }

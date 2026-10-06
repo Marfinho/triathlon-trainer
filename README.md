@@ -18,7 +18,8 @@ die **sportwissenschaftliche Entscheidung** (Periodisierung, Planerstellung).
 Der Austausch mit dem LLM läuft bewusst **manuell per Copy & Paste**: LocalHub
 erzeugt eine modulare `coach_summary` (JSON), du fügst sie in deinen LLM-Chat
 ein und importierst den erzeugten `localhub_plan` zurück. LocalHub selbst ruft
-keine KI-API auf.
+keine KI-API auf. Optional gibt es zusätzlich einen **Remote-MCP-Server**, über den Claude
+die Daten direkt lesen (und – opt-in – den Plan ändern) kann: siehe [`docs/MCP.md`](docs/MCP.md).
 
 > Bewusst **kein** autonomer Coach: keine versteckte Adaptations-/Strategie-Logik.
 > Jede Planänderung ist nachvollziehbar und wird vor dem Import validiert.

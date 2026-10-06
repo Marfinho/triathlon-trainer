@@ -46,6 +46,11 @@ COPY package.json next.config.ts ./
 COPY prisma ./prisma
 # Der Admin-Seed importiert die Betreiber-Konstante.
 COPY src/lib/owner.ts ./src/lib/owner.ts
+# MCP-Token-CLI (scripts/mcp-token.ts) und seine minimalen Abhängigkeiten.
+COPY tsconfig.json ./
+COPY src/lib/db.ts src/lib/audit.ts ./src/lib/
+COPY src/lib/mcp/token.ts ./src/lib/mcp/token.ts
+COPY scripts/mcp-token.ts ./scripts/mcp-token.ts
 COPY docker-entrypoint.sh ./
 RUN chmod +x docker-entrypoint.sh
 
