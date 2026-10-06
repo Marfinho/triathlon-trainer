@@ -7,6 +7,8 @@ import { AthleteDataForm } from "@/components/profile/AthleteDataForm";
 import { IntegrationSettings } from "@/components/profile/IntegrationSettings";
 import { OAuthIntegrations } from "@/components/profile/OAuthIntegrations";
 import { BillingSection } from "@/components/profile/BillingSection";
+import { DeviceSettings } from "@/components/profile/DeviceSettings";
+import { listDeviceTokens } from "@/lib/device/pairing";
 import { getConnectionStatus } from "@/integrations/oauth/connectionStatus";
 import { getEnabledProviders } from "@/lib/integration-config";
 import type { OAuthProviderId } from "@/integrations/oauth/providers";
@@ -67,6 +69,14 @@ export default async function ProfilePage({
     label: PROVIDER_LABELS[provider] ?? provider,
     connected: oauthStatuses[i].connected,
     externalId: oauthStatuses[i].externalId,
+  }));
+
+  const pairedDevices = (await listDeviceTokens(userId)).map((d) => ({
+    id: d.id,
+    name: d.name,
+    prefix: d.prefix,
+    lastUsedAt: d.lastUsedAt ? d.lastUsedAt.toISOString() : null,
+    createdAt: d.createdAt.toISOString(),
   }));
 
   const limits = await getEffectiveLimits(dbUser.plan);
@@ -160,6 +170,8 @@ export default async function ProfilePage({
             Withings zu aktivieren.
           </div>
         )}
+
+        <DeviceSettings initial={pairedDevices} />
 
         <BillingSection
           plan={dbUser.plan}
