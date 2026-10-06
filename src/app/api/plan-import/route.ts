@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/auth-guard";
-import { validateLocalhubPlan } from "@/domain/plan-import/validateLocalhubPlan";
+import { validatePlanForUser } from "@/domain/plan-import/validatePlanForUser";
 import { importLocalhubPlan } from "@/domain/plan-import/importLocalhubPlan";
 import {
   buildPlanPreview,
@@ -9,10 +8,7 @@ import {
   summarizePlanExercises,
 } from "@/domain/plan-import/buildPlanPreview";
 import { isExercise3d, renderFrameAny, renderThumbAny } from "@/domain/exercises/any";
-import { parseIsoDate, addDays } from "@/domain/training/dates";
-import type { ExistingWorkoutRef } from "@/domain/plan-import/validateLocalhubPlan";
-import { processSyncQueue } from "@/integrations/intervals/syncQueue";
-import { createIntervalsClientForUser } from "@/integrations/intervals/userClient";
+import { instantSyncAfterImport } from "@/integrations/intervals/instantSync";
 
 /**
  * POST /api/plan-import
@@ -66,61 +62,13 @@ export async function POST(request: Request) {
     });
 
     // Instant-Sync: erzeugte/ersetzte Workouts sofort nach Intervals.icu pushen.
-    let sync: Record<string, unknown> | null = null;
-    if (result.success) {
-      const client = await createIntervalsClientForUser(userId);
-      if (!client) {
-        sync = {
-          skipped: true,
-          reason: "Intervals.icu nicht konfiguriert",
-        };
-      } else {
-        try {
-          const res = await processSyncQueue({
-            db: prisma,
-            client,
-            userId,
-            triggeredBy: "import_autosync",
-          });
-          sync = { ...res };
-        } catch (e) {
-          sync = { error: e instanceof Error ? e.message : "Sync fehlgeschlagen" };
-        }
-      }
-    }
+    const sync = result.success ? await instantSyncAfterImport(userId) : null;
 
     return NextResponse.json({ ok: result.success, ...result, sync });
   }
 
   // mode === "validate": Vorschau ohne DB-Änderung (nur lesende Queries).
-  const existingCustomExercises = (
-    await prisma.customExercise.findMany({
-      where: { userId },
-      select: { exerciseId: true, definitionJson: true },
-    })
-  ).map((c) => ({ exerciseId: c.exerciseId, definitionJson: c.definitionJson as unknown }));
-
-  const firstPass = validateLocalhubPlan(plan, { existingCustomExercises });
-  let existingRefs: ExistingWorkoutRef[] = [];
-  if (firstPass.meta) {
-    const rangeStart = parseIsoDate(firstPass.meta.planStart);
-    const rangeEndExclusive = addDays(parseIsoDate(firstPass.meta.planEnd), 1);
-    const existing = await prisma.plannedWorkout.findMany({
-      where: { userId, date: { gte: rangeStart, lt: rangeEndExclusive } },
-      select: { id: true, date: true, status: true, title: true },
-    });
-    existingRefs = existing.map((w) => ({
-      id: w.id,
-      date: w.date,
-      status: w.status,
-      title: w.title,
-    }));
-  }
-
-  const result = validateLocalhubPlan(plan, {
-    existingWorkouts: existingRefs,
-    existingCustomExercises,
-  });
+  const { result, existingRefs } = await validatePlanForUser(plan, userId);
 
   // Eigene Übungen einzeln prüfen und für gültige Start-/Endbild rendern
   // (Engine-Ausgabe, Texte XML-escaped).

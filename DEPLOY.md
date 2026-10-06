@@ -118,6 +118,13 @@ docker compose exec db pg_dump -U "$POSTGRES_USER" "$POSTGRES_DB" > backup.sql  
 Migrationen müssen nicht manuell ausgeführt werden – sie laufen idempotent bei
 jedem Container-Start. Das Postgres-Volume `localhub-db` überlebt Updates.
 
+## MCP-Zugriff für Claude (optional)
+
+Der Endpunkt `POST /api/mcp` ist nach dem Deploy sofort vorhanden, aber nutzlos ohne Token.
+Token erzeugen/widerrufen und Claude verbinden: siehe [`docs/MCP.md`](docs/MCP.md).
+Der Reverse-Proxy muss `X-Forwarded-For` setzen (Caddy tut das standardmäßig); bei mehr als
+einem Proxy-Hop `TRUSTED_PROXY_HOPS` setzen, sonst greifen die Rate-Limits je IP nicht korrekt.
+
 ## Launch-Checkliste für öffentliche Registrierung
 
 1. **Rechtliches:** `LEGAL_NAME`, `LEGAL_STREET`, `LEGAL_CITY`, `LEGAL_EMAIL` (optional `LEGAL_PHONE`, `LEGAL_VAT_ID`) setzen –

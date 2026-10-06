@@ -5,7 +5,8 @@ import type { NextAuthConfig } from "next-auth";
  * verwendet. Die vollständige Konfiguration (Adapter, Provider) lebt in auth.ts.
  */
 // Öffentlich: Auth-Flows, der von außen getriggerte Cron-Endpunkt und der
-// signaturgeprüfte Stripe-Webhook (kann keine Session tragen).
+// signaturgeprüfte Stripe-Webhook und der Token-geschützte MCP-Endpunkt
+// (können keine Session tragen).
 const PUBLIC_PREFIXES = [
   "/auth",
   "/legal",
@@ -15,6 +16,10 @@ const PUBLIC_PREFIXES = [
   "/api/auth",
   "/api/cron",
   "/api/billing/webhook",
+  // Remote-MCP: eigene Bearer-Token-Authentifizierung im Handler (kein Cookie).
+  "/api/mcp",
+  // Von MCP-Clients geprobte Discovery-Pfade sollen sauber 404 liefern statt Login-Redirect.
+  "/.well-known",
 ];
 
 export const authConfig = {
