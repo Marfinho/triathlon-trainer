@@ -47,6 +47,26 @@ function decodeMeasure(measure: { value: number; unit: number }): number {
   return measure.value * Math.pow(10, measure.unit);
 }
 
+const WITHINGS_NOTE = "From Withings";
+
+/** Hängt die Withings-Notiz höchstens einmal an (ersetzt alte „Updated from Withings"-Anhängsel). */
+function withWithingsNote(notes: string | null): string {
+  const kept = (notes ?? "")
+    .split(";")
+    .map((part) => part.trim())
+    .filter((part) => part && part !== WITHINGS_NOTE && part !== "Updated from Withings");
+  return [...kept, WITHINGS_NOTE].join("; ");
+}
+
+/** Ersetzt frühere „Sleep: …h from Withings"-Einträge statt sie bei jedem Sync anzuhängen. */
+function withSleepNote(notes: string | null, sleepNote: string): string {
+  const kept = (notes ?? "")
+    .split(";")
+    .map((part) => part.trim())
+    .filter((part) => part && !/^Sleep: .*from Withings$/.test(part));
+  return [...kept, sleepNote].join("; ");
+}
+
 async function importMeasurements(
   db: PrismaClient,
   client: WithingsClient,
@@ -100,7 +120,7 @@ async function importMeasurements(
           weightKg: weightKg ?? existing.weightKg,
           restingHr: restingHr ?? existing.restingHr,
           hrv: hrv ?? existing.hrv,
-          notes: existing.notes ? `${existing.notes}; Updated from Withings` : "From Withings",
+          notes: withWithingsNote(existing.notes),
         },
       });
       updated++;
@@ -164,7 +184,7 @@ async function importSleep(
         where: { id: existing.id },
         data: {
           sleepTrend,
-          notes: existing.notes ? `${existing.notes}; Sleep: ${sleepDurationHours.toFixed(1)}h from Withings` : `Sleep: ${sleepDurationHours.toFixed(1)}h from Withings`,
+          notes: withSleepNote(existing.notes, `Sleep: ${sleepDurationHours.toFixed(1)}h from Withings`),
         },
       });
       updated++;
