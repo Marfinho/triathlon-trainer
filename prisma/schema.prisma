@@ -71,6 +71,8 @@ model User {
   dashboardConfig     DashboardConfig?
   customExercises     CustomExercise[]
   mcpTokens           McpToken[]
+  deviceTokens        DeviceToken[]
+  deviceAuthorizations DeviceAuthorization[]
   oauthCodes          OAuthCode[]
 }
 
@@ -743,6 +745,45 @@ model OAuthCode {
   expiresAt     DateTime
   usedAt        DateTime?
   createdAt     DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+/// Geräte-Kopplung nach RFC 8628 (Device Authorization Grant) für die Fire-TV-App
+/// "brick-tv". Gespeichert werden nur Hashes des device_code; der user_code ist
+/// kurzlebig (10 min) und wird nach dem Einlösen ungültig.
+model DeviceAuthorization {
+  id             String    @id @default(cuid())
+  deviceCodeHash String    @unique
+  /// Normalisiert (8 Großbuchstaben ohne Bindestrich), z. B. "BCDFGHJK".
+  userCode       String    @unique
+  clientName     String
+  /// pending | approved | denied | consumed
+  status         String    @default("pending")
+  userId         String?
+  expiresAt      DateTime
+  lastPolledAt   DateTime?
+  createdAt      DateTime  @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+/// Zugriffstoken gekoppelter Geräte (brick-tv). Nur der SHA-256-Hash wird
+/// gespeichert; Widerruf über `revokedAt` (Gerät bekommt dann 401 → neu koppeln).
+model DeviceToken {
+  id         String    @id @default(cuid())
+  userId     String
+  name       String
+  tokenHash  String    @unique
+  prefix     String
+  lastUsedAt DateTime?
+  revokedAt  DateTime?
+  createdAt  DateTime  @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
