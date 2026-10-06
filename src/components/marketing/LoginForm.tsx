@@ -1,5 +1,6 @@
 "use client";
 
+import { safeCallbackPath } from "@/lib/safe-callback";
 import { useState } from "react";
 import type { FormEvent } from "react";
 import Link from "next/link";
@@ -14,6 +15,14 @@ type LoginFormProps = {
  * Anmeldeformular (E-Mail/Passwort + Google).
  * Wird sowohl auf /auth/login als auch inline in den AuthTabs verwendet.
  */
+/** Ziel nach erfolgreichem Login: `callbackUrl` (nur same-origin), sonst das Dashboard. */
+function loginTarget(): string {
+  return safeCallbackPath(
+    new URLSearchParams(window.location.search).get("callbackUrl"),
+    window.location.origin,
+  );
+}
+
 export default function LoginForm({ showRegisterLink = true }: LoginFormProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -56,7 +65,7 @@ export default function LoginForm({ showRegisterLink = true }: LoginFormProps) {
         }
         return;
       }
-      window.location.href = "/dashboard";
+      window.location.href = loginTarget();
     } catch {
       setError("E-Mail oder Passwort falsch.");
     } finally {
@@ -136,7 +145,7 @@ export default function LoginForm({ showRegisterLink = true }: LoginFormProps) {
 
       <button
         type="button"
-        onClick={() => signIn("google", { redirectTo: "/dashboard" })}
+        onClick={() => signIn("google", { redirectTo: loginTarget() })}
         className="btn-soft w-full px-4 py-3"
       >
         Mit Google

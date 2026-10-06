@@ -121,7 +121,8 @@ jedem Container-Start. Das Postgres-Volume `localhub-db` überlebt Updates.
 ## MCP-Zugriff für Claude (optional)
 
 Der Endpunkt `POST /api/mcp` ist nach dem Deploy sofort vorhanden, aber nutzlos ohne Token.
-Token erzeugen/widerrufen und Claude verbinden: siehe [`docs/MCP.md`](docs/MCP.md).
+Als Connector in claude.ai hinzufügen (OAuth, kein manuelles Token nötig) oder per Token verbinden:
+siehe [`docs/MCP.md`](docs/MCP.md). Dafür muss die App öffentlich per HTTPS erreichbar und `NEXTAUTH_URL` korrekt gesetzt sein.
 Der Reverse-Proxy muss `X-Forwarded-For` setzen (Caddy tut das standardmäßig); bei mehr als
 einem Proxy-Hop `TRUSTED_PROXY_HOPS` setzen, sonst greifen die Rate-Limits je IP nicht korrekt.
 

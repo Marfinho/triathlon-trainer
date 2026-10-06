@@ -8,8 +8,37 @@ Der Austausch per Copy & Paste (siehe `README.md`) funktioniert weiterhin unver�
 
 ## Einrichtung
 
-1. **Migration** einspielen (beim Container-Start automatisch: `prisma migrate deploy`).
-2. **Token erzeugen** (auf dem Server, im App-Container):
+### A) Als Connector in claude.ai (empfohlen)
+
+Voraussetzungen: LocalHub ist **öffentlich per HTTPS erreichbar** (die Anfragen kommen von
+Anthropics Servern, nicht aus deinem Browser) und `NEXTAUTH_URL` entspricht exakt der
+öffentlichen URL (siehe `DEPLOY.md`). Die Migration läuft beim Container-Start automatisch.
+
+1. In claude.ai: **Einstellungen → Konnektoren → Benutzerdefinierten Konnektor hinzufügen**.
+2. URL eintragen: `https://DEINE-DOMAIN/api/mcp` → **Hinzufügen / Verbinden**.
+3. Du wirst zu LocalHub weitergeleitet, meldest dich an und siehst die **Zustimmungsseite**:
+   - Lesezugriff ist immer enthalten.
+   - **„Trainingsplan ändern erlauben“** ist standardmäßig aus – nur aktivieren, wenn Claude
+     den Plan anpassen soll. Für das reine Tagesupdate ausgeschaltet lassen.
+4. Nach **„Zugriff erlauben“** ist der Konnektor in claude.ai verbunden und in Chats nutzbar.
+
+Technisch: OAuth 2.1 mit Dynamic Client Registration und PKCE (S256). Access-Token gelten
+1 Stunde, Refresh-Token 90 Tage (rotierend; ein wiederverwendetes Refresh-Token sperrt alle
+Token dieses Clients). Erlaubte Rückleitungsziele: `https://claude.ai/…`, `https://claude.com/…`
+und Loopback (`http://localhost…`); weitere Hosts nur per Env `MCP_OAUTH_REDIRECT_HOSTS`
+(kommagetrennt).
+
+**Verbindung trennen:**
+
+```bash
+docker compose exec app npx tsx scripts/mcp-token.ts revoke-oauth --email du@example.com
+```
+
+Das sperrt alle Connector-Token sofort. Zusätzlich kannst du den Konnektor in claude.ai entfernen.
+
+### B) Mit festem Token (Claude Code, API, Skripte)
+
+1. **Token erzeugen** (auf dem Server, im App-Container):
 
    ```bash
    # nur lesen (empfohlen für das tägliche Update)
@@ -24,7 +53,7 @@ Der Austausch per Copy & Paste (siehe `README.md`) funktioniert weiterhin unver�
 
    Das Token (`lhm_…`) wird **nur einmal** angezeigt. In der DB liegt nur der SHA-256-Hash.
    Standardlaufzeit 365 Tage (`--days N` / `--no-expiry`).
-3. **Mit Claude verbinden** (HTTPS-Reverse-Proxy vorausgesetzt, siehe `DEPLOY.md`):
+2. **Mit Claude verbinden:**
 
    ```bash
    claude mcp add --transport http localhub https://DEINE-DOMAIN/api/mcp \
@@ -34,10 +63,6 @@ Der Austausch per Copy & Paste (siehe `README.md`) funktioniert weiterhin unver�
    Dasselbe geht in jedem MCP-Client, der einen `Authorization`-Header setzen kann
    (z. B. Claude Code in der Cloud via `.mcp.json` mit `${LOCALHUB_MCP_TOKEN}`, oder der
    MCP-Connector der Claude API mit `authorization_token`).
-
-   > Nicht Teil dieser Umsetzung: OAuth. Die Connector-Oberfläche von claude.ai verlangt
-   > nach aktuellem Kenntnisstand OAuth bzw. gar keine Auth und kann deshalb dieses
-   > Bearer-Token nicht verwenden.
 
 ## Tools
 
@@ -69,7 +94,9 @@ läuft der Intervals.icu-Sync wie beim normalen Import.
 ## Sicherheitsmodell
 
 - **Auth:** nur `Authorization: Bearer lhm_…` (256 Bit Zufall, nur Hash gespeichert,
-  widerrufbar, ablaufend). Kein Cookie → kein CSRF. Browser-Requests mit `Origin`-Header
+  widerrufbar, ablaufend), entweder fest per CLI oder per OAuth ausgestellt. Kein Cookie → kein CSRF.
+  Die Zustimmungsseite prüft zusätzlich Origin und Content-Type; Codes sind einmalig, 5 Minuten
+  gültig und an PKCE gebunden. Browser-Requests mit `Origin`-Header
   werden abgelehnt (Ausnahmen: `MCP_ALLOWED_ORIGINS`, kommagetrennt).
 - **Mandantentrennung:** Jedes Tool ist fest an den User des Tokens gebunden; es gibt
   kein `userId`-Argument.

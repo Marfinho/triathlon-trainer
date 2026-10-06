@@ -71,6 +71,7 @@ model User {
   dashboardConfig     DashboardConfig?
   customExercises     CustomExercise[]
   mcpTokens           McpToken[]
+  oauthCodes          OAuthCode[]
 }
 
 model Account {
@@ -709,6 +710,39 @@ model McpToken {
   lastUsedAt DateTime?
   revokedAt  DateTime?
   createdAt  DateTime  @default(now())
+  /// Nur bei OAuth-ausgestellten Token: Client (claude.ai o. ä.), Refresh-Token-Hash
+  /// (rotierend, Wiederverwendung widerruft alle Token des Clients) und dessen Ablauf.
+  clientId         String?
+  refreshHash      String?   @unique
+  refreshExpiresAt DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+/// Per Dynamic Client Registration (RFC 7591) registrierte öffentliche OAuth-Clients
+/// (PKCE, keine Client-Secrets) für den MCP-Connector.
+model OAuthClient {
+  id           String   @id @default(cuid())
+  clientId     String   @unique
+  clientName   String
+  redirectUris Json
+  createdAt    DateTime @default(now())
+}
+
+/// Kurzlebiger, einmal einlösbarer Autorisierungscode (nur Hash gespeichert).
+model OAuthCode {
+  id            String    @id @default(cuid())
+  codeHash      String    @unique
+  clientId      String
+  userId        String
+  redirectUri   String
+  codeChallenge String
+  scopes        Json
+  expiresAt     DateTime
+  usedAt        DateTime?
+  createdAt     DateTime  @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 

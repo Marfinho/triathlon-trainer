@@ -18,6 +18,10 @@ const PUBLIC_PREFIXES = [
   "/api/billing/webhook",
   // Remote-MCP: eigene Bearer-Token-Authentifizierung im Handler (kein Cookie).
   "/api/mcp",
+  // OAuth für den MCP-Connector: Register/Token sind öffentlich (PKCE-geschützt);
+  // /api/oauth/consent verlangt trotzdem eine Session (im Handler). Die
+  // Zustimmungsseite /oauth/authorize selbst bleibt login-pflichtig.
+  "/api/oauth",
   // Von MCP-Clients geprobte Discovery-Pfade sollen sauber 404 liefern statt Login-Redirect.
   "/.well-known",
 ];

@@ -4,6 +4,7 @@ import { prisma as defaultPrisma } from "@/lib/db";
 import { checkRateLimit, clientIp } from "@/lib/rate-limit";
 import { authenticateToken, bearerFromHeader } from "./token";
 import { createMcpServer } from "./server";
+import { baseUrl, protectedResourceMetadataUrl } from "./oauth";
 
 /** Request-Obergrenze (Bytes) – ein Plan ist höchstens ~1 MB. */
 export const MAX_BODY_BYTES = 2_000_000;
@@ -69,7 +70,9 @@ export async function handleMcpRequest(
         "Retry-After": String(Math.ceil(fails.retryAfterMs / 1000)),
       });
     }
-    return jsonRpcError(401, -32001, "Unauthorized.", { "WWW-Authenticate": 'Bearer realm="localhub-mcp"' });
+    return jsonRpcError(401, -32001, "Unauthorized.", {
+      "WWW-Authenticate": `Bearer realm="localhub-mcp", resource_metadata="${protectedResourceMetadataUrl(baseUrl(request))}"`,
+    });
   }
 
   const tokenLimit = await checkRateLimit(`mcp-token:${principal.tokenId}`, TOKEN_LIMIT_PER_MINUTE, 60_000, db);

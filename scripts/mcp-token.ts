@@ -4,6 +4,7 @@
  *   npx tsx scripts/mcp-token.ts create --email du@example.com --name "Claude" [--write] [--days 365|--no-expiry]
  *   npx tsx scripts/mcp-token.ts list   [--email du@example.com]
  *   npx tsx scripts/mcp-token.ts revoke <tokenId>
+ *   npx tsx scripts/mcp-token.ts revoke-oauth --email du@example.com   (alle Connector-Verbindungen trennen)
  *
  * Im Docker-Setup: docker compose exec app npx tsx scripts/mcp-token.ts …
  * Das Klartext-Token wird nur beim Erzeugen ausgegeben – danach nie wieder.
@@ -56,8 +57,19 @@ async function main() {
     const ok = await revokeMcpToken(id);
     if (ok) await recordAudit({ action: "mcp.token_revoked", meta: { tokenId: id } });
     console.log(ok ? "Token widerrufen." : "Token nicht gefunden oder bereits widerrufen.");
+  } else if (cmd === "revoke-oauth") {
+    const email = flag(args, "email");
+    if (!email) throw new Error("--email fehlt");
+    const user = await prisma.user.findUnique({ where: { email }, select: { id: true } });
+    if (!user) throw new Error(`Kein Nutzer mit E-Mail ${email}`);
+    const res = await prisma.mcpToken.updateMany({
+      where: { userId: user.id, clientId: { not: null }, revokedAt: null },
+      data: { revokedAt: new Date() },
+    });
+    await recordAudit({ userId: user.id, action: "mcp.oauth_revoked_all", meta: { count: res.count } });
+    console.log(`${res.count} OAuth-Token widerrufen.`);
   } else {
-    console.log("Befehle: create | list | revoke  (siehe Kopfkommentar)");
+    console.log("Befehle: create | list | revoke | revoke-oauth  (siehe Kopfkommentar)");
     process.exitCode = 1;
   }
 }
