@@ -7,6 +7,7 @@ import { SystemLogsViewer } from "@/components/admin/SystemLogsViewer";
 import { PlanLimitsEditor } from "@/components/admin/PlanLimitsEditor";
 import { MailAdmin } from "@/components/admin/MailAdmin";
 import { getMailConfigView } from "@/lib/mail";
+import { SystemUpdate } from "@/components/admin/SystemUpdate";
 import { IntegrationsAdmin } from "@/components/admin/IntegrationsAdmin";
 import {
   getEffectiveLimits,
@@ -156,6 +157,9 @@ export default async function AdminPage() {
 
         {/* Sync Queue */}
         <SyncQueueMonitor />
+
+        {/* Self-Update */}
+        <SystemUpdate />
 
         {/* System Logs */}
         <SystemLogsViewer />
