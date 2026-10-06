@@ -21,6 +21,8 @@ import {
   type RideSummary,
 } from "@/integrations/trainer/recording";
 import type { IndoorBikeData } from "@/integrations/trainer/ftms";
+import { useLivePublisher } from "@/hooks/useLivePublisher";
+import type { LiveSnapshot } from "@/lib/live-session";
 
 export interface TrainerWorkout {
   id: string;
@@ -291,6 +293,43 @@ export function TrainerControl({
   }
 
   const connected = status === "connected";
+
+  // Live-Zustand für die TV-Ansicht (/trainer/tv), solange der Trainer verbunden ist.
+  const nextStep = active.step ? timeline.steps[active.stepIndex + 1] : undefined;
+  const liveSnapshot: LiveSnapshot | null = connected
+    ? {
+        kind: "bike",
+        title: selected?.title ?? "Freie Fahrt",
+        running,
+        elapsedSec: elapsed,
+        totalSec: timeline.totalDurationSec,
+        ftp,
+        offsetW: offset,
+        powerW: live.instantaneousPowerW ?? null,
+        cadenceRpm: live.instantaneousCadenceRpm ?? null,
+        hrBpm: live.heartRateBpm ?? null,
+        speedKmh: live.instantaneousSpeedKmh ?? null,
+        step: active.step
+          ? {
+              index: active.stepIndex,
+              count: timeline.steps.length,
+              label: active.step.label,
+              targetW: currentTarget,
+              remainingSec: active.secondsRemainingInStep,
+            }
+          : null,
+        next: nextStep
+          ? {
+              label: nextStep.label,
+              targetW: Math.max(0, nextStep.targetWatts + offset),
+              durationSec: nextStep.durationSec,
+            }
+          : null,
+        profile: timeline.steps.slice(0, 300).map((s) => ({ d: s.durationSec, w: s.targetWatts })),
+      }
+    : null;
+  useLivePublisher(liveSnapshot);
+
   const powerSeries = useMemo(
     () => downsample(summarySamples, 120).map((s) => s.powerW ?? null),
     [summarySamples],

@@ -37,6 +37,13 @@ export default async function TrainerPage({
         <h1 className="mt-3 text-[2rem] font-bold leading-none tracking-tight text-neutral-900 md:text-5xl">
           {current.heading}
         </h1>
+        <p className="mt-2 text-sm text-neutral-600">
+          Auf dem Fernseher mitverfolgen:{" "}
+          <Link href="/trainer/tv" target="_blank" className="font-medium text-blue-600 hover:underline">
+            TV-Ansicht öffnen
+          </Link>{" "}
+          (per AirPlay auf den Apple TV spiegeln oder auf einem zweiten Gerät öffnen).
+        </p>
         <nav aria-label="Trainer-Bereiche" className="mt-4 flex gap-1 border-b border-neutral-200">
           {TABS.map((t) => (
             <Link
