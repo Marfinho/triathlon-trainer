@@ -1,5 +1,5 @@
 import { createHash, randomBytes, randomUUID, timingSafeEqual } from "node:crypto";
-import type { PrismaClient } from "@prisma/client";
+import type { Prisma, PrismaClient } from "@prisma/client";
 import { prisma as defaultPrisma } from "@/lib/db";
 import { TOKEN_PREFIX, hashToken, MCP_SCOPES, type McpScope } from "./token";
 
@@ -18,6 +18,10 @@ export const ACCESS_TTL_SECONDS = 3600;
 export const REFRESH_TTL_DAYS = 90;
 export const CODE_TTL_SECONDS = 300;
 export const MAX_CLIENTS = 1000;
+/** Registrierte, aber nie benutzte Clients werden nach dieser Zeit verworfen. */
+const UNUSED_CLIENT_TTL_MS = 3_600_000;
+/** Aufbewahrung widerrufener/abgelaufener OAuth-Token (für Reuse-Erkennung) und alter Codes. */
+const RETENTION_MS = 7 * 86_400_000;
 export const REFRESH_PREFIX = "lhr_";
 const CODE_PREFIX = "lhc_";
 
@@ -144,7 +148,7 @@ export async function registerClient(
     })
   ).map((t) => t.clientId as string);
   await db.oAuthClient.deleteMany({
-    where: { createdAt: { lt: new Date(Date.now() - 86_400_000) }, clientId: { notIn: used } },
+    where: { createdAt: { lt: new Date(Date.now() - UNUSED_CLIENT_TTL_MS) }, clientId: { notIn: used } },
   });
   if ((await db.oAuthClient.count()) >= MAX_CLIENTS) {
     throw new OAuthError("temporarily_unavailable", "Registrierung vorübergehend nicht möglich.", 503);
@@ -222,9 +226,8 @@ export async function validateAuthorizeRequest(
   };
 }
 
-function sha256Hex(value: string): string {
-  return createHash("sha256").update(value).digest("hex");
-}
+/** Gleiche Hash-Funktion wie für Access-Token (eine Implementierung für alle Geheimnisse). */
+const sha256Hex = hashToken;
 
 /** Erzeugt einen einmal einlösbaren Code (nur der Hash wird gespeichert). */
 export async function createAuthCode(
@@ -278,8 +281,10 @@ function toScopes(raw: unknown): McpScope[] {
   return [...set];
 }
 
+type Db = PrismaClient | Prisma.TransactionClient;
+
 async function issueTokens(
-  db: PrismaClient,
+  db: Db,
   opts: { userId: string; clientId: string; clientName: string; scopes: McpScope[] },
 ): Promise<TokenResponse> {
   const access = TOKEN_PREFIX + randomBytes(32).toString("base64url");
@@ -307,7 +312,7 @@ async function issueTokens(
 }
 
 /** Widerruft alle OAuth-Token eines Clients für einen Nutzer (Replay-Reaktion). */
-async function revokeFamily(db: PrismaClient, userId: string, clientId: string) {
+async function revokeFamily(db: Db, userId: string, clientId: string) {
   await db.mcpToken.updateMany({ where: { userId, clientId, revokedAt: null }, data: { revokedAt: new Date() } });
 }
 
@@ -321,6 +326,22 @@ const safeEqual = (a: string, b: string) => {
   const y = Buffer.from(b);
   return x.length === y.length && timingSafeEqual(x, y);
 };
+
+/** Entfernt alte Codes und längst abgelaufene/widerrufene OAuth-Token (best effort). */
+async function purgeOAuthGarbage(db: PrismaClient): Promise<void> {
+  const cutoff = new Date(Date.now() - RETENTION_MS);
+  try {
+    await db.oAuthCode.deleteMany({ where: { expiresAt: { lt: cutoff } } });
+    await db.mcpToken.deleteMany({
+      where: {
+        clientId: { not: null },
+        OR: [{ revokedAt: { lt: cutoff } }, { refreshExpiresAt: { lt: cutoff } }],
+      },
+    });
+  } catch {
+    // Aufräumen darf den Token-Tausch nie scheitern lassen.
+  }
+}
 
 /** authorization_code → Token. Der Code wird atomar verbraucht (auch bei falschem Verifier). */
 export async function exchangeCode(
@@ -351,6 +372,7 @@ export async function exchangeCode(
   const challenge = createHash("sha256").update(p.codeVerifier).digest("base64url");
   if (!safeEqual(challenge, row.codeChallenge)) throw invalid();
 
+  void purgeOAuthGarbage(db);
   return issueTokens(db, {
     userId: row.userId,
     clientId: row.clientId,
@@ -378,15 +400,22 @@ export async function refreshTokens(
   }
   if (!row.refreshExpiresAt || row.refreshExpiresAt.getTime() <= Date.now()) throw invalid();
 
-  const rotated = await db.mcpToken.updateMany({ where: { id: row.id, revokedAt: null }, data: { revokedAt: new Date() } });
-  if (rotated.count !== 1) {
+  const name = await clientName(db, row.clientId!);
+  // Rotation und Ausstellung atomar: scheitert die Ausstellung, bleibt das alte Token gültig.
+  const result = await db.$transaction(async (tx) => {
+    const rotated = await tx.mcpToken.updateMany({ where: { id: row.id, revokedAt: null }, data: { revokedAt: new Date() } });
+    if (rotated.count !== 1) return null;
+    return issueTokens(tx, {
+      userId: row.userId,
+      clientId: row.clientId!,
+      clientName: name,
+      scopes: toScopes(row.scopes),
+    });
+  });
+  if (!result) {
+    // Parallele Verwendung desselben Tokens: als Wiederverwendung behandeln.
     await revokeFamily(db, row.userId, row.clientId!);
     throw invalid();
   }
-  return issueTokens(db, {
-    userId: row.userId,
-    clientId: row.clientId!,
-    clientName: await clientName(db, row.clientId!),
-    scopes: toScopes(row.scopes),
-  });
+  return result;
 }

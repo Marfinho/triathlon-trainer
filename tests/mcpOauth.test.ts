@@ -11,6 +11,7 @@ import {
 } from "@/lib/mcp/oauthHttp";
 import { isAllowedRedirectUri, baseUrl } from "@/lib/mcp/oauth";
 import { handleMcpRequest } from "@/lib/mcp/handler";
+import { hashToken } from "@/lib/mcp/token";
 import { safeCallbackPath } from "@/lib/safe-callback";
 
 let db: PrismaClient;
@@ -388,6 +389,35 @@ describe("Refresh-Token", () => {
     await db.mcpToken.updateMany({ data: { revokedAt: new Date() } });
     expect((await tokenReq({ grant_type: "refresh_token", refresh_token: tokens.refresh_token, client_id: client.client_id })).status).toBe(400);
     expect((await mcpCall(tokens.access_token)).status).toBe(401);
+  });
+});
+
+describe("Aufräumen & Parallelität", () => {
+  it("entfernt beim Code-Tausch alte Codes und längst abgelaufene OAuth-Token", async () => {
+    const old = await fullFlow();
+    const stale = new Date(Date.now() - 30 * 86_400_000);
+    await db.mcpToken.updateMany({ where: { clientId: { not: null } }, data: { revokedAt: stale } });
+    await db.oAuthCode.updateMany({ data: { expiresAt: stale } });
+    const cli = await db.mcpToken.create({
+      data: { userId, name: "cli", tokenHash: "h-cli", prefix: "lhm_x…", scopes: ["read"], revokedAt: stale },
+    });
+    await fullFlow();
+    await new Promise((r) => setTimeout(r, 300)); // Purge läuft best effort im Hintergrund
+    expect(await db.mcpToken.findUnique({ where: { tokenHash: hashToken(old.tokens.access_token) } })).toBeNull();
+    // CLI-Token (ohne clientId) bleiben unangetastet.
+    expect(await db.mcpToken.findUnique({ where: { id: cli.id } })).not.toBeNull();
+  });
+
+  it("zwei parallele Refreshs desselben Tokens: höchstens einer gelingt, Familie wird gesperrt", async () => {
+    const { client, tokens } = await fullFlow();
+    const f = { grant_type: "refresh_token", refresh_token: tokens.refresh_token, client_id: client.client_id };
+    const results = await Promise.all([tokenReq(f), tokenReq(f)]);
+    expect(results.filter((r) => r.status === 200).length).toBeLessThanOrEqual(1);
+    const winner = results.find((r) => r.status === 200);
+    if (winner) {
+      const next = await winner.json();
+      expect((await mcpCall(next.access_token)).status).toBe(401);
+    }
   });
 });
 

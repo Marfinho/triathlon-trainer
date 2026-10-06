@@ -66,8 +66,13 @@ async function main() {
       where: { userId: user.id, clientId: { not: null }, revokedAt: null },
       data: { revokedAt: new Date() },
     });
-    await recordAudit({ userId: user.id, action: "mcp.oauth_revoked_all", meta: { count: res.count } });
-    console.log(`${res.count} OAuth-Token widerrufen.`);
+    // Noch nicht eingelöste Autorisierungscodes ebenfalls ungültig machen.
+    const codes = await prisma.oAuthCode.updateMany({
+      where: { userId: user.id, usedAt: null },
+      data: { usedAt: new Date() },
+    });
+    await recordAudit({ userId: user.id, action: "mcp.oauth_revoked_all", meta: { count: res.count, openCodes: codes.count } });
+    console.log(`${res.count} OAuth-Token widerrufen, ${codes.count} offene Codes ungültig gemacht.`);
   } else {
     console.log("Befehle: create | list | revoke | revoke-oauth  (siehe Kopfkommentar)");
     process.exitCode = 1;
