@@ -72,6 +72,8 @@ model User {
   customExercises     CustomExercise[]
   mcpTokens           McpToken[]
   oauthCodes          OAuthCode[]
+  deviceCodes         DeviceCode[]
+  deviceTokens        DeviceToken[]
 }
 
 model Account {
@@ -743,6 +745,46 @@ model OAuthCode {
   expiresAt     DateTime
   usedAt        DateTime?
   createdAt     DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+/// Kopplungsanfrage eines TV-/Geräte-Clients (Device Authorization Grant, RFC 8628).
+/// Der Client zeigt `userCode` (kurz, gut lesbar) bzw. einen QR-Link; der Nutzer
+/// bestätigt im eingeloggten Browser. Vom `deviceCode` (geheim, Polling) wird nur
+/// der SHA-256-Hash gespeichert. status: pending | approved | denied | consumed.
+model DeviceCode {
+  id             String    @id @default(cuid())
+  deviceCodeHash String    @unique
+  userCode       String    @unique
+  deviceName     String
+  status         String    @default("pending")
+  userId         String?
+  expiresAt      DateTime
+  lastPolledAt   DateTime?
+  createdAt      DateTime  @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([expiresAt])
+}
+
+/// Langlebiger, widerrufbarer Zugriffstoken eines gekoppelten Geräts (z. B. Fire TV).
+/// Eigenes Präfix `lht_`, damit er am MCP-Endpunkt (`lhm_`) nie gültig ist.
+/// `scopes`: aktuell nur "tv" (Workouts lesen, Aktivität/Live-Zustand schreiben).
+model DeviceToken {
+  id         String    @id @default(cuid())
+  userId     String
+  name       String
+  tokenHash  String    @unique
+  prefix     String
+  scopes     Json      @default("[\"tv\"]")
+  expiresAt  DateTime?
+  lastUsedAt DateTime?
+  revokedAt  DateTime?
+  createdAt  DateTime  @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
