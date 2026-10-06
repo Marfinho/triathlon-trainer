@@ -8,6 +8,8 @@ import { formatExerciseDose } from "@/domain/exercises/duration";
 import { ExerciseAnimation } from "./ExerciseAnimation";
 import { Exercise3dViewer } from "./Exercise3dViewer";
 import { ExercisePlaceholder } from "./ExerciseFigure";
+import { useLivePublisher } from "@/hooks/useLivePublisher";
+import type { LiveSnapshot } from "@/lib/live-session";
 import {
   initialPlayerState,
   playerReducer,
@@ -172,6 +174,53 @@ export function StrengthPlayer({
     }, 200);
     return () => window.clearInterval(id);
   }, [state.phase, state.countdownSec, state.set, state.side, state.index]);
+
+  // Live-Zustand für die TV-Ansicht (/trainer/tv).
+  const liveStep = steps[state.index];
+  const liveMeta = metas[state.index];
+  const nextStepEntry = steps[state.index + 1];
+  const liveSnapshot: LiveSnapshot | null =
+    steps.length === 0 || !liveStep
+      ? null
+      : {
+          kind: "strength",
+          title,
+          stepIndex: state.index,
+          stepCount: steps.length,
+          finished: state.finished,
+          exercise:
+            liveStep.kind === "exercise"
+              ? {
+                  title: liveStep.definition?.title ?? liveStep.exercise.id,
+                  dose: formatExerciseDose(liveStep.exercise),
+                  note: (liveStep.exercise.note ?? liveStep.description)?.slice(0, 300) ?? null,
+                  set: Math.min(state.set, liveMeta.sets),
+                  sets: liveMeta.sets,
+                  side: liveMeta.perSide && liveMeta.holdSec != null ? state.side : null,
+                  phase: state.phase,
+                  countdownSec:
+                    state.phase === "hold" || state.phase === "rest"
+                      ? Math.ceil(remaining ?? state.countdownSec ?? 0)
+                      : null,
+                }
+              : {
+                  title: liveStep.segmentType,
+                  dose: liveStep.durationSec ? `${Math.round(liveStep.durationSec / 60)} min` : "",
+                  note: liveStep.description?.slice(0, 300) ?? null,
+                  set: 0,
+                  sets: 0,
+                  side: null,
+                  phase: "text",
+                  countdownSec: null,
+                },
+          next:
+            nextStepEntry == null
+              ? null
+              : nextStepEntry.kind === "exercise"
+                ? (nextStepEntry.definition?.title ?? nextStepEntry.exercise.id)
+                : nextStepEntry.segmentType,
+        };
+  useLivePublisher(liveSnapshot);
 
   if (steps.length === 0) {
     return (
