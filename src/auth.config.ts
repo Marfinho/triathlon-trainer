@@ -28,6 +28,8 @@ const PUBLIC_PREFIXES = [
   // login-pflichtig.
   "/api/device",
   "/api/tv",
+  // Übungsanimation für die TV-App (WebView): prüft Geräte-Token/Session selbst.
+  "/tv/",
   "/api/live",
   // Von MCP-Clients geprobte Discovery-Pfade sollen sauber 404 liefern statt Login-Redirect.
   "/.well-known",

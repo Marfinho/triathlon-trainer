@@ -104,6 +104,32 @@ Aufgezeichnete Einheit speichern. Body wie `POST /api/activities`:
 ein Wiederholen nach Netzausfall liefert `{ ok:true, id, duplicate:true }` statt eines Duplikats.
 `samples`: bis zu 50 000 Einträge (`downsample` wie in `recording.ts` empfohlen, ~300).
 
+### Brick-Bereiche (lesen)
+Alle mit `Cache-Control: no-store`; Zahlen roh, Formatierung macht die App. Logik wie Web-App/MCP
+(`src/lib/tv/sections.ts`).
+
+| Route | Inhalt |
+|---|---|
+| `GET /api/tv/v1/today` | `date`, `athleteName`, `planned[]` (inkl. `kind: bike/strength/other` = in der App abspielbar), `done[]`, `form` (`ctl/atl/tsb/acwr`, `label`, `acwrLabel`), `readiness` (letzter Check-in), `painLatest`, `nextRace` (`countdown`, `phase`), `taper`, `weeklyGoals[]` (`sport, targetMin, actualMin, pct`) |
+| `GET /api/tv/v1/week` | `days[]` (28 Tage ab Montag der Vorwoche; `items[]` geplant/absolviert, `playable`), `weeklyGoals[]`, `compliance[]` (je Woche), `recent[]` (letzte 15 Aktivitäten) |
+| `GET /api/tv/v1/race` | `races[]` (`daysToRace`, `countdown`, `phase`, `forecast { label, fastSec, likelySec, slowSec, confidence }`), `capacity { run, bike, swim }` (Text) |
+| `GET /api/tv/v1/extras` | `zones[]` (Leistung/HF/Pace), `seasonStats`, `body` (Gewicht/Ruhepuls/HRV-Verlauf), `gear[]` (flach, `depth`, `km`, `kmPct`, `status`), `journal[]` |
+| `GET /api/tv/v1/profile` | `name`, `email`, `plan`, `athlete` (Schwellenwerte), `weeklyGoals[]`, `integrations[]` |
+
+### Brick-Bereiche (mit der Fernbedienung ändern)
+| Route | Body | Hinweis |
+|---|---|---|
+| `POST /api/tv/v1/checkin` | wie `POST /api/checkin`: `{ readiness?: { status: green/yellow/red, subjectiveFatigue 1–10, sleepTrend: besser/gleich/schlechter }, pain?: { overall 0–10 } }` | neuer Snapshot, nichts wird überschrieben |
+| `POST /api/tv/v1/goals` | `{ sport, weeklyTargetMin }` (0–3000) | Upsert je Disziplin |
+| `PATCH /api/tv/v1/profile` | Teilmenge `{ ftpWatts 50–600, thresholdHr 80–230, weightKg 30–250 }` | legt das Athletenprofil bei Bedarf an |
+| `POST /api/tv/v1/body` | `{ weightKg?, restingHr? }` | neuer Körperwerte-Eintrag |
+
+### Übungsanimation (WebView)
+`GET /tv/exercise/{exerciseId}` – randlose, dunkle Seite nur mit dem 3D-Modell (Format 2.0,
+`Exercise3dViewer`, WebGL mit SVG-Fallback) bzw. der 2D-Animation (1.x). Für die Kraft-Einheit
+der App in einer WebView; die App sendet beim Laden `Authorization: Bearer lht_…`. Eigene Übungen
+nur für den eigenen Nutzer.
+
 ### `POST /api/tv/v1/logout`
 Widerruft den eigenen Token (App-Funktion „Abmelden“). Antwort `{ ok: true }`.
 

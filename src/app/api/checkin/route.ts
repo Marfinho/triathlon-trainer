@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/auth-guard";
-import { sanitizeOptionalText } from "@/domain/security/sanitize";
+import { createCheckin } from "@/lib/checkin";
 
 /**
  * POST /api/checkin – Tages-Check-in: legt einen Readiness- und/oder
@@ -24,61 +23,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, error: "Ungültiger Body." }, { status: 400 });
   }
 
-  let date = new Date();
-  if (typeof body.date === "string" && body.date) {
-    const parsed = new Date(`${body.date.slice(0, 10)}T00:00:00Z`);
-    if (!Number.isNaN(parsed.getTime())) date = parsed;
+  const result = await createCheckin(userId, body);
+  if (!result.ok) {
+    return NextResponse.json(result, { status: 400 });
   }
-
-  const r = (body.readiness ?? null) as Record<string, unknown> | null;
-  const p = (body.pain ?? null) as Record<string, unknown> | null;
-
-  const intOrNull = (v: unknown): number | null =>
-    typeof v === "number" && Number.isFinite(v) ? Math.round(v) : null;
-  const strOrNull = (v: unknown): string | null =>
-    typeof v === "string" && v ? v : null;
-  const notesOrNull = (v: unknown): string | null => sanitizeOptionalText(v, 2000);
-
-  const created: { readiness?: string; pain?: string } = {};
-
-  if (r) {
-    const snap = await prisma.readinessSnapshot.create({
-      data: {
-        userId,
-        date,
-        status: strOrNull(r.status),
-        sleepTrend: strOrNull(r.sleepTrend),
-        hrvTrend: strOrNull(r.hrvTrend),
-        restingHrTrend: strOrNull(r.restingHrTrend),
-        subjectiveFatigue: intOrNull(r.subjectiveFatigue),
-        notes: notesOrNull(r.notes),
-      },
-    });
-    created.readiness = snap.id;
-  }
-
-  if (p) {
-    const snap = await prisma.painSnapshot.create({
-      data: {
-        userId,
-        date,
-        overall: intOrNull(p.overall),
-        knee: intOrNull(p.knee),
-        achilles: intOrNull(p.achilles),
-        calf: intOrNull(p.calf),
-        back: intOrNull(p.back),
-        notes: notesOrNull(p.notes),
-      },
-    });
-    created.pain = snap.id;
-  }
-
-  if (!created.readiness && !created.pain) {
-    return NextResponse.json(
-      { ok: false, error: "Keine Daten übergeben." },
-      { status: 400 },
-    );
-  }
-
-  return NextResponse.json({ ok: true, created });
+  return NextResponse.json(result);
 }
