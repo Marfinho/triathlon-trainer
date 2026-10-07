@@ -32,7 +32,7 @@ export async function geocodeLocation(name: string): Promise<GeocodeResult | nul
 export async function fetchDailyForecast(lat: number, lon: number): Promise<OpenMeteoDaily> {
   const url =
     `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}` +
-    `&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,windspeed_10m_max` +
+    `&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,windspeed_10m_max,weathercode` +
     `&forecast_days=16&timezone=auto`;
   const res = await fetch(url);
   if (!res.ok) throw new Error(`Wetter-API-Fehler (${res.status})`);

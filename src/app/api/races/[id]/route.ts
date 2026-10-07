@@ -1,10 +1,12 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/auth-guard";
+import { geocodeLocation } from "@/integrations/weather/openMeteo";
+import { sanitizeOptionalText } from "@/domain/security/sanitize";
 
 /**
  * PATCH /api/races/:id – Ergebnis/Status setzen.
- * Body: { completed?, resultSeconds?, resultPlacement?, resultNote? }
+ * Body: { locationName?, completed?, resultSeconds?, resultPlacement?, resultNote? }
  */
 export async function PATCH(
   request: Request,
@@ -39,6 +41,25 @@ export async function PATCH(
   if (finite(body.resultPlacement) != null)
     data.resultPlacement = Math.round(body.resultPlacement as number);
   if (typeof body.resultNote === "string") data.resultNote = body.resultNote.slice(0, 2000);
+
+  if ("locationName" in body) {
+    const loc = sanitizeOptionalText(body.locationName, 120);
+    data.locationName = loc;
+    data.lat = null;
+    data.lon = null;
+    if (loc) {
+      try {
+        const geo = await geocodeLocation(loc);
+        if (geo) {
+          data.locationName = geo.displayName;
+          data.lat = geo.lat;
+          data.lon = geo.lon;
+        }
+      } catch {
+        // bleibt als Text; Wetter-Route löst später erneut auf
+      }
+    }
+  }
 
   const race = await prisma.raceEvent.update({ where: { id }, data }).catch(() => null);
   if (!race) return NextResponse.json({ ok: false, error: "Nicht gefunden." }, { status: 404 });

@@ -36,3 +36,16 @@ describe("describeForecast", () => {
     expect(describeForecast(f)).toBe("14–25 °C · 4.2 mm Niederschlag · Wind bis 32 km/h");
   });
 });
+
+import { weatherKind } from "@/domain/training/weather";
+
+describe("weatherKind", () => {
+  it("mappt WMO-Codes", () => {
+    expect(weatherKind(0)).toBe("clear");
+    expect(weatherKind(2)).toBe("partly");
+    expect(weatherKind(63)).toBe("rain");
+    expect(weatherKind(73)).toBe("snow");
+    expect(weatherKind(95)).toBe("storm");
+    expect(weatherKind(undefined, 5)).toBe("rain");
+  });
+});

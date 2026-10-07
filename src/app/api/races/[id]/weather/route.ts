@@ -27,7 +27,8 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   let locationName = race.locationName;
 
   if (lat == null || lon == null) {
-    const locationParam = new URL(request.url).searchParams.get("location")?.trim();
+    const locationParam =
+      new URL(request.url).searchParams.get("location")?.trim() || race.locationName?.trim();
     if (!locationParam) {
       return NextResponse.json(
         { ok: false, error: "Kein Standort hinterlegt. Bitte ?location=<Ort> angeben." },
