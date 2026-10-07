@@ -12,11 +12,12 @@ export type DeviceOrUser =
   | { response: NextResponse };
 
 const AUTH_FAIL_LIMIT = 20;
-const TOKEN_LIMIT_PER_MINUTE = 240;
+/** Sprachassistenten fragen höchstens sporadisch ab; ein enges Limit begrenzt Schaden bei Token-Leak. */
+const TOKEN_LIMIT_PER_MINUTE: Record<DeviceScope, number> = { tv: 240, voice: 30 };
 
 /**
  * Auth für Routen, die zusätzlich zur Session auch ein Geräte-Token (`lht_…`)
- * akzeptieren (nur /api/tv/*, /api/live). Bewusst NICHT in `requireUser()`
+ * akzeptieren (/api/tv/* und /api/live mit Scope "tv", /api/voice/* mit Scope "voice"). Bewusst NICHT in `requireUser()`
  * eingebaut: Ein Geräte-Token darf keine anderen Routen öffnen.
  *
  * Trägt die Anfrage einen Authorization-Header, zählt ausschließlich das Token
@@ -48,12 +49,12 @@ export async function requireUserOrDevice(
     return {
       response: NextResponse.json(
         { error: "invalid_token" },
-        { status: 401, headers: { "WWW-Authenticate": 'Bearer realm="localhub-tv"' } },
+        { status: 401, headers: { "WWW-Authenticate": `Bearer realm="localhub-${scope}"` } },
       ),
     };
   }
 
-  const limit = await checkRateLimit(`device-token:${principal.tokenId}`, TOKEN_LIMIT_PER_MINUTE, 60_000);
+  const limit = await checkRateLimit(`device-token:${principal.tokenId}`, TOKEN_LIMIT_PER_MINUTE[scope], 60_000);
   if (!limit.allowed) {
     return {
       response: NextResponse.json(
