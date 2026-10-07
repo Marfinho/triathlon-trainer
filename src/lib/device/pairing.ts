@@ -18,8 +18,8 @@ import { hashToken } from "@/lib/mcp/token";
  */
 
 export const DEVICE_TOKEN_PREFIX = "lht_";
-/** `tv`: TV-App (/api/tv, /api/live). `voice`: Sprachassistent-Sprechtext (/api/voice) – strikt getrennt. */
-export const DEVICE_SCOPES = ["tv", "voice"] as const;
+/** `tv`: TV-App (/api/tv, /api/live). `voice`: Sprachassistent-Sprechtext (/api/voice). `calendar`: ICS-Feed (/api/calendar). Strikt getrennt. */
+export const DEVICE_SCOPES = ["tv", "voice", "calendar"] as const;
 export type DeviceScope = (typeof DEVICE_SCOPES)[number];
 
 export const USER_CODE_LENGTH = 4;

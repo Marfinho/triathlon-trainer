@@ -13,7 +13,7 @@ export type DeviceOrUser =
 
 const AUTH_FAIL_LIMIT = 20;
 /** Sprachassistenten fragen höchstens sporadisch ab; ein enges Limit begrenzt Schaden bei Token-Leak. */
-const TOKEN_LIMIT_PER_MINUTE: Record<DeviceScope, number> = { tv: 240, voice: 30 };
+const TOKEN_LIMIT_PER_MINUTE: Record<DeviceScope, number> = { tv: 240, voice: 30, calendar: 60 };
 
 /**
  * Auth für Routen, die zusätzlich zur Session auch ein Geräte-Token (`lht_…`)
