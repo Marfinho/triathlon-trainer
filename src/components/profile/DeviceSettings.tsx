@@ -7,6 +7,7 @@ export interface PairedDevice {
   id: string;
   name: string;
   prefix: string;
+  scopes: string[];
   lastUsedAt: string | null;
   createdAt: string;
 }
@@ -15,10 +16,49 @@ function fmtDate(iso: string | null): string {
   return iso ? new Date(iso).toLocaleString("de-DE", { dateStyle: "medium", timeStyle: "short" }) : "nie";
 }
 
-/** Gekoppelte Geräte (Fire-TV-App o. ä.) anzeigen und entkoppeln. */
+const SCOPE_LABEL: Record<string, string> = { tv: "TV-App", voice: "Sprachassistent" };
+
+/** Gekoppelte Geräte (Fire-TV-App o. ä.) und Sprachassistent-Token anzeigen, erzeugen und widerrufen. */
 export function DeviceSettings({ initial }: { initial: PairedDevice[] }) {
   const [devices, setDevices] = useState(initial);
   const [error, setError] = useState<string | null>(null);
+  const [voiceName, setVoiceName] = useState("Home Assistant");
+  const [busy, setBusy] = useState(false);
+  /** Klartext-Token: nur im Speicher, nur bis zum Schließen – wird nie erneut geladen. */
+  const [created, setCreated] = useState<{ name: string; token: string } | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  async function createVoiceToken() {
+    setError(null);
+    setBusy(true);
+    const res = await fetch("/api/device/tokens", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: voiceName, scope: "voice" }),
+    }).catch(() => null);
+    setBusy(false);
+    if (!res?.ok) {
+      setError("Token konnte nicht erzeugt werden.");
+      return;
+    }
+    const data = (await res.json()) as { id: string; name: string; token: string; prefix: string; scopes: string[] };
+    setCreated({ name: data.name, token: data.token });
+    setCopied(false);
+    setDevices((d) => [
+      { id: data.id, name: data.name, prefix: data.prefix, scopes: data.scopes, lastUsedAt: null, createdAt: new Date().toISOString() },
+      ...d,
+    ]);
+  }
+
+  async function copyToken() {
+    if (!created) return;
+    try {
+      await navigator.clipboard.writeText(created.token);
+      setCopied(true);
+    } catch {
+      setError("Kopieren nicht möglich – bitte den Token von Hand markieren.");
+    }
+  }
 
   async function revoke(id: string) {
     setError(null);
@@ -34,7 +74,7 @@ export function DeviceSettings({ initial }: { initial: PairedDevice[] }) {
   return (
     <Card
       title="Gekoppelte Geräte"
-      subtitle="Fernseher-Apps (z. B. Fire TV), die auf deine Einheiten zugreifen dürfen"
+      subtitle="Fernseher-Apps (z. B. Fire TV) und Sprachassistenten, die auf deine Einheiten zugreifen dürfen"
       actions={
         <a
           href="/device"
@@ -53,7 +93,7 @@ export function DeviceSettings({ initial }: { initial: PairedDevice[] }) {
               <div className="min-w-0">
                 <p className="truncate font-medium text-neutral-900">{d.name}</p>
                 <p className="text-xs text-neutral-500">
-                  {d.prefix} · gekoppelt {fmtDate(d.createdAt)} · zuletzt aktiv {fmtDate(d.lastUsedAt)}
+                  {d.scopes.map((sc) => SCOPE_LABEL[sc] ?? sc).join(", ")} · {d.prefix} · gekoppelt {fmtDate(d.createdAt)} · zuletzt aktiv {fmtDate(d.lastUsedAt)}
                 </p>
               </div>
               <button
@@ -67,6 +107,58 @@ export function DeviceSettings({ initial }: { initial: PairedDevice[] }) {
           ))}
         </ul>
       )}
+      <div className="mt-4 border-t border-neutral-100 pt-4">
+        <h3 className="text-sm font-semibold text-neutral-900">Sprachassistent-Token</h3>
+        <p className="mt-1 text-xs text-neutral-500">
+          Für Home Assistant (Sonos, Alexa): liest nur den Sprechtext zu deinem Training, sonst nichts.
+        </p>
+        <div className="mt-2 flex flex-wrap items-center gap-2">
+          <input
+            value={voiceName}
+            onChange={(e) => setVoiceName(e.target.value)}
+            maxLength={40}
+            aria-label="Name des Sprachassistent-Tokens"
+            className="min-w-0 flex-1 rounded-lg border border-neutral-300 px-3 py-1.5 text-sm"
+          />
+          <button
+            type="button"
+            onClick={() => void createVoiceToken()}
+            disabled={busy}
+            className="rounded-lg border border-neutral-300 px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-100 disabled:opacity-50"
+          >
+            Sprachassistent-Token erzeugen
+          </button>
+        </div>
+        {created ? (
+          <div role="status" className="mt-3 rounded-lg border border-amber-300 bg-amber-50 p-3">
+            <p className="text-sm font-medium text-amber-900">
+              Token „{created.name}“ – wird nur jetzt einmal angezeigt.
+            </p>
+            <p className="mt-1 text-xs text-amber-800">
+              Kopiere ihn sofort und lege ihn sicher ab (z. B. in der Home-Assistant-Datei secrets.yaml). Wer den Token
+              hat, kann deinen Trainingsplan als Sprechtext abrufen. Später ist er nicht mehr einsehbar; bei Verlust
+              entkoppeln und neu erzeugen.
+            </p>
+            <code className="mt-2 block break-all rounded bg-white px-2 py-1.5 text-xs text-neutral-900">{created.token}</code>
+            <div className="mt-2 flex gap-2">
+              <button
+                type="button"
+                onClick={() => void copyToken()}
+                className="rounded-lg border border-neutral-300 bg-white px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-100"
+              >
+                {copied ? "Kopiert" : "Kopieren"}
+              </button>
+              <button
+                type="button"
+                onClick={() => setCreated(null)}
+                className="rounded-lg border border-neutral-300 bg-white px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-100"
+              >
+                Schließen
+              </button>
+            </div>
+          </div>
+        ) : null}
+      </div>
       {error ? <p role="alert" className="mt-2 text-sm text-rose-700">{error}</p> : null}
     </Card>
   );

@@ -18,7 +18,8 @@ import { hashToken } from "@/lib/mcp/token";
  */
 
 export const DEVICE_TOKEN_PREFIX = "lht_";
-export const DEVICE_SCOPES = ["tv"] as const;
+/** `tv`: TV-App (/api/tv, /api/live). `voice`: Sprachassistent-Sprechtext (/api/voice) – strikt getrennt. */
+export const DEVICE_SCOPES = ["tv", "voice"] as const;
 export type DeviceScope = (typeof DEVICE_SCOPES)[number];
 
 export const USER_CODE_LENGTH = 4;
@@ -181,12 +182,13 @@ export interface DevicePrincipal {
 }
 
 export async function createDeviceToken(
-  opts: { userId: string; name: string; expiresInDays?: number | null },
+  opts: { userId: string; name: string; expiresInDays?: number | null; scopes?: readonly DeviceScope[] },
   db: PrismaClient = defaultPrisma,
 ): Promise<{ id: string; token: string; prefix: string; scopes: DeviceScope[] }> {
   const token = DEVICE_TOKEN_PREFIX + randomBytes(32).toString("base64url");
   const days = opts.expiresInDays === undefined ? null : opts.expiresInDays;
-  const scopes: DeviceScope[] = ["tv"];
+  const scopes = parseDeviceScopes(opts.scopes ?? ["tv"]);
+  if (scopes.length === 0) throw new Error("Mindestens ein gültiger Scope nötig.");
   const prefix = `${token.slice(0, DEVICE_TOKEN_PREFIX.length + 4)}…`;
   const row = await db.deviceToken.create({
     data: {
@@ -238,9 +240,10 @@ export async function revokeDeviceToken(
 }
 
 export async function listDeviceTokens(userId: string, db: PrismaClient = defaultPrisma) {
-  return db.deviceToken.findMany({
+  const rows = await db.deviceToken.findMany({
     where: { userId, revokedAt: null },
     orderBy: { createdAt: "desc" },
-    select: { id: true, name: true, prefix: true, lastUsedAt: true, createdAt: true },
+    select: { id: true, name: true, prefix: true, scopes: true, lastUsedAt: true, createdAt: true },
   });
+  return rows.map((r) => ({ ...r, scopes: parseDeviceScopes(r.scopes) }));
 }

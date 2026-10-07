@@ -75,6 +75,7 @@ export default async function ProfilePage({
     id: d.id,
     name: d.name,
     prefix: d.prefix,
+    scopes: d.scopes,
     lastUsedAt: d.lastUsedAt ? d.lastUsedAt.toISOString() : null,
     createdAt: d.createdAt.toISOString(),
   }));

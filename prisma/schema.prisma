@@ -773,7 +773,8 @@ model DeviceCode {
 
 /// Langlebiger, widerrufbarer Zugriffstoken eines gekoppelten Geräts (z. B. Fire TV).
 /// Eigenes Präfix `lht_`, damit er am MCP-Endpunkt (`lhm_`) nie gültig ist.
-/// `scopes`: aktuell nur "tv" (Workouts lesen, Aktivität/Live-Zustand schreiben).
+/// `scopes`: "tv" (Workouts lesen, Aktivität/Live-Zustand schreiben) oder "voice"
+/// (nur Sprechtext /api/voice); strikt getrennt, siehe docs/VOICE.md.
 model DeviceToken {
   id         String    @id @default(cuid())
   userId     String

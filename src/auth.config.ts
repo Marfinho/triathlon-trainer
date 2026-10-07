@@ -28,6 +28,8 @@ const PUBLIC_PREFIXES = [
   // login-pflichtig.
   "/api/device",
   "/api/tv",
+  // Sprechtext für Sprachassistenten (Home Assistant): Geräte-Token mit Scope "voice" oder Session.
+  "/api/voice",
   // Übungsanimation für die TV-App (WebView): prüft Geräte-Token/Session selbst.
   "/tv/",
   // Statisches 3D-Körpermodell (keine Nutzerdaten) – wird von /tv/exercise in der WebView ohne Cookie geladen.
