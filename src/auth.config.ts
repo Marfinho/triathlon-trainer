@@ -30,6 +30,8 @@ const PUBLIC_PREFIXES = [
   "/api/tv",
   // Sprechtext für Sprachassistenten (Home Assistant): Geräte-Token mit Scope "voice" oder Session.
   "/api/voice",
+  // ICS-Kalenderfeed: Kalender-Clients können keinen Header senden → Geräte-Token (Scope "calendar") per Query oder Session.
+  "/api/calendar",
   // Übungsanimation für die TV-App (WebView): prüft Geräte-Token/Session selbst.
   "/tv/",
   // Statisches 3D-Körpermodell (keine Nutzerdaten) – wird von /tv/exercise in der WebView ohne Cookie geladen.

@@ -100,7 +100,7 @@ const SPORT_DONE: Record<string, { article: "das" | "der"; noun: string }> = {
 const WEEKDAYS = ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"];
 const NUMBER_WORDS = ["null", "eins", "zwei", "drei", "vier", "fünf", "sechs", "sieben", "acht", "neun", "zehn", "elf", "zwölf"];
 
-const activityName = (sport: string) => SPORT_ACTIVITY[sport] ?? "Training";
+export const activityName = (sport: string) => SPORT_ACTIVITY[sport] ?? "Training";
 const numberWord = (n: number) => NUMBER_WORDS[n] ?? String(n);
 
 function joinList(parts: string[]): string {

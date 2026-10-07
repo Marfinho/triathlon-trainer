@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth-guard";
 import { checkRateLimit } from "@/lib/rate-limit";
+import type { DeviceScope } from "@/lib/device/pairing";
 import { createDeviceToken, listDeviceTokens, revokeDeviceToken, sanitizeDeviceName } from "@/lib/device/pairing";
 
 export const runtime = "nodejs";
@@ -14,7 +15,7 @@ export async function GET() {
 }
 
 /**
- * POST /api/device/tokens – Sprachassistent-Token erzeugen. Body: { name, scope: "voice" }.
+ * POST /api/device/tokens – Token für Sprachassistent oder Kalenderfeed erzeugen. Body: { name, scope: "voice" | "calendar" }.
  * Nur mit Session (kein Geräte-Token). Der Klartext wird genau einmal zurückgegeben.
  * Andere Scopes (z. B. "tv") laufen ausschließlich über den Device-Code-Flow.
  */
@@ -34,11 +35,13 @@ export async function POST(request: Request) {
   } catch {
     return NextResponse.json({ ok: false, error: "Ungültiger Body." }, { status: 400 });
   }
-  if (body.scope !== "voice") {
-    return NextResponse.json({ ok: false, error: 'Nur scope "voice" erlaubt.' }, { status: 400 });
+  const scope = body.scope;
+  if (scope !== "voice" && scope !== "calendar") {
+    return NextResponse.json({ ok: false, error: 'Nur scope "voice" oder "calendar" erlaubt.' }, { status: 400 });
   }
-  const name = typeof body.name === "string" && body.name.trim() ? body.name : "Sprachassistent";
-  const issued = await createDeviceToken({ userId: user.userId, name, scopes: ["voice"] });
+  const fallback = scope === "voice" ? "Sprachassistent" : "Kalender";
+  const name = typeof body.name === "string" && body.name.trim() ? body.name : fallback;
+  const issued = await createDeviceToken({ userId: user.userId, name, scopes: [scope as DeviceScope] });
   return NextResponse.json(
     { ok: true, id: issued.id, name: sanitizeDeviceName(name), token: issued.token, prefix: issued.prefix, scopes: issued.scopes },
     { status: 201, headers: { "Cache-Control": "no-store" } },
