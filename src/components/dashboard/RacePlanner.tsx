@@ -76,6 +76,7 @@ export function RacePlanner({ initialRaces }: { initialRaces: Race[] }) {
     type: "triathlon",
     distance: "",
     priority: "A",
+    locationName: "",
   });
 
   const today = new Date();
@@ -103,7 +104,7 @@ export function RacePlanner({ initialRaces }: { initialRaces: Race[] }) {
       const data = await res.json();
       if (data.ok) {
         setRaces((r) => [...r, data.race]);
-        setForm({ name: "", date: "", type: "triathlon", distance: "", priority: "A" });
+        setForm({ name: "", date: "", type: "triathlon", distance: "", priority: "A", locationName: "" });
         setOpen(false);
         router.refresh();
       }
@@ -258,6 +259,12 @@ export function RacePlanner({ initialRaces }: { initialRaces: Race[] }) {
             onChange={(e) => setForm({ ...form, distance: e.target.value })}
             className="rounded-lg border border-neutral-300 bg-white px-2 py-1.5 text-sm"
           />
+          <input
+            placeholder="Ort (für Wetter, z.B. Roth)"
+            value={form.locationName}
+            onChange={(e) => setForm({ ...form, locationName: e.target.value })}
+            className="rounded-lg border border-neutral-300 bg-white px-2 py-1.5 text-sm"
+          />
           <select
             value={form.priority}
             onChange={(e) => setForm({ ...form, priority: e.target.value })}
@@ -299,6 +306,7 @@ export function RacePlanner({ initialRaces }: { initialRaces: Race[] }) {
                     <p className="text-xs text-neutral-500">
                       {fmtDate(race.date)}
                       {race.distance ? ` · ${race.distance}` : ""}
+                      {race.locationName ? ` · 📍 ${race.locationName}` : ""}
                       {race.resultSeconds != null
                         ? ` · 🏁 ${fmtTime(race.resultSeconds)}`
                         : ""}

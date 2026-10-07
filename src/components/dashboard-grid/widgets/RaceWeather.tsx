@@ -1,7 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { describeForecast, type DayForecast } from "@/domain/training/weather";
+import {
+  describeForecast,
+  weatherKind,
+  WEATHER_LABEL,
+  type DayForecast,
+} from "@/domain/training/weather";
+import { WeatherIcon } from "./WeatherIcon";
 import { useDashboardData } from "../DashboardDataProvider";
 import type { WidgetSize } from "../types";
 import { WidgetEmpty, WidgetError, WidgetSkeleton } from "./WidgetStates";
@@ -95,14 +101,47 @@ export function RaceWeather({ size }: { size: WidgetSize }) {
           Renntag liegt außerhalb des ~16-Tage-Prognosehorizonts.
         </p>
       ) : (
+        <ForecastView forecast={result.forecast} locationName={result.locationName} size={size} />
+      )}
+    </div>
+  );
+}
+
+function ForecastView({
+  forecast,
+  locationName,
+  size,
+}: {
+  forecast: DayForecast;
+  locationName: string | null;
+  size: WidgetSize;
+}) {
+  const kind = weatherKind(forecast.weatherCode, forecast.precipitationMm);
+  const rainy = forecast.precipitationMm > 0.2;
+  return (
+    <div>
+      <div className="flex items-center gap-3">
+        <WeatherIcon kind={kind} size={size === "L" ? 64 : 48} />
         <div>
-          <p className="text-sm font-medium text-neutral-800">
-            {describeForecast(result.forecast)}
+          <p className="text-2xl font-semibold leading-none text-neutral-900">
+            {Math.round(forecast.tempMaxC)}°
+            <span className="ml-1 text-base font-normal text-neutral-400">
+              / {Math.round(forecast.tempMinC)}°
+            </span>
           </p>
-          {size === "L" && result.locationName && (
-            <p className="mt-1 text-xs text-neutral-400">{result.locationName}</p>
-          )}
+          <p className="mt-1 text-xs text-neutral-600">{WEATHER_LABEL[kind]}</p>
         </div>
+      </div>
+      <div className="mt-2 flex flex-wrap gap-2 text-xs">
+        <span className="rounded-full bg-blue-50 px-2 py-0.5 text-blue-700">
+          {rainy ? `${forecast.precipitationMm.toFixed(1)} mm` : "trocken"}
+        </span>
+        <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-neutral-600">
+          Wind {Math.round(forecast.windMaxKmh)} km/h
+        </span>
+      </div>
+      {size === "L" && locationName && (
+        <p className="mt-2 text-xs text-neutral-400">📍 {locationName}</p>
       )}
     </div>
   );

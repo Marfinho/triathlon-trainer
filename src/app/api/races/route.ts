@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/auth-guard";
 import { getEffectiveLimits } from "@/lib/plan-config";
+import { geocodeLocation } from "@/integrations/weather/openMeteo";
 import { sanitizeText, sanitizeOptionalText } from "@/domain/security/sanitize";
 
 /**
@@ -59,6 +60,23 @@ export async function POST(request: Request) {
     }
   }
 
+  // Ort (optional) direkt auflösen, damit die Wetterprognose automatisch möglich ist.
+  let locationName = sanitizeOptionalText(body.locationName, 120);
+  let lat: number | null = null;
+  let lon: number | null = null;
+  if (locationName) {
+    try {
+      const geo = await geocodeLocation(locationName);
+      if (geo) {
+        lat = geo.lat;
+        lon = geo.lon;
+        locationName = geo.displayName;
+      }
+    } catch {
+      // Geocoding ist optional; Ort bleibt als Text erhalten und wird später erneut aufgelöst.
+    }
+  }
+
   const race = await prisma.raceEvent.create({
     data: {
       userId,
@@ -68,6 +86,9 @@ export async function POST(request: Request) {
       distance: sanitizeOptionalText(body.distance, 60),
       priority: typeof body.priority === "string" ? body.priority : "B",
       notes: sanitizeOptionalText(body.notes, 2000),
+      locationName,
+      lat,
+      lon,
     },
   });
 
