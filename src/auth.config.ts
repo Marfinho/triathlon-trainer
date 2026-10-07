@@ -30,6 +30,8 @@ const PUBLIC_PREFIXES = [
   "/api/tv",
   // Übungsanimation für die TV-App (WebView): prüft Geräte-Token/Session selbst.
   "/tv/",
+  // Statisches 3D-Körpermodell (keine Nutzerdaten) – wird von /tv/exercise in der WebView ohne Cookie geladen.
+  "/models/",
   "/api/live",
   // Von MCP-Clients geprobte Discovery-Pfade sollen sauber 404 liefern statt Login-Redirect.
   "/.well-known",
