@@ -1,29 +1,58 @@
-import { recordAudit } from "@/lib/audit";
-import { clientIp } from "@/lib/rate-limit";
-import { DEVICE_GRANT_TYPE, pollDeviceToken } from "@/lib/device/flow";
-import { deviceJson, readFormOrJson } from "@/lib/device/http";
+import { NextResponse } from "next/server";
+import { pollDeviceCode, POLL_INTERVAL_SEC } from "@/lib/device/pairing";
+import { checkRateLimit, clientIp } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
+const GRANT_TYPE = "urn:ietf:params:oauth:grant-type:device_code";
+const NO_STORE = { "Cache-Control": "no-store" };
+
 /**
- * POST /api/device/token – das Gerät pollt (RFC 8628 §3.4).
- * Body: grant_type=urn:ietf:params:oauth:grant-type:device_code&device_code=…
- * Fehler als 400 { error: authorization_pending | slow_down | expired_token |
- * access_denied | invalid_grant }.
+ * POST /api/device/token – Gerät pollt, bis der Nutzer bestätigt hat (RFC 8628 §3.4).
+ * Öffentlich. Body JSON oder form-encoded: { device_code, grant_type? }.
+ * Fehler: authorization_pending | slow_down | access_denied | expired_token | invalid_grant.
  */
 export async function POST(request: Request) {
-  const body = await readFormOrJson(request);
-  if (!body) return deviceJson(400, { error: "invalid_request" });
-  if (body.grant_type !== DEVICE_GRANT_TYPE) return deviceJson(400, { error: "unsupported_grant_type" });
-  const deviceCode = typeof body.device_code === "string" ? body.device_code : "";
-  const res = await pollDeviceToken(deviceCode);
-  if (!res.ok) return deviceJson(400, { error: res.error });
-  await recordAudit({
-    userId: res.userId,
-    action: "device.paired",
-    ip: clientIp(request),
-    meta: { tokenId: res.tokenId },
-  });
-  return deviceJson(200, { access_token: res.accessToken, token_type: "Bearer", scope: "tv" });
+  const limit = await checkRateLimit(`device-token-ip:${clientIp(request)}`, 120, 60_000);
+  if (!limit.allowed) {
+    return NextResponse.json(
+      { error: "slow_down", interval: POLL_INTERVAL_SEC * 2 },
+      { status: 429, headers: { ...NO_STORE, "Retry-After": String(Math.ceil(limit.retryAfterMs / 1000)) } },
+    );
+  }
+
+  let params: Record<string, unknown> = {};
+  try {
+    if ((request.headers.get("content-type") ?? "").includes("application/x-www-form-urlencoded")) {
+      params = Object.fromEntries(new URLSearchParams(await request.text()));
+    } else {
+      params = (await request.json()) as Record<string, unknown>;
+    }
+  } catch {
+    return NextResponse.json({ error: "invalid_request" }, { status: 400, headers: NO_STORE });
+  }
+  if (params.grant_type !== undefined && params.grant_type !== GRANT_TYPE) {
+    return NextResponse.json({ error: "unsupported_grant_type" }, { status: 400, headers: NO_STORE });
+  }
+
+  const result = await pollDeviceCode(params.device_code);
+  if (result.status === "ok") {
+    return NextResponse.json(
+      {
+        access_token: result.token,
+        token_type: "Bearer",
+        scope: result.scopes.join(" "),
+        device_name: result.deviceName,
+      },
+      { headers: NO_STORE },
+    );
+  }
+  if (result.status === "slow_down") {
+    return NextResponse.json(
+      { error: "slow_down", interval: POLL_INTERVAL_SEC + 5 },
+      { status: 400, headers: NO_STORE },
+    );
+  }
+  return NextResponse.json({ error: result.status }, { status: 400, headers: NO_STORE });
 }

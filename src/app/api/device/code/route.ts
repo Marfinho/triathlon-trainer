@@ -1,26 +1,43 @@
+import { NextResponse } from "next/server";
+import { createDeviceCode, POLL_INTERVAL_SEC } from "@/lib/device/pairing";
 import { baseUrl } from "@/lib/mcp/oauth";
 import { checkRateLimit, clientIp } from "@/lib/rate-limit";
-import { createDeviceAuthorization, sanitizeClientName } from "@/lib/device/flow";
-import { deviceJson, readFormOrJson } from "@/lib/device/http";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 /**
- * POST /api/device/code – Schritt 1 des Device-Flows (RFC 8628 §3.1).
- * Öffentlich (das Gerät hat noch kein Token), daher pro IP gedrosselt.
- * Body (optional): { client_name }
+ * POST /api/device/code – Gerät (z. B. Fire-TV-App) startet die Kopplung
+ * (RFC 8628 §3.1). Öffentlich; Body optional: { "device_name": "Wohnzimmer TV" }.
  */
 export async function POST(request: Request) {
-  const rl = await checkRateLimit(`device-code:${clientIp(request)}`, 20, 15 * 60_000);
-  if (!rl.allowed) {
-    return deviceJson(429, { error: "slow_down" }, { "Retry-After": String(Math.ceil(rl.retryAfterMs / 1000)) });
+  const limit = await checkRateLimit(`device-code:${clientIp(request)}`, 20, 10 * 60_000);
+  if (!limit.allowed) {
+    return NextResponse.json(
+      { error: "slow_down" },
+      { status: 429, headers: { "Retry-After": String(Math.ceil(limit.retryAfterMs / 1000)) } },
+    );
   }
-  const body = await readFormOrJson(request);
-  if (!body) return deviceJson(400, { error: "invalid_request" });
-  const res = await createDeviceAuthorization({
-    baseUrl: baseUrl(request),
-    clientName: sanitizeClientName(body.client_name),
-  });
-  return deviceJson(200, res);
+
+  let deviceName: unknown;
+  try {
+    const body = (await request.json()) as { device_name?: unknown };
+    deviceName = body?.device_name;
+  } catch {
+    // Body ist optional.
+  }
+
+  const created = await createDeviceCode(deviceName);
+  const base = baseUrl(request);
+  return NextResponse.json(
+    {
+      device_code: created.deviceCode,
+      user_code: created.userCode,
+      verification_uri: `${base}/device`,
+      verification_uri_complete: `${base}/device?code=${created.userCode}`,
+      expires_in: created.expiresInSec,
+      interval: POLL_INTERVAL_SEC,
+    },
+    { headers: { "Cache-Control": "no-store" } },
+  );
 }

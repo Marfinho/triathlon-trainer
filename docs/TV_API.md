@@ -1,194 +1,129 @@
-# TV-API (brick-tv)
+# TV-API (Fire TV / Android-TV-Client)
 
-Schnittstelle für die native Fire-TV-App **brick-tv** (Repo `Marfinho/brick-tv`).
-Die App koppelt sich per **Device Authorization Grant (RFC 8628)**, lädt geplante
-Rad- und Kraft-Einheiten, steuert den Rollentrainer selbst per Bluetooth und lädt
-die Aufzeichnung als Aktivität hoch.
+Vertrag zwischen Brick (LocalHub) und der separaten Android-TV-App (`brick-tv`).
+Die App koppelt sich per **Device Authorization Grant (RFC 8628)** und arbeitet danach
+mit einem **Geräte-Token** (`lht_…`). Basis-URL = die LocalHub-URL (`NEXTAUTH_URL`).
 
-Alle Antworten sind JSON mit `Cache-Control: no-store`. Zeiten sind ISO-8601,
-Datumswerte `YYYY-MM-DD`.
+## 1. Kopplung
 
-## 1. Kopplung (RFC 8628)
-
-### `POST /api/device/code` (öffentlich, 20 Anfragen / 15 min / IP)
-
-Body (JSON oder `application/x-www-form-urlencoded`, optional):
-
-```json
-{ "client_name": "Fire TV Wohnzimmer" }
+```
+TV                                   Brick                           Handy/Browser (eingeloggt)
+ │ POST /api/device/code ───────────▶│
+ │◀── device_code, user_code, URIs ──│
+ │  zeigt Code "K7QM" + QR           │
+ │                                   │◀── /device?code=K7QM (QR) oder Code tippen
+ │                                   │◀── POST /api/device/verify (lookup, approve)
+ │ POST /api/device/token (Polling) ▶│
+ │◀── authorization_pending ─────────│
+ │ …                                 │
+ │◀── access_token (einmalig) ───────│
 ```
 
-Antwort `200`:
+### `POST /api/device/code` (öffentlich)
+Body (optional): `{ "device_name": "Fire TV Wohnzimmer" }` – erlaubt sind Buchstaben, Ziffern,
+Leerzeichen und `._()-`, max. 40 Zeichen (der Name wird dem Nutzer bei der Bestätigung gezeigt).
 
 ```json
 {
   "device_code": "…43 Zeichen, geheim…",
-  "user_code": "BCDF-GHJK",
+  "user_code": "K7QM",
   "verification_uri": "https://brick.example/device",
-  "verification_uri_complete": "https://brick.example/device?code=BCDF-GHJK",
+  "verification_uri_complete": "https://brick.example/device?code=K7QM",
   "expires_in": 600,
   "interval": 5
 }
 ```
+- **Anzeige:** `user_code` groß (4 Zeichen aus `A–Z 2–9` ohne `I`/`O`), daneben ein QR-Code mit
+  `verification_uri_complete`. Der QR führt auf die Brick-Seite, der Nutzer loggt sich bei Bedarf ein
+  und bestätigt – ohne Tippen.
+- Limit: 20 Anfragen / 10 min je IP (`429 slow_down`).
 
-Die App zeigt `verification_uri_complete` als QR-Code und `user_code` zum Abtippen.
-Der user_code besteht aus 8 Zeichen des Alphabets `BCDFGHJKLMNPQRSTVWXZ`
-(keine Vokale, nichts Verwechselbares). Groß-/Kleinschreibung und Bindestrich
-sind bei der Eingabe egal.
+### `POST /api/device/token` (öffentlich, Polling)
+Body JSON oder `application/x-www-form-urlencoded`:
+`device_code` (Pflicht), `grant_type = urn:ietf:params:oauth:grant-type:device_code` (optional).
 
-### `GET /device?code=…` (Login nötig)
+| HTTP | Antwort                                   | Bedeutung / Reaktion der App                                  |
+|------|-------------------------------------------|---------------------------------------------------------------|
+| 200  | `{ access_token, token_type:"Bearer", scope:"tv", device_name }` | Fertig. Token sicher speichern, Polling beenden. |
+| 400  | `{ "error": "authorization_pending" }`    | Weiter pollen (alle `interval` Sekunden).                     |
+| 400  | `{ "error": "slow_down", "interval": 10 }`| Intervall auf den genannten Wert erhöhen.                     |
+| 400  | `{ "error": "access_denied" }`            | Nutzer hat abgelehnt → neuen Code anbieten.                   |
+| 400  | `{ "error": "expired_token" }`            | Code abgelaufen (10 min) → neuen Code holen.                  |
+| 400  | `{ "error": "invalid_grant" }`            | Unbekannt oder bereits eingelöst → neu starten.               |
+| 429  | `{ "error": "slow_down" }`                | Zu viele Anfragen (120/min je IP).                            |
 
-Freigabeseite im Browser (Handy/Laptop). Der Nutzer bestätigt den Code. Die Seite
-listet außerdem die gekoppelten Geräte und kann sie entkoppeln.
+Der Token wird **genau einmal** ausgegeben. Er ist unbefristet gültig, bis der Nutzer ihn unter
+*Profil → Gekoppelte Geräte* widerruft oder die App `POST /api/tv/v1/logout` aufruft.
 
-### `POST /api/device/token` (öffentlich)
+## 2. Authentifizierte Endpunkte
 
-Body (Form oder JSON):
+Header: `Authorization: Bearer lht_…`. `401 invalid_token` ⇒ Token widerrufen → App muss neu koppeln.
+Limit: 240 Anfragen/min je Token. Der Geräte-Token gilt **nur** für die hier genannten Routen
+(Scope `tv`), nicht für die übrige API und nicht für den MCP-Endpunkt.
 
-```
-grant_type=urn:ietf:params:oauth:grant-type:device_code&device_code=…
-```
-
-| Status | Body | Bedeutung für die App |
-|---|---|---|
-| 200 | `{ "access_token": "lht_…", "token_type": "Bearer", "scope": "tv" }` | gekoppelt, Token speichern |
-| 400 | `{ "error": "authorization_pending" }` | weiter pollen (`interval`) |
-| 400 | `{ "error": "slow_down" }` | Intervall um 5 s erhöhen |
-| 400 | `{ "error": "access_denied" }` | Nutzer hat abgelehnt → neuer Code |
-| 400 | `{ "error": "expired_token" }` | Code abgelaufen → neuer Code |
-| 400 | `{ "error": "invalid_grant" }` | unbekannt/bereits eingelöst → neuer Code |
-
-Ein freigegebener Code wird genau einmal eingelöst.
-
-### Token
-
-- Präfix `lht_`, 256 Bit Zufall. Der Server speichert nur den SHA-256-Hash.
-- Kein Ablaufdatum. Widerruf über `/device` (Entkoppeln) oder `POST /api/tv/logout`.
-- Jede TV-Route antwortet bei fehlendem/ungültigem/widerrufenem Token mit
-  **`401 { "error": "invalid_token" }`** und `WWW-Authenticate: Bearer error="invalid_token"`.
-  Die App löscht dann das Token und startet die Kopplung neu.
-- Mehr als 30 Fehlversuche je IP in 15 min → `429` mit `Retry-After`.
-
-## 2. TV-Routen (`Authorization: Bearer lht_…`)
-
-### `GET /api/tv/me`
+### `GET /api/tv/v1/workouts?days=21`
+Einheiten der nächsten `days` Tage (Standard 21, max. 60) sowie von gestern.
 
 ```json
 {
-  "name": "Sven",
-  "ftpWatts": 250,
-  "thresholdHr": 168,
-  "device": { "id": "clx…", "name": "Fire TV Wohnzimmer" }
-}
-```
-
-`ftpWatts` kann `null` sein. Die App nutzt dann 200 W und weist darauf hin.
-
-### `GET /api/tv/workouts?days=14`
-
-Geplante Einheiten (Status `planned`/`synced`) von gestern bis `days` Tage voraus
-(1–28). Rad (`bike`, `brick`) → `kind: "bike"`, Kraft/Mobility (`strength`,
-`mobility`, `other` oder Einheiten mit Übungssegmenten) → `kind: "strength"`.
-
-```json
-{
-  "workouts": [
-    {
-      "id": "clx…",
-      "date": "2026-10-07",
-      "sport": "bike",
-      "kind": "bike",
-      "title": "Sweet Spot 3×10",
-      "plannedDurationMin": 60,
-      "description": null,
-      "segments": [
-        {
-          "type": "warmup", "durationSec": 600, "intensity": "warmup",
-          "targetType": null, "targetValue": null, "targetValueTo": null,
-          "rpeTarget": null, "cadenceNote": null, "description": null
-        },
-        {
-          "type": "interval", "durationSec": 600, "intensity": null,
-          "targetType": "power", "targetValue": 225, "targetValueTo": 235,
-          "rpeTarget": null, "cadenceNote": "90 rpm", "description": "Sweet Spot"
-        }
-      ],
-      "steps": []
-    },
-    {
-      "id": "cly…",
-      "date": "2026-10-08",
-      "sport": "strength",
-      "kind": "strength",
-      "title": "Rumpf",
-      "plannedDurationMin": 20,
-      "description": null,
-      "segments": [],
-      "steps": [
-        { "kind": "text", "title": "Aufwärmen", "description": "Locker einrollen", "durationSec": 300 },
-        {
-          "kind": "exercise", "exerciseId": "side-plank", "title": "Seitstütz",
-          "dose": "3 × 30 s pro Seite", "sets": 3, "reps": null, "holdSec": 30,
-          "restSec": 20, "perSide": true, "loadKg": null, "note": null, "description": null
-        }
-      ]
+  "device": { "name": "Fire TV Wohnzimmer" },
+  "athlete": {
+    "name": "…", "ftpWatts": 250, "thresholdHr": 170,
+    "powerZones": [ … ], "hrZones": [ … ]
+  },
+  "bike": [{
+    "id": "…", "date": "2026-10-08", "title": "Sweetspot 3×12", "sport": "bike",
+    "plannedDurationMin": 60,
+    "segments": [ … Rohsegmente wie im Plan … ],
+    "timeline": {
+      "ftp": 250, "totalDurationSec": 3600,
+      "steps": [{ "index": 0, "startSec": 0, "endSec": 600, "durationSec": 600,
+                  "targetWatts": 140, "rangeWatts": [130, 150], "label": "1. warmup", "source": "…" }]
     }
-  ]
+  }],
+  "strength": [{
+    "id": "…", "date": "…", "title": "Rumpf & Hüfte", "sport": "strength", "plannedDurationMin": 30,
+    "steps": [
+      { "kind": "exercise", "exerciseId": "side-plank", "title": "Seitstütz", "dose": "3 × 30 s pro Seite",
+        "note": null, "sets": 3, "reps": null, "holdSec": 30, "restSec": 20, "perSide": true },
+      { "kind": "text", "segmentType": "warmup", "description": "…", "durationSec": 300 }
+    ]
+  }]
 }
 ```
+- `timeline` ist serverseitig mit der FTP des Athleten berechnet (`targetWatts` = ERG-Ziel je Schritt;
+  Ruhe-Schritte = 0 W). Die App kann sie direkt abspielen und braucht die Segment-Logik nicht zu portieren;
+  bei FTP-Override in der App neu berechnen (`segments` + Regeln aus `src/integrations/trainer/watts.ts`).
+- Der Ablauf einer Kraft-Einheit (Sätze, Seiten, Halte-/Pausen-Countdown) folgt
+  `src/components/exercises/strengthPlayerState.ts`.
 
-Die Ziel-Watt eines Rad-Segments ermittelt die App selbst, mit derselben Logik wie
-`src/integrations/trainer/watts.ts`: Power-Target, dann Zone, dann RPE, dann Default.
-`type: "rest"` bedeutet 0 W. Segmente ohne `durationSec > 0` werden übersprungen.
+### `POST /api/tv/v1/activities`
+Aufgezeichnete Einheit speichern. Body wie `POST /api/activities`:
+`{ sport, date?, durationMin, distanceKm?, load?, avgHr?, avgPower?, rpe?, notes?, samples?, externalId? }`
+(`source` ist standardmäßig `"tv"`). **`externalId` (UUID) immer setzen:** Der Upload ist damit idempotent,
+ein Wiederholen nach Netzausfall liefert `{ ok:true, id, duplicate:true }` statt eines Duplikats.
+`samples`: bis zu 50 000 Einträge (`downsample` wie in `recording.ts` empfohlen, ~300).
 
-Kraft-Schritte: `holdSec` ist nur gesetzt, wenn es keine `reps` gibt (Halteübung).
-Ablauf wie `src/components/exercises/strengthPlayerState.ts`.
+### `POST /api/tv/v1/logout`
+Widerruft den eigenen Token (App-Funktion „Abmelden“). Antwort `{ ok: true }`.
 
-### `POST /api/tv/activities`
+### Live-Zustand (optional)
+`POST /api/live` (Body = Snapshot, siehe `src/lib/live-session.ts`), `GET /api/live`,
+`GET /api/live/stream` (SSE) akzeptieren ebenfalls den Geräte-Token. So kann die TV-Web-Ansicht
+(`/trainer/tv`) auf einem zweiten Gerät mitlaufen.
 
-Upload einer aufgezeichneten Einheit. Body wie `POST /api/activities` plus
-**`clientId`** (8–64 Zeichen `[A-Za-z0-9_-]`, von der App pro Einheit erzeugt):
+## 3. Verwaltung (Browser, Session)
+- `/device` – Code eingeben bzw. QR-Ziel; Bestätigen/Ablehnen. Login-pflichtig.
+- `POST /api/device/verify` `{ user_code, action: "lookup"|"approve"|"deny" }` – 20 Versuche / 15 min je Nutzer.
+- `GET /api/device/tokens`, `DELETE /api/device/tokens { id }` – Geräteliste, Entkoppeln
+  (auch in *Profil → Gekoppelte Geräte*).
 
-```json
-{
-  "clientId": "3f9c2b1e-…",
-  "sport": "bike",
-  "date": "2026-10-07T17:30:00.000Z",
-  "durationMin": 61.5,
-  "distanceKm": 31.2,
-  "load": 72,
-  "avgHr": 142,
-  "avgPower": 201,
-  "notes": "Brick TV: Sweet Spot 3×10",
-  "samples": [{ "tSec": 0, "powerW": 120, "cadenceRpm": 85, "hrBpm": 110, "speedKmh": 28.1, "targetW": 140 }]
-}
-```
-
-- `201 { "ok": true, "id": "…", "duplicate": false }`: angelegt.
-- `200 { "ok": true, "id": "…", "duplicate": true }`: diese `clientId` gibt es schon.
-  Die App sendet nach Netzausfall erneut, deshalb ist der Upload idempotent.
-- `400` bei ungültigem Body, `413` ab 2 MB.
-
-Gespeichert wird als `ActualActivity` mit `source = "brick-tv"` und
-`externalId = clientId`. Samples höchstens 50 000, die App schickt auf 600 Punkte
-reduziert.
-
-### `POST /api/tv/live`
-
-Optional: Live-Zustand im Format von `POST /api/live` (`src/lib/live-session.ts`),
-damit `/trainer/tv` auf weiteren Bildschirmen mitläuft. `{ "kind": "idle" }` beendet
-die Anzeige.
-
-### `POST /api/tv/logout`
-
-Widerruft das eigene Token (Abmelden in der App). Antwort `200 { "ok": true }`.
-
-## 3. Sicherheit
-
-- Der device_code ist geheim und liegt nur als Hash in der DB. Der user_code ist
-  10 min gültig und wird nur einmal eingelöst.
-- Freigeben (`POST /api/device/approve`) verlangt eine Session und ist gedrosselt
-  (20 Versuche / 15 min / Nutzer) gegen Durchprobieren.
-- Kopplung, Logout und Widerruf landen im Audit-Log (`device.paired`, `device.logout`,
-  `device.revoked`).
-- Geräte-Token gelten nur für `/api/tv/*`, nicht für `/api/mcp` oder die Web-App.
+## 4. Sicherheit
+- `device_code` und Geräte-Token werden nur als SHA-256-Hash gespeichert.
+- Kurzcode: 32⁴ ≈ 1,05 Mio. Möglichkeiten, 10 min gültig, einmalig, nur mit Login prüfbar und je Nutzer
+  rate-limitiert. Ein erratener Code bindet ein fremdes Gerät höchstens an das Konto des Rätenden;
+  er gibt keinen Zugriff auf fremde Daten. Die Bestätigungsseite zeigt Gerätename und Alter der Anfrage.
+- Token-Präfix `lht_` ≠ MCP-Präfix `lhm_`: ein TV-Token ist am MCP-Endpunkt wertlos und umgekehrt.
+- Geräte-Token werden **nicht** von `requireUser()` akzeptiert; nur Routen mit `requireUserOrDevice`
+  (`/api/tv/*`, `/api/live*`) öffnen sich dafür.
+- Die App muss den Token verschlüsselt ablegen (Android Keystore / `EncryptedSharedPreferences`).

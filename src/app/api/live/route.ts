@@ -1,14 +1,14 @@
 import { NextResponse } from "next/server";
-import { requireUser } from "@/lib/auth-guard";
+import { requireUserOrDevice } from "@/lib/device/auth";
 import { getLive, liveSnapshotSchema, publishLive } from "@/lib/live-session";
 
 const MAX_BODY_BYTES = 32 * 1024;
 
 /** GET /api/live – aktueller Live-Zustand der eigenen Einheit. */
-export async function GET() {
-  const { user, response } = await requireUser();
-  if (response) return response;
-  return NextResponse.json(getLive(user.userId));
+export async function GET(request: Request) {
+  const auth = await requireUserOrDevice(request);
+  if (auth.response) return auth.response;
+  return NextResponse.json(getLive(auth.userId));
 }
 
 /**
@@ -16,8 +16,8 @@ export async function GET() {
  * (Rolle/Kraft). `{ "kind": "idle" }` beendet die Anzeige.
  */
 export async function POST(request: Request) {
-  const { user, response } = await requireUser();
-  if (response) return response;
+  const auth = await requireUserOrDevice(request);
+  if (auth.response) return auth.response;
 
   const raw = await request.text();
   if (raw.length > MAX_BODY_BYTES) {
@@ -33,6 +33,6 @@ export async function POST(request: Request) {
   if (!parsed.success) {
     return NextResponse.json({ ok: false, error: "Ungültiger Live-Zustand." }, { status: 400 });
   }
-  publishLive(user.userId, parsed.data);
+  publishLive(auth.userId, parsed.data);
   return NextResponse.json({ ok: true });
 }

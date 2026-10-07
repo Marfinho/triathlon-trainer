@@ -1,4 +1,4 @@
-import { requireUser } from "@/lib/auth-guard";
+import { requireUserOrDevice } from "@/lib/device/auth";
 import { getLive, LIVE_STALE_MS, subscribeLive, type LiveEvent } from "@/lib/live-session";
 
 export const dynamic = "force-dynamic";
@@ -10,9 +10,9 @@ export const runtime = "nodejs";
  * Änderung; veraltete Einheiten werden als `idle` gemeldet.
  */
 export async function GET(request: Request) {
-  const { user, response } = await requireUser();
-  if (response) return response;
-  const userId = user.userId;
+  const auth = await requireUserOrDevice(request);
+  if (auth.response) return auth.response;
+  const userId = auth.userId;
 
   const encoder = new TextEncoder();
   let cleanup = () => {};

@@ -71,9 +71,9 @@ model User {
   dashboardConfig     DashboardConfig?
   customExercises     CustomExercise[]
   mcpTokens           McpToken[]
-  deviceTokens        DeviceToken[]
-  deviceAuthorizations DeviceAuthorization[]
   oauthCodes          OAuthCode[]
+  deviceCodes         DeviceCode[]
+  deviceTokens        DeviceToken[]
 }
 
 model Account {
@@ -751,16 +751,15 @@ model OAuthCode {
   @@index([userId])
 }
 
-/// Geräte-Kopplung nach RFC 8628 (Device Authorization Grant) für die Fire-TV-App
-/// "brick-tv". Gespeichert werden nur Hashes des device_code; der user_code ist
-/// kurzlebig (10 min) und wird nach dem Einlösen ungültig.
-model DeviceAuthorization {
+/// Kopplungsanfrage eines TV-/Geräte-Clients (Device Authorization Grant, RFC 8628).
+/// Der Client zeigt `userCode` (kurz, gut lesbar) bzw. einen QR-Link; der Nutzer
+/// bestätigt im eingeloggten Browser. Vom `deviceCode` (geheim, Polling) wird nur
+/// der SHA-256-Hash gespeichert. status: pending | approved | denied | consumed.
+model DeviceCode {
   id             String    @id @default(cuid())
   deviceCodeHash String    @unique
-  /// Normalisiert (8 Großbuchstaben ohne Bindestrich), z. B. "BCDFGHJK".
   userCode       String    @unique
-  clientName     String
-  /// pending | approved | denied | consumed
+  deviceName     String
   status         String    @default("pending")
   userId         String?
   expiresAt      DateTime
@@ -769,18 +768,20 @@ model DeviceAuthorization {
 
   user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@index([userId])
   @@index([expiresAt])
 }
 
-/// Zugriffstoken gekoppelter Geräte (brick-tv). Nur der SHA-256-Hash wird
-/// gespeichert; Widerruf über `revokedAt` (Gerät bekommt dann 401 → neu koppeln).
+/// Langlebiger, widerrufbarer Zugriffstoken eines gekoppelten Geräts (z. B. Fire TV).
+/// Eigenes Präfix `lht_`, damit er am MCP-Endpunkt (`lhm_`) nie gültig ist.
+/// `scopes`: aktuell nur "tv" (Workouts lesen, Aktivität/Live-Zustand schreiben).
 model DeviceToken {
   id         String    @id @default(cuid())
   userId     String
   name       String
   tokenHash  String    @unique
   prefix     String
+  scopes     Json      @default("[\"tv\"]")
+  expiresAt  DateTime?
   lastUsedAt DateTime?
   revokedAt  DateTime?
   createdAt  DateTime  @default(now())

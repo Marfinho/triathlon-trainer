@@ -1,15 +1,15 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import AuthFrame from "@/components/marketing/AuthFrame";
-import DevicePairing from "@/components/device/DevicePairing";
-import { listDeviceTokens } from "@/lib/device/flow";
+import DeviceForm from "@/components/device/DeviceForm";
 
 export const dynamic = "force-dynamic";
+export const metadata: Metadata = { title: "Brick – Gerät koppeln" };
 
 /**
- * Freigabeseite für die Geräte-Kopplung (RFC 8628, verification_uri).
- * Der Fernseher zeigt einen QR-Code auf /device?code=XXXX-XXXX bzw. den Code
- * zum Abtippen. Login-pflichtig.
+ * Gerät koppeln (RFC 8628 Verification-URI): Hier gibt der Nutzer den Code ein, den
+ * der Fernseher anzeigt (oder landet per QR mit `?code=`). Login-pflichtig.
  */
 export default async function DevicePage({
   searchParams,
@@ -17,24 +17,17 @@ export default async function DevicePage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const sp = await searchParams;
-  const code = typeof sp.code === "string" ? sp.code.slice(0, 20) : "";
+  const code = typeof sp.code === "string" ? sp.code.slice(0, 12) : "";
+
   const session = await auth();
   if (!session?.user?.id) {
-    const back = code ? `/device?code=${encodeURIComponent(code)}` : "/device";
+    const back = `/device${code ? `?code=${encodeURIComponent(code)}` : ""}`;
     redirect(`/auth/login?callbackUrl=${encodeURIComponent(back)}`);
   }
-  const devices = await listDeviceTokens(session.user.id);
+
   return (
-    <AuthFrame emoji="📺" title="Fernseher koppeln" subtitle="Gib den Code ein, den die Brick-TV-App anzeigt.">
-      <DevicePairing
-        initialCode={code}
-        devices={devices.map((d) => ({
-          id: d.id,
-          name: d.name,
-          createdAt: d.createdAt.toISOString(),
-          lastUsedAt: d.lastUsedAt?.toISOString() ?? null,
-        }))}
-      />
+    <AuthFrame emoji="📺" title="Gerät koppeln" subtitle="Gib den Code ein, den dein Fernseher anzeigt.">
+      <DeviceForm initialCode={code} />
     </AuthFrame>
   );
 }

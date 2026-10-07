@@ -22,11 +22,13 @@ const PUBLIC_PREFIXES = [
   // /api/oauth/consent verlangt trotzdem eine Session (im Handler). Die
   // Zustimmungsseite /oauth/authorize selbst bleibt login-pflichtig.
   "/api/oauth",
-  // Geräte-Kopplung (RFC 8628) und TV-API der Fire-TV-App: eigene Bearer-
-  // Authentifizierung im Handler. /api/device/approve bleibt session-pflichtig.
-  "/api/device/code",
-  "/api/device/token",
+  // Geräte-Kopplung (RFC 8628) und TV-App: Code/Token-Endpunkte sind öffentlich bzw.
+  // nutzen Geräte-Token (`lht_`); /api/device/verify|tokens verlangen im Handler eine
+  // Session. /api/live akzeptiert Session ODER Geräte-Token. Die Seite /device bleibt
+  // login-pflichtig.
+  "/api/device",
   "/api/tv",
+  "/api/live",
   // Von MCP-Clients geprobte Discovery-Pfade sollen sauber 404 liefern statt Login-Redirect.
   "/.well-known",
 ];

@@ -78,8 +78,6 @@ die Daten direkt lesen (und – opt-in – den Plan ändern) kann: siehe [`docs/
 **Training & Material**
 - **Radrolle (Wahoo Kickr)** – ERG-Steuerung per Web Bluetooth/FTMS **und**
   Aufzeichnung der Einheit (Speichern als Aktivität + TCX-Export).
-- **Fire-TV-App (brick-tv)** – native App, steuert Rolle und Pulsgurt selbst per
-  Bluetooth; Kopplung per Code/QR auf `/device`. API: [`docs/TV_API.md`](docs/TV_API.md).
 - **Trainingszonen** – Power, HF, Lauf- und Schwimm-Pace aus Schwellenwerten.
 - **Sportgeräte** – Schuhe/Räder/Komponenten mit km-/Stunden-Verschleiß und
   Wartungs-/Austausch-Hinweisen.
