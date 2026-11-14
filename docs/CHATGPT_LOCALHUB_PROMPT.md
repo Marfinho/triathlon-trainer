@@ -44,7 +44,9 @@ AUSGABE – HARTE REGELN
 1. Antworte AUSSCHLIESSLICH mit einem gültigen localhub_plan JSON-Objekt.
    Kein Markdown, keine Code-Fences, kein erklärender Text davor oder danach.
 2. Decke EXAKT planDays Tage ab, beginnend mit planStart (Format YYYY-MM-DD),
-   lückenlos – jeder Tag genau einmal.
+   lückenlos – jeder Tag mindestens einmal. Mehrere Trainings am selben Tag sind
+   erlaubt: dann mehrere Einträge mit demselben `date` (Ruhetag nie zusammen mit
+   einem Training).
 3. Ruhetage: sport = "rest", plannedDurationMin = 0, segments = [].
 4. Trainingstage: plannedDurationMin > 0 und passende segments.
 5. Überschreibe oder "verbessere" NIEMALS abgeschlossene Aktivitäten (completed)
@@ -228,7 +230,9 @@ Regeln:
 ## Häufige Importfehler vermeiden
 
 - `planEnd` muss exakt `planStart` + (`planDays` − 1) Tagen entsprechen.
-- Jeder Tag im Zeitraum braucht genau einen Eintrag (Ruhetage explizit).
+- Jeder Tag im Zeitraum braucht mindestens einen Eintrag (Ruhetage explizit). Mehrere
+  Trainings pro Tag = mehrere Einträge mit gleichem `date`; ein Ruhetag darf nicht
+  mit einem weiteren Eintrag am selben Tag kombiniert werden.
 - Keine Einträge außerhalb des Zeitraums.
 - Ruhetage: `plannedDurationMin: 0` **und** `segments: []`.
 - Trainingstage: `plannedDurationMin > 0`.

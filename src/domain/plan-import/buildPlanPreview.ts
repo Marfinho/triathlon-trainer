@@ -116,7 +116,12 @@ export function buildPlanPreview(
 ): PlanPreviewDay[] {
   const existingByDate = new Map<string, ExistingWorkoutRef>();
   for (const w of existingWorkouts) {
-    existingByDate.set(toIsoDate(w.date), w);
+    // Mehrere Workouts pro Tag möglich: ein completed-Workout hat Vorrang.
+    const key = toIsoDate(w.date);
+    const prev = existingByDate.get(key);
+    if (!prev || (prev.status !== "completed" && w.status === "completed")) {
+      existingByDate.set(key, w);
+    }
   }
 
   return plan.entries

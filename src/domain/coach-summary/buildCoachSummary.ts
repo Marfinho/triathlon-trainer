@@ -78,7 +78,7 @@ function buildChatGptInstruction(
     outputFormat:
       "Antworte ausschließlich mit einem gültigen localhub_plan JSON-Objekt – kein Markdown, kein erklärender Text davor oder danach.",
     rules: [
-      `Erzeuge exakt ${params.planDays} Tage ab ${params.planStart} (lückenlos, jeder Tag genau einmal abgedeckt).`,
+      `Erzeuge exakt ${params.planDays} Tage ab ${params.planStart} (lückenlos, jeder Tag mindestens einmal abgedeckt). Mehrere Trainings am selben Tag (z. B. Schwimmen morgens, Rad abends) sind erlaubt: dann mehrere Einträge mit demselben date.`,
       'Ruhetage als sport "rest" mit plannedDurationMin: 0 und leeren segments [].',
       "Trainingstage haben plannedDurationMin > 0.",
       "Überschreibe oder verändere keine completed Aktivitäten aus recent_activities oder current_planned_workouts.",

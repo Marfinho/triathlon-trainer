@@ -5,6 +5,8 @@ import { requireAdmin } from "@/lib/auth-guard";
 /**
  * GET /api/admin/sync-queue – Übersicht der Sync-Queue
  * POST /api/admin/sync-queue – { jobId, action } führt Aktion aus (retry/cancel)
+ *   Sammelaktionen ohne jobId: { action: "retry_failed" } setzt alle fehlgeschlagenen
+ *   Jobs zurück auf pending (Versuche = 0); { action: "clear_failed" } löscht sie.
  */
 
 export async function GET(request: Request) {
@@ -65,9 +67,21 @@ export async function POST(request: Request) {
   const jobId = typeof body.jobId === "string" ? body.jobId : "";
   const action = typeof body.action === "string" ? body.action : "";
 
+  if (action === "retry_failed") {
+    const r = await prisma.syncQueue.updateMany({
+      where: { status: "failed" },
+      data: { status: "pending", attempts: 0, nextAttemptAt: new Date(), errorMessage: null },
+    });
+    return NextResponse.json({ ok: true, count: r.count });
+  }
+  if (action === "clear_failed") {
+    const r = await prisma.syncQueue.deleteMany({ where: { status: "failed" } });
+    return NextResponse.json({ ok: true, count: r.count });
+  }
+
   if (!jobId || !["retry", "cancel"].includes(action)) {
     return NextResponse.json(
-      { error: "jobId und action (retry|cancel) erforderlich." },
+      { error: "jobId und action (retry|cancel) erforderlich (oder action retry_failed|clear_failed)." },
       { status: 400 },
     );
   }

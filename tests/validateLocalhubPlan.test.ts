@@ -150,6 +150,31 @@ describe("validateLocalhubPlan", () => {
     expect(codes(plan)).toContain("DAY_NOT_COVERED");
   });
 
+  it("erlaubt mehrere Trainings am selben Tag", () => {
+    const plan = validPlan();
+    plan.entries.push({
+      ...plan.entries[0],
+      title: "Abendlauf",
+      plannedDurationMin: 30,
+      plannedDistanceM: null,
+      segments: [],
+    });
+    const c = codes(plan);
+    expect(c).not.toContain("REST_DAY_CONFLICT");
+    expect(validateLocalhubPlan(plan).valid).toBe(true);
+  });
+
+  it("verbietet Ruhetag zusammen mit weiterem Eintrag am selben Tag", () => {
+    const plan = validPlan();
+    plan.entries.push({
+      ...plan.entries[1],
+      sport: "run",
+      title: "Extra",
+      plannedDurationMin: 30,
+    });
+    expect(codes(plan)).toContain("REST_DAY_CONFLICT");
+  });
+
   it("erkennt Einträge außerhalb des Zeitraums", () => {
     const plan = validPlan();
     plan.entries[1].date = "2026-07-01";

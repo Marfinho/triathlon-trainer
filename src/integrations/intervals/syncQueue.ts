@@ -70,7 +70,12 @@ export async function processSyncQueue(
     try {
       if (job.action === "delete") {
         if (job.intervalsEventId) {
-          await client.deleteEvent(job.intervalsEventId);
+          try {
+            await client.deleteEvent(job.intervalsEventId);
+          } catch (e) {
+            // Event bei Intervals bereits weg (404) -> Ziel erreicht.
+            if (!(e instanceof Error && /: 404\b/.test(e.message))) throw e;
+          }
           await db.intervalsWorkoutSync.updateMany({
             where: { intervalsEventId: job.intervalsEventId, userId },
             data: {

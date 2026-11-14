@@ -250,6 +250,21 @@ export function validateLocalhubPlan(
       coveredDates.add(entry.date);
     }
   });
+  // Ein Ruhetag schließt weitere Einträge am selben Tag aus; mehrere Trainings
+  // pro Tag sind dagegen erlaubt.
+  const entriesByDate = new Map<string, number[]>();
+  plan.entries.forEach((entry, index) => {
+    (entriesByDate.get(entry.date) ?? entriesByDate.set(entry.date, []).get(entry.date)!).push(index);
+  });
+  for (const [date, indices] of entriesByDate) {
+    if (indices.length > 1 && indices.some((i) => plan.entries[i].sport === "rest")) {
+      errors.push({
+        code: "REST_DAY_CONFLICT",
+        message: `Ruhetag (${date}) darf nicht zusammen mit weiteren Einträgen am selben Tag stehen.`,
+        path: "entries",
+      });
+    }
+  }
   for (const date of expectedDates) {
     if (!coveredDates.has(date)) {
       errors.push({

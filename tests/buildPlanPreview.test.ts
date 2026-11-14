@@ -66,6 +66,23 @@ describe("buildPlanPreview", () => {
     expect(days[0].action).toBe("protected");
   });
 
+  it("bevorzugt bei mehreren Workouts am Tag das completed-Workout", () => {
+    const existing: ExistingWorkoutRef[] = [
+      { id: "w1", date: "2026-06-15", status: "completed", title: "Morgens" },
+      { id: "w2", date: "2026-06-15", status: "planned", title: "Abends" },
+    ];
+    const days = buildPlanPreview(plan([entry({ date: "2026-06-15" })]), existing);
+    expect(days[0].action).toBe("protected");
+  });
+
+  it("zeigt mehrere Einträge desselben Tages einzeln an", () => {
+    const days = buildPlanPreview(
+      plan([entry({ title: "Früh" }), entry({ title: "Spät", sport: "bike" })]),
+      [],
+    );
+    expect(days).toHaveLength(2);
+  });
+
   it("sortiert Tage chronologisch", () => {
     const days = buildPlanPreview(
       plan([entry({ date: "2026-06-17" }), entry({ date: "2026-06-15" })]),
