@@ -14,6 +14,7 @@ export const FTMS_CONTROL_POINT = 0x2ad9; // Fitness Machine Control Point
 export const FTMS_INDOOR_BIKE_DATA = 0x2ad2; // Indoor Bike Data
 export const FTMS_STATUS = 0x2ada; // Fitness Machine Status
 export const FTMS_FEATURE = 0x2acc; // Fitness Machine Feature
+export const FTMS_POWER_RANGE = 0x2ad8; // Supported Power Range
 
 /** Op-Codes des Fitness Machine Control Point. */
 export const ControlOpCode = {
@@ -179,4 +180,17 @@ export function parseIndoorBikeData(
 function toDataView(data: DataView | Uint8Array): DataView {
   if (data instanceof DataView) return data;
   return new DataView(data.buffer, data.byteOffset, data.byteLength);
+}
+
+/** Parst "Supported Power Range" (min, max, Schritt – je sint16/uint16 LE, Watt). */
+export function parseSupportedPowerRange(
+  data: DataView | Uint8Array,
+): { minW: number; maxW: number; stepW: number } | null {
+  const view = toDataView(data);
+  if (view.byteLength < 6) return null;
+  const minW = view.getInt16(0, true);
+  const maxW = view.getInt16(2, true);
+  const stepW = view.getUint16(4, true);
+  if (maxW <= minW) return null;
+  return { minW, maxW, stepW };
 }
