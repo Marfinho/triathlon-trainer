@@ -151,7 +151,11 @@ export class HttpWithingsClient implements WithingsClient {
 
     let hasMore = true;
     while (hasMore) {
-      const response = await this.request<WithingsActivityResponse>("/v2/user/getactivity", {
+      const response = await this.request<WithingsActivityResponse>("/v2/measure", {
+        // Withings-Status 2554 = falsche Action/Webservice: getactivity lebt unter
+        // /v2/measure und verlangt den Parameter action=getactivity.
+        action: "getactivity",
+        data_fields: "steps,distance,elevation,calories,hr_average,hr_min,hr_max",
         startdateymd: startDate.toISOString().split("T")[0],
         enddateymd: endDate.toISOString().split("T")[0],
         offset,
