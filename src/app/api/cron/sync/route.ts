@@ -13,6 +13,7 @@ function safeEqual(a: string, b: string): boolean {
 }
 import { HttpIntervalsClient } from "@/integrations/intervals/client";
 import { processSyncQueue } from "@/integrations/intervals/syncQueue";
+import { reconcileIntervalsEvents } from "@/integrations/intervals/reconcile";
 import { importActivitiesFromIntervals } from "@/integrations/intervals/importActivities";
 import { createWithingsClientForUser } from "@/integrations/withings/userClient";
 import { importWithingsData } from "@/integrations/withings/importData";
@@ -79,6 +80,8 @@ export async function GET(request: Request) {
       });
       await importActivitiesFromIntervals({ db: prisma, client, userId });
       await processSyncQueue({ db: prisma, client, userId, triggeredBy: "cron" });
+      // Nicht fatal: veraltete/doppelte Intervals-Einträge entfernen.
+      await reconcileIntervalsEvents({ db: prisma, client, userId }).catch(() => undefined);
 
       await prisma.syncLog.create({
         data: {

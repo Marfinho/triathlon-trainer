@@ -80,6 +80,7 @@ Das sperrt alle Connector-Token sofort. Zusätzlich kannst du den Konnektor in c
 | `get_coach_summary` | coach_summary inkl. Planformat, Regeln, Übungskatalog (speichert nichts) |
 | `validate_plan` | Plan prüfen (Dry-Run, ändert nichts) |
 | `apply_plan` | Plan importieren – **nur mit Schreibrecht** |
+| `cleanup_intervals` | Veraltete/doppelte Einträge im Intervals.icu-Kalender entfernen (Standard: nur Vorschau) – **nur mit Schreibrecht** |
 | `create_race` | Rennen eintragen (Name, Datum, Typ, Distanz, Priorität, Ort) – **nur mit Schreibrecht**; gleicher Name am gleichen Datum wird nicht doppelt angelegt, es gilt das Rennlimit des Tarifs |
 | `update_race` | Rennen ändern oder Ergebnis eintragen (id aus `get_profile`) – **nur mit Schreibrecht**; Löschen ist bewusst nicht möglich |
 
@@ -103,7 +104,7 @@ läuft der Intervals.icu-Sync wie beim normalen Import.
 - **Mandantentrennung:** Jedes Tool ist fest an den User des Tokens gebunden; es gibt
   kein `userId`-Argument.
 - **Scopes:** `read` (immer) und `write_plan` (opt-in; umfasst Plan **und** Rennen). Die
-  Schreib-Tools (`apply_plan`, `create_race`, `update_race`) werden ohne Scope gar nicht erst
+  Schreib-Tools (`apply_plan`, `cleanup_intervals`, `create_race`, `update_race`) werden ohne Scope gar nicht erst
   angeboten und prüfen den Scope zusätzlich beim Aufruf. Rennen: 30 Änderungen/Std je Token,
   Texte werden wie in der App gehärtet, Orte per Open-Meteo aufgelöst (fail-soft).
 - **Limits:** 300 Requests/Min je IP, 120/Min je Token, 10 Fehlversuche/15 Min je IP,

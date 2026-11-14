@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db";
 import { processSyncQueue } from "./syncQueue";
 import { createIntervalsClientForUser } from "./userClient";
+import { reconcileIntervalsEvents } from "./reconcile";
 
 /**
  * Pusht die nach einem Planimport erzeugten SyncQueue-Jobs sofort nach
@@ -21,7 +22,11 @@ export async function instantSyncAfterImport(
       userId,
       triggeredBy: "import_autosync",
     });
-    return { ...res };
+    // Veraltete/doppelte Einträge (z. B. fehlgeschlagene Lösch-Jobs) bereinigen.
+    const cleanup = await reconcileIntervalsEvents({ db: prisma, client, userId })
+      .then((r) => ({ deleted: r.deleted, failed: r.failed.length }))
+      .catch((e) => ({ error: e instanceof Error ? e.message : "Aufräumen fehlgeschlagen" }));
+    return { ...res, cleanup };
   } catch (e) {
     return { error: e instanceof Error ? e.message : "Sync fehlgeschlagen" };
   }
