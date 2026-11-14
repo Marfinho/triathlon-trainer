@@ -72,6 +72,29 @@ export function SyncQueueMonitor() {
     }
   }
 
+  async function handleBulk(action: "retry_failed" | "clear_failed") {
+    const n = counts.failed ?? 0;
+    if (action === "clear_failed" && !confirm(`${n} fehlgeschlagene Jobs endgültig löschen?`)) return;
+    setActioning(action);
+    setMsg(null);
+    try {
+      const res = await fetch("/api/admin/sync-queue", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action }),
+      });
+      const data = await res.json();
+      setMsg(
+        res.ok
+          ? { ok: true, text: `${data.count} Jobs ${action === "retry_failed" ? "neu eingeplant" : "gelöscht"}.` }
+          : { ok: false, text: data.error ?? "Fehler." },
+      );
+      await loadJobs();
+    } finally {
+      setActioning(null);
+    }
+  }
+
   const displayJobs = filter === "all" ? jobs : jobs.filter((j) => j.status === filter);
 
   return (
@@ -98,6 +121,25 @@ export function SyncQueueMonitor() {
           </button>
         ))}
       </div>
+
+      {(counts.failed ?? 0) > 0 && (
+        <div className="mb-4 flex gap-3 text-xs">
+          <button
+            onClick={() => handleBulk("retry_failed")}
+            disabled={actioning !== null}
+            className="text-blue-600 hover:text-blue-800 disabled:opacity-50"
+          >
+            Alle fehlgeschlagenen wiederholen ({counts.failed})
+          </button>
+          <button
+            onClick={() => handleBulk("clear_failed")}
+            disabled={actioning !== null}
+            className="text-red-600 hover:text-red-800 disabled:opacity-50"
+          >
+            Alle fehlgeschlagenen löschen
+          </button>
+        </div>
+      )}
 
       {loading ? (
         <p className="text-sm text-neutral-500">Laden…</p>
