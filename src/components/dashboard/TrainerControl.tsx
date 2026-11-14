@@ -10,6 +10,7 @@ import {
   type TrainerConnectionStatus,
   type TrainerInfo,
 } from "@/integrations/trainer/kickrClient";
+import { HeartRateMonitor, type HeartRateStatus } from "@/integrations/trainer/heartRate";
 import {
   buildWorkoutTimeline,
   stepAt,
@@ -66,6 +67,9 @@ export function TrainerControl({
   const elapsedRef = useRef(0);
   const offsetRef = useRef(0);
   const liveRef = useRef<IndoorBikeData>({});
+  const trainerDataRef = useRef<IndoorBikeData>({});
+  const strapBpmRef = useRef<number | null>(null);
+  const hrMonitorRef = useRef<HeartRateMonitor | null>(null);
   const samplesRef = useRef<RideSample[]>([]);
   const recSecRef = useRef(0);
   const targetRef = useRef(0);
@@ -82,6 +86,8 @@ export function TrainerControl({
   const [elapsed, setElapsed] = useState(0);
   const [offset, setOffset] = useState(0);
   const [live, setLive] = useState<IndoorBikeData>({});
+  const [hrStatus, setHrStatus] = useState<HeartRateStatus>("disconnected");
+  const [hrMsg, setHrMsg] = useState<string | null>(null);
   const [manualWatts, setManualWatts] = useState(150);
 
   const [summary, setSummary] = useState<RideSummary | null>(null);
@@ -187,11 +193,43 @@ export function TrainerControl({
     return () => window.clearInterval(id);
   }, [running, timeline, finalizeRecording]);
 
+  /** Führt Trainer-Daten und Gurt zusammen; der Gurt hat Vorrang bei der Herzfrequenz. */
+  function publishLive() {
+    const merged: IndoorBikeData = { ...trainerDataRef.current };
+    if (strapBpmRef.current != null) merged.heartRateBpm = strapBpmRef.current;
+    liveRef.current = merged;
+    setLive(merged);
+  }
+
+  async function connectStrap() {
+    const monitor = new HeartRateMonitor({
+      onBpm: (bpm) => {
+        strapBpmRef.current = bpm;
+        publishLive();
+      },
+      onStatus: (s, msg) => {
+        setHrStatus(s);
+        setHrMsg(msg ?? null);
+      },
+    });
+    hrMonitorRef.current = monitor;
+    try {
+      await monitor.connect();
+    } catch {
+      /* Status via onStatus */
+    }
+  }
+
+  async function disconnectStrap() {
+    await hrMonitorRef.current?.disconnect().catch(() => {});
+    hrMonitorRef.current = null;
+  }
+
   async function connect(showAllDevices = false) {
     const trainer = new KickrTrainer({
       onData: (d) => {
-        liveRef.current = d;
-        setLive(d);
+        trainerDataRef.current = d;
+        publishLive();
       },
       onStatus: (s, msg) => {
         setStatus(s);
@@ -216,6 +254,8 @@ export function TrainerControl({
     if (recording) finalizeRecording();
     await trainerRef.current?.disconnect().catch(() => {});
     trainerRef.current = null;
+    trainerDataRef.current = {};
+    publishLive();
   }
 
   function startPlayer() {
@@ -367,6 +407,18 @@ export function TrainerControl({
           >
             Vollbild
           </button>
+          <button
+            onClick={hrStatus === "connected" ? disconnectStrap : connectStrap}
+            disabled={!available || hrStatus === "connecting"}
+            title="Bluetooth-Herzfrequenzgurt (z. B. Polar, Wahoo TICKR, Garmin HRM) verbinden"
+            className="rounded-lg border border-neutral-300 px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-100 disabled:opacity-40"
+          >
+            {hrStatus === "connected"
+              ? `♥ ${hrMonitorRef.current?.name ?? "HR"} trennen`
+              : hrStatus === "connecting"
+                ? "♥ verbinde…"
+                : "♥ HR-Gurt"}
+          </button>
           {connected ? (
             <button
               onClick={disconnect}
@@ -411,6 +463,11 @@ export function TrainerControl({
           {info.deviceName} · Protokoll: {info.protocol.toUpperCase()} ·{" "}
           {info.canControl ? "ERG-Steuerung aktiv" : "nur Messwerte (keine Steuerung)"}
           {info.note ? ` – ${info.note}` : ""}
+        </p>
+      ) : null}
+      {hrMsg && hrStatus === "error" ? (
+        <p className="mb-3 rounded-lg bg-rose-50 px-3 py-2 text-xs text-rose-700">
+          HR-Gurt: {hrMsg}
         </p>
       ) : null}
       {statusMsg && status === "error" ? (

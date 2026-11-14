@@ -179,3 +179,17 @@ describe("KickrTrainer Protokollerkennung", () => {
     expect(statuses).toContain("error");
   });
 });
+
+import { parseHeartRate } from "@/integrations/trainer/heartRate";
+
+describe("Herzfrequenz-Gurt", () => {
+  it("parst 8-bit und 16-bit Werte", () => {
+    expect(parseHeartRate(new Uint8Array([0x06, 142]))).toEqual({ bpm: 142, contact: true });
+    expect(parseHeartRate(new Uint8Array([0x07, 0x2c, 0x01]))).toEqual({ bpm: 300, contact: true });
+  });
+  it("erkennt fehlenden Hautkontakt und kurze Pakete", () => {
+    expect(parseHeartRate(new Uint8Array([0x04, 0]))).toEqual({ bpm: 0, contact: false });
+    expect(parseHeartRate(new Uint8Array([0x01, 5]))).toBeNull();
+    expect(parseHeartRate(new Uint8Array([0x00]))).toBeNull();
+  });
+});
