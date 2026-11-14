@@ -8,7 +8,9 @@ import {
   KickrTrainer,
   isWebBluetoothAvailable,
   type TrainerConnectionStatus,
+  type TrainerInfo,
 } from "@/integrations/trainer/kickrClient";
+import { HeartRateMonitor, type HeartRateStatus } from "@/integrations/trainer/heartRate";
 import {
   buildWorkoutTimeline,
   stepAt,
@@ -65,6 +67,9 @@ export function TrainerControl({
   const elapsedRef = useRef(0);
   const offsetRef = useRef(0);
   const liveRef = useRef<IndoorBikeData>({});
+  const trainerDataRef = useRef<IndoorBikeData>({});
+  const strapBpmRef = useRef<number | null>(null);
+  const hrMonitorRef = useRef<HeartRateMonitor | null>(null);
   const samplesRef = useRef<RideSample[]>([]);
   const recSecRef = useRef(0);
   const targetRef = useRef(0);
@@ -72,6 +77,7 @@ export function TrainerControl({
   const [available] = useState(() => isWebBluetoothAvailable());
   const [status, setStatus] = useState<TrainerConnectionStatus>("disconnected");
   const [statusMsg, setStatusMsg] = useState<string | null>(null);
+  const [info, setInfo] = useState<TrainerInfo | null>(null);
 
   const [ftp, setFtp] = useState(defaultFtp);
   const [selectedId, setSelectedId] = useState(workouts[0]?.id ?? "");
@@ -80,6 +86,8 @@ export function TrainerControl({
   const [elapsed, setElapsed] = useState(0);
   const [offset, setOffset] = useState(0);
   const [live, setLive] = useState<IndoorBikeData>({});
+  const [hrStatus, setHrStatus] = useState<HeartRateStatus>("disconnected");
+  const [hrMsg, setHrMsg] = useState<string | null>(null);
   const [manualWatts, setManualWatts] = useState(150);
 
   const [summary, setSummary] = useState<RideSummary | null>(null);
@@ -185,21 +193,57 @@ export function TrainerControl({
     return () => window.clearInterval(id);
   }, [running, timeline, finalizeRecording]);
 
-  async function connect() {
+  /** Führt Trainer-Daten und Gurt zusammen; der Gurt hat Vorrang bei der Herzfrequenz. */
+  function publishLive() {
+    const merged: IndoorBikeData = { ...trainerDataRef.current };
+    if (strapBpmRef.current != null) merged.heartRateBpm = strapBpmRef.current;
+    liveRef.current = merged;
+    setLive(merged);
+  }
+
+  async function connectStrap() {
+    const monitor = new HeartRateMonitor({
+      onBpm: (bpm) => {
+        strapBpmRef.current = bpm;
+        publishLive();
+      },
+      onStatus: (s, msg) => {
+        setHrStatus(s);
+        setHrMsg(msg ?? null);
+      },
+    });
+    hrMonitorRef.current = monitor;
+    try {
+      await monitor.connect();
+    } catch {
+      /* Status via onStatus */
+    }
+  }
+
+  async function disconnectStrap() {
+    await hrMonitorRef.current?.disconnect().catch(() => {});
+    hrMonitorRef.current = null;
+  }
+
+  async function connect(showAllDevices = false) {
     const trainer = new KickrTrainer({
       onData: (d) => {
-        liveRef.current = d;
-        setLive(d);
+        trainerDataRef.current = d;
+        publishLive();
       },
       onStatus: (s, msg) => {
         setStatus(s);
         setStatusMsg(msg ?? null);
-        if (s === "disconnected" || s === "error") setRunning(false);
+        if (s === "disconnected" || s === "error") {
+          setRunning(false);
+          setInfo(null);
+        }
       },
+      onInfo: setInfo,
     });
     trainerRef.current = trainer;
     try {
-      await trainer.connect();
+      await trainer.connect({ showAllDevices });
     } catch {
       /* Status via onStatus */
     }
@@ -210,12 +254,16 @@ export function TrainerControl({
     if (recording) finalizeRecording();
     await trainerRef.current?.disconnect().catch(() => {});
     trainerRef.current = null;
+    trainerDataRef.current = {};
+    publishLive();
   }
 
   function startPlayer() {
     if (!selected) return;
     setRunning(true);
     if (!recording) startRecording();
+    // Nach Pause: Gerät fortsetzen und Ziel-Watt garantiert neu senden.
+    trainerRef.current?.start().catch(() => {});
     const at = stepAt(timeline, elapsedRef.current);
     if (at.step) {
       trainerRef.current
@@ -337,8 +385,8 @@ export function TrainerControl({
 
   return (
     <Card
-      title="Radrolle (Kickr Core v2)"
-      subtitle="ERG-Steuerung & Aufzeichnung geplanter Rad-Workouts via Bluetooth (FTMS)"
+      title="Radrolle (Smarttrainer)"
+      subtitle="ERG-Steuerung & Aufzeichnung geplanter Rad-Workouts via Bluetooth (FTMS, Tacx FE-C, Wahoo, Cycling Power)"
       actions={
         <div className="flex items-center gap-2">
           {recording ? (
@@ -359,6 +407,18 @@ export function TrainerControl({
           >
             Vollbild
           </button>
+          <button
+            onClick={hrStatus === "connected" ? disconnectStrap : connectStrap}
+            disabled={!available || hrStatus === "connecting"}
+            title="Bluetooth-Herzfrequenzgurt (z. B. Polar, Wahoo TICKR, Garmin HRM) verbinden"
+            className="rounded-lg border border-neutral-300 px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-100 disabled:opacity-40"
+          >
+            {hrStatus === "connected"
+              ? `♥ ${hrMonitorRef.current?.name ?? "HR"} trennen`
+              : hrStatus === "connecting"
+                ? "♥ verbinde…"
+                : "♥ HR-Gurt"}
+          </button>
           {connected ? (
             <button
               onClick={disconnect}
@@ -367,13 +427,23 @@ export function TrainerControl({
               Trennen
             </button>
           ) : (
-            <button
-              onClick={connect}
-              disabled={!available || status === "connecting"}
-              className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-500 disabled:opacity-40"
-            >
-              Verbinden
-            </button>
+            <>
+              <button
+                onClick={() => connect(true)}
+                disabled={!available || status === "connecting"}
+                title="Alle Bluetooth-Geräte anzeigen, falls dein Trainer nicht in der Liste erscheint"
+                className="rounded-lg border border-neutral-300 px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-100 disabled:opacity-40"
+              >
+                Alle Geräte
+              </button>
+              <button
+                onClick={() => connect()}
+                disabled={!available || status === "connecting"}
+                className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-500 disabled:opacity-40"
+              >
+                Verbinden
+              </button>
+            </>
           )}
         </div>
       }
@@ -382,6 +452,22 @@ export function TrainerControl({
         <p className="mb-3 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-700">
           Dieser Browser unterstützt kein Web Bluetooth. Nutze Chrome oder Edge
           (Desktop) über <code>localhost</code> oder HTTPS.
+        </p>
+      ) : null}
+      {info ? (
+        <p
+          className={`mb-3 rounded-lg px-3 py-2 text-xs ${
+            info.canControl ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-800"
+          }`}
+        >
+          {info.deviceName} · Protokoll: {info.protocol.toUpperCase()} ·{" "}
+          {info.canControl ? "ERG-Steuerung aktiv" : "nur Messwerte (keine Steuerung)"}
+          {info.note ? ` – ${info.note}` : ""}
+        </p>
+      ) : null}
+      {hrMsg && hrStatus === "error" ? (
+        <p className="mb-3 rounded-lg bg-rose-50 px-3 py-2 text-xs text-rose-700">
+          HR-Gurt: {hrMsg}
         </p>
       ) : null}
       {statusMsg && status === "error" ? (
