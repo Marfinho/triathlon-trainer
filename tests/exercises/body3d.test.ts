@@ -31,8 +31,8 @@ import { EXERCISE_3D_GUIDE } from "@/domain/exercises/body3d/guide";
 const bridge = () => structuredClone(getLibraryExercise("glute-bridge")) as Exercise3dDefinition;
 
 describe("3D-Bibliothek", () => {
-  it("lädt die Prototyp-Übungen fehler- und warnungsfrei", () => {
-    expect(builtin3dExercises.map((e) => e.id).sort()).toEqual(["bulgarian-split-squat", "glute-bridge", "side-plank"]);
+  it("lädt alle 3D-Übungen fehler- und warnungsfrei", () => {
+    expect(builtin3dExercises.map((e) => e.id).sort()).toEqual(["bulgarian-split-squat", "calf-raise-bent", "calf-raise-straight", "calf-stretch", "cat-cow", "clamshell", "copenhagen-plank", "dead-bug", "glute-bridge", "hip-flexor-stretch", "knee-to-wall", "plank", "side-plank", "single-leg-rdl", "spanish-squat", "step-up", "terminal-knee-extension", "thoracic-rotation", "tibialis-raise", "wall-sit"]);
     for (const def of builtin3dExercises) {
       const v = validateExercise3d(def);
       expect(v.errors, def.id).toEqual([]);
@@ -43,7 +43,9 @@ describe("3D-Bibliothek", () => {
   it("ersetzt 2D-Fassungen gleicher ID, die 2D-Bibliothek bleibt erhalten", () => {
     expect(libraryExercises).toHaveLength(20);
     expect(isExercise3d(getLibraryExercise("glute-bridge")!)).toBe(true);
-    expect(isExercise3d(getLibraryExercise("plank")!)).toBe(false);
+    // alle 20 eingebauten Übungen haben inzwischen eine 3D-Fassung
+    expect(libraryExercises.every((e) => isExercise3d(e))).toBe(true);
+    expect(isExercise3d(getBuiltinExercise("plank")! as never)).toBe(false);
     expect(getBuiltinExercise("glute-bridge")).not.toBeNull();
     expect(isExercise3d(getBuiltinExercise("glute-bridge")! as never)).toBe(false);
   });

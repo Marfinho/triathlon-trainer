@@ -50,12 +50,13 @@ LocalHub bleibt Datendrehscheibe, nicht Coach: Das externe LLM referenziert
 | `src/domain/exercises/schema.ts` | Zod-Schema: Übung, Pose, Gliedmaßen, Muskeln, Segment-`exercise` |
 | `src/domain/exercises/library/exercise-library.json` | 20 eingebaute Übungen (beim Modulladen validiert) |
 | `src/domain/exercises/engine/` | 2D-Figuren-Engine (reines TypeScript, 1:1-Port von `engine.js`) |
-| `src/domain/exercises/library/exercise-library-3d.json` | 3D-Übungen (Format 2.0), beim Laden validiert und fachlich geprüft |
+| `src/domain/exercises/library/exercise-library-3d.json` | 3D-Fassungen aller 20 eingebauten Übungen (Format 2.0), beim Laden validiert und fachlich geprüft |
 | `src/domain/exercises/body3d/` | 3D-Kern: Skelett & Gelenkbereiche, Muskelkatalog, Kinematik/Kontakte, Prüfung, Szene, SVG-Projektion, KI-Bauplan |
 | `src/domain/exercises/any.ts` | Gemeinsame Sicht auf beide Formate (Rendern, Muskeln, Dauer, Schema) |
 | `src/domain/exercises/singleExercise.ts` | Einzelne neue Übung prüfen und speichern („Neue Übung mit KI“) |
 | `src/components/exercises/Exercise3dViewer.tsx` | 3D-Ansicht (lädt `three/body3dRenderer.ts` nach) |
 | `scripts/dev/tune3d.ts` | Entwickler-Werkzeug: prüft eine 3D-Bibliothek und schreibt eine HTML-Vorschau |
+| `scripts/dev/fit3d.ts` | Entwickler-Werkzeug: sucht Gelenkwinkel-Feinjustierung, bis eine 3D-Übung die Prüfung besteht |
 | `scripts/body-model/` | Export (Blender) und Aufbau des Körpermodells `public/models/body.bin` |
 | `src/components/exercises/three/` | three.js: Viewer, Körpermodell (`bodyMesh.ts`), Standbilder (`stillRenderer.ts`) |
 | `src/domain/exercises/resolve.ts` | Auflösung: Bibliothek → eigene Übungen des Nutzers |
