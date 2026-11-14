@@ -1,9 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/auth-guard";
-import { getEffectiveLimits } from "@/lib/plan-config";
-import { geocodeLocation } from "@/integrations/weather/openMeteo";
-import { sanitizeText, sanitizeOptionalText } from "@/domain/security/sanitize";
+import { createRaceForUser } from "@/domain/races/raceService";
 
 /**
  * GET  /api/races  – kommende & jüngst vergangene Rennen (chronologisch).
@@ -33,64 +31,18 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, error: "Ungültiger Body." }, { status: 400 });
   }
 
-  const name = sanitizeText(body.name, 200);
-  const dateStr = typeof body.date === "string" ? body.date : "";
-  if (!name || !dateStr) {
-    return NextResponse.json(
-      { ok: false, error: "Name und Datum sind erforderlich." },
-      { status: 400 },
-    );
-  }
-  const raceDate = new Date(`${dateStr.slice(0, 10)}T00:00:00Z`);
-  if (Number.isNaN(raceDate.getTime())) {
-    return NextResponse.json(
-      { ok: false, error: "Ungültiges Datum." },
-      { status: 400 },
-    );
-  }
-
-  const limit = (await getEffectiveLimits(user.plan)).maxRaceEvents;
-  if (Number.isFinite(limit)) {
-    const current = await prisma.raceEvent.count({ where: { userId } });
-    if (current >= limit) {
+  const result = await createRaceForUser(userId, user.plan, body);
+  if (!result.ok) {
+    if (result.error === "LIMIT_REACHED") {
       return NextResponse.json(
-        { error: "LIMIT_REACHED", limit, current, tier: user.plan },
+        { error: "LIMIT_REACHED", limit: result.limit, current: result.current, tier: result.tier },
         { status: 403 },
       );
     }
+    return NextResponse.json(
+      { ok: false, error: result.error === "INVALID" ? result.message : "Nicht gefunden." },
+      { status: 400 },
+    );
   }
-
-  // Ort (optional) direkt auflösen, damit die Wetterprognose automatisch möglich ist.
-  let locationName = sanitizeOptionalText(body.locationName, 120);
-  let lat: number | null = null;
-  let lon: number | null = null;
-  if (locationName) {
-    try {
-      const geo = await geocodeLocation(locationName);
-      if (geo) {
-        lat = geo.lat;
-        lon = geo.lon;
-        locationName = geo.displayName;
-      }
-    } catch {
-      // Geocoding ist optional; Ort bleibt als Text erhalten und wird später erneut aufgelöst.
-    }
-  }
-
-  const race = await prisma.raceEvent.create({
-    data: {
-      userId,
-      name,
-      date: raceDate,
-      type: typeof body.type === "string" ? body.type : "triathlon",
-      distance: sanitizeOptionalText(body.distance, 60),
-      priority: typeof body.priority === "string" ? body.priority : "B",
-      notes: sanitizeOptionalText(body.notes, 2000),
-      locationName,
-      lat,
-      lon,
-    },
-  });
-
-  return NextResponse.json({ ok: true, race });
+  return NextResponse.json({ ok: true, race: result.race });
 }

@@ -12,9 +12,21 @@ import {
   summarizePlanExercises,
 } from "@/domain/plan-import/buildPlanPreview";
 import { instantSyncAfterImport } from "@/integrations/intervals/instantSync";
+import {
+  RACE_PRIORITIES,
+  RACE_TYPES,
+  createRaceForUser,
+  effectivePlan,
+  updateRaceForUser,
+  type RaceDeps,
+  type RaceResult,
+} from "@/domain/races/raceService";
+import { formatIsoDate } from "@/domain/training/dates";
+import { sanitizeText } from "@/domain/security/sanitize";
 import type { McpPrincipal } from "./token";
 import {
   McpInputError,
+  parseDateArg,
   getActivities,
   getCoachSummary,
   getFormSeries,
@@ -33,6 +45,8 @@ export const MAX_RESULT_CHARS = 200_000;
 export const MAX_PLAN_CHARS = 1_000_000;
 /** apply_plan: höchstens so viele Schreibvorgänge pro Token und Stunde. */
 export const APPLY_PLAN_LIMIT_PER_HOUR = 20;
+/** create_race/update_race: höchstens so viele Schreibvorgänge pro Token und Stunde. */
+export const RACE_WRITE_LIMIT_PER_HOUR = 30;
 
 const dateArg = (label: string) =>
   z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "YYYY-MM-DD").describe(label);
@@ -65,7 +79,12 @@ function fail(code: string, message: string): ToolResult {
 export function createMcpServer(
   principal: McpPrincipal,
   db: PrismaClient = defaultPrisma,
-  opts: { now?: () => Date; instantSync?: (userId: string) => Promise<Record<string, unknown>> } = {},
+  opts: {
+    now?: () => Date;
+    instantSync?: (userId: string) => Promise<Record<string, unknown>>;
+    /** Für Tests: Geocoding/Limit überschreiben. */
+    race?: Pick<RaceDeps, "geocode" | "maxRaces">;
+  } = {},
 ): McpServer {
   const server = new McpServer(
     { name: "localhub", version: "1.0.0" },
@@ -318,6 +337,122 @@ export function createMcpServer(
         );
         const out = ok({ ok: result.success, ...result, sync });
         return result.success ? out : { ...out, isError: true };
+      }),
+    );
+
+    // -- Rennen ---------------------------------------------------------------
+
+    /** Rennen für die Ausgabe: Datum als YYYY-MM-DD, keine internen Felder. */
+    const raceView = (r: {
+      id: string; name: string; date: Date; type: string; distance: string | null; priority: string | null;
+      notes: string | null; locationName: string | null; lat: number | null; lon: number | null;
+      completed: boolean; resultSeconds: number | null; resultPlacement: number | null; resultNote: string | null;
+    }) => ({
+      id: r.id, name: r.name, date: formatIsoDate(r.date), type: r.type, distance: r.distance,
+      priority: r.priority, notes: r.notes, locationName: r.locationName, lat: r.lat, lon: r.lon,
+      completed: r.completed, resultSeconds: r.resultSeconds, resultPlacement: r.resultPlacement,
+      resultNote: r.resultNote,
+    });
+
+    /** Datum prüfen: gültiger Kalendertag zwischen 2000-01-01 und heute + 10 Jahren. */
+    const checkRaceDate = (value: string) => {
+      const d = parseDateArg(value, "date");
+      const max = new Date(now().getTime() + 10 * 365 * 86_400_000);
+      if (d.getTime() < Date.UTC(2000, 0, 1) || d.getTime() > max.getTime()) {
+        throw new McpInputError("date: außerhalb des zulässigen Bereichs (2000 bis heute + 10 Jahre)");
+      }
+    };
+
+    const raceRateLimit = async () => {
+      const rl = await checkRateLimit(`mcp-race:${principal.tokenId}`, RACE_WRITE_LIMIT_PER_HOUR, 3_600_000, db);
+      return rl.allowed ? null : fail("RATE_LIMITED", "Zu viele Änderungen – bitte später erneut versuchen.");
+    };
+
+    const raceOutcome = (res: RaceResult, extra: Record<string, unknown> = {}): ToolResult => {
+      if (res.ok) return ok({ ok: true, ...extra, race: raceView(res.race) });
+      if (res.error === "LIMIT_REACHED") {
+        return fail("LIMIT_REACHED", `Rennlimit des Tarifs erreicht (${res.current}/${res.limit}).`);
+      }
+      if (res.error === "NOT_FOUND") return fail("NOT_FOUND", "Rennen nicht gefunden.");
+      return fail("INVALID_INPUT", res.message);
+    };
+
+    const raceFields = {
+      type: z.enum(RACE_TYPES).optional().describe("triathlon (Standard), run, bike oder swim"),
+      distance: z.string().max(60).optional().describe('z. B. "70.3", "Olympisch", "10k", "Halbmarathon"'),
+      priority: z.enum(RACE_PRIORITIES).optional().describe("A = Hauptwettkampf, B, C (Standard B)"),
+      notes: z.string().max(2000).optional(),
+      locationName: z.string().max(120).optional().describe("Ort (für Wetterprognose), z. B. Roth"),
+    };
+
+    server.registerTool(
+      "create_race",
+      {
+        title: "Rennen eintragen",
+        description:
+          "Legt ein Rennen an (Name, Datum, Typ, Distanz, Priorität, Ort). Gleicher Name am gleichen Datum wird " +
+          "nicht doppelt angelegt. Es gilt das Rennlimit des Tarifs. Rennen steuern Taper-Prognose und Trainingsphase.",
+        inputSchema: {
+          name: z.string().min(1).max(200),
+          date: dateArg("Renntag"),
+          ...raceFields,
+        },
+        annotations: { title: "Rennen eintragen", readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true },
+      },
+      run("create_race", async (a: { name: string; date: string } & Record<string, unknown>) => {
+        if (!principal.scopes.includes("write_plan")) return fail("FORBIDDEN", "Token hat keinen Schreibzugriff.");
+        checkRaceDate(a.date);
+        const limited = await raceRateLimit();
+        if (limited) return limited;
+
+        // Mit dem gehärteten Namen vergleichen (wie er gespeichert würde); Steuerzeichen wie NUL
+        // würden die Abfrage sonst in Postgres scheitern lassen.
+        const cleanName = sanitizeText(a.name, 200);
+        if (!cleanName) throw new McpInputError("name darf nicht leer sein.");
+        const dup = await db.raceEvent.findFirst({
+          where: { userId, date: parseDateArg(a.date, "date"), name: { equals: cleanName, mode: "insensitive" } },
+        });
+        if (dup) return ok({ ok: true, created: false, race: raceView(dup) });
+
+        const res = await createRaceForUser(userId, await effectivePlan(userId, db), a, { db, ...opts.race });
+        if (res.ok) {
+          await recordAudit({ userId, action: "mcp.create_race", meta: { tokenId: principal.tokenId, raceId: res.race.id, date: a.date } }, db);
+        }
+        return raceOutcome(res, { created: true });
+      }),
+    );
+
+    server.registerTool(
+      "update_race",
+      {
+        title: "Rennen ändern",
+        description:
+          "Ändert ein vorhandenes Rennen (id aus get_profile): Stammdaten oder Ergebnis (completed, resultSeconds, " +
+          "resultPlacement, resultNote). Nur übergebene Felder werden geändert. Löschen ist nicht möglich.",
+        inputSchema: {
+          id: z.string().regex(/^[A-Za-z0-9_-]{1,64}$/, "Renn-ID (aus get_profile)"),
+          name: z.string().min(1).max(200).optional(),
+          date: dateArg("Renntag").optional(),
+          ...raceFields,
+          completed: z.boolean().optional(),
+          resultSeconds: z.number().int().min(0).max(864_000).nullable().optional().describe("Zielzeit in Sekunden"),
+          resultPlacement: z.number().int().min(1).max(1_000_000).optional(),
+          resultNote: z.string().max(2000).optional(),
+        },
+        annotations: { title: "Rennen ändern", readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true },
+      },
+      run("update_race", async ({ id, ...fields }: { id: string } & Record<string, unknown>) => {
+        if (!principal.scopes.includes("write_plan")) return fail("FORBIDDEN", "Token hat keinen Schreibzugriff.");
+        if (Object.keys(fields).length === 0) throw new McpInputError("Keine Änderungen angegeben.");
+        if (typeof fields.date === "string") checkRaceDate(fields.date);
+        const limited = await raceRateLimit();
+        if (limited) return limited;
+
+        const res = await updateRaceForUser(userId, id, fields, { db, ...opts.race });
+        if (res.ok) {
+          await recordAudit({ userId, action: "mcp.update_race", meta: { tokenId: principal.tokenId, raceId: id, fields: Object.keys(fields) } }, db);
+        }
+        return raceOutcome(res);
       }),
     );
   }

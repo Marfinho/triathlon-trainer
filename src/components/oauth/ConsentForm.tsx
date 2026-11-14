@@ -57,10 +57,10 @@ export default function ConsentForm({ clientName, redirectHost, params }: Props)
           className="mt-0.5 h-4 w-4"
         />
         <span>
-          <strong className="block text-neutral-900">Trainingsplan ändern erlauben</strong>
+          <strong className="block text-neutral-900">Trainingsplan und Rennen ändern erlauben</strong>
           <span className="text-neutral-500">
-            Offene, geplante Einheiten dürfen ersetzt werden. Absolvierte Aktivitäten bleiben unangetastet.
-            Nur aktivieren, wenn Claude den Plan anpassen soll.
+            Offene, geplante Einheiten dürfen ersetzt und Rennen angelegt oder geändert werden. Absolvierte
+            Aktivitäten bleiben unangetastet, Löschen ist nicht möglich. Nur aktivieren, wenn Claude das tun soll.
           </span>
         </span>
       </label>
