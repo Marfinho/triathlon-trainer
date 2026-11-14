@@ -18,8 +18,8 @@ Anthropics Servern, nicht aus deinem Browser) und `NEXTAUTH_URL` entspricht exak
 2. URL eintragen: `https://DEINE-DOMAIN/api/mcp` → **Hinzufügen / Verbinden**.
 3. Du wirst zu LocalHub weitergeleitet, meldest dich an und siehst die **Zustimmungsseite**:
    - Lesezugriff ist immer enthalten.
-   - **„Trainingsplan ändern erlauben“** ist standardmäßig aus – nur aktivieren, wenn Claude
-     den Plan anpassen soll. Für das reine Tagesupdate ausgeschaltet lassen.
+   - **„Trainingsplan und Rennen ändern erlauben“** ist standardmäßig aus – nur aktivieren, wenn
+     Claude den Plan anpassen oder Rennen eintragen soll. Für das reine Tagesupdate ausgeschaltet lassen.
 4. Nach **„Zugriff erlauben“** ist der Konnektor in claude.ai verbunden und in Chats nutzbar.
 
 Technisch: OAuth 2.1 mit Dynamic Client Registration und PKCE (S256). Access-Token gelten
@@ -79,7 +79,9 @@ Das sperrt alle Connector-Token sofort. Zusätzlich kannst du den Konnektor in c
 | `get_nutrition` | Ernährung – nur mit in der App erteilter Einwilligung |
 | `get_coach_summary` | coach_summary inkl. Planformat, Regeln, Übungskatalog (speichert nichts) |
 | `validate_plan` | Plan prüfen (Dry-Run, ändert nichts) |
-| `apply_plan` | Plan importieren – **nur mit `--write`-Token** |
+| `apply_plan` | Plan importieren – **nur mit Schreibrecht** |
+| `create_race` | Rennen eintragen (Name, Datum, Typ, Distanz, Priorität, Ort) – **nur mit Schreibrecht**; gleicher Name am gleichen Datum wird nicht doppelt angelegt, es gilt das Rennlimit des Tarifs |
+| `update_race` | Rennen ändern oder Ergebnis eintragen (id aus `get_profile`) – **nur mit Schreibrecht**; Löschen ist bewusst nicht möglich |
 
 `apply_plan` nutzt dieselbe harte Validierung wie der App-Import: Es werden nur offene
 Workouts im Planzeitraum ersetzt, absolvierte Aktivitäten bleiben unangetastet; danach
@@ -100,8 +102,10 @@ läuft der Intervals.icu-Sync wie beim normalen Import.
   werden abgelehnt (Ausnahmen: `MCP_ALLOWED_ORIGINS`, kommagetrennt).
 - **Mandantentrennung:** Jedes Tool ist fest an den User des Tokens gebunden; es gibt
   kein `userId`-Argument.
-- **Scopes:** `read` (immer) und `write_plan` (opt-in). `apply_plan` wird ohne Scope gar
-  nicht erst angeboten und prüft den Scope zusätzlich beim Aufruf.
+- **Scopes:** `read` (immer) und `write_plan` (opt-in; umfasst Plan **und** Rennen). Die
+  Schreib-Tools (`apply_plan`, `create_race`, `update_race`) werden ohne Scope gar nicht erst
+  angeboten und prüfen den Scope zusätzlich beim Aufruf. Rennen: 30 Änderungen/Std je Token,
+  Texte werden wie in der App gehärtet, Orte per Open-Meteo aufgelöst (fail-soft).
 - **Limits:** 300 Requests/Min je IP, 120/Min je Token, 10 Fehlversuche/15 Min je IP,
   20 `apply_plan`/Std je Token; Request ≤ 2 MB, Antwort ≤ 200 KB, Abfragefenster ≤ 400 Tage.
   Hinter einem Reverse-Proxy `TRUSTED_PROXY_HOPS` korrekt setzen (siehe `.env.example`/`DEPLOY.md`).
