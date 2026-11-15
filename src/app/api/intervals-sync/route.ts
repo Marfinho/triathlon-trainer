@@ -4,6 +4,7 @@ import { requireUser } from "@/lib/auth-guard";
 import { processSyncQueue } from "@/integrations/intervals/syncQueue";
 import { importActivitiesFromIntervals } from "@/integrations/intervals/importActivities";
 import { createIntervalsClientForUser } from "@/integrations/intervals/userClient";
+import { reconcileIntervalsEvents } from "@/integrations/intervals/reconcile";
 
 /**
  * POST /api/intervals-sync
@@ -46,7 +47,15 @@ export async function POST() {
     activities = { error: e instanceof Error ? e.message : "Import fehlgeschlagen." };
   }
 
-  return NextResponse.json({ ok: true, ...result, activities });
+  let cleanup = null;
+  try {
+    const r = await reconcileIntervalsEvents({ db: prisma, client, userId });
+    cleanup = { deleted: r.deleted, failed: r.failed.length, foreignDuplicates: r.foreignDuplicates.length };
+  } catch (e) {
+    cleanup = { error: e instanceof Error ? e.message : "Aufräumen fehlgeschlagen." };
+  }
+
+  return NextResponse.json({ ok: true, ...result, activities, cleanup });
 }
 
 /**

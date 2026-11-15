@@ -12,6 +12,8 @@ import {
   summarizePlanExercises,
 } from "@/domain/plan-import/buildPlanPreview";
 import { instantSyncAfterImport } from "@/integrations/intervals/instantSync";
+import { reconcileIntervalsEvents } from "@/integrations/intervals/reconcile";
+import { createIntervalsClientForUser } from "@/integrations/intervals/userClient";
 import {
   RACE_PRIORITIES,
   RACE_TYPES,
@@ -337,6 +339,41 @@ export function createMcpServer(
         );
         const out = ok({ ok: result.success, ...result, sync });
         return result.success ? out : { ...out, isError: true };
+      }),
+    );
+
+    server.registerTool(
+      "cleanup_intervals",
+      {
+        title: "Intervals.icu aufräumen",
+        description:
+          "Entfernt veraltete (ersetzte/stornierte/gelöschte) und doppelte LocalHub-Einträge im Intervals.icu-Kalender. " +
+          "Standard ist dryRun=true: zeigt nur, was gelöscht würde – prüfe die Liste und rufe dann mit dryRun=false auf. " +
+          "includeForeign=true entfernt zusätzlich fremde Einträge (ohne LocalHub-Kennung), die einen LocalHub-Eintrag am selben Tag " +
+          "mit gleichem Typ und Namen duplizieren. Absolvierte Aktivitäten werden nie gelöscht.",
+        inputSchema: {
+          dryRun: z.boolean().optional().describe("Standard true: nur anzeigen"),
+          includeForeign: z.boolean().optional().describe("auch fremde Dubletten löschen (Standard false)"),
+        },
+        annotations: { title: "Intervals.icu aufräumen", readOnlyHint: false, destructiveHint: true, idempotentHint: true, openWorldHint: true },
+      },
+      run("cleanup_intervals", async (a: { dryRun?: boolean; includeForeign?: boolean }) => {
+        const client = await createIntervalsClientForUser(userId);
+        if (!client) return fail("NOT_CONFIGURED", "Intervals.icu ist nicht verbunden.");
+        const dryRun = a.dryRun !== false;
+        const r = await reconcileIntervalsEvents({
+          db,
+          client,
+          userId,
+          dryRun,
+          deleteForeignDuplicates: a.includeForeign === true,
+          today: now(),
+        });
+        await recordAudit(
+          { userId, action: "mcp.cleanup_intervals", meta: { tokenId: principal.tokenId, dryRun, deleted: r.deleted } },
+          db,
+        );
+        return ok(r);
       }),
     );
 

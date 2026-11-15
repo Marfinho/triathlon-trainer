@@ -126,13 +126,22 @@ export async function syncPlannedWorkout(
   }
 
   let intervalsEventId = sync?.intervalsEventId ?? null;
-  let action: SyncAction;
+  let action: SyncAction = "created";
 
   try {
+    let done = false;
     if (intervalsEventId) {
-      await client.updateEvent(intervalsEventId, eventInput);
-      action = "updated";
-    } else {
+      try {
+        await client.updateEvent(intervalsEventId, eventInput);
+        action = "updated";
+        done = true;
+      } catch (e) {
+        // Event wurde in Intervals.icu gelöscht -> neu suchen/anlegen statt endlos fehlzuschlagen.
+        if (!(e instanceof Error && /: 404\b/.test(e.message))) throw e;
+        intervalsEventId = null;
+      }
+    }
+    if (!done) {
       // Vor dem Erstellen nach vorhandenem Event suchen (Idempotenz).
       const existing = await client.findEvent(eventInput);
       if (existing) {
