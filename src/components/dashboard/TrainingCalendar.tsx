@@ -13,6 +13,7 @@ import type { WorkoutExerciseRow } from "@/domain/exercises/workoutRows";
 import { isGuidedWorkout } from "@/domain/exercises/guided";
 import { ExerciseFigure, ExercisePlaceholder } from "@/components/exercises/ExerciseFigure";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 const FORECAST_CONFIDENCE_LABEL: Record<string, string> = {
   high: "hohe Konfidenz",
@@ -25,6 +26,7 @@ const SOURCE_LABEL: Record<string, string> = {
   strava: "Strava",
   wahoo: "Wahoo",
   manual: "manuell",
+  guided: "Kraft-Player",
   trainer: "Radrolle",
 };
 
@@ -120,10 +122,14 @@ export function TrainingCalendar({
   /** Übungszeilen je Workout-ID (Kraft/Mobility), serverseitig vorbereitet. */
   exercisesByWorkout?: Record<string, WorkoutExerciseRow[]>;
 }) {
-  const [openDay, setOpenDay] = useState<CalendarDay | null>(null);
+  // Nur das Datum merken: nach einem Refresh (z. B. „erledigt“) zeigt das
+  // Modal so automatisch die aktualisierten Daten.
+  const [openDate, setOpenDate] = useState<string | null>(null);
+  const setOpenDay = (d: CalendarDay | null) => setOpenDate(d?.date ?? null);
 
   // Flatten all days and find today + next 3 workouts
   const allDays = grid.flat();
+  const openDay = openDate ? (allDays.find((d) => d.date === openDate) ?? null) : null;
   const today = allDays.find((d) => d.isToday);
   const nextWorkouts = allDays
     .filter((d) => !d.inPast)
@@ -439,7 +445,10 @@ function Chip({ item }: { item: CalendarItem }) {
       }`}
       style={isPlanned ? { borderColor: color, color } : { backgroundColor: color }}
     >
-      <span className="truncate">{SPORT_ABBR[item.sport] ?? item.sport}</span>
+      <span className="truncate">
+        {isPlanned && item.status === "completed" ? "✓ " : ""}
+        {SPORT_ABBR[item.sport] ?? item.sport}
+      </span>
       <span className="shrink-0">{item.durationMin}′</span>
     </div>
   );
@@ -505,12 +514,13 @@ function DayModal({
                 <ul className="space-y-2">
                   {planned.map((it, i) => (
                     <DetailRow
-                      key={i}
+                      key={it.id ?? i}
                       item={it}
                       ftp={ftp}
                       date={day.date}
                       weightKg={weightKg}
                       exercises={it.id ? exercisesByWorkout[it.id] : undefined}
+                      isFuture={!day.inPast && !day.isToday}
                     />
                   ))}
                 </ul>
@@ -588,12 +598,14 @@ function DetailRow({
   date,
   weightKg,
   exercises = [],
+  isFuture = false,
 }: {
   item: CalendarItem;
   ftp: number;
   date: string;
   weightKg: number | null;
   exercises?: WorkoutExerciseRow[];
+  isFuture?: boolean;
 }) {
   const color = sportColor(item.sport);
   // Kraft-Player auch für Mobility/Sonstige ohne Übungsbilder (Textschritte).
@@ -717,6 +729,10 @@ function DetailRow({
         </div>
       ) : null}
 
+      {item.kind === "planned" && item.id && !isFuture ? (
+        <CompletionControls item={item} workoutId={item.id} />
+      ) : null}
+
       {item.kind === "planned" && (exercises.length > 0 || canGuide) ? (
         <div className="mt-3">
           {exercises.length > 0 ? (
@@ -770,3 +786,139 @@ function DetailRow({
   );
 }
 
+
+/**
+ * „Als erledigt markieren“ für geplante Einheiten ohne Aufzeichnung (legt eine
+ * manuelle Ist-Aktivität an) bzw. Zurücksetzen einer erledigten Einheit.
+ */
+function CompletionControls({ item, workoutId }: { item: CalendarItem; workoutId: string }) {
+  const router = useRouter();
+  const [open, setOpen] = useState(false);
+  const [duration, setDuration] = useState(String(item.durationMin || ""));
+  const [rpe, setRpe] = useState(item.rpe ? String(item.rpe) : "");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const completed = item.status === "completed";
+  const completable =
+    item.status === "planned" || item.status === "synced" || item.status === "skipped";
+  if (!completed && !completable) return null;
+
+  async function send(method: "POST" | "DELETE", body?: object) {
+    setBusy(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/workouts/${encodeURIComponent(workoutId)}/complete`, {
+        method,
+        headers: body ? { "Content-Type": "application/json" } : undefined,
+        body: body ? JSON.stringify(body) : undefined,
+      });
+      const data = (await res.json().catch(() => ({}))) as { error?: string };
+      if (!res.ok) {
+        setError(data.error ?? "Speichern fehlgeschlagen.");
+        return;
+      }
+      setOpen(false);
+      router.refresh();
+    } catch {
+      setError("Speichern fehlgeschlagen.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  if (completed) {
+    return (
+      <div className="mt-3 flex items-center gap-2 text-xs">
+        <span className="font-medium text-emerald-700">✓ Erledigt</span>
+        <button
+          type="button"
+          disabled={busy}
+          onClick={() => void send("DELETE")}
+          className="rounded-lg px-2 py-1 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-800 disabled:opacity-50"
+        >
+          Rückgängig
+        </button>
+        {error ? <span className="text-red-600">{error}</span> : null}
+      </div>
+    );
+  }
+
+  if (!open) {
+    return (
+      <div className="mt-3">
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          className="rounded-lg border border-emerald-300 px-3 py-1.5 text-xs font-semibold text-emerald-700 hover:bg-emerald-50"
+        >
+          Als erledigt markieren
+        </button>
+      </div>
+    );
+  }
+
+  const durationNum = Number(duration.replace(",", "."));
+  const rpeNum = rpe ? Number(rpe) : null;
+  const valid =
+    Number.isFinite(durationNum) &&
+    durationNum > 0 &&
+    (rpeNum == null || (Number.isFinite(rpeNum) && rpeNum >= 1 && rpeNum <= 10));
+
+  return (
+    <form
+      className="mt-3 rounded-lg bg-emerald-50/60 p-2.5"
+      onSubmit={(e) => {
+        e.preventDefault();
+        if (!valid) return;
+        void send("POST", { mode: "manual", durationMin: durationNum, rpe: rpeNum });
+      }}
+    >
+      <p className="mb-2 text-xs text-neutral-600">
+        Wird als absolvierte Einheit eingetragen – nur nutzen, wenn keine Aufzeichnung
+        (Strava, Intervals) nachkommt.
+      </p>
+      <div className="flex flex-wrap items-end gap-2">
+        <label className="text-[11px] text-neutral-600">
+          Dauer (min)
+          <input
+            type="number"
+            inputMode="numeric"
+            min={1}
+            max={1440}
+            value={duration}
+            onChange={(e) => setDuration(e.target.value)}
+            className="mt-0.5 block w-20 rounded-md border border-neutral-300 px-2 py-1 text-sm text-neutral-900"
+          />
+        </label>
+        <label className="text-[11px] text-neutral-600">
+          RPE (1–10, optional)
+          <input
+            type="number"
+            inputMode="numeric"
+            min={1}
+            max={10}
+            value={rpe}
+            onChange={(e) => setRpe(e.target.value)}
+            className="mt-0.5 block w-20 rounded-md border border-neutral-300 px-2 py-1 text-sm text-neutral-900"
+          />
+        </label>
+        <button
+          type="submit"
+          disabled={!valid || busy}
+          className="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-500 disabled:opacity-50"
+        >
+          Speichern
+        </button>
+        <button
+          type="button"
+          onClick={() => setOpen(false)}
+          className="rounded-lg px-2 py-1.5 text-xs text-neutral-500 hover:bg-neutral-100"
+        >
+          Abbrechen
+        </button>
+      </div>
+      {error ? <p className="mt-1.5 text-xs text-red-600">{error}</p> : null}
+    </form>
+  );
+}

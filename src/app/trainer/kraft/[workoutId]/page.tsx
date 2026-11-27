@@ -64,7 +64,10 @@ export default async function StrengthPlayerPage({
       <h1 className="mt-1.5 mb-4 text-2xl font-semibold tracking-tight text-neutral-900">
         {workout.title}
       </h1>
-      <StrengthPlayer title={workout.title} date={formatIsoDate(workout.date)} steps={steps} />
+      <StrengthPlayer
+        workoutId={workout.id}
+        alreadyCompleted={workout.status === "completed"}
+        title={workout.title} date={formatIsoDate(workout.date)} steps={steps} />
     </main>
   );
 }

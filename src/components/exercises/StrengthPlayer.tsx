@@ -112,16 +112,22 @@ function useWakeLock(active: boolean): boolean {
 
 /**
  * Geführte Kraft-/Mobility-Einheit: Übung für Übung mit Animation,
- * Satz-Zähler, Halte- und Pausen-Countdown. Ergebnisse werden NICHT gespeichert.
+ * Satz-Zähler, Halte- und Pausen-Countdown. Am Ende wird die Einheit als
+ * erledigt gespeichert (Ist-Aktivität mit gemessener Dauer, erscheint im Kalender).
  */
 export function StrengthPlayer({
+  workoutId,
   title,
   date,
   steps,
+  alreadyCompleted = false,
 }: {
+  /** ID des PlannedWorkout – ohne ID wird nichts gespeichert. */
+  workoutId?: string;
   title: string;
   date: string;
   steps: StrengthPlayerStep[];
+  alreadyCompleted?: boolean;
 }) {
   const metas = useMemo(() => steps.map(toMeta), [steps]);
   const [state, dispatch] = useReducer(
@@ -134,6 +140,35 @@ export function StrengthPlayer({
   const signalRef = useRef(signalOn);
   signalRef.current = signalOn;
   const wakeLock = useWakeLock(!state.finished);
+  const startedAtRef = useRef<number>(Date.now());
+  const [save, setSave] = useState<"idle" | "saving" | "saved" | "error">(
+    alreadyCompleted ? "saved" : "idle",
+  );
+
+  async function saveCompletion() {
+    if (!workoutId) return;
+    setSave("saving");
+    const minutes = Math.max(1, Math.round((Date.now() - startedAtRef.current) / 60000));
+    try {
+      const res = await fetch(`/api/workouts/${encodeURIComponent(workoutId)}/complete`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mode: "guided", durationMin: minutes }),
+      });
+      setSave(res.ok ? "saved" : "error");
+    } catch {
+      setSave("error");
+    }
+  }
+
+  // Einheit beendet: einmalig als erledigt speichern.
+  const savedOnceRef = useRef(alreadyCompleted);
+  useEffect(() => {
+    if (!state.finished || savedOnceRef.current || !workoutId) return;
+    savedOnceRef.current = true;
+    void saveCompletion();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.finished, workoutId]);
 
   useEffect(() => {
     try {
@@ -260,9 +295,26 @@ export function StrengthPlayer({
       {state.finished ? (
         <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-6 text-center">
           <p className="text-lg font-semibold text-emerald-800">Einheit geschafft!</p>
-          <p className="mt-1 text-sm text-emerald-700">
-            Ergebnisse werden hier nicht gespeichert.
+          <p className="mt-1 text-sm text-emerald-700" aria-live="polite">
+            {!workoutId
+              ? "Ergebnisse werden hier nicht gespeichert."
+              : save === "saving"
+                ? "Wird im Kalender gespeichert …"
+                : save === "saved"
+                  ? "Im Kalender als absolviert eingetragen."
+                  : save === "error"
+                    ? "Speichern fehlgeschlagen."
+                    : null}
           </p>
+          {save === "error" ? (
+            <button
+              type="button"
+              onClick={() => void saveCompletion()}
+              className="mt-2 rounded-lg bg-emerald-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-emerald-500"
+            >
+              Erneut speichern
+            </button>
+          ) : null}
           <Link href="/trainer?tab=kraft" className="mt-3 inline-block text-sm font-medium text-blue-600 hover:underline">
             Zurück zur Übersicht
           </Link>
